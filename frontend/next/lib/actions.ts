@@ -1,9 +1,13 @@
 'use server';
 
 import { z } from 'zod';
+import bcrypt from 'bcryptjs';
 import { AuthError } from 'next-auth';
+import { PrismaClient } from '@prisma/client';
 
 import { signIn } from '@/auth';
+
+const prisma = new PrismaClient();
 
 type LoginState = {
   email?: string;
@@ -86,5 +90,20 @@ export async function signup(
     };
   }
 
-  return { name, email, password };
+  const user = await prisma.user.findUnique({ where: { email } });
+
+  if (user) {
+    return {
+      name,
+      email,
+      password,
+      message: 'Email already exist.'
+    };
+  }
+
+  await prisma.user.create({
+    data: { name, email, password: await bcrypt.hash(password, 10) }
+  });
+
+  return loginWithCredentials(email, password);
 }

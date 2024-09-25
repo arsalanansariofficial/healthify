@@ -2,6 +2,9 @@
 
 import Link from 'next/link';
 import { useActionState } from 'react';
+import { signIn } from 'next-auth/react';
+import { faGithub } from '@fortawesome/free-brands-svg-icons';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 import { signup } from '@/lib/actions';
 import { Input } from '@/components/ui/input';
@@ -12,8 +15,8 @@ export default function Page() {
   const [state, action] = useActionState(signup, undefined);
 
   return (
-    <main className="row-start-2 grid place-items-center">
-      <section className="p-4">
+    <main className="row-start-2 grid grid-rows-1 p-4">
+      <section className="place-self-center">
         <form
           action={action}
           className="min-w-sm space-y-4 rounded-md border border-dashed p-4"
@@ -66,10 +69,18 @@ export default function Page() {
             Signup
           </Button>
         </form>
-        <Button variant="link" className="mx-auto block p-0 text-center">
-          <Link href="/login">Already have an account? Login</Link>
-        </Button>
       </section>
+      <footer className="grid place-items-center gap-1">
+        <button onClick={() => signIn('github')} className="cursor-pointer">
+          <FontAwesomeIcon icon={faGithub} size="lg" />
+        </button>
+        <Link
+          href="/login"
+          className="font-semibold underline-offset-2 hover:underline"
+        >
+          Already have an account? Login
+        </Link>
+      </footer>
     </main>
   );
 }

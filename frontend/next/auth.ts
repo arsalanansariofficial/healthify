@@ -1,29 +1,24 @@
 import bcrypt from 'bcryptjs';
-import NextAuth from 'next-auth';
 import { PrismaClient } from '@prisma/client';
+import GitHub from 'next-auth/providers/github';
+import NextAuth, { NextAuthConfig } from 'next-auth';
+import { PrismaAdapter } from '@auth/prisma-adapter';
 import Credentials from 'next-auth/providers/credentials';
 
+declare module 'next-auth' {
+  interface User {
+    role?: 'ADMIN' | 'USER';
+  }
+}
+
 const prisma = new PrismaClient();
-const publicRoutes = ['/', '/login', '/signup'];
 
-export const { auth, handlers, signIn, signOut } = NextAuth({
-  callbacks: {
-    authorized({ auth, request }) {
-      const isLoggedin = auth?.user;
-      const isPublicRoute = publicRoutes.includes(request.nextUrl.pathname);
-
-      if (isPublicRoute && isLoggedin) {
-        return Response.redirect(new URL('/dashboard', request.nextUrl));
-      }
-
-      if (!isPublicRoute && !isLoggedin) {
-        return Response.redirect(new URL('/login', request.nextUrl));
-      }
-
-      return true;
-    }
-  },
+export const authConfig = {
   providers: [
+    GitHub({
+      clientId: process.env.GITHUB_CLIENT_ID,
+      clientSecret: process.env.GITHUB_CLIENT_SECRET
+    }),
     Credentials({
       async authorize(credentials) {
         const { email, password } = credentials as {
@@ -39,4 +34,33 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
       }
     })
   ]
+} satisfies NextAuthConfig;
+
+export const { auth, handlers, signIn, signOut } = NextAuth({
+  ...authConfig,
+  session: { strategy: 'jwt' },
+  adapter: PrismaAdapter(prisma),
+  events: {
+    async linkAccount({ user }) {
+      await prisma.user.update({
+        where: { id: user.id },
+        data: { emailVerified: new Date() }
+      });
+    }
+  },
+  callbacks: {
+    async session({ session, token }) {
+      session.user.id = token.id as string;
+      session.user.role = token.role as 'ADMIN' | 'USER';
+      return session;
+    },
+    async jwt({ token, user }) {
+      if (user) {
+        token.id = user.id;
+        token.role = user.role;
+      }
+
+      return token;
+    }
+  }
 });

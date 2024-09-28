@@ -50,6 +50,15 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
     }
   },
   callbacks: {
+    async signIn({ user, account }) {
+      if (account?.provider !== 'credentials') return true;
+
+      const existingUser = await prisma.user.findUnique({
+        where: { id: user.id }
+      });
+
+      return !existingUser?.emailVerified ? false : true;
+    },
     async session({ session, token }) {
       session.user.id = token.id as string;
       session.user.role = token.role as 'ADMIN' | 'USER';

@@ -2,6 +2,7 @@
 
 import { z } from 'zod';
 import bcrypt from 'bcryptjs';
+import nodemailer from 'nodemailer';
 import { AuthError } from 'next-auth';
 import { PrismaClient } from '@prisma/client';
 
@@ -35,8 +36,65 @@ const signupSchema = z.object({
   name: z.string().min(3, { message: 'Should be atleast 3 characters.' })
 });
 
+async function generateToken(email: string) {
+  const token = await prisma.token.findUnique({ where: { email } });
+  if (token) await prisma.token.delete({ where: { email } });
+  return await prisma.token.create({
+    data: { email, expires: new Date(Date.now() + 60 * 60 * 1000) }
+  });
+}
+
+async function sendEmail(to: string, subject: string, html: string) {
+  try {
+    const transporter = nodemailer.createTransport({
+      port: 465,
+      secure: true,
+      host: 'smtp.gmail.com',
+      auth: {
+        user: process.env.MAILER_EMAIL,
+        pass: process.env.MAILER_PASSWORD
+      }
+    });
+
+    return await transporter.sendMail({
+      to,
+      html,
+      subject,
+      from: process.env.MAILER_EMAIL
+    });
+  } catch {
+    return null;
+  }
+}
+
 async function loginWithCredentials(email: string, password: string) {
   try {
+    const user = await prisma.user.findUnique({ where: { email } });
+
+    if (user && !user.emailVerified) {
+      const token = await generateToken(email);
+
+      const subject = 'Verify Your Email';
+      const link = `http://localhost:3000/verify?token=${token.id}`;
+      const html = `<p>Click <a href="${link}">here</a> to verify.</p>`;
+
+      const emailSent = await sendEmail(email, subject, html);
+
+      if (token && emailSent) {
+        return {
+          email,
+          password,
+          message: 'Confirmation email sent.'
+        };
+      }
+
+      return {
+        email,
+        password,
+        message: 'Something went wrong.'
+      };
+    }
+
     await signIn('credentials', { email, password, redirectTo: '/dashboard' });
   } catch (error) {
     if (error instanceof AuthError) {

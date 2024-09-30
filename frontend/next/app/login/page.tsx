@@ -15,7 +15,7 @@ import { Button } from '@/components/ui/button';
 export default function Page() {
   let oAuthError;
   const searchParams = useSearchParams();
-  const [state, action] = useActionState(login, undefined);
+  const [state, action, pending] = useActionState(login, undefined);
 
   if (searchParams.get('error') === 'OAuthAccountNotLinked') {
     oAuthError = 'Email already registered with another provider.';
@@ -62,8 +62,12 @@ export default function Page() {
           {oAuthError && (
             <p className="text-destructive text-xs">{oAuthError}</p>
           )}
-          <Button type="submit" className="w-full cursor-pointer">
-            Login
+          <Button
+            type="submit"
+            disabled={pending}
+            className="w-full cursor-pointer"
+          >
+            {!pending ? 'Login' : 'Logging In...'}
           </Button>
         </form>
       </section>

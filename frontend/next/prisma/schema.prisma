@@ -30,6 +30,7 @@ model User {
   updatedAt     DateTime  @updatedAt
   role          Role      @default(USER)
   createdAt     DateTime  @default(now())
+  hasOAuth      Boolean   @default(false)
 
   token    Token?
   accounts Account[]

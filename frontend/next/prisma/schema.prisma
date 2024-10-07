@@ -3,43 +3,60 @@ generator client {
 }
 
 datasource db {
-  provider = "sqlite"
+  provider = "mongodb"
   url      = env("DATABASE_URL")
 }
 
-enum Role {
-  USER
-  ADMIN
-}
-
 model Token {
-  id      String   @id @default(uuid())
+  id      String   @id @default(auto()) @map("_id") @db.ObjectId
   expires DateTime
   email   String   @unique
 
   user User @relation(fields: [email], references: [email])
 }
 
+model Permission {
+  id   String @id @default(auto()) @map("_id") @db.ObjectId
+  name String @unique
+
+  roleIDs String[] @db.ObjectId
+
+  roles Role[] @relation(fields: [roleIDs], references: [id])
+}
+
+model Role {
+  id   String @id @default(auto()) @map("_id") @db.ObjectId
+  name String @unique
+
+  userIDs       String[] @db.ObjectId
+  permissionIDs String[] @db.ObjectId
+
+  users       User[]       @relation(fields: [userIDs], references: [id])
+  permissions Permission[] @relation(fields: [permissionIDs], references: [id])
+}
+
 model User {
-  id            String    @id @default(uuid())
+  id            String    @id @default(auto()) @map("_id") @db.ObjectId
   name          String?
   image         String?
   password      String?
   emailVerified DateTime?
   email         String?   @unique
   updatedAt     DateTime  @updatedAt
-  role          Role      @default(USER)
   createdAt     DateTime  @default(now())
   hasOAuth      Boolean   @default(false)
 
+  roleIDs    String[] @db.ObjectId
+  accountIDs String[] @db.ObjectId
+
   token    Token?
   accounts Account[]
+  roles    Role[]    @relation(fields: [roleIDs], references: [id])
 }
 
 model Account {
-  id                String   @id @default(uuid())
+  id                String   @id @default(auto()) @map("_id") @db.ObjectId
   expires_at        Int?
-  userId            String
   type              String
   provider          String
   providerAccountId String
@@ -50,6 +67,7 @@ model Account {
   id_token          String?
   session_state     String?
   updatedAt         DateTime @updatedAt
+  userId            String   @db.ObjectId
   createdAt         DateTime @default(now())
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)

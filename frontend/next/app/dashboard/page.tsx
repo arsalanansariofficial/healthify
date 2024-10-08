@@ -1,4 +1,5 @@
-import { PrismaClient, User } from '@prisma/client';
+import { redirect } from 'next/navigation';
+import { PrismaClient } from '@prisma/client';
 
 import { auth } from '@/auth';
 import Component from '@/app/dashboard/component';
@@ -8,8 +9,10 @@ const prisma = new PrismaClient();
 export default async function Page() {
   const session = await auth();
   const user = await prisma.user.findUnique({
-    where: { id: session?.user?.id }
+    where: { id: session?.user?.id },
+    include: { roles: { include: { permissions: true } } }
   });
 
-  return <Component user={user as User} />;
+  if (!user) redirect('/login');
+  return <Component user={user} />;
 }

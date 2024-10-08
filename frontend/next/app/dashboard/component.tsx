@@ -1,9 +1,9 @@
 'use client';
 
 import { signOut } from 'next-auth/react';
-import { Role, User } from '@prisma/client';
 import { useActionState, useState } from 'react';
 
+import { User } from '@/lib/types';
 import * as CN from '@/components/ui/select';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -11,7 +11,6 @@ import { Button } from '@/components/ui/button';
 import { updateUser, UserState } from '@/lib/actions';
 
 export default function Component({ user }: { user: User }) {
-  const [role, setRole] = useState(user.role);
   const [isSigningOut, setIsSigningOut] = useState(false);
 
   const [state, action, pending] = useActionState(
@@ -71,17 +70,16 @@ export default function Component({ user }: { user: User }) {
           )}
           <div className="space-y-2">
             <Label htmlFor="role">Role</Label>
-            <CN.Select
-              name="role"
-              value={role}
-              onValueChange={role => setRole(role as Role)}
-            >
+            <CN.Select name="role">
               <CN.SelectTrigger className="w-full">
                 <CN.SelectValue placeholder="Select a role" />
               </CN.SelectTrigger>
               <CN.SelectContent>
-                <CN.SelectItem value="USER">USER</CN.SelectItem>
-                <CN.SelectItem value="ADMIN">ADMIN</CN.SelectItem>
+                {user.roles.map(role => (
+                  <CN.SelectItem key={role.id} value={role.id}>
+                    {role.name}
+                  </CN.SelectItem>
+                ))}
               </CN.SelectContent>
             </CN.Select>
             {state?.errors?.role && (

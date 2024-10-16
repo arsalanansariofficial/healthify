@@ -1,5 +1,7 @@
 import NextAuth from 'next-auth';
-import { authConfig } from '@/auth';
+import { cookies } from 'next/headers';
+
+import { auth, authConfig } from '@/auth';
 
 const publicRoutes = [
   '/',
@@ -15,8 +17,18 @@ export const config = {
 };
 
 export default NextAuth(authConfig).auth(async request => {
+  const session = await auth();
   const isLoggedin = request.auth?.user;
   const isPublicRoute = publicRoutes.includes(request.nextUrl.pathname);
+
+  const user = session?.user;
+  const isEpired = user?.expiresAt && user.expiresAt - Date.now() <= 0;
+
+  if (user && isEpired) {
+    const sessionCookies = await cookies();
+    sessionCookies.delete('authjs.session-token');
+    return Response.redirect(new URL('/login', request.nextUrl));
+  }
 
   if (!isPublicRoute && !isLoggedin) {
     return Response.redirect(new URL('/login', request.nextUrl));

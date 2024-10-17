@@ -2,6 +2,9 @@ import type { Metadata } from 'next';
 
 import '@/app/globals.css';
 
+import { auth } from '@/auth';
+import Session from '@/app/session';
+
 type Props = Readonly<{ children: React.ReactNode }>;
 
 export const metadata: Metadata = {
@@ -9,11 +12,13 @@ export const metadata: Metadata = {
   description: 'Created by Arsalan Ansari'
 };
 
-export default function RootLayout({ children }: Props) {
+export default async function RootLayout({ children }: Props) {
+  const session = await auth();
+
   return (
     <html lang="en">
       <body className="grid min-h-screen grid-rows-[auto_1fr_auto] antialiased">
-        {children}
+        <Session expiresAt={session?.user?.expiresAt}>{children}</Session>
       </body>
     </html>
   );

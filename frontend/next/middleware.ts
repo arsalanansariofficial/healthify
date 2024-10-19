@@ -5,6 +5,7 @@ import { auth, authConfig } from '@/auth';
 
 const publicRoutes = [
   '/',
+  '/seed',
   '/login',
   '/signup',
   '/verify',

@@ -91,14 +91,16 @@ async function loginWithCredentials(email: string, password: string) {
         return {
           email,
           password,
-          message: 'Confirmation email sent.'
+          success: true,
+          message: '🎉 Confirmation email sent.'
         };
       }
 
       return {
         email,
         password,
-        message: 'Something went wrong.'
+        success: false,
+        message: '⚠️ Something went wrong!'
       };
     }
 
@@ -107,10 +109,20 @@ async function loginWithCredentials(email: string, password: string) {
     if (error instanceof AuthError) {
       switch (error.type) {
         case 'CredentialsSignin':
-          return { email, password, message: 'Invalid email or password.' };
+          return {
+            email,
+            password,
+            success: false,
+            message: '⚠️ Invalid email or password!'
+          };
 
         default:
-          return { email, password, message: 'Something went wrong.' };
+          return {
+            email,
+            password,
+            success: false,
+            message: '⚠️ Something went wrong!'
+          };
       }
     }
 

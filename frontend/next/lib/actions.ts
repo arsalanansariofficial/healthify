@@ -173,9 +173,9 @@ export async function addRole(
 
   try {
     await prisma.role.create({ data: { name: result.data.role as string } });
-    return { role };
+    return { role, success: true, message: '🎉 Role added successfully!' };
   } catch {
-    return { role, message: 'Something went wrong!' };
+    return { role, success: false, message: '⚠️ Something went wrong!' };
   }
 }
 

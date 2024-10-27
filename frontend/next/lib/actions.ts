@@ -155,8 +155,13 @@ export async function assignPermissions(formData: {
         permissions: { set: formData.permissions.map(({ id }) => ({ id })) }
       }
     });
+
+    return {
+      success: true,
+      message: '🎉 All permissions are assigned successfully'
+    };
   } catch {
-    return { message: 'Something went wrong!' };
+    return { success: false, message: '⚠️ Something went wrong!' };
   }
 }
 

@@ -8,14 +8,17 @@ type Props = { searchParams: Promise<{ role: string }> };
 
 export default async function Page({ searchParams }: Props) {
   const { role } = await searchParams;
+  const defaultRole = await prisma.role.findFirst();
 
   const existingRole = await prisma.role.findUnique({
-    where: { name: role ? role : 'USER' }
+    where: { name: role ? role : defaultRole?.name || 'USER' }
   });
 
   const assigned = await prisma.role.findUnique({
     select: { permissions: true },
-    where: { name: existingRole ? existingRole.name : 'USER' }
+    where: {
+      name: existingRole ? existingRole.name : defaultRole?.name || 'USER'
+    }
   });
 
   return (

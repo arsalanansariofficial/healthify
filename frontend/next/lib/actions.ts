@@ -369,15 +369,13 @@ export async function updateUser(
   formData: FormData
 ): Promise<FormState | undefined> {
   const name = formData.get('name') as string;
-  const role = formData.get('role') as string;
   const email = formData.get('email') as string;
   const password = formData.get('password') as string;
-  const result = formSchema.safeParse({ name, role, email, password });
+  const result = formSchema.safeParse({ name, email, password });
 
   if (!result.success) {
     return {
       name,
-      role,
       email,
       password,
       errors: result.error.flatten().fieldErrors
@@ -390,10 +388,10 @@ export async function updateUser(
   if (email !== user?.email && existingUser) {
     return {
       name,
-      role,
       email,
       password,
-      message: 'Email already registered!'
+      success: false,
+      message: '⚠️ Email already registered!'
     };
   }
 
@@ -406,5 +404,11 @@ export async function updateUser(
     }
   });
 
-  return { name, role, email, password };
+  return {
+    name,
+    email,
+    password,
+    success: true,
+    message: '🎉 Profile updated successfully.'
+  };
 }

@@ -20,10 +20,10 @@ export default async function RootLayout({ children }: Props) {
 
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className="grid min-h-screen grid-rows-[auto_1fr_auto] antialiased">
+      <body className="grid grid-rows-[auto_1fr_auto] antialiased min-h-screen">
         <ThemeProvider enableSystem attribute="class" defaultTheme="system">
           <Session expiresAt={session?.user?.expiresAt}>
-            <Header />
+            {session?.user && <Header />}
             {children}
             <Toaster />
           </Session>

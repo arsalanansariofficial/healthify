@@ -4,12 +4,14 @@ import Link from 'next/link';
 import { useState } from 'react';
 import { useTheme } from 'next-themes';
 import { Moon, Sun } from 'lucide-react';
+import { signOut } from 'next-auth/react';
 import { faGithub } from '@fortawesome/free-brands-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 import { cn } from '@/lib/utils';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
+import * as DM from '@/components/ui/dropdown-menu';
 
 export default function Header() {
   const { theme, setTheme } = useTheme();
@@ -69,7 +71,28 @@ export default function Header() {
             placeholder="Search..."
             className="placeholder:text-muted-foreground hidden placeholder:font-semibold md:block"
           />
-          <FontAwesomeIcon size="lg" icon={faGithub} className="h-5 w-5" />
+          <DM.DropdownMenu>
+            <DM.DropdownMenuTrigger asChild>
+              <button>
+                <FontAwesomeIcon
+                  size="lg"
+                  icon={faGithub}
+                  className="h-5 w-5"
+                />
+              </button>
+            </DM.DropdownMenuTrigger>
+            <DM.DropdownMenuContent>
+              <DM.DropdownMenuLabel>My Account</DM.DropdownMenuLabel>
+              <DM.DropdownMenuGroup>
+                <DM.DropdownMenuItem>Profile</DM.DropdownMenuItem>
+                <DM.DropdownMenuItem>Settings</DM.DropdownMenuItem>
+              </DM.DropdownMenuGroup>
+              <DM.DropdownMenuSeparator />
+              <DM.DropdownMenuItem onClick={() => signOut()}>
+                Signout
+              </DM.DropdownMenuItem>
+            </DM.DropdownMenuContent>
+          </DM.DropdownMenu>
           <Button
             size="icon"
             variant="ghost"

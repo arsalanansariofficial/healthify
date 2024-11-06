@@ -3,10 +3,13 @@
 import z from 'zod';
 import Link from 'next/link';
 import { toast } from 'sonner';
+import { useRouter } from 'next/navigation';
+import { useActionState, useState } from 'react';
 import { User as PrismaUser } from '@prisma/client';
 import { Bar, BarChart, CartesianGrid, XAxis } from 'recharts';
 
 import { User } from '@/lib/types';
+import * as actions from '@/lib/actions';
 import * as CN from '@/components/ui/card';
 import * as RT from '@tanstack/react-table';
 import * as CNC from '@/components/ui/chart';
@@ -23,7 +26,6 @@ import * as DT from '@/components/ui/data-table';
 import * as Select from '@/components/ui/select';
 import * as DM from '@/components/ui/dropdown-menu';
 import { Checkbox } from '@/components/ui/checkbox';
-import { deleteUser, deleteUsers, verifyEmail } from '@/lib/actions';
 
 type TCVProps<T extends z.ZodType> = {
   item: z.infer<T>;
@@ -83,7 +85,7 @@ function Menu({ id, ids, isHeader = false }: MenuProps) {
           variant="destructive"
           onClick={async () => {
             if (!isHeader) {
-              toast.promise(deleteUser(id as string), {
+              toast.promise(actions.deleteUser(id as string), {
                 position: 'top-center',
                 loading: 'Deleting user',
                 success: '🎉 User deleted successfully.',
@@ -96,7 +98,7 @@ function Menu({ id, ids, isHeader = false }: MenuProps) {
             }
 
             if (isHeader) {
-              toast.promise(deleteUsers(ids as string[]), {
+              toast.promise(actions.deleteUsers(ids as string[]), {
                 position: 'top-center',
                 loading: 'Deleting users',
                 success: '🎉 Users deleted successfully.',
@@ -117,14 +119,74 @@ function Menu({ id, ids, isHeader = false }: MenuProps) {
 }
 
 export function TableCellViewer<T extends z.ZodType>(props: TCVProps<T>) {
-  const { item } = props;
+  const router = useRouter();
   const isMobile = useIsMobile();
+  const [emailVerified, setEmailVerified] = useState<string>(
+    props.item.emailVerified ? 'yes' : 'no'
+  );
+
+  const [state, action, pending] = useActionState(
+    async function (prevState: unknown, formData: FormData) {
+      formData.set('verified', emailVerified);
+      const result = await actions.updateUser(
+        props.item.id,
+        prevState,
+        formData
+      );
+
+      if (result?.success) {
+        toast(result.message, {
+          position: 'top-center',
+          onAutoClose: router.refresh,
+          description: (
+            <span className="text-foreground">
+              {new Date().toLocaleString('en-US', {
+                hour12: true,
+                month: 'long',
+                day: '2-digit',
+                weekday: 'long',
+                year: 'numeric',
+                hour: 'numeric',
+                minute: '2-digit'
+              })}
+            </span>
+          )
+        });
+      }
+
+      if (!result?.success && result?.message) {
+        toast(<h2 className="text-destructive">{result?.message}</h2>, {
+          position: 'top-center',
+          description: (
+            <p className="text-destructive">
+              {new Date().toLocaleString('en-US', {
+                hour12: true,
+                month: 'long',
+                day: '2-digit',
+                weekday: 'long',
+                year: 'numeric',
+                hour: 'numeric',
+                minute: '2-digit'
+              })}
+            </p>
+          )
+        });
+      }
+
+      return result;
+    },
+    {
+      name: props.item.name,
+      email: props.item.email,
+      emailVerfied: props.item.emailVerified
+    } as actions.FormState
+  );
 
   return (
     <Drawer.Drawer direction={isMobile ? 'bottom' : 'right'}>
       <Drawer.DrawerTrigger asChild onClick={e => e.currentTarget.blur()}>
         <Button variant="link" className="text-foreground px-0">
-          {item.name}
+          {state?.name}
         </Button>
       </Drawer.DrawerTrigger>
       <Drawer.DrawerContent>
@@ -153,12 +215,14 @@ export function TableCellViewer<T extends z.ZodType>(props: TCVProps<T>) {
               </BarChart>
             </Chart.ChartContainer>
           )}
-          <form className="flex flex-col gap-4">
+          <form id="user-form" className="flex flex-col gap-4 py-4">
             <div className="flex flex-col gap-3">
               <Label htmlFor="name">Name</Label>
               <Input
                 id="name"
-                defaultValue={item.name}
+                name="name"
+                type="text"
+                defaultValue={state?.name}
                 placeholder="Gwen Tennyson"
               />
             </div>
@@ -166,29 +230,49 @@ export function TableCellViewer<T extends z.ZodType>(props: TCVProps<T>) {
               <Label htmlFor="email">Email</Label>
               <Input
                 id="email"
-                defaultValue={item.email}
+                name="email"
+                type="email"
+                defaultValue={state?.email}
                 placeholder="your.name@domain.com"
               />
             </div>
             <div className="flex flex-col gap-3">
-              <Label htmlFor="has-email-verified">Status</Label>
-              <Select.Select defaultValue={item.emailVerified ? 'Yes' : 'No'}>
-                <Select.SelectTrigger
-                  className="w-full"
-                  id="has-email-verified"
-                >
+              <Label htmlFor="password">Password</Label>
+              <Input
+                id="password"
+                name="password"
+                type="password"
+                placeholder="Secret@123"
+                defaultValue={state?.password}
+              />
+            </div>
+            <div className="flex flex-col gap-3">
+              <Label htmlFor="verified">Email Verified</Label>
+              <Select.Select
+                onValueChange={setEmailVerified}
+                defaultValue={emailVerified}
+              >
+                <Select.SelectTrigger id="verified" className="w-full">
                   <Select.SelectValue placeholder="Select a status" />
                 </Select.SelectTrigger>
                 <Select.SelectContent>
-                  <Select.SelectItem value="No">No</Select.SelectItem>
-                  <Select.SelectItem value="Yes">Yes</Select.SelectItem>
+                  <Select.SelectItem value="no">No</Select.SelectItem>
+                  <Select.SelectItem value="yes">Yes</Select.SelectItem>
                 </Select.SelectContent>
               </Select.Select>
             </div>
           </form>
         </div>
         <Drawer.DrawerFooter>
-          <Button>Submit</Button>
+          <Button
+            type="submit"
+            form="user-form"
+            disabled={pending}
+            formAction={action}
+            className="cursor-pointer"
+          >
+            {pending ? 'Saving...' : 'Save'}
+          </Button>
           <Drawer.DrawerClose asChild>
             <Button variant="outline">Done</Button>
           </Drawer.DrawerClose>
@@ -237,9 +321,10 @@ export default function Component(props: Props) {
       accessorKey: 'name',
       cell: ({ row }) => (
         <TableCellViewer
-          item={row.original}
+          key={Date.now()}
           chartData={props.chartData}
           chartConfig={props.chartConfig}
+          item={props.users.find(u => u.email === row.original.email)}
         />
       )
     },
@@ -261,11 +346,11 @@ export default function Component(props: Props) {
           className="mx-auto block"
           checked={getEmailChecked(row.original.email)}
           onCheckedChange={async () =>
-            toast.promise(verifyEmail(row.original.email), {
+            toast.promise(actions.verifyEmail(row.original.email), {
               error: 'Error',
               success: 'Done',
               position: 'top-center',
-              loading: 'Updating Email'
+              loading: 'Verifying Email'
             })
           }
         />

@@ -2,9 +2,9 @@ import Link from 'next/link';
 
 import * as CN from '@/components/ui/card';
 
-type Props = Readonly<{ children: React.ReactNode }>;
+type Props = Readonly<{ modal: React.ReactNode; children: React.ReactNode }>;
 
-export default function Layout({ children }: Props) {
+export default function Layout({ modal, children }: Props) {
   return (
     <main className="row-start-2 mx-8 grid grid-cols-[auto_1fr] gap-4">
       <aside className="sticky top-[7.35em] hidden max-h-[calc(100vh-10em)] min-w-[10em] lg:block">
@@ -114,7 +114,10 @@ export default function Layout({ children }: Props) {
           </CN.CardContent>
         </CN.Card>
       </aside>
-      <div className="col-span-2 space-y-4 lg:col-start-2">{children}</div>
+      <div className="col-span-2 space-y-4 lg:col-start-2">
+        {modal}
+        {children}
+      </div>
     </main>
   );
 }

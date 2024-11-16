@@ -30,12 +30,10 @@ async function Verify({ token }: { token: string }) {
   const { error, email, success } = await verifyToken(token);
 
   return (
-    <main className="row-start-2 grid place-items-center p-4">
-      <section className="grid place-items-center gap-4 place-self-center">
-        {error && <ErrorCard message={error} />}
-        {success && <Component email={email} />}
-      </section>
-    </main>
+    <section className="col-span-2 grid place-items-center place-self-center">
+      {error && <ErrorCard message={error} />}
+      {success && <Component email={email} />}
+    </section>
   );
 }
 
@@ -44,24 +42,20 @@ export default async function Page({ searchParams }: Props) {
 
   if (!token) {
     return (
-      <main className="row-start-2 grid place-items-center p-4">
-        <section className="grid place-items-center gap-2">
-          <ErrorCard message="Missing verification token" />
-        </section>
-      </main>
+      <section className="col-span-2 grid place-items-center place-self-center">
+        <ErrorCard message="Missing verification token" />
+      </section>
     );
   }
 
   return (
     <Suspense
       fallback={
-        <main className="row-start-2 grid place-items-center p-4">
-          <section className="grid place-items-center gap-2">
-            <p className="text-destructive animate-pulse font-semibold">
-              Verifying...
-            </p>
-          </section>
-        </main>
+        <section className="col-span-2 grid place-items-center place-self-center">
+          <p className="text-destructive animate-pulse font-semibold">
+            Verifying...
+          </p>
+        </section>
       }
     >
       <Verify token={token} />

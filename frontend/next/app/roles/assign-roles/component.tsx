@@ -43,63 +43,61 @@ export default function Component({ user, roles }: Props) {
   }
 
   return (
-    <main className="row-start-2 grid place-items-center">
-      <section className="grid place-items-center p-4">
-        <form
-          action={action}
-          className="min-w-sm space-y-4 rounded-md border border-dashed p-4 shadow"
+    <section className="col-span-2 grid place-items-center place-self-center p-4 lg:col-start-2">
+      <form
+        action={action}
+        className="min-w-sm space-y-4 rounded-md border border-dashed p-4 shadow"
+      >
+        <div className="space-y-2">
+          <Label htmlFor="name">Name</Label>
+          <Input
+            disabled
+            id="name"
+            name="name"
+            type="text"
+            value={user.name as string}
+          />
+        </div>
+        <div className="space-y-2">
+          <Label htmlFor="email">Email</Label>
+          <Input
+            disabled
+            id="email"
+            name="email"
+            type="email"
+            value={user.email as string}
+          />
+        </div>
+        <div className="space-y-2">
+          <Label id="roles">Roles</Label>
+          <ul id="roles" className="space-y-2">
+            {roles.map(role => {
+              return (
+                <li
+                  key={role.id}
+                  onClick={() => toggleAssignment(role)}
+                  className={cn(
+                    getSelected(role),
+                    'cursor-pointer rounded-md border p-2 text-center text-sm font-medium lowercase shadow-xs'
+                  )}
+                >
+                  {role.name}
+                </li>
+              );
+            })}
+          </ul>
+        </div>
+        {state?.message && (
+          <p className="text-destructive text-xs">{state.message}</p>
+        )}
+        <Button
+          type="submit"
+          disabled={pending}
+          className="w-full cursor-pointer"
         >
-          <div className="space-y-2">
-            <Label htmlFor="name">Name</Label>
-            <Input
-              disabled
-              id="name"
-              name="name"
-              type="text"
-              value={user.name as string}
-            />
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="email">Email</Label>
-            <Input
-              disabled
-              id="email"
-              name="email"
-              type="email"
-              value={user.email as string}
-            />
-          </div>
-          <div className="space-y-2">
-            <Label id="roles">Roles</Label>
-            <ul id="roles" className="space-y-2">
-              {roles.map(role => {
-                return (
-                  <li
-                    key={role.id}
-                    onClick={() => toggleAssignment(role)}
-                    className={cn(
-                      getSelected(role),
-                      'cursor-pointer rounded-md border p-2 text-center text-sm font-medium lowercase shadow-xs'
-                    )}
-                  >
-                    {role.name}
-                  </li>
-                );
-              })}
-            </ul>
-          </div>
-          {state?.message && (
-            <p className="text-destructive text-xs">{state.message}</p>
-          )}
-          <Button
-            type="submit"
-            disabled={pending}
-            className="w-full cursor-pointer"
-          >
-            {pending ? 'Adding role...' : 'Add Role'}
-          </Button>
-        </form>
-      </section>
-    </main>
+          {pending ? 'Adding role...' : 'Add Role'}
+        </Button>
+      </form>
+    </section>
   );
 }

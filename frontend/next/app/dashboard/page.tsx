@@ -12,12 +12,12 @@ const chartConfig = {
 } satisfies ChartConfig;
 
 const chartsData = [
-  { month: 'January', users: 186 },
-  { month: 'February', users: 305 },
-  { month: 'March', users: 237 },
-  { month: 'April', users: 73 },
+  { month: 'Jan', users: 186 },
+  { month: 'Feb', users: 305 },
+  { month: 'Mar', users: 237 },
+  { month: 'Apr', users: 173 },
   { month: 'May', users: 209 },
-  { month: 'June', users: 214 }
+  { month: 'Jun', users: 214 }
 ];
 
 const cardsData = [
@@ -47,7 +47,7 @@ const cardsData = [
     action: '+4.5%',
     description: 'Growth Rate',
     subtitle: 'Steady performance increase',
-    summary: 'Meets growth projections'
+    summary: 'Meets growth projections as expected'
   }
 ];
 

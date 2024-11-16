@@ -1,7 +1,6 @@
 'use client';
 
 import z from 'zod';
-import Link from 'next/link';
 import { toast } from 'sonner';
 import { useRouter } from 'next/navigation';
 import { useActionState, useState } from 'react';
@@ -26,7 +25,6 @@ import * as DT from '@/components/ui/data-table';
 import * as Select from '@/components/ui/select';
 import * as DM from '@/components/ui/dropdown-menu';
 import { Checkbox } from '@/components/ui/checkbox';
-import { ScrollArea } from '@/components/ui/scroll-area';
 
 type TCVProps<T extends z.ZodType> = {
   item: z.infer<T>;
@@ -389,394 +387,69 @@ export default function Component(props: Props) {
   ];
 
   return (
-    <main className="row-start-2 mx-8 grid grid-cols-[auto_1fr] gap-4">
-      <aside className="sticky top-[7.35em] hidden max-h-[calc(100vh-10em)] min-w-[10em] lg:block">
-        <CN.Card className="h-full">
-          <ScrollArea className="h-full">
-            <CN.CardContent className="space-y-4">
-              <div className="space-y-2">
-                <span className="text-muted-foreground block text-xs font-semibold">
-                  Employee Services
-                </span>
-                <ul>
-                  <li>
-                    <Link href="/employee" className="font-semibold">
-                      Employee
-                    </Link>
-                  </li>
-                  <li>
-                    <Link href="/leave" className="font-semibold">
-                      Leave
-                    </Link>
-                  </li>
-                  <li>
-                    <Link
-                      className="font-semibold"
-                      href="/career-advancement-scheme"
-                    >
-                      Career Advancement Scheme
-                    </Link>
-                  </li>
-                  <li>
-                    <Link href="/training-of-trainer" className="font-semibold">
-                      Training Of Trainer
-                    </Link>
-                  </li>
-                </ul>
-              </div>
-              <div className="space-y-2">
-                <span className="text-muted-foreground block text-xs font-semibold">
-                  Finance
-                </span>
-                <ul>
-                  <li>
-                    <Link href="/bill-tracking" className="font-semibold">
-                      Bill Tracking
-                    </Link>
-                  </li>
-                  <li>
-                    <Link href="/fee" className="font-semibold">
-                      Fee
-                    </Link>
-                  </li>
-                  <li>
-                    <Link
-                      className="font-semibold"
-                      href="/financial-supply-chain-management"
-                    >
-                      Financial Supply Chain Management
-                    </Link>
-                  </li>
-                  <li>
-                    <Link href="/investment" className="font-semibold">
-                      Investment
-                    </Link>
-                  </li>
-                  <li>
-                    <Link href="/payroll" className="font-semibold">
-                      Payroll
-                    </Link>
-                  </li>
-                  <li>
-                    <Link
-                      className="font-semibold"
-                      href="/pension-and-gratutity-management"
-                    >
-                      Pension And Gratuity Management
-                    </Link>
-                  </li>
-                  <li>
-                    <Link
-                      className="font-semibold"
-                      href="/provident-fund-management"
-                    >
-                      Provident Fund Management
-                    </Link>
-                  </li>
-                  <li>
-                    <Link
-                      className="font-semibold"
-                      href="/research-project-management"
-                    >
-                      Research Project Management
-                    </Link>
-                  </li>
-                </ul>
-              </div>
-              <div className="space-y-2">
-                <span className="text-muted-foreground block text-xs font-semibold">
-                  Governance
-                </span>
-                <ul>
-                  <li>
-                    <Link href="/affliation" className="font-semibold">
-                      Affiliation
-                    </Link>
-                  </li>
-                  <li>
-                    <Link href="/endowment" className="font-semibold">
-                      Endowment
-                    </Link>
-                  </li>
-                  <li>
-                    <Link
-                      className="font-semibold"
-                      href="/file-management-and-tracking"
-                    >
-                      File Management And Tracking
-                    </Link>
-                  </li>
-                  <li>
-                    <Link href="/inventory" className="font-semibold">
-                      Inventory
-                    </Link>
-                  </li>
-                  <li>
-                    <Link href="/it-service-desk" className="font-semibold">
-                      IT Service Desk
-                    </Link>
-                  </li>
-                  <li>
-                    <Link href="/legal-case" className="font-semibold">
-                      Legal Case
-                    </Link>
-                  </li>
-                  <li>
-                    <Link className="font-semibold" href="/rti">
-                      RTI
-                    </Link>
-                  </li>
-                </ul>
-              </div>
-              <div className="space-y-2">
-                <span className="text-muted-foreground block text-xs font-semibold">
-                  Academic
-                </span>
-                <ul>
-                  <li>
-                    <Link href="/alumni" className="font-semibold">
-                      Alumni
-                    </Link>
-                  </li>
-                  <li>
-                    <Link href="/convocation" className="font-semibold">
-                      Convocation
-                    </Link>
-                  </li>
-                  <li>
-                    <Link href="/feedback" className="font-semibold">
-                      Feedback
-                    </Link>
-                  </li>
-                  <li>
-                    <Link href="/hostel" className="font-semibold">
-                      Hostel
-                    </Link>
-                  </li>
-                  <li>
-                    <Link href="/program" className="font-semibold">
-                      Program
-                    </Link>
-                  </li>
-                  <li>
-                    <Link href="/research-management" className="font-semibold">
-                      Research Management
-                    </Link>
-                  </li>
-                  <li>
-                    <Link
-                      className="font-semibold"
-                      href="/service-request-manager"
-                    >
-                      Service Request Manager
-                    </Link>
-                  </li>
-                  <li>
-                    <Link
-                      className="font-semibold"
-                      href="/training-and-placement"
-                    >
-                      Training And Placement
-                    </Link>
-                  </li>
-                </ul>
-              </div>
-              <div className="space-y-2">
-                <span className="text-muted-foreground block text-xs font-semibold">
-                  Recruitment
-                </span>
-                <ul>
-                  <li>
-                    <Link
-                      href="/non-teaching-recruitment"
-                      className="font-semibold"
-                    >
-                      Non Teaching Recruitment
-                    </Link>
-                  </li>
-                  <li>
-                    <Link
-                      href="/teaching-recruitment"
-                      className="font-semibold"
-                    >
-                      Teaching Recruitment
-                    </Link>
-                  </li>
-                </ul>
-              </div>
-              <div className="space-y-2">
-                <span className="text-muted-foreground block text-xs font-semibold">
-                  Campus Services
-                </span>
-                <ul>
-                  <li>
-                    <Link
-                      href="/core-communication-services"
-                      className="font-semibold"
-                    >
-                      Core Communication Services
-                    </Link>
-                  </li>
-                  <li>
-                    <Link href="/essential-services" className="font-semibold">
-                      Essential Services
-                    </Link>
-                  </li>
-                  <li>
-                    <Link href="/fleet" className="font-semibold">
-                      Fleet
-                    </Link>
-                  </li>
-                  <li>
-                    <Link href="/grievance" className="font-semibold">
-                      Grievance
-                    </Link>
-                  </li>
-                  <li>
-                    <Link href="/health-facilities" className="font-semibold">
-                      Health Facilities
-                    </Link>
-                  </li>
-                  <li>
-                    <Link
-                      href="/residence-allocation"
-                      className="font-semibold"
-                    >
-                      Residence Allocation
-                    </Link>
-                  </li>
-                  <li>
-                    <Link href="/security" className="font-semibold">
-                      Security
-                    </Link>
-                  </li>
-                  <li>
-                    <Link href="/sports" className="font-semibold">
-                      Sports
-                    </Link>
-                  </li>
-                </ul>
-              </div>
-              <div className="space-y-2">
-                <span className="text-muted-foreground block text-xs font-semibold">
-                  Data Management
-                </span>
-                <ul>
-                  <li>
-                    <Link
-                      className="font-semibold"
-                      href="/content-federation-system"
-                    >
-                      Content Federation System
-                    </Link>
-                  </li>
-                  <li>
-                    <Link
-                      href="/minutes-archives-and-retrieval"
-                      className="font-semibold"
-                    >
-                      Minutes Archives And Retrieval
-                    </Link>
-                  </li>
-                  <li>
-                    <Link
-                      href="/university-web-portal"
-                      className="font-semibold"
-                    >
-                      University Web Portal
-                    </Link>
-                  </li>
-                </ul>
-              </div>
-              <div className="space-y-2">
-                <span className="text-muted-foreground block text-xs font-semibold">
-                  Administration
-                </span>
-                <ul>
-                  <li>
-                    <Link href="/core-modules" className="font-semibold">
-                      Core Modules
-                    </Link>
-                  </li>
-                  <li>
-                    <Link href="/user-management" className="font-semibold">
-                      User Management
-                    </Link>
-                  </li>
-                </ul>
-              </div>
-            </CN.CardContent>
-          </ScrollArea>
-        </CN.Card>
-      </aside>
-      <div className="col-span-2 space-y-4 lg:col-start-2">
-        <section className="@container/main space-y-4">
-          <header>
-            <CN.Card>
-              <CN.CardContent>
-                <h1 className="font-semibold">Dashboard</h1>
-              </CN.CardContent>
-            </CN.Card>
-          </header>
-          <main className="grid grid-cols-1 gap-4 *:data-[slot=card]:bg-gradient-to-t *:data-[slot=card]:shadow-xs @xl/main:grid-cols-2 @5xl/main:grid-cols-4">
-            {props.cardsData.map((card, index) => (
-              <CN.Card key={index} className="@container/card">
-                <CN.CardHeader>
-                  <CN.CardDescription>{card.description}</CN.CardDescription>
-                  <CN.CardTitle className="text-2xl font-semibold tabular-nums @[250px]/card:text-3xl">
-                    {card.title}
-                  </CN.CardTitle>
-                  <CN.CardAction>{card.action}</CN.CardAction>
-                </CN.CardHeader>
-                <CN.CardFooter className="flex-col items-start gap-1.5 text-sm">
-                  <div className="line-clamp-1 flex gap-2 font-medium">
-                    {card.subtitle}
-                  </div>
-                  <div className="text-muted-foreground">{card.summary}</div>
-                </CN.CardFooter>
-              </CN.Card>
-            ))}
-          </main>
-        </section>
-        <section>
+    <div className="col-span-2 space-y-4 lg:col-start-2">
+      <section className="@container/main space-y-4">
+        <header>
           <CN.Card>
-            <CN.CardHeader>
-              <CN.CardDescription>Total Visitors</CN.CardDescription>
-              <CN.CardTitle className="text-2xl font-semibold tabular-nums @[250px]/card:text-3xl">
-                Total visitors for the last 3 months
-              </CN.CardTitle>
-            </CN.CardHeader>
             <CN.CardContent>
-              <CNC.ChartContainer
-                config={props.chartConfig}
-                className="max-h-80 w-full"
-              >
-                <BarChart accessibilityLayer data={props.chartData}>
-                  <CartesianGrid vertical={false} />
-                  <XAxis
-                    dataKey="month"
-                    tickMargin={10}
-                    tickLine={false}
-                    axisLine={false}
-                  />
-                  <CNC.ChartTooltip content={<CNC.ChartTooltipContent />} />
-                  <CNC.ChartLegend
-                    content={<CNC.ChartLegendContent payload={[]} />}
-                  />
-                  <Bar
-                    radius={4}
-                    dataKey="users"
-                    fill="var(--color-blue-500)"
-                  />
-                </BarChart>
-              </CNC.ChartContainer>
+              <h1 className="font-semibold">Dashboard</h1>
             </CN.CardContent>
           </CN.Card>
-        </section>
-        <section>
-          <DT.DataTable data={props.users} columns={columns} />
-        </section>
-      </div>
-    </main>
+        </header>
+        <main className="grid grid-cols-1 gap-4 *:data-[slot=card]:bg-gradient-to-t *:data-[slot=card]:shadow-xs @xl/main:grid-cols-2 @5xl/main:grid-cols-4">
+          {props.cardsData.map((card, index) => (
+            <CN.Card key={index} className="@container/card">
+              <CN.CardHeader>
+                <CN.CardDescription>{card.description}</CN.CardDescription>
+                <CN.CardTitle className="text-2xl font-semibold tabular-nums @[250px]/card:text-3xl">
+                  {card.title}
+                </CN.CardTitle>
+                <CN.CardAction>{card.action}</CN.CardAction>
+              </CN.CardHeader>
+              <CN.CardFooter className="flex-col items-start gap-1.5 text-sm">
+                <div className="line-clamp-1 flex gap-2 font-medium">
+                  {card.subtitle}
+                </div>
+                <div className="text-muted-foreground">{card.summary}</div>
+              </CN.CardFooter>
+            </CN.Card>
+          ))}
+        </main>
+      </section>
+      <section>
+        <CN.Card>
+          <CN.CardHeader>
+            <CN.CardDescription>Total Visitors</CN.CardDescription>
+            <CN.CardTitle className="text-2xl font-semibold tabular-nums @[250px]/card:text-3xl">
+              Total visitors for the last 3 months
+            </CN.CardTitle>
+          </CN.CardHeader>
+          <CN.CardContent>
+            <CNC.ChartContainer
+              config={props.chartConfig}
+              className="max-h-80 w-full"
+            >
+              <BarChart accessibilityLayer data={props.chartData}>
+                <CartesianGrid vertical={false} />
+                <XAxis
+                  dataKey="month"
+                  tickMargin={10}
+                  tickLine={false}
+                  axisLine={false}
+                />
+                <CNC.ChartTooltip content={<CNC.ChartTooltipContent />} />
+                <CNC.ChartLegend
+                  content={<CNC.ChartLegendContent payload={[]} />}
+                />
+                <Bar radius={4} dataKey="users" fill="var(--color-blue-500)" />
+              </BarChart>
+            </CNC.ChartContainer>
+          </CN.CardContent>
+        </CN.Card>
+      </section>
+      <section>
+        <DT.DataTable data={props.users} columns={columns} />
+      </section>
+    </div>
   );
 }

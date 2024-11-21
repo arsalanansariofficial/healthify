@@ -5,7 +5,7 @@ import bcrypt from 'bcryptjs';
 import nodemailer from 'nodemailer';
 import { AuthError } from 'next-auth';
 import { revalidatePath } from 'next/cache';
-import { Permission, PrismaClient, Role } from '@prisma/client';
+import { Day, Permission, PrismaClient, Role, TimeSlot } from '@prisma/client';
 
 import { signIn } from '@/auth';
 
@@ -14,29 +14,46 @@ const prisma = new PrismaClient();
 export type FormState = {
   name?: string;
   role?: string;
+  city?: string;
   email?: string;
+  phone?: string;
+  gender?: string;
   message?: string;
   success?: boolean;
   password?: string;
   permission?: string;
+  experience?: number;
   emailVerified?: string;
+  daysOfVisit?: string[];
+  specialities?: { id: string; name: string }[];
+  timings?: { time: `${number}:${number}:${number}`; duration: number }[];
   errors?: {
+    city?: string[];
     name?: string[];
     role?: string[];
+    phone?: string[];
     email?: string[];
+    gender?: string[];
+    timings?: string[];
     password?: string[];
+    experience?: string[];
     permission?: string[];
+    daysOfVisit?: string[];
+    specialities?: string[];
     emailVerified?: string[];
   };
 };
 
 const formSchema = z.object({
+  email: z.optional(z.string().email({ message: 'Email should be valid.' })),
   emailVerified: z.optional(
     z.enum(['yes', 'no']).transform(val => val === 'yes')
   ),
-  email: z.optional(z.string().email({ message: 'Email should be valid.' })),
   password: z.optional(
     z.string().min(1, { message: 'Password should be valid.' })
+  ),
+  experience: z.optional(
+    z.number().min(1, { message: 'Experience should be valid.' })
   ),
   name: z.optional(
     z.string().min(3, { message: 'Should be atleast 3 characters.' })
@@ -44,8 +61,47 @@ const formSchema = z.object({
   role: z.optional(
     z.string().toUpperCase().min(1, { message: 'Role should be valid.' })
   ),
+  gender: z.optional(
+    z.enum(['MALE', 'FEMALE'], { message: 'Gender should be valid.' })
+  ),
+  city: z.optional(
+    z.string().toUpperCase().min(1, { message: 'City should be valid.' })
+  ),
   permission: z.optional(
     z.string().toUpperCase().min(1, { message: 'Permission should be valid.' })
+  ),
+  daysOfVisit: z.optional(
+    z.array(
+      z.string().toUpperCase().min(1, { message: 'Day should be valid.' })
+    )
+  ),
+  phone: z.optional(
+    z
+      .string()
+      .regex(/^\+?\d{10,15}$/, { message: 'Invalid phone number format.' })
+  ),
+  specialities: z.optional(
+    z.array(
+      z.object({
+        id: z.string().min(1, { message: 'Id should be valid.' }),
+        name: z
+          .string()
+          .toUpperCase()
+          .min(1, { message: 'Name should be valid.' })
+      })
+    )
+  ),
+  timings: z.optional(
+    z.array(
+      z.object({
+        duration: z.number().positive({
+          message: 'Duration must be a positive number'
+        }),
+        time: z.string().regex(/^([01]\d|2[0-3]):([0-5]\d):([0-5]\d)$/, {
+          message: 'Invalid time format. Expected HH:MM:SS (24-hour format)'
+        })
+      })
+    )
   )
 });
 
@@ -154,6 +210,16 @@ export async function deleteUsers(ids: string[]) {
   revalidatePath('/');
 }
 
+export async function deleteSpeciality(id: string) {
+  await prisma.speciality.delete({ where: { id } });
+  revalidatePath('/');
+}
+
+export async function deleteSpecialities(ids: string[]) {
+  await prisma.speciality.deleteMany({ where: { id: { in: ids } } });
+  revalidatePath('/');
+}
+
 export async function assignRoles(formData: {
   id: string;
   roles: Role[];
@@ -209,6 +275,55 @@ export async function assignPermissions(formData: {
     };
   } catch {
     return { success: false, message: '⚠️ Something went wrong!' };
+  }
+}
+
+export async function updateSpeciality(
+  id: string,
+  _: unknown,
+  formData: FormData
+): Promise<FormState | undefined> {
+  const name = formData.get('name') as string;
+  const result = formSchema.safeParse({ name });
+
+  if (!result.success) {
+    return { name, errors: result.error.flatten().fieldErrors };
+  }
+
+  await prisma.speciality.update({ where: { id }, data: { name } });
+
+  return {
+    name,
+    success: true,
+    emailVerified: 'yes',
+    message: '🎉 Speciality updated successfully.'
+  };
+}
+
+export async function addSpeciality(
+  _: unknown,
+  formData: FormData
+): Promise<FormState | undefined> {
+  const name = formData.get('name') as string;
+  const result = formSchema.safeParse({ name });
+
+  if (!result.success) {
+    return { name, errors: result.error.flatten().fieldErrors };
+  }
+
+  try {
+    await prisma.speciality.create({
+      data: { name: result.data.name as string }
+    });
+
+    revalidatePath('/');
+    return {
+      name,
+      success: true,
+      message: '🎉 Speciality added successfully!'
+    };
+  } catch {
+    return { name, success: false, message: '⚠️ Something went wrong!' };
   }
 }
 
@@ -374,42 +489,6 @@ export async function forgetPassword(
   return { email, success: false, message: '⚠️ Failed to generate token!' };
 }
 
-export async function signup(
-  _: unknown,
-  formData: FormData
-): Promise<FormState | undefined> {
-  const name = formData.get('name') as string;
-  const email = formData.get('email') as string;
-  const password = formData.get('password') as string;
-  const result = formSchema.safeParse({ name, email, password });
-
-  if (!result.success) {
-    return {
-      name,
-      email,
-      password,
-      errors: result.error.flatten().fieldErrors
-    };
-  }
-
-  const user = await prisma.user.findUnique({ where: { email } });
-
-  if (user) {
-    return {
-      name,
-      email,
-      password,
-      message: '⚠️ Email already exist!'
-    };
-  }
-
-  await prisma.user.create({
-    data: { name, email, password: await bcrypt.hash(password, 10) }
-  });
-
-  return loginWithCredentials(email, password, name);
-}
-
 export async function updateUser(
   id: string,
   _: unknown,
@@ -468,4 +547,95 @@ export async function updateUser(
     emailVerified: 'yes',
     message: '🎉 Profile updated successfully.'
   };
+}
+
+export async function signup(
+  _: unknown,
+  formData: FormData
+): Promise<FormState | undefined> {
+  const name = formData.get('name') as string;
+  const city = formData.get('city') as string;
+  const email = formData.get('email') as string;
+
+  const phone = formData.get('phone') as string;
+  const gender = formData.get('gender') as string;
+  const password = formData.get('password') as string;
+
+  const experience = Number(formData.get('experience') as string);
+
+  const timings = JSON.parse(
+    formData.get('timings') as string
+  ) as FormState['timings'];
+
+  const specialities = JSON.parse(
+    formData.get('specialities') as string
+  ) as FormState['specialities'];
+
+  const daysOfVisit = JSON.parse(
+    formData.get('days-of-visit') as string
+  ) as FormState['daysOfVisit'];
+
+  const result = formSchema.safeParse({
+    name,
+    city,
+    email,
+    phone,
+    gender,
+    timings,
+    password,
+    experience,
+    specialities,
+    daysOfVisit
+  });
+
+  if (!result.success) {
+    return {
+      name,
+      city,
+      email,
+      phone,
+      gender,
+      timings,
+      password,
+      experience,
+      daysOfVisit,
+      specialities,
+      errors: result.error.flatten().fieldErrors
+    };
+  }
+
+  const user = await prisma.user.findUnique({ where: { email } });
+
+  if (user) {
+    return {
+      name,
+      city,
+      email,
+      phone,
+      gender,
+      timings,
+      password,
+      experience,
+      daysOfVisit,
+      specialities,
+      message: '⚠️ Email already exist!'
+    };
+  }
+
+  await prisma.user.create({
+    data: {
+      name,
+      email,
+      city,
+      phone,
+      gender,
+      experience,
+      daysOfVisit: daysOfVisit as Day[],
+      password: await bcrypt.hash(password, 10),
+      timings: { create: timings as TimeSlot[] },
+      specialityIDs: specialities?.map(s => s.id)
+    }
+  });
+
+  return loginWithCredentials(email, password, name);
 }

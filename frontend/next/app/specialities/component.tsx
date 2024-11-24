@@ -11,6 +11,7 @@ import * as Icons from '@tabler/icons-react';
 
 import { getDate } from '@/lib/utils';
 import * as actions from '@/lib/actions';
+import * as CN from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
@@ -230,20 +231,22 @@ export default function Component(props: Props) {
   return (
     <div className="col-span-2 space-y-4 lg:col-start-2">
       <section className="space-y-4">
-        <header>
-          <DT.DataTable
-            columns={columns}
-            data={props.specialities}
-            filterConfig={[{ id: 'name', placeholder: 'Name' }]}
-          />
-        </header>
-        <footer className="text-center">
-          <Button variant="link">
-            <Link href="/specialities/add">
-              Want to create a new speciality?
-            </Link>
-          </Button>
-        </footer>
+        <CN.Card className="grid min-h-[calc(100vh-10.5em)] grid-rows-[1fr_auto] gap-4">
+          <CN.CardHeader>
+            <DT.DataTable
+              columns={columns}
+              data={props.specialities}
+              filterConfig={[{ id: 'name', placeholder: 'Name' }]}
+            />
+          </CN.CardHeader>
+          <CN.CardFooter>
+            <Button variant="link" className="mx-auto">
+              <Link href="/specialities/add">
+                Want to create a new speciality?
+              </Link>
+            </Button>
+          </CN.CardFooter>
+        </CN.Card>
       </section>
     </div>
   );

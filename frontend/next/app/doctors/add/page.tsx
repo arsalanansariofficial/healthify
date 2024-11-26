@@ -1,16 +1,16 @@
 'use client';
 
 import Image from 'next/image';
-import { useState } from 'react';
+import { toast } from 'sonner';
+import { useActionState, useState } from 'react';
 import { FileIcon, PlusIcon, TrashIcon } from 'lucide-react';
 
-import { cn } from '@/lib/utils';
+import { cn, getDate } from '@/lib/utils';
 import * as CN from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
 import * as Select from '@/components/ui/select';
-import CmdSelect from '@/components/ui/cmd-select';
 import MultiSelect from '@/components/ui/multi-select';
 
 const specialities = [
@@ -30,9 +30,42 @@ const days = [
 
 export function DoctorForm() {
   const [image, setImage] = useState<File>();
-  const [speciality, setSpeciality] = useState(String());
   const [imageSrc, setImageSrc] = useState<string | null>(null);
   const [selectedDays, setSelectedDays] = useState<string[]>([]);
+  const [selectedSpecialities, setSelectedSpecialities] = useState<string[]>(
+    []
+  );
+
+  const [timings, setTimings] = useState([
+    {
+      duration: 1,
+      time: '10:00:00',
+      id: Math.floor(10000 + Math.random() * 90000)
+    }
+  ]);
+
+  const [state, action, pending] = useActionState(async function (
+    prevState: unknown,
+    formData: FormData
+  ) {
+    const result = await login(prevState, formData);
+
+    if (result?.success) {
+      toast(result.message, {
+        position: 'top-center',
+        description: <span className="text-foreground">{getDate()}</span>
+      });
+    }
+
+    if (!result?.success && result?.message) {
+      toast(<h2 className="text-destructive">{result?.message}</h2>, {
+        position: 'top-center',
+        description: <p className="text-destructive">{getDate()}</p>
+      });
+    }
+
+    return result;
+  }, undefined);
 
   function arrayBufferToBase64(buffer: ArrayBuffer): string {
     const bytes = new Uint8Array(buffer);
@@ -54,28 +87,25 @@ export function DoctorForm() {
     setImageSrc(dataUrl);
   }
 
-  console.log(image);
-
-  const [timings, setTimings] = useState([
-    {
-      duration: 1,
-      time: '10:00:00',
-      id: Math.floor(10000 + Math.random() * 90000)
-    }
-  ]);
-
   return (
     <form className="grid gap-4 py-2">
-      <div className="relative grid min-h-40 gap-3 overflow-clip rounded-md border-2 border-dashed">
+      <div className="relative grid min-h-80 gap-3 overflow-clip rounded-md border-2 border-dashed">
         <Label
           htmlFor="image"
           className={cn('absolute inset-0 z-10 grid place-items-center', {
             'opacity-0': image
           })}
         >
-          <FileIcon className="block" />
+          <FileIcon />
         </Label>
-        {imageSrc && <Image fill alt="Profile Picture" src={imageSrc} />}
+        {imageSrc && (
+          <Image
+            fill
+            src={imageSrc}
+            alt="Profile Picture"
+            className="aspect-video object-cover"
+          />
+        )}
         <Input
           id="image"
           type="file"
@@ -89,12 +119,29 @@ export function DoctorForm() {
         <Input id="name" name="name" type="text" placeholder="Gwen Tennyson" />
       </div>
       <div className="grid gap-3">
-        <Label>Speciality</Label>
-        <CmdSelect
+        <Label htmlFor="email">Email</Label>
+        <Input
+          id="email"
+          name="email"
+          type="email"
+          placeholder="your.name@domain.com"
+        />
+      </div>
+      <div className="grid gap-3">
+        <Label htmlFor="phone">Phone</Label>
+        <Input id="phone" name="phone" type="tel" placeholder="9876543210" />
+      </div>
+      <div className="grid gap-3">
+        <Label htmlFor="city">City</Label>
+        <Input id="city" name="city" type="text" placeholder="Moradabad" />
+      </div>
+      <div className="grid gap-3">
+        <Label>Specialities</Label>
+        <MultiSelect
           options={specialities}
-          selected={speciality}
-          setSelected={setSpeciality}
-          placeholder="Select a speciality"
+          placeholder="Select specialities ..."
+          selectedValues={selectedSpecialities}
+          setSelectedValues={setSelectedSpecialities}
         />
       </div>
       <div className="grid gap-3">

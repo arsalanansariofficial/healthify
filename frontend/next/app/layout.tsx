@@ -5,6 +5,7 @@ import Session from '@/app/session';
 import Header from '@/components/header';
 import Sidebar from '@/components/sidebar';
 import { Toaster } from '@/components/ui/sonner';
+import { SessionProvider } from 'next-auth/react';
 import { ThemeProvider } from '@/components/theme-provider';
 
 import '@/app/globals.css';
@@ -23,14 +24,16 @@ export default async function RootLayout({ children }: Props) {
     <html lang="en" suppressHydrationWarning>
       <body className="grid min-h-screen grid-rows-[auto_1fr_auto] gap-4 antialiased">
         <ThemeProvider enableSystem attribute="class" defaultTheme="system">
-          <Session expiresAt={session?.user?.expiresAt}>
-            {session?.user && <Header />}
-            <main className="row-start-2 mx-8 grid grid-cols-[auto_1fr] gap-4">
-              {session?.user && <Sidebar />}
-              {children}
-            </main>
-            <Toaster />
-          </Session>
+          <SessionProvider>
+            <Session expiresAt={session?.user?.expiresAt}>
+              {session?.user && <Header />}
+              <main className="row-start-2 mx-8 grid grid-cols-[auto_1fr] gap-4">
+                {session?.user && <Sidebar />}
+                {children}
+              </main>
+              <Toaster />
+            </Session>
+          </SessionProvider>
         </ThemeProvider>
       </body>
     </html>

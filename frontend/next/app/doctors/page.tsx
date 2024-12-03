@@ -34,24 +34,24 @@ export default function Page() {
             <CN.CardHeader>
               <form action="" className="grid grid-cols-8 gap-2">
                 <div>
-                  <Label htmlFor="name" className="sr-only">
+                  <Label htmlFor="doctor-name" className="sr-only">
                     Name
                   </Label>
                   <Input
-                    id="name"
                     type="text"
                     name="name"
+                    id="doctor-name"
                     className="w-full"
                     placeholder="Search doctor..."
                   />
                 </div>
                 <div>
-                  <Label htmlFor="speciality" className="sr-only">
+                  <Label htmlFor="doctor-speciality" className="sr-only">
                     Speciality
                   </Label>
                   <Select.Select onValueChange={setSpeciality}>
                     <Select.SelectTrigger
-                      id="speciality"
+                      id="doctor-speciality"
                       className="w-full [&_span[data-slot]]:block [&_span[data-slot]]:truncate"
                     >
                       <Select.SelectValue placeholder="Select a speciality" />
@@ -67,12 +67,12 @@ export default function Page() {
                   </Select.Select>
                 </div>
                 <div>
-                  <Label htmlFor="experience" className="sr-only">
+                  <Label htmlFor="doctor-experience" className="sr-only">
                     Experience
                   </Label>
                   <Select.Select onValueChange={setExperience}>
                     <Select.SelectTrigger
-                      id="experience"
+                      id="doctor-experience"
                       className="w-full [&_span[data-slot]]:block [&_span[data-slot]]:truncate"
                     >
                       <Select.SelectValue placeholder="Select experience in years" />
@@ -90,12 +90,12 @@ export default function Page() {
                   </Select.Select>
                 </div>
                 <div>
-                  <Label htmlFor="gender" className="sr-only">
+                  <Label htmlFor="doctor-gender" className="sr-only">
                     Gender
                   </Label>
                   <Select.Select onValueChange={setGender}>
                     <Select.SelectTrigger
-                      id="gender"
+                      id="doctor-gender"
                       className="w-full [&_span[data-slot]]:block [&_span[data-slot]]:truncate"
                     >
                       <Select.SelectValue placeholder="Select a gender" />
@@ -109,12 +109,12 @@ export default function Page() {
                   </Select.Select>
                 </div>
                 <div>
-                  <Label htmlFor="time" className="sr-only">
+                  <Label htmlFor="doctor-time" className="sr-only">
                     Time
                   </Label>
                   <Select.Select onValueChange={setTime}>
                     <Select.SelectTrigger
-                      id="time"
+                      id="doctor-time"
                       className="w-full [&_span[data-slot]]:block [&_span[data-slot]]:truncate"
                     >
                       <Select.SelectValue placeholder="Select a time" />
@@ -154,7 +154,7 @@ export default function Page() {
                       fill
                       priority
                       alt="Doctor Name"
-                      src="/doctors/user.png"
+                      src="/users/user.png"
                       sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                     />
                   </div>

@@ -122,7 +122,7 @@ export function TableCellViewer<T extends z.ZodType>(props: TCVProps<T>) {
     <Drawer.Drawer direction={isMobile ? 'bottom' : 'right'}>
       <Drawer.DrawerTrigger asChild onClick={e => e.currentTarget.blur()}>
         <Button variant="link" className="text-foreground px-0">
-          {state?.name}
+          {props.item.id}
         </Button>
       </Drawer.DrawerTrigger>
       <Drawer.DrawerContent>

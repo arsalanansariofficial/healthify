@@ -1,30 +1,22 @@
 'use server';
 
 import { z } from 'zod';
-import bcrypt from 'bcryptjs';
 import path from 'path';
 import fs from 'fs/promises';
+import bcrypt from 'bcryptjs';
+import { randomUUID } from 'crypto';
 import nodemailer from 'nodemailer';
+import * as P from '@prisma/client';
+import { auth, signIn } from '@/auth';
 import { AuthError } from 'next-auth';
 import { revalidatePath } from 'next/cache';
-import {
-  Day,
-  Permission,
-  Prisma,
-  PrismaClient,
-  Role,
-  TimeSlot
-} from '@prisma/client';
-
-import { signIn } from '@/auth';
-import { randomUUID } from 'crypto';
 
 const dir = path.join(process.cwd(), '/public/users');
 
-const prisma = new PrismaClient().$extends({
+const prisma = new P.PrismaClient().$extends({
   model: {
     user: {
-      async deleteManyWithCleanup(args: Prisma.UserDeleteManyArgs) {
+      async deleteManyWithCleanup(args: P.Prisma.UserDeleteManyArgs) {
         const users = await prisma.user.findMany({
           where: args.where,
           select: { id: true, image: true }
@@ -39,7 +31,7 @@ const prisma = new PrismaClient().$extends({
 
         return users;
       },
-      async deleteWithCleanup(args: Prisma.UserDeleteArgs) {
+      async deleteWithCleanup(args: P.Prisma.UserDeleteArgs) {
         const user = await prisma.user.findUnique({
           where: args.where,
           select: { id: true, image: true }
@@ -237,6 +229,20 @@ async function loginWithCredentials(response: FormState) {
   }
 }
 
+export async function getSessionUser() {
+  let user;
+  const session = await auth();
+
+  if (session?.user?.id) {
+    user = await prisma.user.findUnique({
+      where: { id: session.user.id },
+      include: { roles: { include: { permissions: true } } }
+    });
+  }
+
+  return { user, session };
+}
+
 export async function deleteUser(id: string) {
   const user = await prisma.user.deleteWithCleanup({ where: { id } });
   await fs.unlink(path.join(dir, `${user?.image}`));
@@ -265,7 +271,7 @@ export async function deleteSpecialities(ids: string[]) {
 
 export async function assignRoles(formData: {
   id: string;
-  roles: Role[];
+  roles: P.Role[];
 }): Promise<FormState | undefined> {
   try {
     await prisma.user.update({
@@ -302,7 +308,7 @@ export async function verifyEmail(
 
 export async function assignPermissions(formData: {
   role: string;
-  permissions: Permission[];
+  permissions: P.Permission[];
 }): Promise<FormState | undefined> {
   try {
     await prisma.role.update({
@@ -312,6 +318,7 @@ export async function assignPermissions(formData: {
       }
     });
 
+    revalidatePath('/');
     return {
       success: true,
       message: '🎉 All permissions are assigned successfully'
@@ -335,6 +342,7 @@ export async function updateSpeciality(
 
   await prisma.speciality.update({ where: { id }, data: { name } });
 
+  revalidatePath('/');
   return {
     name,
     success: true,
@@ -668,13 +676,13 @@ export async function signup(
         experience,
         image: `${imageUUID}.${fileExtension}`,
         password: await bcrypt.hash(password, 10),
-        daysOfVisit: daysOfVisit?.map(d => d.toUpperCase() as Day),
+        daysOfVisit: daysOfVisit?.map(d => d.toUpperCase() as P.Day),
         specialities: { connect: specialities?.map(s => ({ name: s })) },
         timings: {
           create: timings?.map(t => ({
             time: t.time,
             duration: t.duration
-          })) as TimeSlot[]
+          })) as P.TimeSlot[]
         }
       }
     });

@@ -9,5 +9,5 @@ export default function useAuth() {
     sessionRef.current?.update();
   }, []);
 
-  return session;
+  return session.data?.user;
 }

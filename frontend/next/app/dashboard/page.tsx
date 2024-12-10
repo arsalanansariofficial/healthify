@@ -70,6 +70,10 @@ export default async function Page() {
       chartData={chartsData}
       chartConfig={chartConfig}
       users={users.filter(user => user.email !== session?.user?.email)}
+      specialities={(await prisma.speciality.findMany()).map(s => ({
+        value: s.id,
+        label: s.name
+      }))}
     />
   );
 }

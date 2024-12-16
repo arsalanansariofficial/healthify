@@ -49,7 +49,7 @@ export const authConfig = {
   ]
 } satisfies NextAuthConfig;
 
-export const { auth, handlers, signIn, signOut } = NextAuth({
+export const { auth, handlers, signIn, signOut, unstable_update } = NextAuth({
   ...authConfig,
   session: { strategy: 'jwt' },
   adapter: PrismaAdapter(prisma),
@@ -78,11 +78,18 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
       session.user.expiresAt = token.expiresAt as number | undefined;
       return session;
     },
-    async jwt({ token, user }) {
+    async jwt({ token, user, session, trigger }) {
       if (user) {
         token.id = user.id;
         token.roles = user.roles;
         token.expiresAt = user.expiresAt;
+      }
+
+      if (trigger === 'update' && session.user) {
+        console.log(trigger, session.user.roles);
+        token.id = session.user.id;
+        token.roles = session.user.roles;
+        token.expiresAt = session.user.expiresAt;
       }
 
       return token;

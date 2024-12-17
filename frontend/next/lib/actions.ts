@@ -7,7 +7,7 @@ import bcrypt from 'bcryptjs';
 import { randomUUID } from 'crypto';
 import nodemailer from 'nodemailer';
 import * as P from '@prisma/client';
-import { auth, signIn } from '@/auth';
+import { auth, signIn, unstable_update } from '@/auth';
 import { AuthError } from 'next-auth';
 import { revalidatePath } from 'next/cache';
 
@@ -318,7 +318,14 @@ export async function assignPermissions(formData: {
       }
     });
 
+    const session = await auth();
+    const user = await prisma.user.findUnique({
+      where: { id: session?.user?.id },
+      include: { roles: { include: { permissions: true } } }
+    });
+
     revalidatePath('/');
+    await unstable_update({ user: { ...user, roles: user?.roles } });
     return {
       success: true,
       message: '🎉 All permissions are assigned successfully'

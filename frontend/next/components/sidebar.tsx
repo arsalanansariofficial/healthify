@@ -1,8 +1,8 @@
 'use client';
 
 import Link from 'next/link';
-import { User } from '@/lib/types';
 
+import { User } from 'next-auth';
 import * as CN from '@/components/ui/card';
 import { hasPermission } from '@/lib/utils';
 import { ScrollArea } from '@/components/ui/scroll-area';

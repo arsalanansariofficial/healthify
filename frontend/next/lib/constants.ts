@@ -1,5 +1,6 @@
 export const LOGIN = '/login';
 export const DASHBOARD = '/dashboard';
+export const AUTH_ERROR = '/auth-error';
 export const SESSION = 'authjs.session-token';
 
 export const publicRoutes = [

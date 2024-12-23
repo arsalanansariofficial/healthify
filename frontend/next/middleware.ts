@@ -3,32 +3,7 @@ import { cookies } from 'next/headers';
 
 import { auth, authConfig } from '@/auth';
 import { hasPermission } from '@/lib/utils';
-
-const publicRoutes = [
-  '/',
-  '/seed',
-  '/login',
-  '/error',
-  '/signup',
-  '/verify',
-  '/forget',
-  '/not-found',
-  '/auth-error',
-  '/create-password'
-];
-
-const urls = [
-  { value: '/roles', permission: 'view:roles' },
-  { value: '/users', permission: 'view:users' },
-  { value: '/doctors', permission: 'view:doctors' },
-  { value: '/roles/roles', permission: 'view:roles' },
-  { value: '/doctors/add', permission: 'add:doctor' },
-  { value: '/dashboard', permission: 'view:dashboard' },
-  { value: '/permissions', permission: 'view:permissions' },
-  { value: '/roles/assign-roles', permission: 'view:assign-roles' },
-  { value: '/doctors/specialities/add', permission: 'add:speciality' },
-  { value: '/roles/assign-permissions', permission: 'view:assign-permissions' }
-];
+import { DASHBOARD, SESSION, LOGIN, urls, publicRoutes } from '@/lib/constants';
 
 export const config = {
   matcher: ['/((?!api|_next/static|_next/image|.*\\.png$).*)']
@@ -36,34 +11,35 @@ export const config = {
 
 export default NextAuth(authConfig).auth(async request => {
   const session = await auth();
-  const isLoggedin = request.auth?.user;
-  const path = request.nextUrl.pathname;
-  const isPublicRoute = publicRoutes.includes(request.nextUrl.pathname);
-  const access = urls.find(u => u.value === path)?.permission || String();
+  const sessionCookie = await cookies();
 
   const user = session?.user;
+  const roles = session?.user?.roles || [];
+
+  const isLoggedin = request.auth?.user;
+  const path = request.nextUrl.pathname;
+
+  const isAvailableRoute = urls.some(u => u.value === path);
+  const permission = urls.find(u => u.value === path)?.permission || String();
+
+  const hasUrlPermission = hasPermission(roles, permission);
+  const isPublicRoute = publicRoutes.includes(request.nextUrl.pathname);
   const isExpired = user?.expiresAt && user.expiresAt - Date.now() <= 0;
 
   if (user && isExpired) {
-    const sessionCookies = await cookies();
-    sessionCookies.delete('authjs.session-token');
-    return Response.redirect(new URL('/login', request.nextUrl));
+    sessionCookie.delete(SESSION);
+    return Response.redirect(new URL(LOGIN, request.nextUrl));
   }
 
-  if (
-    user &&
-    !isPublicRoute &&
-    urls.some(u => u.value === path) &&
-    !hasPermission(user?.roles, access)
-  ) {
-    return Response.redirect(new URL('/dashboard', request.nextUrl));
+  if (user && !isPublicRoute && isAvailableRoute && !hasUrlPermission) {
+    return Response.redirect(new URL(DASHBOARD, request.nextUrl));
   }
 
   if (!isPublicRoute && !isLoggedin) {
-    return Response.redirect(new URL('/login', request.nextUrl));
+    return Response.redirect(new URL(LOGIN, request.nextUrl));
   }
 
   if (isPublicRoute && isLoggedin) {
-    return Response.redirect(new URL('/dashboard', request.nextUrl));
+    return Response.redirect(new URL(DASHBOARD, request.nextUrl));
   }
 });

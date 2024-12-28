@@ -2,12 +2,14 @@
 
 import z from 'zod';
 import { toast } from 'sonner';
+import { User } from 'next-auth';
 import { useRouter } from 'next/navigation';
 import { useActionState, useState } from 'react';
 import { User as PrismaUser } from '@prisma/client';
 import { Bar, BarChart, CartesianGrid, XAxis } from 'recharts';
 
 import * as actions from '@/lib/actions';
+import { DoctorProps } from '@/lib/types';
 import * as CN from '@/components/ui/card';
 import * as RT from '@tanstack/react-table';
 import { hasPermission } from '@/lib/utils';
@@ -17,7 +19,6 @@ import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Label } from '@/components/ui/label';
 import * as Chart from '@/components/ui/chart';
-import { DoctorProps, User } from '@/lib/types';
 import { Button } from '@/components/ui/button';
 import { Switch } from '@/components/ui/switch';
 import * as Drawer from '@/components/ui/drawer';

@@ -1,13 +1,14 @@
 import Link from 'next/link';
 import { Suspense } from 'react';
 
+import { cn } from '@/lib/utils';
 import { verifyToken } from '@/lib/actions';
 import { Button } from '@/components/ui/button';
 
 type Props = { searchParams: Promise<{ [key: string]: string | undefined }> };
 
 async function Verify({ token }: { token: string }) {
-  const { error, success } = await verifyToken(token);
+  const { message, success } = await verifyToken(token);
 
   return (
     <Suspense
@@ -20,22 +21,14 @@ async function Verify({ token }: { token: string }) {
       }
     >
       <section className="col-span-2 grid place-items-center gap-2 place-self-center">
-        {error && (
-          <>
-            <p className="text-destructive font-semibold">{error}</p>
-            <Button>
-              <Link href="/">Home</Link>
-            </Button>
-          </>
-        )}
-        {success && (
-          <>
-            <p className="font-semibold">{success}</p>
-            <Button>
-              <Link href="/login">Login</Link>
-            </Button>
-          </>
-        )}
+        <p className={cn('font-semibold', { 'text-destructive': !success })}>
+          {message}
+        </p>
+        <Button>
+          <Link href={!success ? '/' : '/login'}>
+            {!success ? 'Home' : 'Login'}
+          </Link>
+        </Button>
       </section>
     </Suspense>
   );

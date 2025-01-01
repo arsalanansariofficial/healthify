@@ -1,11 +1,8 @@
-export const SERVER_ERROR_CODE = 500;
-
 export const LOGIN = '/login';
 export const DASHBOARD = '/dashboard';
 export const AUTH_ERROR = '/auth-error';
 export const SESSION = 'authjs.session-token';
 export const SERVER_ERROR_MESSAGE = '⚠️ Something went wrong!';
-export const EMAIL_REGISTERED_MESSAGE = '⚠️ Email already registered!';
 export const USER_DIR = (process.env.USER_DIR as string) || '/public/users';
 export const HOST = (process.env.HOST as string) || 'http://localhost:3000';
 

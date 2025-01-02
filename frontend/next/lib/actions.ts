@@ -7,11 +7,13 @@ import bcrypt from 'bcryptjs';
 import { randomUUID } from 'crypto';
 import nodemailer from 'nodemailer';
 import * as P from '@prisma/client';
-import { auth, signIn, unstable_update } from '@/auth';
 import { AuthError } from 'next-auth';
 import { revalidatePath } from 'next/cache';
 
-const dir = path.join(process.cwd(), '/public/users');
+import * as CONST from '@/lib/constants';
+import { auth, signIn, unstable_update as update } from '@/auth';
+
+const dir = path.join(process.cwd(), CONST.USER_DIR);
 
 const prisma = new P.PrismaClient().$extends({
   model: {
@@ -83,47 +85,73 @@ export type FormState = {
 };
 
 const formSchema = z.object({
-  email: z.optional(z.string().email({ message: 'Email should be valid.' })),
-  emailVerified: z.optional(
-    z.enum(['yes', 'no']).transform(val => val === 'yes')
-  ),
-  password: z.optional(
-    z.string().min(1, { message: 'Password should be valid.' })
-  ),
-  experience: z.optional(
-    z.number().min(1, { message: 'Experience should be valid.' })
-  ),
-  specialities: z.optional(
-    z.array(z.string().min(1, { message: 'Id should be valid.' }))
-  ),
-  daysOfVisit: z.optional(
-    z.array(z.string().min(1, { message: 'Day should be valid.' }))
-  ),
-  name: z.optional(
-    z.string().min(3, { message: 'Should be atleast 3 characters.' })
-  ),
-  gender: z.optional(
-    z.enum(['male', 'female'], { message: 'Gender should be valid.' })
-  ),
-  role: z.optional(
-    z.string().toUpperCase().min(1, { message: 'Role should be valid.' })
-  ),
-  city: z.optional(
-    z.string().toUpperCase().min(1, { message: 'City should be valid.' })
-  ),
-  image: z.optional(
-    z.string().min(5, { message: 'Name should be atleast 5 characters.' })
-  ),
-  permission: z.optional(
-    z.string().toUpperCase().min(1, { message: 'Permission should be valid.' })
-  ),
-  phone: z.optional(
-    z
-      .string()
-      .regex(/^\+?\d{10,15}$/, { message: 'Invalid phone number format.' })
-  ),
-  timings: z.optional(
-    z.array(
+  email: z
+    .string()
+    .email({ message: 'Email should be valid.' })
+    .optional()
+    .nullable(),
+  emailVerified: z
+    .enum(['yes', 'no'])
+    .transform(val => val === 'yes')
+    .optional()
+    .nullable(),
+  password: z
+    .string()
+    .min(1, { message: 'Password should be valid.' })
+    .optional()
+    .nullable(),
+  experience: z.coerce
+    .number()
+    .min(1, { message: 'Experience should be valid.' })
+    .optional()
+    .nullable(),
+  specialities: z
+    .array(z.string().min(1, { message: 'Id should be valid.' }))
+    .optional()
+    .nullable(),
+  daysOfVisit: z
+    .array(z.string().toUpperCase().min(1, { message: 'Day should be valid.' }))
+    .optional()
+    .nullable(),
+  name: z
+    .string()
+    .min(3, { message: 'Should be atleast 3 characters.' })
+    .optional()
+    .nullable(),
+  gender: z
+    .enum(['male', 'female'], { message: 'Gender should be valid.' })
+    .optional()
+    .nullable(),
+  role: z
+    .string()
+    .toUpperCase()
+    .min(1, { message: 'Role should be valid.' })
+    .optional()
+    .nullable(),
+  city: z
+    .string()
+    .toUpperCase()
+    .min(1, { message: 'City should be valid.' })
+    .optional()
+    .nullable(),
+  image: z
+    .string()
+    .min(5, { message: 'Name should be atleast 5 characters.' })
+    .nullable()
+    .optional(),
+  permission: z
+    .string()
+    .toUpperCase()
+    .min(1, { message: 'Permission should be valid.' })
+    .optional()
+    .nullable(),
+  phone: z
+    .string()
+    .regex(/^\+?\d{10,15}$/, { message: 'Invalid phone number format.' })
+    .optional()
+    .nullable(),
+  timings: z
+    .array(
       z.object({
         duration: z.number().positive({
           message: 'Duration must be a positive number'
@@ -133,8 +161,17 @@ const formSchema = z.object({
         })
       })
     )
-  )
+    .optional()
+    .nullable()
 });
+
+async function saveFile(file: File, fileName: string) {
+  await fs.mkdir(dir, { recursive: true });
+  await fs.writeFile(
+    path.join(dir, fileName),
+    Buffer.from(await file.arrayBuffer())
+  );
+}
 
 async function generateToken(email: string) {
   const token = await prisma.token.findUnique({ where: { email } });
@@ -145,26 +182,22 @@ async function generateToken(email: string) {
 }
 
 async function sendEmail(to: string, subject: string, html: string) {
-  try {
-    const transporter = nodemailer.createTransport({
-      port: 465,
-      secure: true,
-      host: 'smtp.gmail.com',
-      auth: {
-        user: process.env.MAILER_EMAIL,
-        pass: process.env.MAILER_PASSWORD
-      }
-    });
+  const transporter = nodemailer.createTransport({
+    port: 465,
+    secure: true,
+    host: 'smtp.gmail.com',
+    auth: {
+      user: process.env.MAILER_EMAIL,
+      pass: process.env.MAILER_PASSWORD
+    }
+  });
 
-    return await transporter.sendMail({
-      to,
-      html,
-      subject,
-      from: process.env.MAILER_EMAIL
-    });
-  } catch {
-    return null;
-  }
+  return await transporter.sendMail({
+    to,
+    html,
+    subject,
+    from: process.env.MAILER_EMAIL
+  });
 }
 
 async function loginWithCredentials(response: FormState) {
@@ -197,14 +230,14 @@ async function loginWithCredentials(response: FormState) {
       return {
         ...response,
         success: false,
-        message: '⚠️ Something went wrong!'
+        message: CONST.SERVER_ERROR_MESSAGE
       };
     }
 
     await signIn('credentials', {
       email: response.email,
-      password: response.password,
-      redirectTo: '/dashboard'
+      redirectTo: CONST.DASHBOARD,
+      password: response.password
     });
   } catch (error) {
     if (error instanceof AuthError) {
@@ -220,7 +253,7 @@ async function loginWithCredentials(response: FormState) {
           return {
             ...response,
             success: false,
-            message: '⚠️ Something went wrong!'
+            message: CONST.SERVER_ERROR_MESSAGE
           };
       }
     }
@@ -229,34 +262,26 @@ async function loginWithCredentials(response: FormState) {
   }
 }
 
-export async function getSessionUser() {
-  let user;
-  const session = await auth();
-
-  if (session?.user?.id) {
-    user = await prisma.user.findUnique({
-      where: { id: session.user.id },
-      include: { roles: { include: { permissions: true } } }
-    });
-  }
-
-  return { user, session };
-}
-
 export async function deleteUser(id: string) {
-  const user = await prisma.user.deleteWithCleanup({ where: { id } });
-  await fs.unlink(path.join(dir, `${user?.image}`));
-  revalidatePath('/');
+  await prisma.$transaction(async function (transaction) {
+    const user = await transaction.user.deleteWithCleanup({ where: { id } });
+    if (user && user.image) await fs.unlink(path.join(dir, `${user?.image}`));
+    revalidatePath('/');
+  });
 }
 
 export async function deleteUsers(ids: string[]) {
-  const users = await prisma.user.deleteManyWithCleanup({
-    where: { id: { in: ids } }
+  await prisma.$transaction(async function (transaction) {
+    const users = await transaction.user.deleteManyWithCleanup({
+      where: { id: { in: ids } }
+    });
+    await Promise.all(
+      users
+        .filter(user => !!user.image)
+        .map(user => fs.unlink(path.join(dir, `${user?.image}`)))
+    );
+    revalidatePath('/');
   });
-  await Promise.all(
-    users.map(user => fs.unlink(path.join(dir, `${user?.image}`)))
-  );
-  revalidatePath('/');
 }
 
 export async function deleteSpeciality(id: string) {
@@ -278,8 +303,10 @@ export async function assignRoles(formData: {
       where: { id: formData.id },
       data: { roles: { set: formData.roles.map(({ id }) => ({ id })) } }
     });
+
+    return { success: true, message: '🎉 Roles are assigned successfully.' };
   } catch {
-    return { message: 'Something went wrong!' };
+    return { success: false, message: CONST.SERVER_ERROR_MESSAGE };
   }
 }
 
@@ -287,22 +314,27 @@ export async function verifyEmail(
   email: string
 ): Promise<FormState | undefined> {
   try {
-    const user = await prisma.user.findUnique({ where: { email } });
+    const user = await prisma.$transaction(async function (transaction) {
+      const user = await transaction.user.findUnique({ where: { email } });
+      if (!user) return;
+
+      await transaction.user.update({
+        where: { email },
+        data: { emailVerified: user.emailVerified ? null : new Date() }
+      });
+
+      const token = await transaction.token.findUnique({
+        where: { email: user.email as string }
+      });
+
+      if (token) await transaction.token.delete({ where: { id: token.id } });
+      return user;
+    });
+
     if (!user) return { success: false, message: '⚠️ User does not exist!' };
-
-    await prisma.user.update({
-      where: { email },
-      data: { emailVerified: user.emailVerified ? null : new Date() }
-    });
-
-    const token = await prisma.token.findUnique({
-      where: { email: user.email as string }
-    });
-
-    if (token) await prisma.token.delete({ where: { id: token.id } });
     revalidatePath('/');
   } catch {
-    return { success: false, message: '⚠️ Something went wrong!' };
+    return { success: false, message: CONST.SERVER_ERROR_MESSAGE };
   }
 }
 
@@ -311,27 +343,30 @@ export async function assignPermissions(formData: {
   permissions: P.Permission[];
 }): Promise<FormState | undefined> {
   try {
-    await prisma.role.update({
-      where: { name: formData.role },
-      data: {
-        permissions: { set: formData.permissions.map(({ id }) => ({ id })) }
-      }
-    });
-
     const session = await auth();
-    const user = await prisma.user.findUnique({
-      where: { id: session?.user?.id },
-      include: { roles: { include: { permissions: true } } }
+
+    const user = await prisma.$transaction(async function (transaction) {
+      await transaction.role.update({
+        where: { name: formData.role },
+        data: {
+          permissions: { set: formData.permissions.map(({ id }) => ({ id })) }
+        }
+      });
+
+      return await transaction.user.findUnique({
+        where: { id: session?.user?.id },
+        include: { roles: { include: { permissions: true } } }
+      });
     });
 
     revalidatePath('/');
-    await unstable_update({ user: { ...user, roles: user?.roles } });
+    await update({ user: { ...user, roles: user?.roles } });
     return {
       success: true,
-      message: '🎉 All permissions are assigned successfully'
+      message: '🎉 All permissions are assigned successfully.'
     };
   } catch {
-    return { success: false, message: '⚠️ Something went wrong!' };
+    return { success: false, message: CONST.SERVER_ERROR_MESSAGE };
   }
 }
 
@@ -381,7 +416,7 @@ export async function addSpeciality(
       message: '🎉 Speciality added successfully!'
     };
   } catch {
-    return { name, success: false, message: '⚠️ Something went wrong!' };
+    return { name, success: false, message: CONST.SERVER_ERROR_MESSAGE };
   }
 }
 
@@ -400,7 +435,7 @@ export async function addRole(
     await prisma.role.create({ data: { name: result.data.role as string } });
     return { role, success: true, message: '🎉 Role added successfully!' };
   } catch {
-    return { role, success: false, message: '⚠️ Something went wrong!' };
+    return { role, success: false, message: CONST.SERVER_ERROR_MESSAGE };
   }
 }
 
@@ -419,33 +454,60 @@ export async function addPermission(
     await prisma.permission.create({
       data: { name: result.data.permission as string }
     });
+
     return {
       permission,
       success: true,
       message: '🎉 Permission added successfully.'
     };
   } catch {
-    return { permission, success: false, message: '⚠️ Something went wrong!' };
+    return { permission, success: false, message: CONST.SERVER_ERROR_MESSAGE };
   }
 }
 
-export async function verifyToken(id: string) {
-  const token = await prisma.token.findUnique({ where: { id } });
-  if (!token) return { error: "Token doesn't exist!" };
+export async function verifyToken(id: string): Promise<FormState> {
+  try {
+    const result = await prisma.$transaction(async function (transaction) {
+      const token = await transaction.token.findUnique({ where: { id } });
+      if (!token) return;
 
-  const hasExpired = new Date(token.expires) < new Date();
-  if (hasExpired) return { error: 'Token has expired!' };
+      const hasExpired = new Date(token.expires) < new Date();
+      if (hasExpired) return;
 
-  const user = await prisma.user.findUnique({ where: { email: token.email } });
-  if (!user) return { error: "Email doesn't exist!" };
+      const user = await transaction.user.findUnique({
+        where: { email: token.email }
+      });
 
-  await prisma.user.update({
-    where: { id: user.id },
-    data: { email: token.email, emailVerified: new Date() }
-  });
+      if (!user) return;
+      await transaction.user.update({
+        where: { id: user.id },
+        data: { email: token.email, emailVerified: new Date() }
+      });
 
-  await prisma.token.delete({ where: { id: token.id } });
-  return { email: token.email, success: 'Email verified.' };
+      await transaction.token.delete({ where: { id: token.id } });
+      return { user, token, hasExpired };
+    });
+
+    if (!result?.token) {
+      return { success: false, message: "⚠️ Token doesn't exist!" };
+    }
+
+    if (!result?.user) {
+      return { success: false, message: "⚠️ Email doesn't exist!" };
+    }
+
+    if (result?.hasExpired) {
+      return { success: false, message: '⚠️ Token has expired!' };
+    }
+
+    return {
+      success: true,
+      email: result.token.email,
+      message: '🎉 Email verified successfully.'
+    };
+  } catch {
+    return { success: false, message: CONST.SERVER_ERROR_MESSAGE };
+  }
 }
 
 export async function login(
@@ -488,7 +550,7 @@ export default async function seed(): Promise<FormState | undefined> {
 
     return { success: true, message: '🎉 Database updated successfully.' };
   } catch {
-    return { success: false, message: '⚠️ Something went wrong!' };
+    return { success: false, message: CONST.SERVER_ERROR_MESSAGE };
   }
 }
 
@@ -504,10 +566,14 @@ export async function updatePassword(
     return { password, errors: result.error.flatten().fieldErrors };
   }
 
-  await prisma.user.update({
-    where: { email },
-    data: { password: await bcrypt.hash(password, 10) }
-  });
+  try {
+    await prisma.user.update({
+      where: { email },
+      data: { password: await bcrypt.hash(password, 10) }
+    });
+  } catch {
+    return { success: false, message: CONST.SERVER_ERROR_MESSAGE };
+  }
 
   return await loginWithCredentials({ email, password });
 }
@@ -523,28 +589,24 @@ export async function forgetPassword(
     return { email, errors: result.error.flatten().fieldErrors };
   }
 
-  const user = await prisma.user.findUnique({ where: { email } });
+  try {
+    const user = await prisma.user.findUnique({ where: { email } });
 
-  if (!user) {
-    return { email, success: false, message: "⚠️ Email doesn't exist!" };
-  }
-
-  const token = await generateToken(user.email as string);
-
-  if (token) {
-    const subject = 'Reset Your Password';
-    const link = `http://localhost:3000/create-password?token=${token.id}`;
-    const html = `<p>Click <a href="${link}">here</a> to reset your password`;
-    const emailSent = await sendEmail(email, subject, html);
-
-    if (emailSent) {
-      return { email, success: true, message: '🎉 Confirmation email sent.' };
+    if (!user) {
+      return { email, success: false, message: "⚠️ Email doesn't exist!" };
     }
 
-    return { email, success: false, message: '⚠️ Failed to send email!' };
-  }
+    const token = await generateToken(user.email as string);
 
-  return { email, success: false, message: '⚠️ Failed to generate token!' };
+    const subject = 'Reset Your Password';
+    const link = `${CONST.HOST}/create-password?token=${token.id}`;
+    const html = `<p>Click <a href="${link}">here</a> to reset your password`;
+
+    await sendEmail(email, subject, html);
+    return { email, success: true, message: '🎉 Confirmation email sent.' };
+  } catch {
+    return { email, success: false, message: CONST.SERVER_ERROR_MESSAGE };
+  }
 }
 
 export async function updateUser(
@@ -556,6 +618,7 @@ export async function updateUser(
   const email = formData.get('email') as string;
   const password = formData.get('password') as string;
   const emailVerified = formData.get('verified') as string;
+  const response = { name, email, password, emailVerified };
   const result = formSchema.safeParse({
     name,
     email,
@@ -564,45 +627,38 @@ export async function updateUser(
   });
 
   if (!result.success) {
-    return {
-      name,
-      email,
-      password,
-      emailVerified,
-      errors: result.error.flatten().fieldErrors
-    };
+    return { ...response, errors: result.error.flatten().fieldErrors };
   }
 
-  const user = await prisma.user.findUnique({ where: { id } });
-  const existingUser = await prisma.user.findUnique({ where: { email } });
+  await prisma.$transaction(async function (transaction) {
+    const user = await transaction.user.findUnique({ where: { id } });
+    const existingUser = await transaction.user.findUnique({
+      where: { email }
+    });
 
-  if (email !== user?.email && existingUser) {
-    return {
-      name,
-      email,
-      password,
-      emailVerified,
-      success: false,
-      message: '⚠️ Email already registered!'
-    };
-  }
-
-  await prisma.user.update({
-    where: { id },
-    data: {
-      name,
-      email,
-      emailVerified: result.data.emailVerified ? new Date() : null,
-      password: password ? await bcrypt.hash(password, 10) : undefined
+    if (email !== user?.email && existingUser) {
+      return {
+        ...response,
+        success: false,
+        message: '⚠️ Email already registered!',
+        emailVerified: result.data.emailVerified
+      };
     }
+
+    return await prisma.user.update({
+      where: { id },
+      data: {
+        name: result.data.name,
+        email: result.data.email,
+        emailVerified: result.data.emailVerified ? new Date() : null,
+        password: password ? await bcrypt.hash(password, 10) : undefined
+      }
+    });
   });
 
   return {
-    name,
-    email,
-    password,
+    ...response,
     success: true,
-    emailVerified: 'yes',
     message: '🎉 Profile updated successfully.'
   };
 }
@@ -619,8 +675,7 @@ export async function signup(
   const phone = formData.get('phone') as string;
   const gender = formData.get('gender') as string;
   const password = formData.get('password') as string;
-
-  const experience = Number(formData.get('experience') as string);
+  const experience = formData.get('experience') as string;
 
   const timings = JSON.parse(
     formData.get('timings') as string
@@ -645,7 +700,7 @@ export async function signup(
     experience,
     daysOfVisit,
     specialities,
-    image: image.name
+    image: image?.name
   });
 
   const response = {
@@ -656,51 +711,59 @@ export async function signup(
     gender,
     timings,
     password,
-    experience,
     daysOfVisit,
-    specialities
+    specialities,
+    experience: result.data?.experience as number
   };
 
   if (!result.success) {
     return { ...response, errors: result.error.flatten().fieldErrors };
   }
 
-  const user = await prisma.user.findUnique({ where: { email } });
-  if (user) return { ...response, message: '⚠️ Email already exist!' };
-
-  const imageUUID = randomUUID();
-  const fileExtension = image.type.split('/').at(-1);
-  const filePath = path.join(dir, `${imageUUID}.${fileExtension}`);
-
   try {
-    const user = await prisma.user.create({
-      data: {
-        name,
-        city,
-        email,
-        phone,
-        gender,
-        experience,
-        image: `${imageUUID}.${fileExtension}`,
-        password: await bcrypt.hash(password, 10),
-        daysOfVisit: daysOfVisit?.map(d => d.toUpperCase() as P.Day),
-        specialities: { connect: specialities?.map(s => ({ name: s })) },
-        timings: {
-          create: timings?.map(t => ({
-            time: t.time,
-            duration: t.duration
-          })) as P.TimeSlot[]
-        }
-      }
-    });
+    const user = await prisma.user.findUnique({ where: { email } });
+    if (user) return { ...response, message: '⚠️ Email already exist!' };
 
-    if (user && image.size) {
-      await fs.mkdir(dir, { recursive: true });
-      await fs.writeFile(filePath, Buffer.from(await image.arrayBuffer()));
-    }
-  } catch (error) {
-    console.log(error);
-    return { ...response, success: false, message: '⚠️ Something went wrong!' };
+    await prisma.$transaction(async function (transaction) {
+      const imageUUID = randomUUID();
+      const fileExtension = image?.type?.split('/').at(-1);
+
+      if (image?.size) {
+        await saveFile(image, `${imageUUID}.${fileExtension}`);
+      }
+
+      const role = await transaction.role.findUnique({
+        where: { name: 'USER' }
+      });
+
+      return await transaction.user.create({
+        data: {
+          name: result.data.name,
+          city: result.data.city,
+          email: result.data.email,
+          phone: result.data.phone,
+          gender: result.data.gender,
+          experience: result.data.experience,
+          roles: { connect: { id: role?.id } },
+          image: image ? `${imageUUID}.${fileExtension}` : undefined,
+          daysOfVisit: (result.data.daysOfVisit as P.Day[]) || undefined,
+          password: await bcrypt.hash(result.data.password as string, 10),
+          specialities: specialities?.length
+            ? { connect: specialities?.map(id => ({ id })) }
+            : undefined,
+          timings: timings?.length
+            ? {
+                create: timings?.map(t => ({
+                  time: t.time,
+                  duration: t.duration
+                })) as P.TimeSlot[]
+              }
+            : undefined
+        }
+      });
+    });
+  } catch {
+    return { ...response, success: false, message: CONST.SERVER_ERROR_MESSAGE };
   }
 
   return loginWithCredentials(response);

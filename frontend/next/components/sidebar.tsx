@@ -10,7 +10,18 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 const items = [
   { url: '/dashboard', label: 'Dashboard', permission: 'view:dashboard' },
   { url: '/users', label: 'Users', permission: 'view:users' },
-  { url: '/doctors', label: 'Doctors', permission: 'view:doctors' }
+  { url: '/doctors', label: 'Doctors', permission: 'view:doctors' },
+  { url: '/roles', label: 'Roles', permission: 'view:roles' },
+  {
+    url: '/roles/assign-permissions',
+    label: 'Assign Permissions',
+    permission: 'view:assign-permissions'
+  },
+  {
+    url: '/roles/assign-roles',
+    label: 'Assign Roles',
+    permission: 'view:assign-roles'
+  }
 ];
 
 export default function Sidebar({ user }: { user: User }) {

@@ -4,6 +4,7 @@ import { toast } from 'sonner';
 import { useActionState } from 'react';
 
 import seed from '@/lib/actions';
+import { getDate } from '@/lib/utils';
 import * as CN from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 
@@ -14,38 +15,14 @@ export default function Page() {
     if (result?.success) {
       toast(result.message, {
         position: 'top-center',
-        description: (
-          <span className="text-foreground">
-            {new Date().toLocaleString('en-US', {
-              hour12: true,
-              month: 'long',
-              day: '2-digit',
-              weekday: 'long',
-              year: 'numeric',
-              hour: 'numeric',
-              minute: '2-digit'
-            })}
-          </span>
-        )
+        description: <span className="text-foreground">{getDate()}</span>
       });
     }
 
     if (!result?.success && result?.message) {
       toast(<h2 className="text-destructive">{result?.message}</h2>, {
         position: 'top-center',
-        description: (
-          <p className="text-destructive">
-            {new Date().toLocaleString('en-US', {
-              hour12: true,
-              month: 'long',
-              day: '2-digit',
-              weekday: 'long',
-              year: 'numeric',
-              hour: 'numeric',
-              minute: '2-digit'
-            })}
-          </p>
-        )
+        description: <p className="text-destructive">{getDate()}</p>
       });
     }
 

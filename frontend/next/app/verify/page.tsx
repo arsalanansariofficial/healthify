@@ -3,6 +3,7 @@ import { Suspense } from 'react';
 
 import { cn } from '@/lib/utils';
 import { verifyToken } from '@/lib/actions';
+import { HOME, LOGIN } from '@/lib/constants';
 import { Button } from '@/components/ui/button';
 
 type Props = { searchParams: Promise<{ [key: string]: string | undefined }> };
@@ -25,7 +26,7 @@ async function Verify({ token }: { token: string }) {
           {message}
         </p>
         <Button>
-          <Link href={!success ? '/' : '/login'}>
+          <Link href={!success ? HOME : LOGIN}>
             {!success ? 'Home' : 'Login'}
           </Link>
         </Button>
@@ -44,7 +45,7 @@ export default async function Page({ searchParams }: Props) {
           Missing verification token!
         </p>
         <Button>
-          <Link href="/">Home</Link>
+          <Link href={HOME}>Home</Link>
         </Button>
       </section>
     );

@@ -3,30 +3,35 @@
 import z from 'zod';
 import { toast } from 'sonner';
 import { User } from 'next-auth';
-import { useRouter } from 'next/navigation';
-import { useActionState, useState } from 'react';
+import { useForm } from 'react-hook-form';
 import { User as PrismaUser } from '@prisma/client';
+import { zodResolver } from '@hookform/resolvers/zod';
 import { Bar, BarChart, CartesianGrid, XAxis } from 'recharts';
 
 import * as actions from '@/lib/actions';
 import { DoctorProps } from '@/lib/types';
 import * as CN from '@/components/ui/card';
+import { userSchema } from '@/lib/schemas';
 import * as RT from '@tanstack/react-table';
+import * as RHF from '@/components/ui/form';
+import { hasPermission } from '@/lib/utils';
 import * as CNC from '@/components/ui/chart';
 import * as Icons from '@tabler/icons-react';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
-import { Label } from '@/components/ui/label';
 import * as Chart from '@/components/ui/chart';
 import { Button } from '@/components/ui/button';
 import { Switch } from '@/components/ui/switch';
+import useHookForm from '@/hooks/use-hook-form';
 import * as Drawer from '@/components/ui/drawer';
 import { useIsMobile } from '@/hooks/use-mobile';
 import * as DT from '@/components/ui/data-table';
 import * as Select from '@/components/ui/select';
+import handler from '@/components/display-toast';
 import * as DM from '@/components/ui/dropdown-menu';
 import { Checkbox } from '@/components/ui/checkbox';
-import { getDate, hasPermission } from '@/lib/utils';
+
+type MenuProps = { id?: string; ids?: string[]; isHeader: boolean };
 
 type TCVProps<T extends z.ZodType> = {
   item: z.infer<T>;
@@ -56,12 +61,6 @@ type Props = {
     subtitle: string;
     description: string;
   }[];
-};
-
-type MenuProps = {
-  id?: string;
-  ids?: string[];
-  isHeader: boolean;
 };
 
 function Menu({ id, ids, isHeader = false }: MenuProps) {
@@ -121,50 +120,21 @@ function Menu({ id, ids, isHeader = false }: MenuProps) {
 }
 
 export function TableCellViewer<T extends z.ZodType>(props: TCVProps<T>) {
-  const router = useRouter();
   const isMobile = useIsMobile();
-  const [emailVerified, setEmailVerified] = useState<string>(
-    props.item.emailVerified ? 'yes' : 'no'
-  );
+  const form = useForm({ resolver: zodResolver(userSchema) });
 
-  const [state, action, pending] = useActionState(
-    async function (prevState: unknown, formData: FormData) {
-      formData.set('verified', emailVerified);
-      const result = await actions.updateUser(
-        props.item.id,
-        prevState,
-        formData
-      );
-
-      if (result?.success) {
-        toast(result.message, {
-          position: 'top-center',
-          onAutoClose: router.refresh,
-          description: <span className="text-foreground">{getDate()}</span>
-        });
-      }
-
-      if (!result?.success && result?.message) {
-        toast(<h2 className="text-destructive">{result?.message}</h2>, {
-          position: 'top-center',
-          description: <p className="text-destructive">{getDate()}</p>
-        });
-      }
-
-      return result;
-    },
-    {
-      name: props.item.name,
-      email: props.item.email,
-      emailVerfied: props.item.emailVerified
-    } as actions.FormState
+  const { pending, handleSubmit } = useHookForm(
+    handler,
+    actions.updateUser.bind(null, props.item.id) as (
+      data: z.infer<typeof userSchema>
+    ) => Promise<actions.FormState | undefined>
   );
 
   return (
     <Drawer.Drawer direction={isMobile ? 'bottom' : 'right'}>
       <Drawer.DrawerTrigger asChild onClick={e => e.currentTarget.blur()}>
         <Button variant="link" className="text-foreground px-0">
-          {state?.name}
+          {props.item.name}
         </Button>
       </Drawer.DrawerTrigger>
       <Drawer.DrawerContent>
@@ -193,60 +163,108 @@ export function TableCellViewer<T extends z.ZodType>(props: TCVProps<T>) {
               </BarChart>
             </Chart.ChartContainer>
           )}
-          <form id="user-form" className="flex flex-col gap-4 py-4">
-            <div className="flex flex-col gap-3">
-              <Label htmlFor="name">Name</Label>
-              <Input
-                id="name"
+          <RHF.Form {...form}>
+            <form
+              id="user-form"
+              className="space-y-2"
+              onSubmit={form.handleSubmit(handleSubmit)}
+            >
+              <RHF.FormField
                 name="name"
-                type="text"
-                defaultValue={state?.name}
-                placeholder="Gwen Tennyson"
+                control={form.control}
+                render={({ field }) => (
+                  <RHF.FormItem>
+                    <RHF.FormLabel>Name</RHF.FormLabel>
+                    <RHF.FormControl>
+                      <Input
+                        {...field}
+                        type="text"
+                        placeholder="Gwen Tennyson"
+                        value={field.value ?? String()}
+                        onChange={({ target: { value } }) =>
+                          field.onChange(value || undefined)
+                        }
+                      />
+                    </RHF.FormControl>
+                    <RHF.FormMessage />
+                  </RHF.FormItem>
+                )}
               />
-            </div>
-            <div className="flex flex-col gap-3">
-              <Label htmlFor="email">Email</Label>
-              <Input
-                id="email"
+              <RHF.FormField
                 name="email"
-                type="email"
-                defaultValue={state?.email}
-                placeholder="your.name@domain.com"
+                control={form.control}
+                render={({ field }) => (
+                  <RHF.FormItem>
+                    <RHF.FormLabel>Email</RHF.FormLabel>
+                    <RHF.FormControl>
+                      <Input
+                        {...field}
+                        type="email"
+                        value={field.value ?? String()}
+                        placeholder="your.name@domain.com"
+                        onChange={({ target: { value } }) =>
+                          field.onChange(value || undefined)
+                        }
+                      />
+                    </RHF.FormControl>
+                    <RHF.FormMessage />
+                  </RHF.FormItem>
+                )}
               />
-            </div>
-            <div className="flex flex-col gap-3">
-              <Label htmlFor="password">Password</Label>
-              <Input
-                id="password"
+              <RHF.FormField
                 name="password"
-                type="password"
-                placeholder="Secret@123"
-                defaultValue={state?.password}
+                control={form.control}
+                render={({ field }) => (
+                  <RHF.FormItem>
+                    <RHF.FormLabel>Password</RHF.FormLabel>
+                    <RHF.FormControl>
+                      <Input
+                        {...field}
+                        type="password"
+                        placeholder="Secret@123"
+                        value={field.value ?? String()}
+                        onChange={({ target: { value } }) =>
+                          field.onChange(value || undefined)
+                        }
+                      />
+                    </RHF.FormControl>
+                    <RHF.FormMessage />
+                  </RHF.FormItem>
+                )}
               />
-            </div>
-            <div className="flex flex-col gap-3">
-              <Label htmlFor="verified">Email Verified</Label>
-              <Select.Select
-                onValueChange={setEmailVerified}
-                defaultValue={emailVerified}
-              >
-                <Select.SelectTrigger id="verified" className="w-full">
-                  <Select.SelectValue placeholder="Select a status" />
-                </Select.SelectTrigger>
-                <Select.SelectContent>
-                  <Select.SelectItem value="no">No</Select.SelectItem>
-                  <Select.SelectItem value="yes">Yes</Select.SelectItem>
-                </Select.SelectContent>
-              </Select.Select>
-            </div>
-          </form>
+              <RHF.FormField
+                name="emailVerified"
+                control={form.control}
+                defaultValue={props.item.emailVerified ? 'yes' : 'no'}
+                render={({ field }) => (
+                  <RHF.FormItem>
+                    <RHF.FormLabel>Email Verified</RHF.FormLabel>
+                    <RHF.FormControl>
+                      <Select.Select
+                        value={field.value}
+                        onValueChange={field.onChange}
+                      >
+                        <Select.SelectTrigger className="w-full">
+                          <Select.SelectValue placeholder="Select a status" />
+                        </Select.SelectTrigger>
+                        <Select.SelectContent>
+                          <Select.SelectItem value="no">No</Select.SelectItem>
+                          <Select.SelectItem value="yes">Yes</Select.SelectItem>
+                        </Select.SelectContent>
+                      </Select.Select>
+                    </RHF.FormControl>
+                    <RHF.FormMessage />
+                  </RHF.FormItem>
+                )}
+              />
+            </form>
+          </RHF.Form>
         </div>
         <Drawer.DrawerFooter>
           <Button
             type="submit"
             form="user-form"
             disabled={pending}
-            formAction={action}
             className="cursor-pointer"
           >
             {pending ? 'Saving...' : 'Save'}

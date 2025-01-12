@@ -63,7 +63,7 @@ export function useDoctorForm() {
     formData: FormData
   ) {
     formData.set('gender', gender);
-    formData.set('image', image as File);
+    formData.set('image', image ? (image as File) : String());
     formData.set('daysOfVisit', JSON.stringify(selectedDays));
     formData.set('specialities', JSON.stringify(selectedSpecialities));
     formData.set('timings', JSON.stringify(removeDuplicateTimes(timings)));

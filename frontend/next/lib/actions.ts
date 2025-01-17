@@ -260,25 +260,27 @@ async function loginWithCredentials(response: FormState) {
 }
 
 export async function deleteUser(id: string) {
-  await prisma.$transaction(async function (transaction) {
-    const user = await transaction.user.deleteWithCleanup({ where: { id } });
-    if (user && user.image) await fs.unlink(path.join(dir, `${user?.image}`));
-    revalidatePath('/');
+  const user = await prisma.$transaction(async function (transaction) {
+    return await transaction.user.deleteWithCleanup({ where: { id } });
   });
+  if (user && user.image) await fs.unlink(path.join(dir, `${user?.image}`));
+  revalidatePath('/');
 }
 
 export async function deleteUsers(ids: string[]) {
-  await prisma.$transaction(async function (transaction) {
-    const users = await transaction.user.deleteManyWithCleanup({
+  const users = await prisma.$transaction(async function (transaction) {
+    return await transaction.user.deleteManyWithCleanup({
       where: { id: { in: ids } }
     });
+  });
+  if (users?.length) {
     await Promise.all(
       users
         .filter(user => !!user.image)
         .map(user => fs.unlink(path.join(dir, `${user?.image}`)))
     );
-    revalidatePath('/');
-  });
+  }
+  revalidatePath('/');
 }
 
 export async function deleteSpeciality(id: string) {
@@ -644,23 +646,18 @@ export async function forgetPassword(
 
 export async function updateUser(
   id: string,
-  { name, email, password, emailVerified }: z.infer<typeof schemas.userSchema>
+  data: z.infer<typeof schemas.userSchema>
 ): Promise<FormState | undefined> {
-  const response = { name, email, password, emailVerified };
-  const result = schemas.userSchema.safeParse({
-    name,
-    email,
-    password,
-    emailVerified
-  });
+  const result = schemas.userSchema.safeParse(data);
 
   if (!result.success) {
-    return { ...response, errors: result.error.flatten().fieldErrors };
+    return { ...data, errors: result.error.flatten().fieldErrors };
   }
 
   try {
     const user = await prisma.$transaction(async function (transaction) {
       let existingUser;
+      const { email, password } = result.data;
       const user = await transaction.user.findUnique({ where: { id } });
 
       if (email) {
@@ -682,7 +679,7 @@ export async function updateUser(
 
     if (!user) {
       return {
-        ...response,
+        ...data,
         success: false,
         message: '⚠️ Email already registered!',
         emailVerified: result.data.emailVerified
@@ -691,13 +688,13 @@ export async function updateUser(
 
     revalidatePath('/');
     return {
-      ...response,
+      ...data,
       success: true,
       message: '🎉 Profile updated successfully.'
     };
   } catch {
     return {
-      ...response,
+      ...data,
       success: false,
       message: CONST.SERVER_ERROR_MESSAGE
     };
@@ -705,107 +702,76 @@ export async function updateUser(
 }
 
 export async function addDoctor(
-  _: unknown,
-  formData: FormData
+  data: z.infer<typeof schemas.doctorSchema>
 ): Promise<FormState | undefined> {
-  const name = formData.get('name') as string;
-  const city = formData.get('city') as string;
-  const email = formData.get('email') as string;
-
-  const image = formData.get('image') as File;
-  const phone = formData.get('phone') as string;
-  const gender = formData.get('gender') as string;
-  const password = formData.get('password') as string;
-  const experience = formData.get('experience') as string;
-
-  const timings = JSON.parse(
-    formData.get('timings') as string
-  ) as FormState['timings'];
-
-  const specialities = JSON.parse(
-    formData.get('specialities') as string
-  ) as FormState['specialities'];
-
-  const daysOfVisit = JSON.parse(
-    formData.get('daysOfVisit') as string
-  ) as FormState['daysOfVisit'];
-
-  const result = formSchema.safeParse({
-    name,
-    city,
-    email,
-    phone,
-    gender,
-    timings,
-    password,
-    experience,
-    daysOfVisit,
-    specialities,
-    image: image?.name
-  });
-
-  const response = {
-    name,
-    city,
-    email,
-    phone,
-    gender,
-    timings,
-    password,
-    daysOfVisit,
-    specialities,
-    experience: result.data?.experience as number
-  };
+  const result = schemas.doctorSchema.safeParse(data);
 
   if (!result.success) {
-    return { ...response, errors: result.error.flatten().fieldErrors };
+    return { errors: result.error.flatten().fieldErrors };
   }
 
+  const imageUUID = randomUUID();
+  const image = result.data.image[0];
+  const timings = result.data.timings;
+  const specialities = result.data.specialities;
+  const fileExtension = image?.type?.split('/').at(-1);
+
   try {
-    const user = await prisma.user.findUnique({ where: { email } });
-    if (user) return { ...response, message: '⚠️ Email already exist!' };
+    const user = await prisma.user.findUnique({
+      where: { email: result.data.email }
+    });
 
-    await prisma.$transaction(async function (transaction) {
-      const imageUUID = randomUUID();
-      const fileExtension = image?.type?.split('/').at(-1);
+    if (user) return { message: '⚠️ Email already exist!' };
 
-      if (image?.size) {
-        await saveFile(image, `${imageUUID}.${fileExtension}`);
-      }
+    const created = await prisma.$transaction(async function (transaction) {
+      let createTmings, connectSpecialities;
 
       const role = await transaction.role.findUnique({
         where: { name: 'USER' }
       });
 
+      if (specialities.length) {
+        connectSpecialities = {
+          connect: specialities?.map(id => ({ id }))
+        };
+      }
+
+      if (timings.length) {
+        createTmings = {
+          create: timings?.map(t => ({
+            time: t.time,
+            duration: t.duration
+          })) as P.TimeSlot[]
+        };
+      }
+
       return await transaction.user.create({
         data: {
+          timings: createTmings,
           name: result.data.name,
           city: result.data.city,
           email: result.data.email,
           phone: result.data.phone,
           gender: result.data.gender,
+          specialities: connectSpecialities,
           experience: result.data.experience,
           roles: { connect: { id: role?.id } },
-          image: image ? `${imageUUID}.${fileExtension}` : undefined,
           daysOfVisit: (result.data.daysOfVisit as P.Day[]) || undefined,
-          password: await bcrypt.hash(result.data.password as string, 10),
-          specialities: specialities?.length
-            ? { connect: specialities?.map(id => ({ id })) }
-            : undefined,
-          timings: timings?.length
-            ? {
-                create: timings?.map(t => ({
-                  time: t.time,
-                  duration: t.duration
-                })) as P.TimeSlot[]
-              }
-            : undefined
+          image: image.size ? `${imageUUID}.${fileExtension}` : undefined,
+          password: await bcrypt.hash(result.data.password as string, 10)
         }
       });
     });
+
+    if (created && image?.size) {
+      await saveFile(image, `${imageUUID}.${fileExtension}`);
+    }
   } catch {
-    return { ...response, success: false, message: CONST.SERVER_ERROR_MESSAGE };
+    return { success: false, message: CONST.SERVER_ERROR_MESSAGE };
   }
 
-  return loginWithCredentials(response);
+  return loginWithCredentials({
+    email: result.data.email,
+    password: result.data.password
+  });
 }

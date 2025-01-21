@@ -1,38 +1,24 @@
 'use client';
 
-import { toast } from 'sonner';
-import { useActionState } from 'react';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
 
-import { getDate } from '@/lib/utils';
 import * as CN from '@/components/ui/card';
+import * as RHF from '@/components/ui/form';
+import { emailSchema } from '@/lib/schemas';
 import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import { forgetPassword } from '@/lib/actions';
 import { Button } from '@/components/ui/button';
+import useHookForm from '@/hooks/use-hook-form';
+import handler from '@/components/display-toast';
 
 export default function Page() {
-  const [state, action, pending] = useActionState(async function (
-    prevState: unknown,
-    formData: FormData
-  ) {
-    const result = await forgetPassword(prevState, formData);
+  const { pending, handleSubmit } = useHookForm(handler, forgetPassword);
 
-    if (result?.success) {
-      toast(result.message, {
-        position: 'top-center',
-        description: <span className="text-foreground">{getDate()}</span>
-      });
-    }
-
-    if (!result?.success && result?.message) {
-      toast(<h2 className="text-destructive">{result?.message}</h2>, {
-        position: 'top-center',
-        description: <p className="text-destructive">{getDate()}</p>
-      });
-    }
-
-    return result;
-  }, undefined);
+  const form = useForm({
+    resolver: zodResolver(emailSchema),
+    defaultValues: { email: String() }
+  });
 
   return (
     <section className="col-span-2 grid place-items-center gap-4 place-self-center">
@@ -44,28 +30,37 @@ export default function Page() {
           </CN.CardDescription>
         </CN.CardHeader>
         <CN.CardContent>
-          <form id="reset-form" className="space-y-2">
-            <div className="space-y-2">
-              <Label htmlFor="email">Email</Label>
-              <Input
-                id="email"
+          <RHF.Form {...form}>
+            <form
+              id="reset-form"
+              className="space-y-2"
+              onSubmit={form.handleSubmit(handleSubmit)}
+            >
+              <RHF.FormField
                 name="email"
-                type="email"
-                defaultValue={state?.email}
-                placeholder="your.name@domain.com"
+                control={form.control}
+                render={({ field }) => (
+                  <RHF.FormItem>
+                    <RHF.FormLabel>Email</RHF.FormLabel>
+                    <RHF.FormControl>
+                      <Input
+                        {...field}
+                        type="email"
+                        placeholder="your.name@domain.com"
+                      />
+                    </RHF.FormControl>
+                    <RHF.FormMessage />
+                  </RHF.FormItem>
+                )}
               />
-              {state?.errors?.email && (
-                <p className="text-destructive text-xs">{state.errors.email}</p>
-              )}
-            </div>
-          </form>
+            </form>
+          </RHF.Form>
         </CN.CardContent>
         <CN.CardFooter className="grid gap-2">
           <Button
             type="submit"
             form="reset-form"
             disabled={pending}
-            formAction={action}
             className="cursor-pointer"
           >
             {pending ? 'Sending...' : 'Send token'}

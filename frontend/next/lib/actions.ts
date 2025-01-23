@@ -588,13 +588,11 @@ export default async function seed(): Promise<FormState | undefined> {
   }
 }
 
-export async function updatePassword(
-  _: unknown,
-  formData: FormData
-): Promise<FormState | undefined> {
-  const email = formData.get('email') as string;
-  const password = formData.get('password') as string;
-  const result = formSchema.safeParse({ password });
+export async function updatePassword({
+  email,
+  password
+}: z.infer<typeof schemas.loginSchema>): Promise<FormState | undefined> {
+  const result = schemas.loginSchema.safeParse({ email, password });
 
   if (!result.success) {
     return { password, errors: result.error.flatten().fieldErrors };

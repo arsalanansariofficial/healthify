@@ -392,11 +392,9 @@ export async function updateSpeciality(
   };
 }
 
-export async function addSpeciality(
-  _: unknown,
-  formData: FormData
-): Promise<FormState | undefined> {
-  const name = formData.get('name') as string;
+export async function addSpeciality({
+  name
+}: z.infer<typeof schemas.nameSchema>): Promise<FormState | undefined> {
   const result = formSchema.safeParse({ name });
 
   if (!result.success) {

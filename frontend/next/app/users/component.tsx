@@ -9,7 +9,6 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { Bar, BarChart, CartesianGrid, XAxis } from 'recharts';
 
 import * as actions from '@/lib/actions';
-import { DoctorProps } from '@/lib/types';
 import * as CN from '@/components/ui/card';
 import { userSchema } from '@/lib/schemas';
 import * as RT from '@tanstack/react-table';
@@ -52,7 +51,6 @@ type Props = {
   user: User;
   users: PrismaUser[];
   chartConfig: CNC.ChartConfig;
-  specialities: DoctorProps['specialities'];
   chartData: { month: string; users: number }[];
   cardsData: {
     title: string;

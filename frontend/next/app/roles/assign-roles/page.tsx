@@ -1,4 +1,4 @@
-import { redirect } from 'next/navigation';
+import { User } from 'next-auth';
 import { PrismaClient } from '@prisma/client';
 
 import { auth } from '@/auth';
@@ -10,11 +10,10 @@ export default async function Page() {
   const session = await auth();
   const roles = await prisma.role.findMany();
 
-  const user = await prisma.user.findUnique({
-    where: { id: session?.user?.id },
-    include: { roles: { include: { permissions: true } } }
-  });
-
-  if (!user) redirect('/login');
-  return <Component user={user!} roles={roles} />;
+  return (
+    <Component
+      user={session?.user as User}
+      roles={roles.map(r => ({ label: r.name, value: r.id }))}
+    />
+  );
 }

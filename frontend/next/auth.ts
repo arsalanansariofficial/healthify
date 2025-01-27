@@ -87,7 +87,6 @@ export const { auth, handlers, signIn, signOut, unstable_update } = NextAuth({
       }
 
       if (trigger === 'update' && session.user) {
-        console.log(trigger, session.user.roles);
         token.id = session.user.id;
         token.roles = session.user.roles;
         token.expiresAt = session.user.expiresAt;

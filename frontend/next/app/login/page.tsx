@@ -19,7 +19,12 @@ import handler from '@/components/display-toast';
 export default function Page() {
   let oAuthError: string | undefined;
   const searchParams = useSearchParams();
-  const { pending, handleSubmit } = useHookForm(handler, login, oAuthError);
+  const { pending, handleSubmit } = useHookForm(
+    handler,
+    login,
+    false,
+    oAuthError
+  );
 
   const form = useForm({
     resolver: zodResolver(loginSchema),

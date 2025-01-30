@@ -65,6 +65,7 @@ export type FormState = {
   experience?: number;
   emailVerified?: string;
   daysOfVisit?: string[];
+  permissions?: string[];
   specialities?: string[];
   timings?: { time: `${number}:${number}:${number}`; duration: number }[];
   errors?: {
@@ -80,6 +81,7 @@ export type FormState = {
     experience?: string[];
     permission?: string[];
     daysOfVisit?: string[];
+    permissions?: string[];
     specialities?: string[];
     emailVerified?: string[];
   };
@@ -343,19 +345,25 @@ export async function verifyEmail(
   }
 }
 
-export async function assignPermissions(formData: {
-  role: string;
-  permissions: P.Permission[];
-}): Promise<FormState | undefined> {
+export async function assignPermissions({
+  name,
+  permissions
+}: z.infer<typeof schemas.rolePermissionsSchema>): Promise<
+  FormState | undefined
+> {
+  const result = schemas.rolePermissionsSchema.safeParse({ name, permissions });
+
+  if (!result.success) {
+    return { name, permissions, errors: result.error.flatten().fieldErrors };
+  }
+
   try {
     const session = await auth();
 
     const user = await prisma.$transaction(async function (transaction) {
       await transaction.role.update({
-        where: { name: formData.role },
-        data: {
-          permissions: { set: formData.permissions.map(({ id }) => ({ id })) }
-        }
+        where: { name },
+        data: { permissions: { set: permissions.map(p => ({ id: p })) } }
       });
 
       return await transaction.user.findUnique({

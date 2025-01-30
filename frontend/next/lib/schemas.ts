@@ -18,6 +18,11 @@ export const emailSchema = z.object({
   email: z.string().email({ message: 'Email should be valid.' })
 });
 
+export const rolePermissionsSchema = z.object({
+  name: z.string().min(1, { message: 'Should be valid.' }),
+  permissions: z.array(z.string().min(1, { message: 'Name should be valid.' }))
+});
+
 export const loginSchema = z.object({
   email: z.string().email({ message: 'Email should be valid.' }),
   password: z.string().min(1, { message: 'Password should be valid.' })

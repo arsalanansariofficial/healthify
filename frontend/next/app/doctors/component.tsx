@@ -6,26 +6,31 @@ import Image from 'next/image';
 import { toast } from 'sonner';
 import { useState } from 'react';
 import { User } from 'next-auth';
-import { useActionState } from 'react';
 import { PlusIcon } from 'lucide-react';
-import { useRouter } from 'next/navigation';
+import { useForm } from 'react-hook-form';
 import { Speciality } from '@prisma/client';
 import * as RT from '@tanstack/react-table';
 import * as Icons from '@tabler/icons-react';
+import { zodResolver } from '@hookform/resolvers/zod';
 
 import * as actions from '@/lib/actions';
+import { FormState } from '@/lib/actions';
 import * as CN from '@/components/ui/card';
+import { nameSchema } from '@/lib/schemas';
+import { hasPermission } from '@/lib/utils';
+import * as RHF from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import useHookForm from '@/hooks/use-hook-form';
 import * as Drawer from '@/components/ui/drawer';
 import { useIsMobile } from '@/hooks/use-mobile';
 import * as DT from '@/components/ui/data-table';
 import * as Select from '@/components/ui/select';
+import handler from '@/components/display-toast';
 import * as DM from '@/components/ui/dropdown-menu';
 import { Checkbox } from '@/components/ui/checkbox';
-import { getDate, hasPermission } from '@/lib/utils';
 
 type Props = { user: User; specialities: Speciality[] };
 type TableSchema = { id: number; name: string };
@@ -89,40 +94,20 @@ function Menu({ id, ids, isHeader = false }: MenuProps) {
 }
 
 export function TableCellViewer<T extends z.ZodType>(props: TCVProps<T>) {
-  const router = useRouter();
   const isMobile = useIsMobile();
 
-  const [state, action, pending] = useActionState(
-    async function (prevState: unknown, formData: FormData) {
-      const result = await actions.updateSpeciality(
-        props.item.id,
-        prevState,
-        formData
-      );
-
-      if (result?.success) {
-        toast(result.message, {
-          position: 'top-center',
-          onAutoClose: router.refresh,
-          description: <span className="text-foreground">{getDate()}</span>
-        });
-      }
-
-      if (!result?.success && result?.message) {
-        toast(<h2 className="text-destructive">{result?.message}</h2>, {
-          position: 'top-center',
-          description: <p className="text-destructive">{getDate()}</p>
-        });
-      }
-
-      return result;
-    },
-    {
-      name: props.item.name,
-      email: props.item.email,
-      emailVerfied: props.item.emailVerified
-    } as actions.FormState
+  const { pending, handleSubmit } = useHookForm(
+    handler,
+    actions.updateSpeciality.bind(null, props.item.id) as (
+      data: z.infer<typeof nameSchema>
+    ) => Promise<FormState | undefined>,
+    true
   );
+
+  const form = useForm({
+    resolver: zodResolver(nameSchema),
+    defaultValues: { name: String() }
+  });
 
   return (
     <Drawer.Drawer direction={isMobile ? 'bottom' : 'right'}>
@@ -133,30 +118,38 @@ export function TableCellViewer<T extends z.ZodType>(props: TCVProps<T>) {
       </Drawer.DrawerTrigger>
       <Drawer.DrawerContent>
         <Drawer.DrawerHeader className="gap-1">
-          <Drawer.DrawerTitle>Users Chart</Drawer.DrawerTitle>
+          <Drawer.DrawerTitle>Speciality</Drawer.DrawerTitle>
           <Drawer.DrawerDescription>
-            Showing total users for the last 6 months
+            You can change the name for the selected speciality
           </Drawer.DrawerDescription>
         </Drawer.DrawerHeader>
         <div className="flex flex-col gap-4 overflow-y-auto px-4 text-sm">
-          <form id="speciality-form" className="flex flex-col gap-4 py-4">
-            <div className="flex flex-col gap-3">
-              <Label htmlFor="name">Name</Label>
-              <Input
-                id="name"
+          <RHF.Form {...form}>
+            <form
+              id="speciality-form"
+              className="space-y-2"
+              onSubmit={form.handleSubmit(handleSubmit)}
+            >
+              <RHF.FormField
                 name="name"
-                type="text"
-                defaultValue={state?.name}
-                placeholder="Gwen Tennyson"
+                control={form.control}
+                render={({ field }) => (
+                  <RHF.FormItem>
+                    <RHF.FormLabel>Speciality</RHF.FormLabel>
+                    <RHF.FormControl>
+                      <Input {...field} type="name" placeholder="Physician" />
+                    </RHF.FormControl>
+                    <RHF.FormMessage />
+                  </RHF.FormItem>
+                )}
               />
-            </div>
-          </form>
+            </form>
+          </RHF.Form>
         </div>
         <Drawer.DrawerFooter>
           <Button
             type="submit"
             disabled={pending}
-            formAction={action}
             form="speciality-form"
             className="cursor-pointer"
           >

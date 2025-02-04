@@ -385,25 +385,26 @@ export async function assignPermissions({
 
 export async function updateSpeciality(
   id: string,
-  _: unknown,
-  formData: FormData
+  { name }: z.infer<typeof schemas.nameSchema>
 ): Promise<FormState | undefined> {
-  const name = formData.get('name') as string;
-  const result = formSchema.safeParse({ name });
+  const result = schemas.nameSchema.safeParse({ name });
 
   if (!result.success) {
     return { name, errors: result.error.flatten().fieldErrors };
   }
 
-  await prisma.speciality.update({ where: { id }, data: { name } });
+  try {
+    await prisma.speciality.update({ where: { id }, data: { name } });
 
-  revalidatePath('/');
-  return {
-    name,
-    success: true,
-    emailVerified: 'yes',
-    message: '🎉 Speciality updated successfully.'
-  };
+    revalidatePath('/');
+    return {
+      success: true,
+      name: name.toUpperCase(),
+      message: '🎉 Speciality updated successfully.'
+    };
+  } catch {
+    return { name, success: false, message: CONST.SERVER_ERROR_MESSAGE };
+  }
 }
 
 export async function addSpeciality({
@@ -422,8 +423,8 @@ export async function addSpeciality({
 
     revalidatePath('/');
     return {
-      name,
       success: true,
+      name: name.toUpperCase(),
       message: '🎉 Speciality added successfully!'
     };
   } catch {

@@ -124,8 +124,8 @@ export function TableCellViewer<T extends z.ZodType>(props: TCVProps<T>) {
   const { pending, handleSubmit } = useHookForm(
     handler,
     actions.updateUser.bind(null, props.item.id) as (
-      data: z.infer<typeof userSchema>
-    ) => Promise<actions.FormState | undefined>
+      data: unknown
+    ) => Promise<unknown>
   );
 
   return (

@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 
-type Action<T, R> = (data: T) => Promise<R | undefined>;
+type Action<T, R> = (data: T) => Promise<R>;
 
 type Handler<T, R> = (
   data: T,

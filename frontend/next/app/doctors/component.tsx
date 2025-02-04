@@ -14,7 +14,6 @@ import * as Icons from '@tabler/icons-react';
 import { zodResolver } from '@hookform/resolvers/zod';
 
 import * as actions from '@/lib/actions';
-import { FormState } from '@/lib/actions';
 import * as CN from '@/components/ui/card';
 import { nameSchema } from '@/lib/schemas';
 import { hasPermission } from '@/lib/utils';
@@ -99,8 +98,8 @@ export function TableCellViewer<T extends z.ZodType>(props: TCVProps<T>) {
   const { pending, handleSubmit } = useHookForm(
     handler,
     actions.updateSpeciality.bind(null, props.item.id) as (
-      data: z.infer<typeof nameSchema>
-    ) => Promise<FormState | undefined>,
+      data: unknown
+    ) => Promise<unknown>,
     true
   );
 

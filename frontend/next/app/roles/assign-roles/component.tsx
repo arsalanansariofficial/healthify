@@ -7,12 +7,12 @@ import { zodResolver } from '@hookform/resolvers/zod';
 
 import * as CN from '@/components/ui/card';
 import * as RHF from '@/components/ui/form';
+import { assignRoles } from '@/lib/actions';
 import { Input } from '@/components/ui/input';
 import { userRolesSchema } from '@/lib/schemas';
 import { Button } from '@/components/ui/button';
 import useHookForm from '@/hooks/use-hook-form';
 import handler from '@/components/display-toast';
-import { assignRoles, FormState } from '@/lib/actions';
 import MultiSelect from '@/components/ui/multi-select';
 
 type Props = { user: User; roles: { label: string; value: string }[] };
@@ -22,7 +22,7 @@ export default function Component({ user, roles }: Props) {
     handler,
     assignRoles.bind(null, user.id as string) as (
       data: z.infer<typeof userRolesSchema>
-    ) => Promise<FormState | undefined>
+    ) => Promise<unknown>
   );
 
   const form = useForm({

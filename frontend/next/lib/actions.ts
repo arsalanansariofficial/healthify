@@ -1,9 +1,9 @@
 'use server';
 
-import { z } from 'zod';
 import path from 'path';
 import fs from 'fs/promises';
 import bcrypt from 'bcryptjs';
+import { z, ZodSchema } from 'zod';
 import { randomUUID } from 'crypto';
 import nodemailer from 'nodemailer';
 import * as P from '@prisma/client';
@@ -13,6 +13,8 @@ import { revalidatePath } from 'next/cache';
 import * as CONST from '@/lib/constants';
 import * as schemas from '@/lib/schemas';
 import { auth, signIn, unstable_update as update } from '@/auth';
+
+type Schema<T extends ZodSchema> = z.infer<T>;
 
 const dir = path.join(process.cwd(), CONST.USER_DIR);
 
@@ -50,120 +52,6 @@ const prisma = new P.PrismaClient().$extends({
   }
 });
 
-export type FormState = {
-  name?: string;
-  role?: string;
-  city?: string;
-  email?: string;
-  phone?: string;
-  image?: string;
-  gender?: string;
-  message?: string;
-  success?: boolean;
-  password?: string;
-  permission?: string;
-  experience?: number;
-  emailVerified?: string;
-  daysOfVisit?: string[];
-  permissions?: string[];
-  specialities?: string[];
-  timings?: { time: `${number}:${number}:${number}`; duration: number }[];
-  errors?: {
-    city?: string[];
-    name?: string[];
-    role?: string[];
-    phone?: string[];
-    image?: string[];
-    email?: string[];
-    gender?: string[];
-    timings?: string[];
-    password?: string[];
-    experience?: string[];
-    permission?: string[];
-    daysOfVisit?: string[];
-    permissions?: string[];
-    specialities?: string[];
-    emailVerified?: string[];
-  };
-};
-
-const formSchema = z.object({
-  email: z
-    .string()
-    .email({ message: 'Email should be valid.' })
-    .optional()
-    .nullable(),
-  emailVerified: z.enum(['yes', 'no']).optional().nullable(),
-  password: z
-    .string()
-    .min(1, { message: 'Password should be valid.' })
-    .optional()
-    .nullable(),
-  experience: z.coerce
-    .number()
-    .min(1, { message: 'Experience should be valid.' })
-    .optional()
-    .nullable(),
-  specialities: z
-    .array(z.string().min(1, { message: 'Id should be valid.' }))
-    .optional()
-    .nullable(),
-  daysOfVisit: z
-    .array(z.string().toUpperCase().min(1, { message: 'Day should be valid.' }))
-    .optional()
-    .nullable(),
-  name: z
-    .string()
-    .min(3, { message: 'Should be atleast 3 characters.' })
-    .optional()
-    .nullable(),
-  gender: z
-    .enum(['male', 'female'], { message: 'Gender should be valid.' })
-    .optional()
-    .nullable(),
-  role: z
-    .string()
-    .toUpperCase()
-    .min(1, { message: 'Role should be valid.' })
-    .optional()
-    .nullable(),
-  city: z
-    .string()
-    .toUpperCase()
-    .min(1, { message: 'City should be valid.' })
-    .optional()
-    .nullable(),
-  image: z
-    .string()
-    .min(5, { message: 'Name should be atleast 5 characters.' })
-    .nullable()
-    .optional(),
-  permission: z
-    .string()
-    .toUpperCase()
-    .min(1, { message: 'Permission should be valid.' })
-    .optional()
-    .nullable(),
-  phone: z
-    .string()
-    .regex(/^\+?\d{10,15}$/, { message: 'Invalid phone number format.' })
-    .optional()
-    .nullable(),
-  timings: z
-    .array(
-      z.object({
-        duration: z.number().positive({
-          message: 'Duration must be a positive number'
-        }),
-        time: z.string().regex(/^([01]\d|2[0-3]):([0-5]\d):([0-5]\d)$/, {
-          message: 'Invalid time format. Expected HH:MM:SS (24-hour format)'
-        })
-      })
-    )
-    .optional()
-    .nullable()
-});
-
 async function saveFile(file: File, fileName: string) {
   await fs.mkdir(dir, { recursive: true });
   await fs.writeFile(
@@ -173,10 +61,12 @@ async function saveFile(file: File, fileName: string) {
 }
 
 async function generateToken(email: string) {
-  const token = await prisma.token.findUnique({ where: { email } });
-  if (token) await prisma.token.delete({ where: { email } });
-  return await prisma.token.create({
-    data: { email, expires: new Date(Date.now() + 60 * 60 * 1000) }
+  return await prisma.$transaction(async function (transaction) {
+    const token = await transaction.token.findUnique({ where: { email } });
+    if (token) await transaction.token.delete({ where: { email } });
+    return await transaction.token.create({
+      data: { email, expires: new Date(Date.now() + 60 * 60 * 1000) }
+    });
   });
 }
 
@@ -199,58 +89,51 @@ async function sendEmail(to: string, subject: string, html: string) {
   });
 }
 
-async function loginWithCredentials(response: FormState) {
+async function loginWithCredentials({
+  email,
+  password
+}: Schema<typeof schemas.loginSchema>) {
   try {
-    const user = await prisma.user.findUnique({
-      where: { email: response.email }
-    });
+    const user = await prisma.user.findUnique({ where: { email } });
 
     if (user && !user.emailVerified) {
-      const token = await generateToken(response.email as string);
+      const token = await generateToken(email as string);
 
       const subject = 'Verify Your Email';
       const link = `http://localhost:3000/verify?token=${token.id}`;
       const html = `<p>Click <a href="${link}">here</a> to verify.</p>`;
 
-      const emailSent = await sendEmail(
-        response.email as string,
-        subject,
-        html
-      );
+      const emailSent = await sendEmail(email as string, subject, html);
 
       if (token && emailSent) {
         return {
-          ...response,
           success: true,
           message: '🎉 Confirmation email sent.'
         };
       }
 
       return {
-        ...response,
         success: false,
         message: CONST.SERVER_ERROR_MESSAGE
       };
     }
 
     await signIn('credentials', {
-      email: response.email,
+      email: email,
       redirectTo: CONST.DASHBOARD,
-      password: response.password
+      password: password
     });
   } catch (error) {
     if (error instanceof AuthError) {
       switch (error.type) {
         case 'CredentialsSignin':
           return {
-            ...response,
             success: false,
             message: '⚠️ Invalid email or password!'
           };
 
         default:
           return {
-            ...response,
             success: false,
             message: CONST.SERVER_ERROR_MESSAGE
           };
@@ -259,30 +142,6 @@ async function loginWithCredentials(response: FormState) {
 
     throw error;
   }
-}
-
-export async function deleteUser(id: string) {
-  const user = await prisma.$transaction(async function (transaction) {
-    return await transaction.user.deleteWithCleanup({ where: { id } });
-  });
-  if (user && user.image) await fs.unlink(path.join(dir, `${user?.image}`));
-  revalidatePath('/');
-}
-
-export async function deleteUsers(ids: string[]) {
-  const users = await prisma.$transaction(async function (transaction) {
-    return await transaction.user.deleteManyWithCleanup({
-      where: { id: { in: ids } }
-    });
-  });
-  if (users?.length) {
-    await Promise.all(
-      users
-        .filter(user => !!user.image)
-        .map(user => fs.unlink(path.join(dir, `${user?.image}`)))
-    );
-  }
-  revalidatePath('/');
 }
 
 export async function deleteSpeciality(id: string) {
@@ -295,15 +154,39 @@ export async function deleteSpecialities(ids: string[]) {
   revalidatePath('/');
 }
 
+export async function deleteUser(id: string) {
+  const user = await prisma.$transaction(async function (transaction) {
+    return await transaction.user.deleteWithCleanup({ where: { id } });
+  });
+
+  if (user && user.image) await fs.unlink(path.join(dir, `${user?.image}`));
+  revalidatePath('/');
+}
+
+export async function deleteUsers(ids: string[]) {
+  const users = await prisma.$transaction(async function (transaction) {
+    return await transaction.user.deleteManyWithCleanup({
+      where: { id: { in: ids } }
+    });
+  });
+
+  if (users?.length) {
+    await Promise.all(
+      users
+        .filter(user => !!user.image)
+        .map(user => fs.unlink(path.join(dir, `${user?.image}`)))
+    );
+  }
+
+  revalidatePath('/');
+}
+
 export async function assignRoles(
   id: string,
-  data: z.infer<typeof schemas.userRolesSchema>
-): Promise<FormState | undefined> {
+  data: Schema<typeof schemas.userRolesSchema>
+) {
   const result = schemas.userRolesSchema.safeParse(data);
-
-  if (!result.success) {
-    return { ...data, errors: result.error.flatten().fieldErrors };
-  }
+  if (!result.success) return { success: false, message: '⚠️ Invalid inputs!' };
 
   try {
     await prisma.user.update({
@@ -317,13 +200,11 @@ export async function assignRoles(
   }
 }
 
-export async function verifyEmail(
-  email: string
-): Promise<FormState | undefined> {
+export async function verifyEmail(email: string) {
   try {
     const user = await prisma.$transaction(async function (transaction) {
       const user = await transaction.user.findUnique({ where: { email } });
-      if (!user) return;
+      if (!user) return { success: false, message: '⚠️ Invalid inputs!' };
 
       await transaction.user.update({
         where: { email },
@@ -348,14 +229,9 @@ export async function verifyEmail(
 export async function assignPermissions({
   name,
   permissions
-}: z.infer<typeof schemas.rolePermissionsSchema>): Promise<
-  FormState | undefined
-> {
+}: Schema<typeof schemas.rolePermissionsSchema>) {
   const result = schemas.rolePermissionsSchema.safeParse({ name, permissions });
-
-  if (!result.success) {
-    return { name, permissions, errors: result.error.flatten().fieldErrors };
-  }
+  if (!result.success) return { success: false, message: '⚠️ Invalid inputs!' };
 
   try {
     const session = await auth();
@@ -385,36 +261,32 @@ export async function assignPermissions({
 
 export async function updateSpeciality(
   id: string,
-  { name }: z.infer<typeof schemas.nameSchema>
-): Promise<FormState | undefined> {
+  { name }: Schema<typeof schemas.nameSchema>
+) {
   const result = schemas.nameSchema.safeParse({ name });
-
-  if (!result.success) {
-    return { name, errors: result.error.flatten().fieldErrors };
-  }
+  if (!result.success) return { success: false, message: '⚠️ Invalid inputs!' };
 
   try {
-    await prisma.speciality.update({ where: { id }, data: { name } });
+    await prisma.speciality.update({
+      where: { id },
+      data: { name: name.toUpperCase() }
+    });
 
     revalidatePath('/');
     return {
       success: true,
-      name: name.toUpperCase(),
       message: '🎉 Speciality updated successfully.'
     };
   } catch {
-    return { name, success: false, message: CONST.SERVER_ERROR_MESSAGE };
+    return { success: false, message: CONST.SERVER_ERROR_MESSAGE };
   }
 }
 
 export async function addSpeciality({
   name
-}: z.infer<typeof schemas.nameSchema>): Promise<FormState | undefined> {
-  const result = formSchema.safeParse({ name });
-
-  if (!result.success) {
-    return { name, errors: result.error.flatten().fieldErrors };
-  }
+}: Schema<typeof schemas.nameSchema>) {
+  const result = schemas.nameSchema.safeParse({ name });
+  if (!result.success) return { success: false, message: '⚠️ Invalid inputs!' };
 
   try {
     await prisma.speciality.create({
@@ -432,14 +304,9 @@ export async function addSpeciality({
   }
 }
 
-export async function addRole(
-  data: z.infer<typeof schemas.roleSchema>
-): Promise<FormState | undefined> {
+export async function addRole(data: Schema<typeof schemas.roleSchema>) {
   const result = schemas.roleSchema.safeParse(data);
-
-  if (!result.success) {
-    return { ...data, errors: result.error.flatten().fieldErrors };
-  }
+  if (!result.success) return { success: false, message: '⚠️ Invalid inputs!' };
 
   try {
     await prisma.role.create({
@@ -453,13 +320,10 @@ export async function addRole(
 }
 
 export async function addPermission(
-  data: z.infer<typeof schemas.permissionSchema>
-): Promise<FormState | undefined> {
+  data: Schema<typeof schemas.permissionSchema>
+) {
   const result = schemas.permissionSchema.safeParse(data);
-
-  if (!result.success) {
-    return { ...data, errors: result.error.flatten().fieldErrors };
-  }
+  if (!result.success) return { success: false, message: '⚠️ Invalid inputs!' };
 
   try {
     await prisma.permission.create({
@@ -476,20 +340,20 @@ export async function addPermission(
   }
 }
 
-export async function verifyToken(id: string): Promise<FormState> {
+export async function verifyToken(id: string) {
   try {
     const result = await prisma.$transaction(async function (transaction) {
       const token = await transaction.token.findUnique({ where: { id } });
-      if (!token) return;
+      if (!token) return { success: false, message: '⚠️ Invalid inputs!' };
 
       const hasExpired = new Date(token.expires) < new Date();
-      if (hasExpired) return;
+      if (hasExpired) return { success: false, message: '⚠️ Invalid inputs!' };
 
       const user = await transaction.user.findUnique({
         where: { email: token.email }
       });
 
-      if (!user) return;
+      if (!user) return { success: false, message: '⚠️ Invalid inputs!' };
       await transaction.user.update({
         where: { id: user.id },
         data: { email: token.email, emailVerified: new Date() }
@@ -521,39 +385,26 @@ export async function verifyToken(id: string): Promise<FormState> {
   }
 }
 
-export async function login(
-  data: z.infer<typeof schemas.loginSchema>
-): Promise<FormState | undefined> {
+export async function login(data: Schema<typeof schemas.loginSchema>) {
   const email = data.email as string;
   const password = data.password as string;
-  const result = schemas.loginSchema.safeParse({ email, password });
 
-  if (!result.success) {
-    return {
-      email,
-      password,
-      errors: result.error.flatten().fieldErrors
-    };
-  }
+  const result = schemas.loginSchema.safeParse({ email, password });
+  if (!result.success) return { success: false, message: '⚠️ Invalid inputs!' };
 
   return await loginWithCredentials({ email, password });
 }
 
-export async function signup(
-  data: z.infer<typeof schemas.signupSchema>
-): Promise<FormState | undefined> {
-  const result = formSchema.safeParse(data);
-
-  if (!result.success) {
-    return { ...data, errors: result.error.flatten().fieldErrors };
-  }
+export async function signup(data: Schema<typeof schemas.signupSchema>) {
+  const result = schemas.signupSchema.safeParse(data);
+  if (!result.success) return { success: false, message: '⚠️ Invalid inputs!' };
 
   try {
     const user = await prisma.user.findUnique({
       where: { email: result.data.email as string }
     });
 
-    if (user) return { ...data, message: '⚠️ Email already exist!' };
+    if (user) return { success: false, message: '⚠️ Email already exist!' };
 
     await prisma.$transaction(async function (transaction) {
       const role = await transaction.role.findUnique({
@@ -570,13 +421,13 @@ export async function signup(
       });
     });
   } catch {
-    return { ...data, success: false, message: CONST.SERVER_ERROR_MESSAGE };
+    return { success: false, message: CONST.SERVER_ERROR_MESSAGE };
   }
 
   return loginWithCredentials(data);
 }
 
-export default async function seed(): Promise<FormState | undefined> {
+export default async function seed() {
   try {
     await prisma.user.create({
       data: {
@@ -604,12 +455,9 @@ export default async function seed(): Promise<FormState | undefined> {
 export async function updatePassword({
   email,
   password
-}: z.infer<typeof schemas.loginSchema>): Promise<FormState | undefined> {
+}: Schema<typeof schemas.loginSchema>) {
   const result = schemas.loginSchema.safeParse({ email, password });
-
-  if (!result.success) {
-    return { password, errors: result.error.flatten().fieldErrors };
-  }
+  if (!result.success) return { success: false, message: '⚠️ Invalid inputs!' };
 
   try {
     await prisma.user.update({
@@ -625,12 +473,9 @@ export async function updatePassword({
 
 export async function forgetPassword({
   email
-}: z.infer<typeof schemas.emailSchema>): Promise<FormState | undefined> {
+}: Schema<typeof schemas.emailSchema>) {
   const result = schemas.emailSchema.safeParse({ email });
-
-  if (!result.success) {
-    return { email, errors: result.error.flatten().fieldErrors };
-  }
+  if (!result.success) return { success: false, message: '⚠️ Invalid inputs!' };
 
   try {
     const user = await prisma.user.findUnique({ where: { email } });
@@ -654,13 +499,10 @@ export async function forgetPassword({
 
 export async function updateUser(
   id: string,
-  data: z.infer<typeof schemas.userSchema>
-): Promise<FormState | undefined> {
+  data: Schema<typeof schemas.userSchema>
+) {
   const result = schemas.userSchema.safeParse(data);
-
-  if (!result.success) {
-    return { ...data, errors: result.error.flatten().fieldErrors };
-  }
+  if (!result.success) return { success: false, message: '⚠️ Invalid inputs!' };
 
   try {
     const user = await prisma.$transaction(async function (transaction) {
@@ -672,7 +514,8 @@ export async function updateUser(
         existingUser = await transaction.user.findUnique({ where: { email } });
       }
 
-      if (email && email !== user?.email && existingUser) return;
+      if (email && email !== user?.email && existingUser)
+        return { success: false, message: '⚠️ Invalid inputs!' };
 
       return await prisma.user.update({
         where: { id },
@@ -686,37 +529,19 @@ export async function updateUser(
     });
 
     if (!user) {
-      return {
-        ...data,
-        success: false,
-        message: '⚠️ Email already registered!',
-        emailVerified: result.data.emailVerified
-      };
+      return { success: false, message: '⚠️ Email already registered!' };
     }
 
     revalidatePath('/');
-    return {
-      ...data,
-      success: true,
-      message: '🎉 Profile updated successfully.'
-    };
+    return { success: true, message: '🎉 Profile updated successfully.' };
   } catch {
-    return {
-      ...data,
-      success: false,
-      message: CONST.SERVER_ERROR_MESSAGE
-    };
+    return { success: false, message: CONST.SERVER_ERROR_MESSAGE };
   }
 }
 
-export async function addDoctor(
-  data: z.infer<typeof schemas.doctorSchema>
-): Promise<FormState | undefined> {
+export async function addDoctor(data: Schema<typeof schemas.doctorSchema>) {
   const result = schemas.doctorSchema.safeParse(data);
-
-  if (!result.success) {
-    return { errors: result.error.flatten().fieldErrors };
-  }
+  if (!result.success) return { success: false, message: '⚠️ Invalid inputs!' };
 
   const imageUUID = randomUUID();
   const image = result.data.image[0];
@@ -729,7 +554,7 @@ export async function addDoctor(
       where: { email: result.data.email }
     });
 
-    if (user) return { message: '⚠️ Email already exist!' };
+    if (user) return { success: false, message: '⚠️ Email already exist!' };
 
     const created = await prisma.$transaction(async function (transaction) {
       let createTmings, connectSpecialities;

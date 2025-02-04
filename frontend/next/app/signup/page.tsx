@@ -6,6 +6,7 @@ import { signIn } from 'next-auth/react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 
+import { signup } from '@/lib/actions';
 import * as CN from '@/components/ui/card';
 import * as RHF from '@/components/ui/form';
 import { signupSchema } from '@/lib/schemas';
@@ -13,11 +14,12 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import useHookForm from '@/hooks/use-hook-form';
 import handler from '@/components/display-toast';
-import { FormState, signup } from '@/lib/actions';
 
 type Schema = z.infer<typeof signupSchema>;
 
 export default function Page() {
+  const { pending, handleSubmit } = useHookForm(handler, signup);
+
   const form = useForm<Schema>({
     resolver: zodResolver(signupSchema),
     defaultValues: {
@@ -26,11 +28,6 @@ export default function Page() {
       password: String()
     }
   });
-
-  const { pending, handleSubmit } = useHookForm<Schema, FormState>(
-    handler,
-    signup
-  );
 
   return (
     <section className="col-span-2 grid place-items-center gap-4 place-self-center">

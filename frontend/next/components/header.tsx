@@ -11,6 +11,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { cn } from '@/lib/utils';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
+import { DASHBOARD, HOME } from '@/lib/constants';
 import * as DM from '@/components/ui/dropdown-menu';
 import { Card, CardContent } from '@/components/ui/card';
 
@@ -25,7 +26,7 @@ export default function Header() {
           <CardContent className="grid grid-cols-[1fr_auto] gap-4">
             <div className="grid grid-flow-col grid-cols-[auto_1fr] items-center gap-4">
               <Link
-                href="/dashboard"
+                href={DASHBOARD}
                 className="hover:bg-accent relative hidden aspect-square rounded-md p-4 lg:block"
               >
                 <span className="absolute top-1/2 left-1/2 mt-0.5 ml-0.5 grid min-w-5 -translate-x-1/2 -translate-y-1/2 -rotate-45 gap-1">
@@ -136,7 +137,7 @@ export default function Header() {
               Components
             </Link>
             <Link
-              href="/home"
+              href={HOME}
               className="hover:bg-accent block max-w-fit rounded-md px-2 py-1 font-semibold"
             >
               Home

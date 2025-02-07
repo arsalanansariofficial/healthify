@@ -1,12 +1,12 @@
 'use client';
 
-import z from 'zod';
 import Link from 'next/link';
 import { signIn } from 'next-auth/react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 
 import { signup } from '@/lib/actions';
+import { LOGIN } from '@/lib/constants';
 import * as CN from '@/components/ui/card';
 import * as RHF from '@/components/ui/form';
 import { signupSchema } from '@/lib/schemas';
@@ -15,12 +15,10 @@ import { Button } from '@/components/ui/button';
 import useHookForm from '@/hooks/use-hook-form';
 import handler from '@/components/display-toast';
 
-type Schema = z.infer<typeof signupSchema>;
-
 export default function Page() {
   const { pending, handleSubmit } = useHookForm(handler, signup);
 
-  const form = useForm<Schema>({
+  const form = useForm({
     resolver: zodResolver(signupSchema),
     defaultValues: {
       name: String(),
@@ -39,7 +37,7 @@ export default function Page() {
           </CN.CardDescription>
           <CN.CardAction>
             <Button variant="link">
-              <Link href="/login">Login</Link>
+              <Link href={LOGIN}>Login</Link>
             </Button>
           </CN.CardAction>
         </CN.CardHeader>

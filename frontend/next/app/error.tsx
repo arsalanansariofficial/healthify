@@ -2,10 +2,7 @@
 
 import { Button } from '@/components/ui/button';
 
-type Props = {
-  reset: () => void;
-  error: Error & { digest?: string };
-};
+type Props = { reset: () => void; error: Error & { digest?: string } };
 
 export default function Error({ error, reset }: Props) {
   return (

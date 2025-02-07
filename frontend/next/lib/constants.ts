@@ -1,12 +1,10 @@
-const EXP = process.env?.EXPIRES_AT;
-const SP = process.env?.SMTP_PORT_NUMBER;
-
 export const HOME = '/';
 export const LOGIN = '/login';
 
 export const SIGNUP = '/signup';
 export const DASHBOARD = '/dashboard';
 
+export const FORGET = '/forget';
 export const AUTH_ERROR = '/auth-error';
 export const SESSION = 'authjs.session-token';
 
@@ -14,9 +12,6 @@ export const ADMIN_ROLE = process.env?.ADMIN_ROLE || 'ADMIN';
 export const DEFAULT_ROLE = process.env?.DEFAULT_ROLE || 'USER';
 
 export const ADMIN_NAME = process.env?.ADMIN_NAME || 'Admin User';
-export const EXPIRES_AT = EXP && !isNaN(Number(EXP)) ? +EXP : 3600;
-
-export const SMTP_PORT_NUMBER = SP && !isNaN(Number(SP)) ? +SP : 465;
 export const SMTP_PASSWORD = process.env?.SMTP_PASSWORD || 'password';
 
 export const ADMIN_PASSWORD = process.env?.ADMIN_EMAIL || 'admin.user';
@@ -26,8 +21,11 @@ export const HOST = (process.env?.HOST as string) || 'http://localhost:3000';
 export const USER_DIR = (process.env?.USER_DIR as string) || '/public/users';
 export const SMTP_HOST_NAME = process.env?.SMTP_HOST_NAME || 'smtp.gmail.com';
 
+export const PAGE_NOT_FOUND = process.env?.PAGE_NOT_FOUND || 'Page not found!';
+
 export const GITHUB_CLIENT_ID =
   process.env?.GITHUB_CLIENT_ID || 'GITHUB_CLIENT_ID';
+
 export const GITHUB_CLIENT_SECRET =
   process.env?.GITHUB_CLIENT_SECRET || 'GITHUB_CLIENT_SECRET';
 
@@ -82,12 +80,34 @@ export const PERMISSION_ADDED =
 export const SERVER_ERROR_MESSAGE =
   process.env?.SERVER_ERROR_MESSAGE || '⚠️ Something went wrong!';
 
+export const SPECIALITY_DELETED =
+  process.env?.SPECIALITY_DELETED || '🎉 Speciality deleted successfully.';
+
+export const SPECIALITIES_DELETED =
+  process.env?.SPECIALITIES_DELETED || '🎉 Specialities deleted successfully.';
+
+export const USER_DELETED =
+  process.env?.USER_DELETED || '🎉 User deleted successfully.';
+
+export const USERS_DELETED =
+  process.env?.USERS_DELETED || '🎉 Users deleted successfully.';
+
 export const SPECIALITY_UPDATED =
   process.env?.SPECIALITY_UPDATED || '🎉 Speciality updated successfully.';
 
 export const PERMISSIONS_ASSIGNED =
   process.env?.PERMISSIONS_ASSIGNED ||
   '🎉 All permissions are assigned successfully.';
+
+export const EXPIRES_AT =
+  process.env?.EXPIRES_AT && !isNaN(Number(process.env?.EXPIRES_AT))
+    ? +process.env?.EXPIRES_AT
+    : 3600;
+
+export const SMTP_PORT_NUMBER =
+  process.env?.SMTP_PORT_NUMBER && !isNaN(Number(process.env?.SMTP_PORT_NUMBER))
+    ? +process.env?.SMTP_PORT_NUMBER
+    : 465;
 
 export const publicRoutes = [
   '/',
@@ -131,6 +151,23 @@ export const urls = [
   { value: '/roles/assign-roles', permission: 'view:assign-roles' },
   { value: '/doctors/specialities/add', permission: 'add:speciality' },
   { value: '/roles/assign-permissions', permission: 'view:assign-permissions' }
+];
+
+export const SIDEBAR_ITEMS = [
+  { url: '/dashboard', label: 'Dashboard', permission: 'view:dashboard' },
+  { url: '/users', label: 'Users', permission: 'view:users' },
+  { url: '/doctors', label: 'Doctors', permission: 'view:doctors' },
+  { url: '/roles', label: 'Roles', permission: 'view:roles' },
+  {
+    url: '/roles/assign-permissions',
+    label: 'Assign Permissions',
+    permission: 'view:assign-permissions'
+  },
+  {
+    url: '/roles/assign-roles',
+    label: 'Assign Roles',
+    permission: 'view:assign-roles'
+  }
 ];
 
 export const CARDS_DATA = [

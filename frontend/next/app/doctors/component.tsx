@@ -14,6 +14,7 @@ import * as Icons from '@tabler/icons-react';
 import { zodResolver } from '@hookform/resolvers/zod';
 
 import * as actions from '@/lib/actions';
+import * as CONST from '@/lib/constants';
 import * as CN from '@/components/ui/card';
 import { nameSchema } from '@/lib/schemas';
 import { hasPermission } from '@/lib/utils';
@@ -62,10 +63,10 @@ function Menu({ id, ids, isHeader = false }: MenuProps) {
               toast.promise(actions.deleteSpeciality(id as string), {
                 position: 'top-center',
                 loading: 'Deleting speciality',
-                success: '🎉 Speciality deleted successfully.',
+                success: CONST.SPECIALITY_DELETED,
                 error: (
                   <span className="text-destructive">
-                    ⚠️ Something went wrong!
+                    {CONST.SERVER_ERROR_MESSAGE}
                   </span>
                 )
               });
@@ -75,10 +76,10 @@ function Menu({ id, ids, isHeader = false }: MenuProps) {
               toast.promise(actions.deleteSpecialities(ids as string[]), {
                 position: 'top-center',
                 loading: 'Deleting specialities',
-                success: '🎉 Specialities deleted successfully.',
+                success: CONST.SPECIALITIES_DELETED,
                 error: (
                   <span className="text-destructive">
-                    ⚠️ Something went wrong!
+                    {CONST.SERVER_ERROR_MESSAGE}
                   </span>
                 )
               });

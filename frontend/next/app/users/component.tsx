@@ -29,6 +29,7 @@ import * as Select from '@/components/ui/select';
 import handler from '@/components/display-toast';
 import * as DM from '@/components/ui/dropdown-menu';
 import { Checkbox } from '@/components/ui/checkbox';
+import { SERVER_ERROR_MESSAGE } from '@/lib/constants';
 
 type MenuProps = { id?: string; ids?: string[]; isHeader: boolean };
 
@@ -90,7 +91,7 @@ function Menu({ id, ids, isHeader = false }: MenuProps) {
                 success: '🎉 User deleted successfully.',
                 error: (
                   <span className="text-destructive">
-                    ⚠️ Something went wrong!
+                    {SERVER_ERROR_MESSAGE}
                   </span>
                 )
               });
@@ -103,7 +104,7 @@ function Menu({ id, ids, isHeader = false }: MenuProps) {
                 success: '🎉 Users deleted successfully.',
                 error: (
                   <span className="text-destructive">
-                    ⚠️ Something went wrong!
+                    {SERVER_ERROR_MESSAGE}
                   </span>
                 )
               });

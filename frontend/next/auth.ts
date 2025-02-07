@@ -5,7 +5,7 @@ import { PrismaAdapter } from '@auth/prisma-adapter';
 import { Prisma, PrismaClient } from '@prisma/client';
 import Credentials from 'next-auth/providers/credentials';
 
-import { LOGIN, AUTH_ERROR } from '@/lib/constants';
+import * as CONST from '@/lib/constants';
 
 type ExtendedUser = Prisma.UserGetPayload<{
   include: { roles: { include: { permissions: true } } };
@@ -23,8 +23,8 @@ const prisma = new PrismaClient();
 export const authConfig = {
   providers: [
     GitHub({
-      clientId: process.env.GITHUB_CLIENT_ID,
-      clientSecret: process.env.GITHUB_CLIENT_SECRET
+      clientId: CONST.GITHUB_CLIENT_ID,
+      clientSecret: CONST.GITHUB_CLIENT_SECRET
     }),
     Credentials({
       async authorize(credentials) {
@@ -43,8 +43,8 @@ export const authConfig = {
         let expiresAt;
         const hasPasswordMatch = await bcrypt.compare(password, user.password);
 
-        if (process.env.EXPIRES_AT) {
-          expiresAt = Date.now() + Number(process.env.EXPIRES_AT) * 1000;
+        if (CONST.EXPIRES_AT) {
+          expiresAt = Date.now() + CONST.EXPIRES_AT * 1000;
         }
 
         return user && hasPasswordMatch ? { ...user, expiresAt } : null;
@@ -57,7 +57,7 @@ export const { auth, handlers, signIn, signOut, unstable_update } = NextAuth({
   ...authConfig,
   session: { strategy: 'jwt' },
   adapter: PrismaAdapter(prisma),
-  pages: { signIn: LOGIN, error: AUTH_ERROR },
+  pages: { signIn: CONST.LOGIN, error: CONST.AUTH_ERROR },
   events: {
     async linkAccount({ user }) {
       await prisma.user.update({

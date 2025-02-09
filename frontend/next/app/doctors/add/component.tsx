@@ -299,18 +299,16 @@ export default function Component({ specialities }: Props) {
                               type="button"
                               variant="ghost"
                               onClick={() => {
-                                field.onChange(
-                                  utils.removeDuplicateTimes([
-                                    ...(field.value ?? []),
-                                    {
-                                      duration: 1,
-                                      time: '10:00:00',
-                                      id: Math.floor(
-                                        10000 + Math.random() * 90000
-                                      )
-                                    }
-                                  ])
-                                );
+                                field.onChange([
+                                  ...(field.value ?? []),
+                                  {
+                                    duration: 1,
+                                    time: '10:00:00',
+                                    id: Math.floor(
+                                      10000 + Math.random() * 90000
+                                    )
+                                  }
+                                ]);
                               }}
                             >
                               <PlusIcon className="h-4 w-4" />

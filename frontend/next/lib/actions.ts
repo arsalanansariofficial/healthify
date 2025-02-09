@@ -12,6 +12,7 @@ import { revalidatePath } from 'next/cache';
 
 import * as CONST from '@/lib/constants';
 import * as schemas from '@/lib/schemas';
+import { removeDuplicateTimes } from '@/lib/utils';
 import { auth, signIn, unstable_update as update } from '@/auth';
 
 type Schema<T extends ZodSchema> = z.infer<T>;
@@ -571,7 +572,7 @@ export async function addDoctor(data: Schema<typeof schemas.doctorSchema>) {
 
       if (timings.length) {
         createTmings = {
-          create: timings?.map(t => ({
+          create: removeDuplicateTimes(timings)?.map(t => ({
             time: t.time,
             duration: t.duration
           })) as P.TimeSlot[]

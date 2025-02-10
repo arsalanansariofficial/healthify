@@ -14,8 +14,8 @@ export const DEFAULT_ROLE = process.env?.DEFAULT_ROLE || 'USER';
 export const ADMIN_NAME = process.env?.ADMIN_NAME || 'Admin User';
 export const SMTP_PASSWORD = process.env?.SMTP_PASSWORD || 'password';
 
-export const ADMIN_PASSWORD = process.env?.ADMIN_EMAIL || 'admin.user';
 export const SMTP_EMAIL = process.env?.SMTP_EMAIL || 'email@domain.com';
+export const ADMIN_PASSWORD = process.env?.ADMIN_PASSWORD || 'admin.user';
 
 export const HOST = (process.env?.HOST as string) || 'http://localhost:3000';
 export const USER_DIR = (process.env?.USER_DIR as string) || '/public/users';
@@ -158,6 +158,7 @@ export const SIDEBAR_ITEMS = [
   { url: '/users', label: 'Users', permission: 'view:users' },
   { url: '/doctors', label: 'Doctors', permission: 'view:doctors' },
   { url: '/roles', label: 'Roles', permission: 'view:roles' },
+  { url: '/permissions', label: 'Permissions', permission: 'view:permissions' },
   {
     url: '/roles/assign-permissions',
     label: 'Assign Permissions',

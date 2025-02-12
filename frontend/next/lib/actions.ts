@@ -22,17 +22,78 @@ const dir = path.join(process.cwd(), CONST.USER_DIR);
 const prisma = new P.PrismaClient().$extends({
   model: {
     user: {
-      async deleteManyWithCleanup(args: P.Prisma.UserDeleteManyArgs) {
-        const users = await prisma.user.findMany({
-          where: args.where,
-          select: { id: true, image: true }
+      async deleteManyWithCleanup(
+        args: P.Prisma.UserDeleteManyArgs
+      ): Promise<P.User[]> {
+        const users = await prisma.user.findMany({ where: args.where });
+
+        const rolePromises: unknown[] = [];
+        const specialityPromises: unknown[] = [];
+        const accountDeletePromises: unknown[] = [];
+        const timeSlotDeletePromises: unknown[] = [];
+
+        users.forEach(user => {
+          accountDeletePromises.push(
+            prisma.account.deleteMany({ where: { userId: user.id } })
+          );
+
+          timeSlotDeletePromises.push(
+            prisma.timeSlot.deleteMany({ where: { userId: user.id } })
+          );
+
+          rolePromises.push(
+            prisma.role.findMany({
+              where: { userIds: { hasSome: [user?.id as string] } }
+            })
+          );
+
+          specialityPromises.push(
+            prisma.speciality.findMany({
+              where: { userIds: { hasSome: [user?.id as string] } }
+            })
+          );
         });
 
-        const ids = users.map(user => user.id).filter(Boolean);
+        const [updateRoles, updateSpecialities] = await Promise.all([
+          Promise.all(rolePromises),
+          Promise.all(specialityPromises)
+        ]);
 
-        await prisma.$transaction([
-          prisma.timeSlot.deleteMany({ where: { userId: { in: ids } } }),
-          prisma.user.deleteMany(args)
+        await Promise.all([
+          ...updateRoles.flat().map(r => {
+            const role = r as P.Role;
+            return prisma.role.update({
+              where: { id: role.id },
+              data: {
+                userIds: {
+                  set: role.userIds.filter(
+                    uid => !users.find(u => uid === u.id)
+                  )
+                }
+              }
+            });
+          }),
+          ...updateSpecialities.flat().map(s => {
+            const speciality = s as P.Speciality;
+            return prisma.speciality.update({
+              where: { id: speciality.id },
+              data: {
+                userIds: {
+                  set: speciality.userIds.filter(
+                    uid => !users.find(u => uid === u.id)
+                  )
+                }
+              }
+            });
+          })
+        ]);
+
+        await Promise.all([
+          ...accountDeletePromises,
+          ...timeSlotDeletePromises,
+          prisma.user.deleteMany({
+            where: { id: { in: users.map(({ id }) => id) } }
+          })
         ]);
 
         return users;
@@ -40,14 +101,58 @@ const prisma = new P.PrismaClient().$extends({
       async deleteWithCleanup(args: P.Prisma.UserDeleteArgs) {
         const user = await prisma.user.findUnique({
           where: args.where,
-          select: { id: true, image: true }
+          include: { roles: true }
         });
 
-        await prisma.timeSlot.deleteMany({
-          where: { id: user?.id }
-        });
+        const [updateRoles, updateSpecialities] = await Promise.all([
+          prisma.role.findMany({
+            where: {
+              userIds: {
+                hasSome: [user?.id as string]
+              }
+            }
+          }),
+          prisma.speciality.findMany({
+            where: {
+              userIds: {
+                hasSome: [user?.id as string]
+              }
+            }
+          })
+        ]);
 
-        return prisma.user.delete(args);
+        await Promise.all([
+          ...updateRoles.map(r => {
+            const role = r as P.Role;
+            return prisma.role.update({
+              where: { id: role.id },
+              data: {
+                userIds: {
+                  set: role.userIds.filter(uid => uid !== user?.id)
+                }
+              }
+            });
+          }),
+          ...updateSpecialities.map(s => {
+            const speciality = s as P.Speciality;
+            return prisma.speciality.update({
+              where: { id: speciality.id },
+              data: {
+                userIds: {
+                  set: speciality.userIds.filter(uid => uid !== user?.id)
+                }
+              }
+            });
+          })
+        ]);
+
+        await Promise.all([
+          prisma.account.deleteMany({ where: { id: user?.id } }),
+          prisma.timeSlot.deleteMany({ where: { id: user?.id } }),
+          prisma.user.delete({ where: { id: user?.id } })
+        ]);
+
+        return user;
       }
     }
   }
@@ -433,8 +538,8 @@ export default async function seed() {
     await prisma.user.create({
       data: {
         name: CONST.ADMIN_NAME,
+        email: CONST.ADMIN_EMAIL,
         emailVerified: new Date(),
-        email: CONST.ADMIN_PASSWORD,
         password: await bcrypt.hash(CONST.ADMIN_PASSWORD, 10),
         roles: {
           create: [

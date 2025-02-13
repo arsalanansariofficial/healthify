@@ -22,56 +22,38 @@ const dir = path.join(process.cwd(), CONST.USER_DIR);
 const prisma = new P.PrismaClient().$extends({
   model: {
     user: {
-      async deleteManyWithCleanup(
-        args: P.Prisma.UserDeleteManyArgs
-      ): Promise<P.User[]> {
+      async deleteManyWithCleanup(args: P.Prisma.UserDeleteManyArgs) {
         const users = await prisma.user.findMany({ where: args.where });
+        const userIds = new Set(users.map(({ id }) => id));
 
-        const rolePromises: unknown[] = [];
-        const specialityPromises: unknown[] = [];
-
-        users.forEach(user => {
-          rolePromises.push(
-            prisma.role.findMany({
-              where: { userIds: { hasSome: [user?.id as string] } }
-            })
-          );
-
-          specialityPromises.push(
-            prisma.speciality.findMany({
-              where: { userIds: { hasSome: [user?.id as string] } }
-            })
-          );
-        });
-
-        const [updateRoles, updateSpecialities] = await Promise.all([
-          Promise.all(rolePromises),
-          Promise.all(specialityPromises)
+        const [roles, specialities] = await Promise.all([
+          prisma.role.findMany({
+            where: { userIds: { hasSome: Array.from(userIds) } }
+          }),
+          prisma.speciality.findMany({
+            where: { userIds: { hasSome: Array.from(userIds) } }
+          })
         ]);
 
         await Promise.all([
-          ...updateRoles.flat().map(r => {
+          ...roles.map(r => {
             const role = r as P.Role;
             return prisma.role.update({
               where: { id: role.id },
               data: {
                 userIds: {
-                  set: role.userIds.filter(
-                    uid => !users.find(u => uid === u.id)
-                  )
+                  set: role.userIds.filter(uid => !userIds.has(uid))
                 }
               }
             });
           }),
-          ...updateSpecialities.flat().map(s => {
+          ...specialities.map(s => {
             const speciality = s as P.Speciality;
             return prisma.speciality.update({
               where: { id: speciality.id },
               data: {
                 userIds: {
-                  set: speciality.userIds.filter(
-                    uid => !users.find(u => uid === u.id)
-                  )
+                  set: speciality.userIds.filter(uid => !userIds.has(uid))
                 }
               }
             });
@@ -79,60 +61,50 @@ const prisma = new P.PrismaClient().$extends({
         ]);
 
         await prisma.user.deleteMany({
-          where: { id: { in: users.map(({ id }) => id) } }
+          where: { id: { in: Array.from(userIds) } }
         });
 
         return users;
       },
       async deleteWithCleanup(args: P.Prisma.UserDeleteArgs) {
-        const user = await prisma.user.findUnique({
-          where: args.where,
-          include: { roles: true }
-        });
+        const user = await prisma.user.findUnique({ where: args.where });
 
-        const [updateRoles, updateSpecialities] = await Promise.all([
+        if (!user) return null;
+        const userIds = new Set([user.id]);
+
+        const [roles, specialities] = await Promise.all([
           prisma.role.findMany({
-            where: {
-              userIds: {
-                hasSome: [user?.id as string]
-              }
-            }
+            where: { userIds: { hasSome: [user.id] } }
           }),
           prisma.speciality.findMany({
-            where: {
-              userIds: {
-                hasSome: [user?.id as string]
-              }
-            }
+            where: { userIds: { hasSome: [user.id] } }
           })
         ]);
 
         await Promise.all([
-          ...updateRoles.map(r => {
-            const role = r as P.Role;
-            return prisma.role.update({
+          ...roles.map(role =>
+            prisma.role.update({
               where: { id: role.id },
               data: {
                 userIds: {
-                  set: role.userIds.filter(uid => uid !== user?.id)
+                  set: role.userIds.filter(uid => !userIds.has(uid))
                 }
               }
-            });
-          }),
-          ...updateSpecialities.map(s => {
-            const speciality = s as P.Speciality;
-            return prisma.speciality.update({
+            })
+          ),
+          ...specialities.map(speciality =>
+            prisma.speciality.update({
               where: { id: speciality.id },
               data: {
                 userIds: {
-                  set: speciality.userIds.filter(uid => uid !== user?.id)
+                  set: speciality.userIds.filter(uid => !userIds.has(uid))
                 }
               }
-            });
-          })
+            })
+          )
         ]);
 
-        return await prisma.user.delete({ where: { id: user?.id } });
+        return await prisma.user.delete({ where: { id: user.id } });
       }
     }
   }

@@ -19,96 +19,7 @@ type Schema<T extends ZodSchema> = z.infer<T>;
 
 const dir = path.join(process.cwd(), CONST.USER_DIR);
 
-const prisma = new P.PrismaClient().$extends({
-  model: {
-    user: {
-      async deleteManyWithCleanup(args: P.Prisma.UserDeleteManyArgs) {
-        const users = await prisma.user.findMany({ where: args.where });
-        const userIds = new Set(users.map(({ id }) => id));
-
-        const [roles, specialities] = await Promise.all([
-          prisma.role.findMany({
-            where: { userIds: { hasSome: Array.from(userIds) } }
-          }),
-          prisma.speciality.findMany({
-            where: { userIds: { hasSome: Array.from(userIds) } }
-          })
-        ]);
-
-        await Promise.all([
-          ...roles.map(r => {
-            const role = r as P.Role;
-            return prisma.role.update({
-              where: { id: role.id },
-              data: {
-                userIds: {
-                  set: role.userIds.filter(uid => !userIds.has(uid))
-                }
-              }
-            });
-          }),
-          ...specialities.map(s => {
-            const speciality = s as P.Speciality;
-            return prisma.speciality.update({
-              where: { id: speciality.id },
-              data: {
-                userIds: {
-                  set: speciality.userIds.filter(uid => !userIds.has(uid))
-                }
-              }
-            });
-          })
-        ]);
-
-        await prisma.user.deleteMany({
-          where: { id: { in: Array.from(userIds) } }
-        });
-
-        return users;
-      },
-      async deleteWithCleanup(args: P.Prisma.UserDeleteArgs) {
-        const user = await prisma.user.findUnique({ where: args.where });
-
-        if (!user) return null;
-        const userIds = new Set([user.id]);
-
-        const [roles, specialities] = await Promise.all([
-          prisma.role.findMany({
-            where: { userIds: { hasSome: [user.id] } }
-          }),
-          prisma.speciality.findMany({
-            where: { userIds: { hasSome: [user.id] } }
-          })
-        ]);
-
-        await Promise.all([
-          ...roles.map(role =>
-            prisma.role.update({
-              where: { id: role.id },
-              data: {
-                userIds: {
-                  set: role.userIds.filter(uid => !userIds.has(uid))
-                }
-              }
-            })
-          ),
-          ...specialities.map(speciality =>
-            prisma.speciality.update({
-              where: { id: speciality.id },
-              data: {
-                userIds: {
-                  set: speciality.userIds.filter(uid => !userIds.has(uid))
-                }
-              }
-            })
-          )
-        ]);
-
-        return await prisma.user.delete({ where: { id: user.id } });
-      }
-    }
-  }
-});
+const prisma = new P.PrismaClient();
 
 async function saveFile(file: File, fileName: string) {
   await fs.mkdir(dir, { recursive: true });
@@ -118,12 +29,12 @@ async function saveFile(file: File, fileName: string) {
   );
 }
 
-async function generateToken(email: string) {
+async function generateToken(userId: string) {
   return await prisma.$transaction(async function (transaction) {
-    const token = await transaction.token.findUnique({ where: { email } });
-    if (token) await transaction.token.delete({ where: { email } });
+    const token = await transaction.token.findUnique({ where: { userId } });
+    if (token) await transaction.token.delete({ where: { userId } });
     return await transaction.token.create({
-      data: { email, expires: new Date(Date.now() + CONST.EXPIRES_AT * 1000) }
+      data: { userId, expires: new Date(Date.now() + CONST.EXPIRES_AT * 1000) }
     });
   });
 }
@@ -155,7 +66,7 @@ async function loginWithCredentials({
     const user = await prisma.user.findUnique({ where: { email } });
 
     if (user && !user.emailVerified) {
-      const token = await generateToken(email as string);
+      const token = await generateToken(user.id as string);
 
       const subject = 'Verify Your Email';
       const link = `${CONST.HOST}/verify?token=${token.id}`;
@@ -213,22 +124,22 @@ export async function deleteSpecialities(ids: string[]) {
 }
 
 export async function deleteUser(id: string) {
-  const user = await prisma.$transaction(async function (transaction) {
-    return await transaction.user.deleteWithCleanup({ where: { id } });
-  });
-
+  const user = await prisma.user.delete({ where: { id } });
   if (user && user.image) await fs.unlink(path.join(dir, `${user?.image}`));
   revalidatePath(CONST.HOME);
 }
 
 export async function deleteUsers(ids: string[]) {
-  const users = await prisma.$transaction(async function (transaction) {
-    return await transaction.user.deleteManyWithCleanup({
-      where: { id: { in: ids } }
-    });
-  });
+  const [users, count] = await prisma.$transaction(
+    async function (transaction) {
+      return [
+        await transaction.user.findMany({ where: { id: { in: ids } } }),
+        await transaction.user.deleteMany({ where: { id: { in: ids } } })
+      ];
+    }
+  );
 
-  if (users?.length) {
+  if (count) {
     await Promise.all(
       users
         .filter(user => !!user.image)
@@ -247,11 +158,22 @@ export async function assignRoles(
   if (!result.success) return { success: false, message: CONST.INVALID_INPUTS };
 
   try {
-    await prisma.user.update({
-      where: { id },
-      data: { roles: { set: data.roles.map(r => ({ id: r })) } }
+    const session = await auth();
+
+    const [, , roles] = await prisma.$transaction(async function (transaction) {
+      return await Promise.all([
+        transaction.userRole.deleteMany({ where: { userId: id } }),
+        transaction.userRole.createMany({
+          data: data.roles.map(roleId => ({ roleId, userId: id }))
+        }),
+        transaction.userRole.findMany({
+          where: { userId: id },
+          select: { id: true, role: true }
+        })
+      ]);
     });
 
+    await update({ user: { ...session?.user, roles: roles.map(r => r.role) } });
     return { success: true, message: CONST.ROLES_ASSIGNED };
   } catch {
     return { success: false, message: CONST.SERVER_ERROR_MESSAGE };
@@ -270,7 +192,7 @@ export async function verifyEmail(email: string) {
       });
 
       const token = await transaction.token.findUnique({
-        where: { email: user.email as string }
+        where: { userId: user.id as string }
       });
 
       if (token) await transaction.token.delete({ where: { id: token.id } });
@@ -294,24 +216,62 @@ export async function assignPermissions({
   try {
     const session = await auth();
 
-    const user = await prisma.$transaction(async function (transaction) {
-      await transaction.role.update({
-        where: { name },
-        data: { permissions: { set: permissions.map(p => ({ id: p })) } }
-      });
+    const { roles, permits } = await prisma.$transaction(
+      async function (transaction) {
+        const role = await transaction.role.findUnique({ where: { name } });
+        if (!role) return { roles: [], permits: [] };
 
-      return await transaction.user.findUnique({
-        where: { id: session?.user?.id },
-        include: { roles: { include: { permissions: true } } }
-      });
+        const deletePermissions = transaction.rolePermission.deleteMany({
+          where: { roleId: role.id }
+        });
+
+        const addPermissions = transaction.rolePermission.createMany({
+          data: permissions.map(p => ({ roleId: role.id, permissionId: p }))
+        });
+
+        const getRoles = transaction.userRole.findMany({
+          select: { id: true, role: true },
+          where: { userId: session?.user?.id }
+        });
+
+        const getPermissions = transaction.rolePermission.findMany({
+          where: { roleId: role.id },
+          select: { id: true, permission: true }
+        });
+
+        if (!permissions.length) {
+          const [, roles, permits] = await Promise.all([
+            deletePermissions,
+            getRoles,
+            getPermissions
+          ]);
+
+          return {
+            roles: roles.map(r => r.role),
+            permits: permits.map(p => p.permission)
+          };
+        }
+
+        const [, , roles, permits] = await Promise.all([
+          deletePermissions,
+          addPermissions,
+          getRoles,
+          getPermissions
+        ]);
+
+        return {
+          roles: roles.map(r => r.role),
+          permits: permits.map(p => p.permission)
+        };
+      }
+    );
+
+    await update({
+      user: { ...session?.user, roles: roles, permissions: permits }
     });
 
     revalidatePath(CONST.HOME);
-    await update({ user: { ...user, roles: user?.roles } });
-    return {
-      success: true,
-      message: CONST.PERMISSIONS_ASSIGNED
-    };
+    return { success: true, message: CONST.PERMISSIONS_ASSIGNED };
   } catch {
     return { success: false, message: CONST.SERVER_ERROR_MESSAGE };
   }
@@ -408,13 +368,13 @@ export async function verifyToken(id: string) {
       if (hasExpired) return { success: false, message: CONST.INVALID_INPUTS };
 
       const user = await transaction.user.findUnique({
-        where: { email: token.email }
+        where: { id: token.userId }
       });
 
       if (!user) return { success: false, message: CONST.INVALID_INPUTS };
       await transaction.user.update({
         where: { id: user.id },
-        data: { email: token.email, emailVerified: new Date() }
+        data: { emailVerified: new Date() }
       });
 
       await transaction.token.delete({ where: { id: token.id } });
@@ -435,8 +395,8 @@ export async function verifyToken(id: string) {
 
     return {
       success: true,
-      message: CONST.EMAIL_VERIFIED,
-      email: result.token.email
+      email: result.user.email,
+      message: CONST.EMAIL_VERIFIED
     };
   } catch {
     return { success: false, message: CONST.SERVER_ERROR_MESSAGE };
@@ -469,13 +429,16 @@ export async function signup(data: Schema<typeof schemas.signupSchema>) {
         where: { name: CONST.DEFAULT_ROLE }
       });
 
-      return await transaction.user.create({
+      const user = await transaction.user.create({
         data: {
           name: result.data.name,
           email: result.data.email,
-          roles: { connect: { id: role?.id } },
           password: await bcrypt.hash(result.data.password as string, 10)
         }
+      });
+
+      await transaction.userRole.create({
+        data: { userId: user.id, roleId: role?.id as string }
       });
     });
   } catch {
@@ -487,21 +450,32 @@ export async function signup(data: Schema<typeof schemas.signupSchema>) {
 
 export default async function seed() {
   try {
-    await prisma.user.create({
-      data: {
-        name: CONST.ADMIN_NAME,
-        email: CONST.ADMIN_EMAIL,
-        emailVerified: new Date(),
-        password: await bcrypt.hash(CONST.ADMIN_PASSWORD, 10),
-        roles: {
-          create: [
-            {
-              name: CONST.ADMIN_ROLE,
-              permissions: { create: [{ name: CONST.DEFAULT_PERMISSION }] }
-            }
-          ]
-        }
-      }
+    await prisma.$transaction(async function (transaction) {
+      const [role, permission, user] = await Promise.all([
+        await transaction.role.create({
+          data: { name: CONST.ADMIN_ROLE }
+        }),
+        transaction.permission.create({
+          data: { name: CONST.DEFAULT_PERMISSION }
+        }),
+        transaction.user.create({
+          data: {
+            name: CONST.ADMIN_NAME,
+            email: CONST.ADMIN_EMAIL,
+            emailVerified: new Date(),
+            password: await bcrypt.hash(CONST.ADMIN_PASSWORD, 10)
+          }
+        })
+      ]);
+
+      await Promise.all([
+        prisma.userRole.create({
+          data: { userId: user.id, roleId: role.id }
+        }),
+        prisma.rolePermission.create({
+          data: { roleId: role.id, permissionId: permission.id }
+        })
+      ]);
     });
 
     return { success: true, message: CONST.DATABASE_UPDATED };
@@ -542,7 +516,7 @@ export async function forgetPassword({
       return { email, success: false, message: CONST.EMAIL_NOT_FOUND };
     }
 
-    const token = await generateToken(user.email as string);
+    const token = await generateToken(user.id as string);
 
     const subject = 'Reset Your Password';
     const link = `${CONST.HOST}/create-password?token=${token.id}`;
@@ -615,43 +589,41 @@ export async function addDoctor(data: Schema<typeof schemas.doctorSchema>) {
     if (user) return { success: false, message: CONST.EMAIL_REGISTERED };
 
     const created = await prisma.$transaction(async function (transaction) {
-      let createTmings, connectSpecialities;
-
       const role = await transaction.role.findUnique({
         where: { name: CONST.DEFAULT_ROLE }
       });
 
-      if (specialities.length) {
-        connectSpecialities = {
-          connect: specialities?.map(id => ({ id }))
-        };
-      }
-
-      if (timings.length) {
-        createTmings = {
-          create: removeDuplicateTimes(timings)?.map(t => ({
-            time: t.time,
-            duration: t.duration
-          })) as P.TimeSlot[]
-        };
-      }
-
-      return await transaction.user.create({
+      const user = await transaction.user.create({
         data: {
-          timings: createTmings,
           name: result.data.name,
           city: result.data.city,
           email: result.data.email,
           phone: result.data.phone,
           gender: result.data.gender,
-          specialities: connectSpecialities,
           experience: result.data.experience,
-          roles: { connect: { id: role?.id } },
           daysOfVisit: (result.data.daysOfVisit as P.Day[]) || undefined,
+          password: await bcrypt.hash(result.data.password as string, 10),
           image: image?.size ? `${imageUUID}.${fileExtension}` : undefined,
-          password: await bcrypt.hash(result.data.password as string, 10)
+          timings: {
+            create: removeDuplicateTimes(timings)?.map(t => ({
+              time: t.time,
+              duration: t.duration
+            })) as P.TimeSlot[]
+          }
         }
       });
+
+      if (specialities.length) {
+        await transaction.userSpeciality.createMany({
+          data: specialities.map(s => ({ userId: user.id, specialityId: s }))
+        });
+      }
+
+      await transaction.userRole.create({
+        data: { userId: user.id, roleId: role?.id as string }
+      });
+
+      return user;
     });
 
     if (created && image?.size) {

@@ -158,16 +158,16 @@ export const SIDEBAR_ITEMS = [
   { url: '/users', label: 'Users', permission: 'view:users' },
   { url: '/doctors', label: 'Doctors', permission: 'view:doctors' },
   { url: '/roles', label: 'Roles', permission: 'view:roles' },
+  {
+    url: '/roles/assign-roles',
+    label: 'Assign Roles',
+    permission: 'view:assign-roles'
+  },
   { url: '/permissions', label: 'Permissions', permission: 'view:permissions' },
   {
     url: '/roles/assign-permissions',
     label: 'Assign Permissions',
     permission: 'view:assign-permissions'
-  },
-  {
-    url: '/roles/assign-roles',
-    label: 'Assign Roles',
-    permission: 'view:assign-roles'
   }
 ];
 

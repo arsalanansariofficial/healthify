@@ -25,7 +25,7 @@ type Props = {
 export default function Component(props: Props) {
   return (
     <div className="col-span-2 space-y-4 lg:col-start-2">
-      {hasPermission(props.user.roles, 'view:stats-cards') && (
+      {hasPermission(props.user.permissions, 'view:stats-cards') && (
         <section className="@container/main space-y-4">
           <header>
             <CN.Card>
@@ -55,7 +55,7 @@ export default function Component(props: Props) {
           </main>
         </section>
       )}
-      {hasPermission(props.user.roles, 'view:stats') && (
+      {hasPermission(props.user.permissions, 'view:stats') && (
         <section className="space-y-4">
           <header>
             <CN.Card>

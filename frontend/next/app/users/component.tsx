@@ -384,7 +384,7 @@ export default function Component(props: Props) {
 
   return (
     <div className="col-span-2 space-y-4 lg:col-start-2">
-      {hasPermission(props.user.roles, 'view:users') && (
+      {hasPermission(props.user.permissions, 'view:users') && (
         <section className="space-y-4">
           <header>
             <CN.Card>

@@ -2,18 +2,15 @@ import bcrypt from 'bcryptjs';
 import GitHub from 'next-auth/providers/github';
 import NextAuth, { NextAuthConfig } from 'next-auth';
 import { PrismaAdapter } from '@auth/prisma-adapter';
-import { Prisma, PrismaClient } from '@prisma/client';
 import Credentials from 'next-auth/providers/credentials';
+import { Permission, PrismaClient, Role } from '@prisma/client';
 
 import * as CONST from '@/lib/constants';
 
-type ExtendedUser = Prisma.UserGetPayload<{
-  include: { roles: { include: { permissions: true } } };
-}>;
-
 declare module 'next-auth' {
   interface User {
-    roles: ExtendedUser['roles'];
+    roles: Role[];
+    permissions: Permission[];
     expiresAt: number | undefined;
   }
 }
@@ -33,21 +30,31 @@ export const authConfig = {
           password: string;
         };
 
-        const user = await prisma.user.findUnique({
-          where: { email },
-          include: { roles: { include: { permissions: true } } }
-        });
+        const user = await prisma.user.findUnique({ where: { email } });
 
         if (!user || !user.password) return null;
+        if (!(await bcrypt.compare(password, user.password))) return null;
 
-        let expiresAt;
-        const hasPasswordMatch = await bcrypt.compare(password, user.password);
+        const roles = (
+          await prisma.userRole.findMany({
+            select: { role: true },
+            where: { userId: user.id }
+          })
+        ).map(ur => ur.role);
 
-        if (CONST.EXPIRES_AT) {
-          expiresAt = Date.now() + CONST.EXPIRES_AT * 1000;
-        }
+        const permissions = (
+          await prisma.rolePermission.findMany({
+            select: { permission: true },
+            where: { roleId: { in: roles.map(r => r.id) } }
+          })
+        ).map(rp => rp.permission);
 
-        return user && hasPasswordMatch ? { ...user, expiresAt } : null;
+        return {
+          ...user,
+          roles,
+          permissions,
+          expiresAt: Date.now() + CONST.EXPIRES_AT * 1000
+        };
       }
     })
   ]
@@ -78,7 +85,8 @@ export const { auth, handlers, signIn, signOut, unstable_update } = NextAuth({
     },
     async session({ session, token }) {
       session.user.id = token.id as string;
-      session.user.roles = token.roles as ExtendedUser['roles'];
+      session.user.roles = token.roles as Role[];
+      session.user.permissions = token.permissions as Permission[];
       session.user.expiresAt = token.expiresAt as number | undefined;
       return session;
     },
@@ -87,12 +95,14 @@ export const { auth, handlers, signIn, signOut, unstable_update } = NextAuth({
         token.id = user.id;
         token.roles = user.roles;
         token.expiresAt = user.expiresAt;
+        token.permissions = user.permissions;
       }
 
       if (trigger === 'update' && session.user) {
         token.id = session.user.id;
         token.roles = session.user.roles;
         token.expiresAt = session.user.expiresAt;
+        token.permissions = session.user.permissions;
       }
 
       return token;

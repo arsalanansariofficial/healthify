@@ -7,13 +7,13 @@ export function cn(...inputs: ClassValue[]) {
 }
 
 export function hasRole(roles: User['roles'], name: string) {
-  return roles.map(r => r.name.toLowerCase()).includes(name.toLowerCase());
+  return roles?.map(r => r.name.toLowerCase()).includes(name.toLowerCase());
 }
 
-export function hasPermission(roles: User['roles'], name: string) {
-  const permissionsArray = roles.map(r => r.permissions).flat();
-  const permissions = permissionsArray.map(p => p.name.toLowerCase());
-  return permissions.includes(name.toLowerCase());
+export function hasPermission(permissions: User['permissions'], name: string) {
+  return permissions
+    ?.map(p => p.name.toLowerCase())
+    .includes(name.toLowerCase());
 }
 
 export function arrayBufferToBase64(buffer: ArrayBuffer): string {

@@ -10,18 +10,21 @@ type Props = { searchParams: Promise<{ role: string }> };
 export default async function Page({ searchParams }: Props) {
   const { role } = await searchParams;
 
-  const { roles, permissions, existingRole } = await prisma.$transaction(
+  const { roles, permissions, rolePermissions } = await prisma.$transaction(
     async function (transaction) {
       const roles = await transaction.role.findMany();
       const defaultRole = await transaction.role.findFirst();
       const permissions = await transaction.permission.findMany();
 
       const existingRole = await transaction.role.findUnique({
-        include: { permissions: true },
         where: { name: role ? role : defaultRole?.name || DEFAULT_ROLE }
       });
 
-      return { roles, permissions, existingRole };
+      const rolePermissions = await transaction.rolePermission.findMany({
+        where: { roleId: existingRole?.id }
+      });
+
+      return { roles, permissions, existingRole, rolePermissions };
     }
   );
 
@@ -30,7 +33,7 @@ export default async function Page({ searchParams }: Props) {
       key={role}
       role={role}
       roles={roles}
-      assigned={existingRole?.permissions.map(p => p.id) || []}
+      assigned={rolePermissions.map(p => p.permissionId) || []}
       permissions={permissions.map(p => ({ label: p.name, value: p.id }))}
     />
   );

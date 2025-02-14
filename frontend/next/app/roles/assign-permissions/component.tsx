@@ -50,85 +50,94 @@ export default function Component(props: Props) {
   }
 
   return (
-    <section className="grid lg:col-start-2">
-      <SCN.Card className="w-1/2 max-w-md self-center justify-self-center">
-        <SCN.CardHeader>
-          <SCN.CardTitle>Add permissions for a given role</SCN.CardTitle>
-          <SCN.CardDescription>
-            Select a given role from the dropdown and choose the permissions to
-            assign to that role
-          </SCN.CardDescription>
-        </SCN.CardHeader>
-        <SCN.CardContent>
-          <RHF.Form {...form}>
-            <form
-              className="space-y-2"
-              id="role-permissions-form"
-              onSubmit={form.handleSubmit(handleSubmit)}
+    <section className="space-y-4 lg:col-start-2">
+      <header>
+        <SCN.Card>
+          <SCN.CardContent>
+            <h1 className="font-semibold">Assign Permissions</h1>
+          </SCN.CardContent>
+        </SCN.Card>
+      </header>
+      <main>
+        <SCN.Card>
+          <SCN.CardHeader>
+            <SCN.CardTitle>Add permissions for a given role</SCN.CardTitle>
+            <SCN.CardDescription>
+              Select a given role from the dropdown and choose the permissions
+              to assign to that role
+            </SCN.CardDescription>
+          </SCN.CardHeader>
+          <SCN.CardContent>
+            <RHF.Form {...form}>
+              <form
+                className="space-y-2"
+                id="role-permissions-form"
+                onSubmit={form.handleSubmit(handleSubmit)}
+              >
+                <RHF.FormField
+                  name="name"
+                  control={form.control}
+                  render={({ field }) => (
+                    <RHF.FormItem>
+                      <RHF.FormLabel>Role</RHF.FormLabel>
+                      <RHF.FormControl>
+                        <CN.Select
+                          name="role"
+                          value={field.value}
+                          onValueChange={role => {
+                            field.onChange(role);
+                            updateParam('role', role);
+                          }}
+                        >
+                          <CN.SelectTrigger className="w-full">
+                            <CN.SelectValue placeholder="Select a role" />
+                          </CN.SelectTrigger>
+                          <CN.SelectContent>
+                            {props.roles.map(role => (
+                              <CN.SelectItem key={role.id} value={role.name}>
+                                {role.name}
+                              </CN.SelectItem>
+                            ))}
+                          </CN.SelectContent>
+                        </CN.Select>
+                      </RHF.FormControl>
+                      <RHF.FormMessage />
+                    </RHF.FormItem>
+                  )}
+                />
+                <RHF.FormField
+                  name="permissions"
+                  control={form.control}
+                  render={({ field }) => (
+                    <RHF.FormItem>
+                      <RHF.FormLabel>Role</RHF.FormLabel>
+                      <RHF.FormControl>
+                        <MultiSelect
+                          options={props.permissions}
+                          selectedValues={field.value}
+                          setSelectedValues={field.onChange}
+                          placeholder="Select permissions..."
+                        />
+                      </RHF.FormControl>
+                      <RHF.FormMessage />
+                    </RHF.FormItem>
+                  )}
+                />
+              </form>
+            </RHF.Form>
+          </SCN.CardContent>
+          <SCN.CardFooter>
+            <Button
+              type="submit"
+              disabled={pending}
+              className="cursor-pointer"
+              form="role-permissions-form"
             >
-              <RHF.FormField
-                name="name"
-                control={form.control}
-                render={({ field }) => (
-                  <RHF.FormItem>
-                    <RHF.FormLabel>Role</RHF.FormLabel>
-                    <RHF.FormControl>
-                      <CN.Select
-                        name="role"
-                        value={field.value}
-                        onValueChange={role => {
-                          field.onChange(role);
-                          updateParam('role', role);
-                        }}
-                      >
-                        <CN.SelectTrigger className="w-full">
-                          <CN.SelectValue placeholder="Select a role" />
-                        </CN.SelectTrigger>
-                        <CN.SelectContent>
-                          {props.roles.map(role => (
-                            <CN.SelectItem key={role.id} value={role.name}>
-                              {role.name}
-                            </CN.SelectItem>
-                          ))}
-                        </CN.SelectContent>
-                      </CN.Select>
-                    </RHF.FormControl>
-                    <RHF.FormMessage />
-                  </RHF.FormItem>
-                )}
-              />
-              <RHF.FormField
-                name="permissions"
-                control={form.control}
-                render={({ field }) => (
-                  <RHF.FormItem>
-                    <RHF.FormLabel>Role</RHF.FormLabel>
-                    <RHF.FormControl>
-                      <MultiSelect
-                        options={props.permissions}
-                        selectedValues={field.value}
-                        setSelectedValues={field.onChange}
-                        placeholder="Select permissions..."
-                      />
-                    </RHF.FormControl>
-                    <RHF.FormMessage />
-                  </RHF.FormItem>
-                )}
-              />
-            </form>
-          </RHF.Form>
-        </SCN.CardContent>
-        <SCN.CardFooter>
-          <Button
-            type="submit"
-            disabled={pending}
-            form="role-permissions-form"
-            className="w-full cursor-pointer"
-          >
-            {pending ? 'Assigning permissions...' : 'Assign permissions'}
-          </Button>
-        </SCN.CardFooter>
-      </SCN.Card>
+              {pending ? 'Assigning permissions...' : 'Assign permissions'}
+            </Button>
+          </SCN.CardFooter>
+        </SCN.Card>
+      </main>
     </section>
   );
 }

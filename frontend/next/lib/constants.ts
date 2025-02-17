@@ -12,6 +12,7 @@ export const ADMIN_ROLE = process.env?.ADMIN_ROLE || 'ADMIN';
 export const DEFAULT_ROLE = process.env?.DEFAULT_ROLE || 'USER';
 
 export const ADMIN_NAME = process.env?.ADMIN_NAME || 'Admin User';
+export const IS_PRODUCTION = process.env?.NODE_ENV === 'production';
 export const SMTP_PASSWORD = process.env?.SMTP_PASSWORD || 'password';
 
 export const SMTP_EMAIL = process.env?.SMTP_EMAIL || 'email@domain.com';

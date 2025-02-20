@@ -7,7 +7,7 @@ import { hasPermission } from '@/lib/utils';
 import { DASHBOARD, SESSION, LOGIN, urls, publicRoutes } from '@/lib/constants';
 
 export const config = {
-  matcher: ['/((?!api|_next/static|_next/image|.*\\.png$).*)']
+  matcher: ['/((?!api|_next/static|_next/image|.*\\.(?:png)$).*)']
 };
 
 export default NextAuth(authConfig).auth(async request => {

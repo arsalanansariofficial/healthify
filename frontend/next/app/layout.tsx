@@ -1,11 +1,11 @@
 import type { Metadata } from 'next';
+import { SessionProvider } from 'next-auth/react';
 
 import { auth } from '@/auth';
 import Session from '@/app/session';
 import Header from '@/components/header';
 import Sidebar from '@/components/sidebar';
 import { Toaster } from '@/components/ui/sonner';
-import { SessionProvider } from 'next-auth/react';
 import { ThemeProvider } from '@/components/theme-provider';
 
 import '@/app/globals.css';

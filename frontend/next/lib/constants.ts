@@ -10,6 +10,7 @@ export const SESSION = 'authjs.session-token';
 
 export const ADMIN_ROLE = process.env?.ADMIN_ROLE || 'ADMIN';
 export const DEFAULT_ROLE = process.env?.DEFAULT_ROLE || 'USER';
+export const DOCTOR_ROLE = process.env?.DOCTOR_ROLE || 'DOCTOR';
 
 export const ADMIN_NAME = process.env?.ADMIN_NAME || 'Admin User';
 export const IS_PRODUCTION = process.env?.NODE_ENV === 'production';

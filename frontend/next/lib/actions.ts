@@ -589,7 +589,7 @@ export async function addDoctor(data: Schema<typeof schemas.doctorSchema>) {
 
     const created = await prisma.$transaction(async function (transaction) {
       const role = await transaction.role.findUnique({
-        where: { name: CONST.DEFAULT_ROLE }
+        where: { name: CONST.DOCTOR_ROLE }
       });
 
       const user = await transaction.user.create({

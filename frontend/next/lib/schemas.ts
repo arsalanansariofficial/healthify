@@ -4,6 +4,14 @@ const emailVerified = z.object({
   emailVerified: z.enum(['yes', 'no']).optional()
 });
 
+const appointmentDay = z.object({
+  day: z.string().min(1, { message: 'Should be valid.' })
+});
+
+const appointmentTime = z.object({
+  time: z.string().min(1, { message: 'Should be valid.' })
+});
+
 const name = z.object({
   name: z.string().min(1, { message: 'Should be valid.' })
 });
@@ -99,6 +107,13 @@ export const userSchema = signupSchema.merge(emailVerified);
 
 export const rolePermissionsSchema = name.merge(permissions);
 export const userRolesSchema = name.merge(email).merge(roles);
+
+export const appointmentSchema = name
+  .merge(city)
+  .merge(email)
+  .merge(phone)
+  .merge(appointmentDay)
+  .merge(appointmentTime);
 
 export const doctorSchema = userSchema
   .merge(city)

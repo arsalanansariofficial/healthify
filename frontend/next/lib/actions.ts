@@ -637,3 +637,7 @@ export async function addDoctor(data: Schema<typeof schemas.doctorSchema>) {
     password: result.data.password
   });
 }
+
+export async function getAppointment(
+  data: Schema<typeof schemas.appointmentSchema>
+) {}

@@ -177,11 +177,10 @@ export function TableCellViewer<T extends z.ZodType>(props: TCVProps<T>) {
 }
 
 export default function Component(props: Props) {
-  const [time, setTime] = useState<string>();
-  const [gender, setGender] = useState<string>();
-  const [speciality, setSpeciality] = useState<string>();
-  const [experience, setExperience] = useState<string>();
-  const [selectedTimeslots, setSelectedTimeslots] = useState<string[]>([]);
+  const [, setTime] = useState<string>();
+  const [, setGender] = useState<string>();
+  const [, setSpeciality] = useState<string>();
+  const [, setExperience] = useState<string>();
 
   const columns: RT.ColumnDef<TableSchema>[] = [
     {

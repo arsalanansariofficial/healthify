@@ -50,7 +50,7 @@ export default function Component(props: Props) {
   }
 
   return (
-    <section className="space-y-4 lg:col-start-2">
+    <section className="col-span-2 space-y-4 lg:col-start-2">
       <header>
         <SCN.Card>
           <SCN.CardContent>

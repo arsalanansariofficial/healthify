@@ -43,20 +43,24 @@ export default async function Page({ searchParams }: Props) {
 
   if (!token) {
     return (
-      <section className="col-span-2 grid place-items-center place-self-center">
-        <ErrorCard message="Missing verification token" />
-      </section>
+      <main className="row-start-2 mx-8 grid place-items-center">
+        <section>
+          <ErrorCard message="Missing verification token" />
+        </section>
+      </main>
     );
   }
 
   return (
     <Suspense
       fallback={
-        <section className="col-span-2 grid place-items-center place-self-center">
-          <p className="text-destructive animate-pulse font-semibold">
-            Verifying...
-          </p>
-        </section>
+        <main className="row-start-2 mx-8 grid place-items-center">
+          <section>
+            <p className="text-destructive animate-pulse font-semibold">
+              Verifying...
+            </p>
+          </section>
+        </main>
       }
     >
       <Verify token={token} />

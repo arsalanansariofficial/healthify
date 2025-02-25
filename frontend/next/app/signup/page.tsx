@@ -28,98 +28,100 @@ export default function Page() {
   });
 
   return (
-    <section className="col-span-2 grid place-items-center gap-4 place-self-center">
-      <CN.Card className="min-w-sm">
-        <CN.CardHeader>
-          <CN.CardTitle>Create your account</CN.CardTitle>
-          <CN.CardDescription>
-            Enter your details below to create your account
-          </CN.CardDescription>
-          <CN.CardAction>
-            <Button variant="link">
-              <Link href={LOGIN}>Login</Link>
-            </Button>
-          </CN.CardAction>
-        </CN.CardHeader>
-        <CN.CardContent>
-          <RHF.Form {...form}>
-            <form
-              id="signup-form"
-              className="space-y-2"
-              onSubmit={form.handleSubmit(handleSubmit)}
+    <main className="row-start-2 mx-8 grid place-items-center">
+      <section>
+        <CN.Card className="min-w-sm">
+          <CN.CardHeader>
+            <CN.CardTitle>Create your account</CN.CardTitle>
+            <CN.CardDescription>
+              Enter your details below to create your account
+            </CN.CardDescription>
+            <CN.CardAction>
+              <Button variant="link">
+                <Link href={LOGIN}>Login</Link>
+              </Button>
+            </CN.CardAction>
+          </CN.CardHeader>
+          <CN.CardContent>
+            <RHF.Form {...form}>
+              <form
+                id="signup-form"
+                className="space-y-2"
+                onSubmit={form.handleSubmit(handleSubmit)}
+              >
+                <RHF.FormField
+                  name="name"
+                  control={form.control}
+                  render={({ field }) => (
+                    <RHF.FormItem>
+                      <RHF.FormLabel>Name</RHF.FormLabel>
+                      <RHF.FormControl>
+                        <Input
+                          {...field}
+                          type="text"
+                          placeholder="Gwen Tennyson"
+                        />
+                      </RHF.FormControl>
+                      <RHF.FormMessage />
+                    </RHF.FormItem>
+                  )}
+                />
+                <RHF.FormField
+                  name="email"
+                  control={form.control}
+                  render={({ field }) => (
+                    <RHF.FormItem>
+                      <RHF.FormLabel>Email</RHF.FormLabel>
+                      <RHF.FormControl>
+                        <Input
+                          {...field}
+                          type="email"
+                          placeholder="your.name@domain.com"
+                        />
+                      </RHF.FormControl>
+                      <RHF.FormMessage />
+                    </RHF.FormItem>
+                  )}
+                />
+                <RHF.FormField
+                  name="password"
+                  control={form.control}
+                  render={({ field }) => (
+                    <RHF.FormItem>
+                      <RHF.FormLabel>Password</RHF.FormLabel>
+                      <RHF.FormControl>
+                        <Input
+                          {...field}
+                          type="password"
+                          placeholder="Secret@123"
+                        />
+                      </RHF.FormControl>
+                      <RHF.FormMessage />
+                    </RHF.FormItem>
+                  )}
+                />
+              </form>
+            </RHF.Form>
+          </CN.CardContent>
+          <CN.CardFooter className="grid gap-2">
+            <Button
+              type="submit"
+              form="signup-form"
+              disabled={pending}
+              className="cursor-pointer"
             >
-              <RHF.FormField
-                name="name"
-                control={form.control}
-                render={({ field }) => (
-                  <RHF.FormItem>
-                    <RHF.FormLabel>Name</RHF.FormLabel>
-                    <RHF.FormControl>
-                      <Input
-                        {...field}
-                        type="text"
-                        placeholder="Gwen Tennyson"
-                      />
-                    </RHF.FormControl>
-                    <RHF.FormMessage />
-                  </RHF.FormItem>
-                )}
-              />
-              <RHF.FormField
-                name="email"
-                control={form.control}
-                render={({ field }) => (
-                  <RHF.FormItem>
-                    <RHF.FormLabel>Email</RHF.FormLabel>
-                    <RHF.FormControl>
-                      <Input
-                        {...field}
-                        type="email"
-                        placeholder="your.name@domain.com"
-                      />
-                    </RHF.FormControl>
-                    <RHF.FormMessage />
-                  </RHF.FormItem>
-                )}
-              />
-              <RHF.FormField
-                name="password"
-                control={form.control}
-                render={({ field }) => (
-                  <RHF.FormItem>
-                    <RHF.FormLabel>Password</RHF.FormLabel>
-                    <RHF.FormControl>
-                      <Input
-                        {...field}
-                        type="password"
-                        placeholder="Secret@123"
-                      />
-                    </RHF.FormControl>
-                    <RHF.FormMessage />
-                  </RHF.FormItem>
-                )}
-              />
-            </form>
-          </RHF.Form>
-        </CN.CardContent>
-        <CN.CardFooter className="grid gap-2">
-          <Button
-            type="submit"
-            form="signup-form"
-            disabled={pending}
-            className="cursor-pointer"
-          >
-            {pending ? 'Signing up...' : 'Signup'}
-          </Button>
-          <Button
-            variant="outline"
-            className="cursor-pointer"
-            onClick={() => signIn('github')}
-          >
-            Login with GitHub
-          </Button>
-        </CN.CardFooter>
-      </CN.Card>
-    </section>
+              {pending ? 'Signing up...' : 'Signup'}
+            </Button>
+            <Button
+              variant="outline"
+              className="cursor-pointer"
+              onClick={() => signIn('github')}
+            >
+              Login with GitHub
+            </Button>
+          </CN.CardFooter>
+        </CN.Card>
+      </section>
+    </main>
   );
 }

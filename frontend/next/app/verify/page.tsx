@@ -14,23 +14,27 @@ async function Verify({ token }: { token: string }) {
   return (
     <Suspense
       fallback={
-        <section className="col-span-2 grid place-self-center">
-          <p className="text-destructive animate-pulse font-semibold">
-            Verifying...
-          </p>
-        </section>
+        <main className="row-start-2 mx-8 grid place-items-center">
+          <section className="space-y-4 text-center">
+            <p className="text-destructive animate-pulse font-semibold">
+              Verifying...
+            </p>
+          </section>
+        </main>
       }
     >
-      <section className="col-span-2 grid place-items-center gap-2 place-self-center">
-        <p className={cn('font-semibold', { 'text-destructive': !success })}>
-          {message}
-        </p>
-        <Button>
-          <Link href={!success ? HOME : LOGIN}>
-            {!success ? 'Home' : 'Login'}
-          </Link>
-        </Button>
-      </section>
+      <main className="row-start-2 mx-8 grid place-items-center">
+        <section className="space-y-4 text-center">
+          <p className={cn('font-semibold', { 'text-destructive': !success })}>
+            {message}
+          </p>
+          <Button>
+            <Link href={!success ? HOME : LOGIN}>
+              {!success ? 'Home' : 'Login'}
+            </Link>
+          </Button>
+        </section>
+      </main>
     </Suspense>
   );
 }
@@ -40,14 +44,16 @@ export default async function Page({ searchParams }: Props) {
 
   if (!token) {
     return (
-      <section className="col-span-2 grid place-items-center gap-2 place-self-center">
-        <p className="text-destructive font-semibold">
-          Missing verification token!
-        </p>
-        <Button>
-          <Link href={HOME}>Home</Link>
-        </Button>
-      </section>
+      <main className="row-start-2 mx-8 grid place-items-center">
+        <section className="space-y-4 text-center">
+          <p className="text-destructive font-semibold">
+            Missing verification token!
+          </p>
+          <Button>
+            <Link href={HOME}>Home</Link>
+          </Button>
+        </section>
+      </main>
     );
   }
 

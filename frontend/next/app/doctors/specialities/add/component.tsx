@@ -1,55 +1,61 @@
 'use client';
 
 import { useForm } from 'react-hook-form';
-import useHookForm from '@/hooks/use-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 
 import * as CN from '@/components/ui/card';
+import { nameSchema } from '@/lib/schemas';
 import * as RHF from '@/components/ui/form';
-import { loginSchema } from '@/lib/schemas';
+import { addSpeciality } from '@/lib/actions';
 import { Input } from '@/components/ui/input';
-import { updatePassword } from '@/lib/actions';
 import { Button } from '@/components/ui/button';
+import useHookForm from '@/hooks/use-hook-form';
 import handler from '@/components/display-toast';
 
-export default function Component({ email }: { email: string }) {
-  const { pending, handleSubmit } = useHookForm(handler, updatePassword);
+export default function Component() {
+  const { pending, handleSubmit } = useHookForm(handler, addSpeciality);
 
   const form = useForm({
-    resolver: zodResolver(loginSchema),
-    defaultValues: { email, password: String() }
+    resolver: zodResolver(nameSchema),
+    defaultValues: { name: String() }
   });
 
   return (
-    <main className="row-start-2 mx-8 grid place-items-center">
-      <section>
-        <CN.Card className="min-w-sm">
+    <section className="col-span-2 h-full space-y-4 lg:col-span-1">
+      <header>
+        <CN.Card>
+          <CN.CardContent>
+            <h1 className="font-semibold">Speciality</h1>
+          </CN.CardContent>
+        </CN.Card>
+      </header>
+      <main className="mx-auto">
+        <CN.Card>
           <CN.CardHeader>
-            <CN.CardTitle>Reset your password</CN.CardTitle>
+            <CN.CardTitle>Add Speciality</CN.CardTitle>
             <CN.CardDescription>
-              Enter a new password below to reset your account&apos;s password
+              Add new speciality here. Click save when you&apos;re done.
             </CN.CardDescription>
           </CN.CardHeader>
           <CN.CardContent>
             <RHF.Form {...form}>
               <form
-                id="reset-form"
+                id="speciality-form"
                 className="space-y-2"
                 onSubmit={form.handleSubmit(handleSubmit)}
               >
                 <RHF.FormField
-                  name="password"
+                  name="name"
                   control={form.control}
                   render={({ field }) => (
                     <RHF.FormItem>
-                      <RHF.FormLabel className="flex items-center justify-between">
-                        <span>Password</span>
-                      </RHF.FormLabel>
+                      <RHF.FormLabel>Name</RHF.FormLabel>
                       <RHF.FormControl>
                         <Input
                           {...field}
-                          type="password"
-                          placeholder="Secret@123"
+                          type="text"
+                          className="capitalize"
+                          placeholder="Physician"
                         />
                       </RHF.FormControl>
                       <RHF.FormMessage />
@@ -60,17 +66,12 @@ export default function Component({ email }: { email: string }) {
             </RHF.Form>
           </CN.CardContent>
           <CN.CardFooter>
-            <Button
-              type="submit"
-              form="reset-form"
-              disabled={pending}
-              className="w-full cursor-pointer"
-            >
-              {pending ? 'Updating password...' : 'Reset password'}
+            <Button type="submit" disabled={pending} form="speciality-form">
+              {pending ? 'Saving...' : 'Save'}
             </Button>
           </CN.CardFooter>
         </CN.Card>
-      </section>
-    </main>
+      </main>
+    </section>
   );
 }

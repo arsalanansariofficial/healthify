@@ -128,4 +128,26 @@
   body {
     @apply bg-background text-foreground;
   }
+
+  .print-animation {
+    animation-name: print;
+    animation-delay: 500ms;
+    animation-duration: 2.5s;
+    animation-fill-mode: forwards;
+  }
+
+  @keyframes print {
+    0% {
+      transform: translateY(-510px);
+    }
+    35% {
+      transform: translateY(-395px);
+    }
+    70% {
+      transform: translateY(-140px);
+    }
+    100% {
+      transform: translateY(0);
+    }
+  }
 }

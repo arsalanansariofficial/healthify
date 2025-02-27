@@ -5,7 +5,7 @@ import { getDate } from '@/lib/utils';
 export default async function handler<T, R>(
   data: T,
   action: (data: T) => Promise<R>,
-  error?: string
+  error?: string,
 ) {
   const result = (await action(data)) as { message: string; success: boolean };
 

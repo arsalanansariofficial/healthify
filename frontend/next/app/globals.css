@@ -130,24 +130,38 @@
   }
 
   .print-animation {
-    animation-name: print;
-    animation-delay: 500ms;
-    animation-duration: 2.5s;
-    animation-fill-mode: forwards;
+    animation: print 2s cubic-bezier(0.22, 1.61, 0.36, 1) 0.3s forwards;
+  }
+
+  .print-cta {
+    opacity: 0;
+    animation: appear 2.2s cubic-bezier(0.22, 1.61, 0.36, 1) 2.3s forwards;
+  }
+
+  @keyframes appear {
+    0% {
+      opacity: 0;
+    }
+    100% {
+      opacity: 1;
+    }
   }
 
   @keyframes print {
     0% {
-      transform: translateY(-510px);
+      transform: translateY(0);
     }
-    35% {
-      transform: translateY(-395px);
+    25% {
+      transform: translateY(5rem);
     }
-    70% {
-      transform: translateY(-140px);
+    50% {
+      transform: translateY(5rem);
+    }
+    75% {
+      transform: translateY(50%);
     }
     100% {
-      transform: translateY(0);
+      transform: translateY(100%);
     }
   }
 }

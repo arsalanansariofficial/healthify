@@ -86,7 +86,7 @@ const image = z.object({
 const timings = z.object({
   timings: z.array(
     z.object({
-      id: z.number().min(1, { message: 'Id should be valid.' }),
+      id: z.string().min(1, { message: 'Id should be valid.' }),
       duration: z
         .number()
         .positive({ message: 'Duration must be a positive number' }),

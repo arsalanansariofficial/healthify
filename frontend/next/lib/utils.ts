@@ -1,9 +1,23 @@
 import { User } from 'next-auth';
 import { twMerge } from 'tailwind-merge';
+import { format, parse } from 'date-fns';
+import { startCase, toLower } from 'lodash';
 import { clsx, type ClassValue } from 'clsx';
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
+}
+
+export function capitalize(text: string) {
+  return startCase(toLower(text));
+}
+
+export function getDate(): string {
+  return format(new Date(), 'EEEE, MMMM dd, yyyy h:mm a');
+}
+
+export function formatTime(time: string) {
+  return format(parse(time, 'HH:mm:ss', new Date()), 'hh:mm a');
 }
 
 export function hasRole(roles: User['roles'], name: string) {
@@ -21,18 +35,6 @@ export function arrayBufferToBase64(buffer: ArrayBuffer): string {
   return window.btoa(
     bytes.reduce((acc, byte) => acc + String.fromCharCode(byte), String())
   );
-}
-
-export function getDate() {
-  return new Date().toLocaleString('en-US', {
-    hour12: true,
-    month: 'long',
-    day: '2-digit',
-    weekday: 'long',
-    year: 'numeric',
-    hour: 'numeric',
-    minute: '2-digit'
-  });
 }
 
 export function removeDuplicateTimes(

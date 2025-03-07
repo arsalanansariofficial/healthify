@@ -16,8 +16,8 @@ export const ADMIN_NAME = process.env?.ADMIN_NAME || 'Admin User';
 export const IS_PRODUCTION = process.env?.NODE_ENV === 'production';
 export const SMTP_PASSWORD = process.env?.SMTP_PASSWORD || 'password';
 
-export const minDate = new Date(Date.now());
-export const maxDate = new Date(Date.now() + 14 * 24 * 60 * 60 * 1000);
+export const MIN_DATE = new Date(Date.now());
+export const MAX_DATE = new Date(Date.now() + 14 * 24 * 60 * 60 * 1000);
 
 export const SMTP_EMAIL = process.env?.SMTP_EMAIL || 'email@domain.com';
 export const ADMIN_PASSWORD = process.env?.ADMIN_PASSWORD || 'admin.user';
@@ -114,7 +114,17 @@ export const SMTP_PORT_NUMBER =
     ? +process.env?.SMTP_PORT_NUMBER
     : 465;
 
-export const publicRoutes = [
+export const CONTACT = {
+  whatApp: 'https://wa.link/dnq2t8',
+  linkedIn: 'https://www.linkedin.com/in/arsalanansariofficial/',
+  gitHub: 'https://github.com/arsalanansariofficial/arsalanansariofficial',
+  email:
+    'mailto:theansaricompany@gmail.com?subject=Mail%20To%20Arsalan%20Ansari',
+  resume:
+    'https://raw.githubusercontent.com/arsalanansariofficial/resources/refs/heads/main/documents/arsalan-ansari_resume.pdf'
+};
+
+export const PUBLIC_ROUTES = [
   '/',
   '/seed',
   '/login',
@@ -146,7 +156,7 @@ export const DAYS = [
   { value: 'SATURDAY', label: 'SATURDAY' }
 ];
 
-export const urls = [
+export const URLS = [
   { value: '/roles', permission: 'view:roles' },
   { value: '/users', permission: 'view:users' },
   { value: '/doctors', permission: 'view:doctors' },

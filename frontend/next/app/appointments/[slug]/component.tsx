@@ -17,8 +17,8 @@ import { Button } from '@/components/ui/button';
 import handler from '@/components/display-toast';
 import * as Select from '@/components/ui/select';
 import { appointmentSchema } from '@/lib/schemas';
-import { maxDate, minDate } from '@/lib/constants';
 import { Calendar } from '@/components/ui/calendar';
+import { MIN_DATE, MAX_DATE } from '@/lib/constants';
 
 type Props = { doctor: User & { timings: TimeSlot[] } };
 
@@ -159,7 +159,7 @@ export default function Component({ doctor }: Props) {
                               mode="single"
                               selected={field.value}
                               onSelect={field.onChange}
-                              hidden={{ before: minDate, after: maxDate }}
+                              hidden={{ before: MIN_DATE, after: MAX_DATE }}
                               disabled={date => {
                                 const day = date.toLocaleDateString('en-US', {
                                   weekday: 'long'

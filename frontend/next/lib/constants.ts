@@ -171,19 +171,56 @@ export const URLS = [
 ];
 
 export const SIDEBAR_ITEMS = [
-  { url: '/dashboard', label: 'Dashboard', permission: 'view:dashboard' },
-  { url: '/users', label: 'Users', permission: 'view:users' },
-  { url: '/doctors', label: 'Doctors', permission: 'view:doctors' },
-  { url: '/roles', label: 'Roles', permission: 'view:roles' },
   {
+    label: 'Home',
+    isHeader: true,
+    url: '/dashboard',
+    permission: 'view:dashboard'
+  },
+  {
+    isHeader: false,
+    url: '/dashboard',
+    label: 'Dashboard',
+    permission: 'view:dashboard'
+  },
+  { url: '/users', label: 'Users', permission: 'view:users', isHeader: true },
+  { url: '/users', label: 'View', permission: 'view:users', isHeader: false },
+  {
+    isHeader: true,
+    url: '/doctors',
+    label: 'Doctors',
+    permission: 'view:doctors'
+  },
+  {
+    label: 'View',
+    url: '/doctors',
+    isHeader: false,
+    permission: 'view:doctors'
+  },
+  { url: '/roles', label: 'Roles', permission: 'view:roles', isHeader: true },
+  { url: '/roles', label: 'View', permission: 'view:roles', isHeader: false },
+  {
+    label: 'Assign',
+    isHeader: false,
     url: '/roles/assign-roles',
-    label: 'Assign Roles',
     permission: 'view:assign-roles'
   },
-  { url: '/permissions', label: 'Permissions', permission: 'view:permissions' },
   {
+    isHeader: true,
+    url: '/permissions',
+    label: 'Permissions',
+    permission: 'view:permissions'
+  },
+  {
+    isHeader: false,
+    url: '/permissions',
+    label: 'View',
+    permission: 'view:permissions'
+  },
+  {
+    label: 'Assign',
+    isHeader: false,
     url: '/roles/assign-permissions',
-    label: 'Assign Permissions',
     permission: 'view:assign-permissions'
   }
 ];

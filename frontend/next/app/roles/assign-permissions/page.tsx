@@ -2,6 +2,7 @@ import { auth } from '@/auth';
 import { User } from 'next-auth';
 import prisma from '@/lib/prisma';
 import Header from '@/components/header';
+import Footer from '@/components/footer';
 import Session from '@/components/session';
 import Sidebar from '@/components/sidebar';
 import { DEFAULT_ROLE } from '@/lib/constants';
@@ -44,6 +45,7 @@ export default async function Page({ searchParams }: Props) {
           permissions={permissions.map(p => ({ label: p.name, value: p.id }))}
         />
       </main>
+      <Footer />
     </Session>
   );
 }

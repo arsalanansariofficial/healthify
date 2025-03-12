@@ -3,6 +3,7 @@ import { User } from 'next-auth';
 import { auth } from '@/auth';
 import prisma from '@/lib/prisma';
 import Header from '@/components/header';
+import Footer from '@/components/footer';
 import Session from '@/components/session';
 import Sidebar from '@/components/sidebar';
 import Component from '@/app/doctors/add/component';
@@ -22,6 +23,7 @@ export default async function Page() {
           }))}
         />
       </main>
+      <Footer />
     </Session>
   );
 }

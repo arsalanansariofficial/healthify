@@ -10,7 +10,8 @@ import { Check, Printer, X } from 'lucide-react';
 
 import * as actions from '@/lib/actions';
 import * as CONST from '@/lib/constants';
-import * as CN from '@/components/ui/card';
+import Footer from '@/components/footer';
+import Sidebar from '@/components/sidebar';
 import { hasPermission } from '@/lib/utils';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -342,33 +343,24 @@ export default function Component(props: Props) {
   ];
 
   return (
-    <div className="col-span-2 space-y-4 xl:col-span-1 xl:col-start-2">
-      {hasPermission(props.user.permissions, 'view:appointments') && (
-        <section className="space-y-4">
-          <header>
-            <CN.Card>
-              <CN.CardContent>
-                <h1 className="font-semibold">Appointments</h1>
-              </CN.CardContent>
-            </CN.Card>
-          </header>
-          <main>
-            <CN.Card>
-              <CN.CardHeader>
-                <DT.DataTable
-                  columns={columns}
-                  data={props.appointments}
-                  filterConfig={[
-                    { id: 'patientName', placeholder: 'Patient Name' },
-                    { id: 'date', placeholder: 'Date' },
-                    { id: 'time', placeholder: 'Time' }
-                  ]}
-                />
-              </CN.CardHeader>
-            </CN.Card>
-          </main>
-        </section>
-      )}
+    <div className="grid h-full xl:grid-cols-[1fr_auto] xl:gap-12">
+      <section className="flex flex-col gap-8 lg:mx-auto lg:w-10/12">
+        {hasPermission(props.user.permissions, 'view:appointments') && (
+          <DT.DataTable
+            columns={columns}
+            data={props.appointments}
+            filterConfig={[
+              { id: 'patientName', placeholder: 'Patient Name' },
+              { id: 'date', placeholder: 'Date' },
+              { id: 'time', placeholder: 'Time' }
+            ]}
+          />
+        )}
+        <Footer />
+      </section>
+      <div className="hidden xl:block">
+        <Sidebar user={props.user} />
+      </div>
     </div>
   );
 }

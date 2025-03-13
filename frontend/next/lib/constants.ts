@@ -170,60 +170,137 @@ export const URLS = [
   { value: '/roles/assign-permissions', permission: 'view:assign-permissions' }
 ];
 
-export const SIDEBAR_ITEMS = [
-  {
-    label: 'Home',
-    isHeader: true,
-    url: '/dashboard',
-    permission: 'view:dashboard'
-  },
-  {
-    isHeader: false,
-    url: '/dashboard',
-    label: 'Dashboard',
-    permission: 'view:dashboard'
-  },
-  { url: '/users', label: 'Users', permission: 'view:users', isHeader: true },
-  { url: '/users', label: 'View', permission: 'view:users', isHeader: false },
-  {
-    isHeader: true,
-    url: '/doctors',
-    label: 'Doctors',
-    permission: 'view:doctors'
-  },
-  {
-    label: 'View',
-    url: '/doctors',
-    isHeader: false,
-    permission: 'view:doctors'
-  },
-  { url: '/roles', label: 'Roles', permission: 'view:roles', isHeader: true },
-  { url: '/roles', label: 'View', permission: 'view:roles', isHeader: false },
-  {
-    label: 'Assign',
-    isHeader: false,
-    url: '/roles/assign-roles',
-    permission: 'view:assign-roles'
-  },
-  {
-    isHeader: true,
-    url: '/permissions',
-    label: 'Permissions',
-    permission: 'view:permissions'
-  },
-  {
-    isHeader: false,
-    url: '/permissions',
-    label: 'View',
-    permission: 'view:permissions'
-  },
-  {
-    label: 'Assign',
-    isHeader: false,
-    url: '/roles/assign-permissions',
-    permission: 'view:assign-permissions'
-  }
-];
+export const SIDEBAR_ITEMS = new Map([
+  [
+    {
+      label: 'Home',
+      permission: 'view:dashboard'
+    },
+    [
+      {
+        url: '/dashboard',
+        label: 'Dashboard',
+        permission: 'view:dashboard'
+      }
+    ]
+  ],
+  [
+    {
+      label: 'Doctors',
+      permission: 'view:doctors'
+    },
+    [
+      {
+        label: 'View',
+        url: '/doctors',
+        permission: 'view:doctors'
+      },
+      {
+        label: 'Add',
+        url: '/doctors/add',
+        permission: 'add:doctor'
+      }
+    ]
+  ],
+  [
+    {
+      label: 'Specialities',
+      permission: 'view:specialities'
+    },
+    [
+      {
+        label: 'View',
+        url: '/specialities',
+        permission: 'view:specialities'
+      },
+      {
+        label: 'Add',
+        url: '/specialities/add',
+        permission: 'add:speciality'
+      }
+    ]
+  ],
+  [
+    {
+      label: 'Appointments',
+      permission: 'view:appointments'
+    },
+    [
+      {
+        label: 'View',
+        url: '/appointments',
+        permission: 'view:appointments'
+      },
+      {
+        label: 'Receipt',
+        permission: 'view:receipt',
+        url: '/appointments/receipt'
+      }
+    ]
+  ],
+  [
+    {
+      label: 'User Management',
+      permission: 'view:dashboard'
+    },
+    [
+      {
+        url: '/users',
+        label: 'View',
+        permission: 'view:users'
+      }
+    ]
+  ],
+  [
+    {
+      label: 'Roles Management',
+      permission: 'view:dashboard'
+    },
+    [
+      {
+        label: 'Add',
+        url: '/roles/add',
+        permission: 'add:role'
+      },
+      {
+        label: 'Assign',
+        url: '/roles/assign',
+        permission: 'assign:roles'
+      }
+    ]
+  ],
+  [
+    {
+      permission: 'view:dashboard',
+      label: 'Permissions Management'
+    },
+    [
+      {
+        label: 'Add',
+        url: '/permissions/add',
+        permission: 'add:permission'
+      },
+      {
+        label: 'Assign',
+        url: '/permissions/assign',
+        permission: 'assign:permissions'
+      }
+    ]
+  ],
+  [
+    {
+      label: 'Your Account',
+      permission: 'view:dashboard'
+    },
+    [
+      {
+        url: '/account',
+        label: 'Profile',
+        permission: 'view:account'
+      }
+    ]
+  ]
+]);
 
 export const CARDS_DATA = [
   {

@@ -23,7 +23,7 @@ export default async function RootLayout({ children }: Props) {
   return (
     <html lang="en" suppressHydrationWarning>
       <body
-        className={`${playfair.variable} grid min-h-screen grid-rows-[auto_1fr_auto] gap-4 antialiased`}
+        className={`${playfair.variable} grid min-h-screen grid-rows-[auto_1fr] antialiased`}
       >
         <SessionProvider>
           <ThemeProvider enableSystem attribute="class" defaultTheme="system">

@@ -10,7 +10,6 @@ import * as Sortable from '@dnd-kit/sortable';
 import { restrictToVerticalAxis } from '@dnd-kit/modifiers';
 
 import * as Tabs from '@/components/ui/tabs';
-import { Badge } from '@/components/ui/badge';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import * as Table from '@/components/ui/table';
@@ -140,7 +139,7 @@ export function DataTable<T extends z.ZodType>(props: DataTableProps<T>) {
       defaultValue="outline"
       className="w-full flex-col justify-start gap-6"
     >
-      <div className="flex items-center justify-between">
+      <div className="flex justify-between gap-2">
         <div className="grid auto-cols-auto grid-flow-col gap-2">
           {props.filterConfig.map(filter => (
             <Input
@@ -158,22 +157,10 @@ export function DataTable<T extends z.ZodType>(props: DataTableProps<T>) {
             />
           ))}
         </div>
-        <Tabs.TabsList className="**:data-[slot=badge]:bg-muted-foreground/30 hidden **:data-[slot=badge]:size-5 **:data-[slot=badge]:rounded-full **:data-[slot=badge]:px-1 @4xl/main:flex">
-          <Tabs.TabsTrigger value="outline">Outline</Tabs.TabsTrigger>
-          <Tabs.TabsTrigger value="past-performance">
-            Past Performance <Badge variant="secondary">3</Badge>
-          </Tabs.TabsTrigger>
-          <Tabs.TabsTrigger value="key-personnel">
-            Key Personnel <Badge variant="secondary">2</Badge>
-          </Tabs.TabsTrigger>
-          <Tabs.TabsTrigger value="focus-documents">
-            Focus Documents
-          </Tabs.TabsTrigger>
-        </Tabs.TabsList>
         <div className="flex items-center gap-2">
           <DM.DropdownMenu>
             <DM.DropdownMenuTrigger asChild>
-              <Button variant="outline" size="sm">
+              <Button variant="outline" size="sm" className="h-full">
                 <Icons.IconLayoutColumns />
                 <span className="hidden lg:inline">Customize Columns</span>
                 <span className="lg:hidden">Columns</span>

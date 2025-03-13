@@ -1,10 +1,13 @@
 'use client';
 
+import { User } from 'next-auth';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 
+import Footer from '@/components/footer';
 import * as CN from '@/components/ui/card';
 import { nameSchema } from '@/lib/schemas';
+import Sidebar from '@/components/sidebar';
 import * as RHF from '@/components/ui/form';
 import { addSpeciality } from '@/lib/actions';
 import { Input } from '@/components/ui/input';
@@ -12,7 +15,7 @@ import { Button } from '@/components/ui/button';
 import useHookForm from '@/hooks/use-hook-form';
 import handler from '@/components/display-toast';
 
-export default function Component() {
+export default function Component({ user }: { user: User }) {
   const { pending, handleSubmit } = useHookForm(handler, addSpeciality);
 
   const form = useForm({
@@ -21,15 +24,8 @@ export default function Component() {
   });
 
   return (
-    <section className="col-span-2 h-full space-y-4 xl:col-span-1 xl:col-start-2">
-      <header>
-        <CN.Card>
-          <CN.CardContent>
-            <h1 className="font-semibold">Speciality</h1>
-          </CN.CardContent>
-        </CN.Card>
-      </header>
-      <main className="mx-auto">
+    <div className="grid h-full xl:grid-cols-[1fr_auto] xl:gap-12">
+      <section className="flex flex-col gap-8 lg:mx-auto lg:w-10/12">
         <CN.Card>
           <CN.CardHeader>
             <CN.CardTitle>Add Speciality</CN.CardTitle>
@@ -71,7 +67,11 @@ export default function Component() {
             </Button>
           </CN.CardFooter>
         </CN.Card>
-      </main>
-    </section>
+        <Footer />
+      </section>
+      <div className="hidden xl:block">
+        <Sidebar user={user} />
+      </div>
+    </div>
   );
 }

@@ -1,130 +1,132 @@
-export const HOME = '/';
-export const LOGIN = '/login';
+let EXPIRES_AT = 3600;
+let SMTP_PORT_NUMBER = 465;
+let GITHUB_CLIENT_ID = 'GITHUB_CLIENT_ID';
+let INVALID_INPUTS = '⚠️ Invalid inputs!';
 
-export const SIGNUP = '/signup';
-export const DASHBOARD = '/dashboard';
+let DEFAULT_PERMISSION = 'VIEW:DASHBOARD';
+let TOKEN_EXPIRED = '⚠️ Token has expired!';
+let ROLE_ADDED = '🎉 Role added successfully!';
 
-export const FORGET = '/forget';
-export const AUTH_ERROR = '/auth-error';
-export const SESSION = 'authjs.session-token';
+let USER_NOT_FOUND = '⚠️ User does not exist!';
+let ADMIN_EMAIL = 'admin.user@ansari.dashboard';
+let EMAIL_NOT_FOUND = "⚠️ Email doesn't exist!";
 
-export const ADMIN_ROLE = process.env?.ADMIN_ROLE || 'ADMIN';
-export const DEFAULT_ROLE = process.env?.DEFAULT_ROLE || 'USER';
-export const DOCTOR_ROLE = process.env?.DOCTOR_ROLE || 'DOCTOR';
+let TOKEN_NOT_FOUND = "⚠️ Token doesn't exist!";
+let CONFIRM_EMAIL = '🎉 Confirmation email sent.';
+let GITHUB_CLIENT_SECRET = 'GITHUB_CLIENT_SECRET';
 
-export const ADMIN_NAME = process.env?.ADMIN_NAME || 'Admin User';
-export const IS_PRODUCTION = process.env?.NODE_ENV === 'production';
-export const SMTP_PASSWORD = process.env?.SMTP_PASSWORD || 'password';
+let USER_DELETED = '🎉 User deleted successfully.';
+let USERS_DELETED = '🎉 Users deleted successfully.';
+let EMAIL_VERIFIED = '🎉 Email verified successfully.';
 
-export const MIN_DATE = new Date(Date.now());
-export const MAX_DATE = new Date(Date.now() + 14 * 24 * 60 * 60 * 1000);
+let EMAIL_REGISTERED = '⚠️ Email already registered!';
+let SERVER_ERROR_MESSAGE = '⚠️ Something went wrong!';
+let PROFILE_UPDATED = '🎉 Profile updated successfully.';
+let ROLES_ASSIGNED = '🎉 Roles are assigned successfully.';
 
-export const SMTP_EMAIL = process.env?.SMTP_EMAIL || 'email@domain.com';
-export const ADMIN_PASSWORD = process.env?.ADMIN_PASSWORD || 'admin.user';
+let SPECIALITY_ADDED = '🎉 Speciality added successfully!';
+let DATABASE_UPDATED = '🎉 Database updated successfully.';
+let PERMISSION_ADDED = '🎉 Permission added successfully.';
 
-export const HOST = (process.env?.HOST as string) || 'http://localhost:3000';
-export const USER_DIR = (process.env?.USER_DIR as string) || '/public/users';
-export const SMTP_HOST_NAME = process.env?.SMTP_HOST_NAME || 'smtp.gmail.com';
+let SPECIALITY_DELETED = '🎉 Speciality deleted successfully.';
+let SPECIALITY_UPDATED = '🎉 Speciality updated successfully.';
+let SPECIALITIES_DELETED = '🎉 Specialities deleted successfully.';
+let PERMISSIONS_ASSIGNED = '🎉 All permissions are assigned successfully.';
 
-export const PAGE_NOT_FOUND = process.env?.PAGE_NOT_FOUND || 'Page not found!';
+const HOME = '/';
+const LOGIN = '/login';
+const SIGNUP = '/signup';
 
-export const GITHUB_CLIENT_ID =
-  process.env?.GITHUB_CLIENT_ID || 'GITHUB_CLIENT_ID';
+const FORGET = '/forget';
+const DASHBOARD = '/dashboard';
+const AUTH_ERROR = '/auth-error';
 
-export const GITHUB_CLIENT_SECRET =
-  process.env?.GITHUB_CLIENT_SECRET || 'GITHUB_CLIENT_SECRET';
+const MIN_DATE = new Date(Date.now());
+const SESSION = 'authjs.session-token';
+const USER_NAME = 'arsalanansariofficial';
 
-export const ROLE_ADDED =
-  process.env?.ROLE_ADDED || '🎉 Role added successfully!';
+const EMAIL = 'theansaricompany@gmail.com';
+const WHATS_APP = 'https://wa.link/dnq2t8';
+const RESOURCE = 'resources/refs/heads/main';
 
-export const INVALID_INPUTS =
-  process.env?.INVALID_INPUTS || '⚠️ Invalid inputs!';
+const CDN = 'https://raw.githubusercontent.com';
+const ADMIN_ROLE = process.env?.ADMIN_ROLE || 'ADMIN';
 
-export const TOKEN_EXPIRED =
-  process.env?.TOKEN_EXPIRED || '⚠️ Token has expired!';
+const SMTP_PORT = Number(process.env?.SMTP_PORT_NUMBER);
+const DEFAULT_ROLE = process.env?.DEFAULT_ROLE || 'USER';
+const DOCTOR_ROLE = process.env?.DOCTOR_ROLE || 'DOCTOR';
 
-export const ADMIN_EMAIL =
-  process.env?.ADMIN_EMAIL || 'admin.user@ansari.dashboard';
+const ADMIN_NAME = process.env?.ADMIN_NAME || 'Admin User';
+const IS_PRODUCTION = process.env?.NODE_ENV === 'production';
+const LINKED_IN = `https://www.linkedin.com/in/${USER_NAME}/`;
 
-export const USER_NOT_FOUND =
-  process.env?.USER_NOT_FOUND || '⚠️ User does not exist!';
+const SMTP_PASSWORD = process.env?.SMTP_PASSWORD || 'password';
+const GIT_HUB = `https://github.com/${USER_NAME}/${USER_NAME}`;
+const MAX_DATE = new Date(Date.now() + 14 * 24 * 60 * 60 * 1000);
 
-export const DEFAULT_PERMISSION =
-  process.env?.DEFAULT_PERMISSION || 'VIEW:DASHBOARD';
+const SMTP_EMAIL = process.env?.SMTP_EMAIL || 'email@domain.com';
+const ADMIN_PASSWORD = process.env?.ADMIN_PASSWORD || 'admin.user';
+const HOST = (process.env?.HOST as string) || 'http://localhost:3000';
 
-export const EMAIL_NOT_FOUND =
-  process.env?.EMAIL_NOT_FOUND || "⚠️ Email doesn't exist!";
+const RESUME_PATH = `${RESOURCE}/documents/arsalan-ansari_resume.pdf`;
+const MAIL_TO = `mailto:${EMAIL}?subject=Mail%20To%20Arsalan%20Ansari`;
+const PAGE_NOT_FOUND = process.env?.PAGE_NOT_FOUND || 'Page not found!';
 
-export const CONFIRM_EMAIL =
-  process.env?.CONFIRM_EMAIL || '🎉 Confirmation email sent.';
+const RESUME = `${CDN}/${USER_NAME}/${RESUME_PATH}`;
+const USER_DIR = (process.env?.USER_DIR as string) || '/public/users';
+const SMTP_HOST_NAME = process.env?.SMTP_HOST_NAME || 'smtp.gmail.com';
 
-export const TOKEN_NOT_FOUND =
-  process.env?.TOKEN_NOT_FOUND || "⚠️ Token doesn't exist!";
+const CHARTS_DATA = [
+  { month: 'Jan', users: 186 },
+  { month: 'Feb', users: 305 },
+  { month: 'Mar', users: 237 },
+  { month: 'Apr', users: 173 },
+  { month: 'May', users: 209 },
+  { month: 'Jun', users: 214 }
+];
 
-export const EMAIL_VERIFIED =
-  process.env?.EMAIL_VERIFIED || '🎉 Email verified successfully.';
+const DAYS = [
+  { value: 'SUNDAY', label: 'SUNDAY' },
+  { value: 'MONDAY', label: 'MONDAY' },
+  { value: 'FRIDAY', label: 'FRIDAY' },
+  { value: 'TUESDAY', label: 'TUESDAY' },
+  { value: 'THURSDAY', label: 'THURSDAY' },
+  { value: 'SATURDAY', label: 'SATURDAY' },
+  { value: 'WEDNESDAY', label: 'WEDNESDAY' }
+];
 
-export const EMAIL_REGISTERED =
-  process.env?.EMAIL_REGISTERED || '⚠️ Email already registered!';
+const CARDS_DATA = [
+  {
+    action: '+12.5%',
+    title: '$1,250.00',
+    description: 'Total Revenue',
+    subtitle: 'Trending up this month',
+    summary: 'Visitors for the last 6 months'
+  },
+  {
+    action: '-20%',
+    title: '1,234',
+    description: 'New Customers',
+    subtitle: 'Down 20% this period',
+    summary: 'Acquisition needs attention'
+  },
+  {
+    action: '+12.5%',
+    title: '45,678',
+    description: 'Active Accounts',
+    subtitle: 'Strong user retention',
+    summary: 'Engagement exceed targets'
+  },
+  {
+    title: '4.5%',
+    action: '+4.5%',
+    description: 'Growth Rate',
+    subtitle: 'Steady performance increase',
+    summary: 'Meets growth projections as expected'
+  }
+];
 
-export const PROFILE_UPDATED =
-  process.env?.PROFILE_UPDATED || '🎉 Profile updated successfully.';
-
-export const ROLES_ASSIGNED =
-  process.env?.ROLES_ASSIGNED || '🎉 Roles are assigned successfully.';
-
-export const SPECIALITY_ADDED =
-  process.env?.SPECIALITY_ADDED || '🎉 Speciality added successfully!';
-
-export const DATABASE_UPDATED =
-  process.env?.DATABASE_UPDATED || '🎉 Database updated successfully.';
-
-export const PERMISSION_ADDED =
-  process.env?.PERMISSION_ADDED || '🎉 Permission added successfully.';
-
-export const SERVER_ERROR_MESSAGE =
-  process.env?.SERVER_ERROR_MESSAGE || '⚠️ Something went wrong!';
-
-export const SPECIALITY_DELETED =
-  process.env?.SPECIALITY_DELETED || '🎉 Speciality deleted successfully.';
-
-export const SPECIALITIES_DELETED =
-  process.env?.SPECIALITIES_DELETED || '🎉 Specialities deleted successfully.';
-
-export const USER_DELETED =
-  process.env?.USER_DELETED || '🎉 User deleted successfully.';
-
-export const USERS_DELETED =
-  process.env?.USERS_DELETED || '🎉 Users deleted successfully.';
-
-export const SPECIALITY_UPDATED =
-  process.env?.SPECIALITY_UPDATED || '🎉 Speciality updated successfully.';
-
-export const PERMISSIONS_ASSIGNED =
-  process.env?.PERMISSIONS_ASSIGNED ||
-  '🎉 All permissions are assigned successfully.';
-
-export const EXPIRES_AT =
-  process.env?.EXPIRES_AT && !isNaN(Number(process.env?.EXPIRES_AT))
-    ? +process.env?.EXPIRES_AT
-    : 3600;
-
-export const SMTP_PORT_NUMBER =
-  process.env?.SMTP_PORT_NUMBER && !isNaN(Number(process.env?.SMTP_PORT_NUMBER))
-    ? +process.env?.SMTP_PORT_NUMBER
-    : 465;
-
-export const CONTACT = {
-  whatApp: 'https://wa.link/dnq2t8',
-  linkedIn: 'https://www.linkedin.com/in/arsalanansariofficial/',
-  gitHub: 'https://github.com/arsalanansariofficial/arsalanansariofficial',
-  email:
-    'mailto:theansaricompany@gmail.com?subject=Mail%20To%20Arsalan%20Ansari',
-  resume:
-    'https://raw.githubusercontent.com/arsalanansariofficial/resources/refs/heads/main/documents/arsalan-ansari_resume.pdf'
-};
-
-export const PUBLIC_ROUTES = [
+const PUBLIC_ROUTES = [
   '/',
   '/seed',
   '/login',
@@ -137,26 +139,7 @@ export const PUBLIC_ROUTES = [
   '/create-password'
 ];
 
-export const CHARTS_DATA = [
-  { month: 'Jan', users: 186 },
-  { month: 'Feb', users: 305 },
-  { month: 'Mar', users: 237 },
-  { month: 'Apr', users: 173 },
-  { month: 'May', users: 209 },
-  { month: 'Jun', users: 214 }
-];
-
-export const DAYS = [
-  { value: 'SUNDAY', label: 'SUNDAY' },
-  { value: 'MONDAY', label: 'MONDAY' },
-  { value: 'TUESDAY', label: 'TUESDAY' },
-  { value: 'WEDNESDAY', label: 'WEDNESDAY' },
-  { value: 'THURSDAY', label: 'THURSDAY' },
-  { value: 'FRIDAY', label: 'FRIDAY' },
-  { value: 'SATURDAY', label: 'SATURDAY' }
-];
-
-export const URLS = [
+const URLS = [
   { value: '/roles', permission: 'view:roles' },
   { value: '/users', permission: 'view:users' },
   { value: '/doctors', permission: 'view:doctors' },
@@ -170,7 +153,7 @@ export const URLS = [
   { value: '/roles/assign-permissions', permission: 'view:assign-permissions' }
 ];
 
-export const SIDEBAR_ITEMS = new Map([
+const SIDEBAR_ITEMS = new Map([
   [
     {
       label: 'Home',
@@ -302,33 +285,140 @@ export const SIDEBAR_ITEMS = new Map([
   ]
 ]);
 
-export const CARDS_DATA = [
-  {
-    action: '+12.5%',
-    title: '$1,250.00',
-    description: 'Total Revenue',
-    subtitle: 'Trending up this month',
-    summary: 'Visitors for the last 6 months'
-  },
-  {
-    action: '-20%',
-    title: '1,234',
-    description: 'New Customers',
-    subtitle: 'Down 20% this period',
-    summary: 'Acquisition needs attention'
-  },
-  {
-    action: '+12.5%',
-    title: '45,678',
-    description: 'Active Accounts',
-    subtitle: 'Strong user retention',
-    summary: 'Engagement exceed targets'
-  },
-  {
-    title: '4.5%',
-    action: '+4.5%',
-    description: 'Growth Rate',
-    subtitle: 'Steady performance increase',
-    summary: 'Meets growth projections as expected'
-  }
-];
+if (!isNaN(SMTP_PORT)) SMTP_PORT_NUMBER = SMTP_PORT;
+if (process.env?.ROLE_ADDED) ROLE_ADDED = process.env.ROLE_ADDED;
+if (process.env?.ADMIN_EMAIL) ADMIN_EMAIL = process.env.ADMIN_EMAIL;
+
+if (process.env?.USER_DELETED) USER_DELETED = process.env.USER_DELETED;
+if (process.env?.TOKEN_EXPIRED) TOKEN_EXPIRED = process.env.TOKEN_EXPIRED;
+if (process.env?.USERS_DELETED) USERS_DELETED = process.env.USERS_DELETED;
+
+if (process.env?.INVALID_INPUTS) INVALID_INPUTS = process.env.INVALID_INPUTS;
+if (process.env?.USER_NOT_FOUND) USER_NOT_FOUND = process.env.USER_NOT_FOUND;
+if (process.env?.EMAIL_VERIFIED) EMAIL_VERIFIED = process.env.EMAIL_VERIFIED;
+
+if (process.env?.ROLES_ASSIGNED) ROLES_ASSIGNED = process.env.ROLES_ASSIGNED;
+if (process.env?.EMAIL_NOT_FOUND) EMAIL_NOT_FOUND = process.env.EMAIL_NOT_FOUND;
+if (process.env?.PROFILE_UPDATED) PROFILE_UPDATED = process.env.PROFILE_UPDATED;
+
+if (process.env?.CONFIRM_EMAIL) {
+  CONFIRM_EMAIL = process.env.CONFIRM_EMAIL;
+}
+
+if (process.env?.TOKEN_NOT_FOUND) {
+  TOKEN_NOT_FOUND = process.env.TOKEN_NOT_FOUND;
+}
+
+if (process.env?.GITHUB_CLIENT_ID) {
+  GITHUB_CLIENT_ID = process.env.GITHUB_CLIENT_ID;
+}
+
+if (process.env?.EMAIL_REGISTERED) {
+  EMAIL_REGISTERED = process.env.EMAIL_REGISTERED;
+}
+
+if (process.env?.SPECIALITY_ADDED) {
+  SPECIALITY_ADDED = process.env.SPECIALITY_ADDED;
+}
+
+if (process.env?.DATABASE_UPDATED) {
+  DATABASE_UPDATED = process.env.DATABASE_UPDATED;
+}
+
+if (process.env?.PERMISSION_ADDED) {
+  PERMISSION_ADDED = process.env.PERMISSION_ADDED;
+}
+
+if (process.env?.DEFAULT_PERMISSION) {
+  DEFAULT_PERMISSION = process.env.DEFAULT_PERMISSION;
+}
+
+if (process.env?.SPECIALITY_DELETED) {
+  SPECIALITY_DELETED = process.env.SPECIALITY_DELETED;
+}
+
+if (process.env?.SPECIALITY_UPDATED) {
+  SPECIALITY_UPDATED = process.env.SPECIALITY_UPDATED;
+}
+
+if (process.env?.GITHUB_CLIENT_SECRET) {
+  GITHUB_CLIENT_SECRET = process.env.GITHUB_CLIENT_SECRET;
+}
+
+if (process.env?.SERVER_ERROR_MESSAGE) {
+  SERVER_ERROR_MESSAGE = process.env.SERVER_ERROR_MESSAGE;
+}
+
+if (process.env?.SPECIALITIES_DELETED) {
+  SPECIALITIES_DELETED = process.env.SPECIALITIES_DELETED;
+}
+
+if (process.env?.PERMISSIONS_ASSIGNED) {
+  PERMISSIONS_ASSIGNED = process.env.PERMISSIONS_ASSIGNED;
+}
+
+if (process.env?.EXPIRES_AT && !isNaN(Number(process.env.EXPIRES_AT))) {
+  EXPIRES_AT = +process.env.EXPIRES_AT;
+}
+
+export {
+  HOME,
+  HOST,
+  DAYS,
+  URLS,
+  LOGIN,
+  SIGNUP,
+  FORGET,
+  RESUME,
+  SESSION,
+  GIT_HUB,
+  MAIL_TO,
+  MIN_DATE,
+  MAX_DATE,
+  USER_DIR,
+  DASHBOARD,
+  WHATS_APP,
+  LINKED_IN,
+  ROLE_ADDED,
+  EXPIRES_AT,
+  AUTH_ERROR,
+  ADMIN_ROLE,
+  ADMIN_NAME,
+  SMTP_EMAIL,
+  CARDS_DATA,
+  ADMIN_EMAIL,
+  DOCTOR_ROLE,
+  CHARTS_DATA,
+  USER_DELETED,
+  DEFAULT_ROLE,
+  TOKEN_EXPIRED,
+  CONFIRM_EMAIL,
+  USERS_DELETED,
+  IS_PRODUCTION,
+  SMTP_PASSWORD,
+  PUBLIC_ROUTES,
+  SIDEBAR_ITEMS,
+  INVALID_INPUTS,
+  USER_NOT_FOUND,
+  EMAIL_VERIFIED,
+  ROLES_ASSIGNED,
+  ADMIN_PASSWORD,
+  SMTP_HOST_NAME,
+  PAGE_NOT_FOUND,
+  EMAIL_NOT_FOUND,
+  TOKEN_NOT_FOUND,
+  PROFILE_UPDATED,
+  EMAIL_REGISTERED,
+  SPECIALITY_ADDED,
+  DATABASE_UPDATED,
+  PERMISSION_ADDED,
+  SMTP_PORT_NUMBER,
+  GITHUB_CLIENT_ID,
+  DEFAULT_PERMISSION,
+  SPECIALITY_DELETED,
+  SPECIALITY_UPDATED,
+  GITHUB_CLIENT_SECRET,
+  SERVER_ERROR_MESSAGE,
+  SPECIALITIES_DELETED,
+  PERMISSIONS_ASSIGNED
+};

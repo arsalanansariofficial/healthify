@@ -38,7 +38,7 @@ export function arrayBufferToBase64(buffer: ArrayBuffer): string {
 }
 
 export function removeDuplicateTimes(
-  timings: { duration: number; time: string; id: number }[]
+  timings: { duration: number; time: string; id: string }[]
 ) {
   const timeSet = new Set();
 

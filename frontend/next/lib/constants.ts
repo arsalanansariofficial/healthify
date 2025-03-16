@@ -33,6 +33,18 @@ let SPECIALITY_UPDATED = '🎉 Speciality updated successfully.';
 let SPECIALITIES_DELETED = '🎉 Specialities deleted successfully.';
 let PERMISSIONS_ASSIGNED = '🎉 All permissions are assigned successfully.';
 
+export const EMAIL_FAILED = '⚠️ Failed to send email!';
+export const SPACE_FULL = '⚠️ No space left on device!';
+export const SMTP_TIME_OUT = '⚠️ SMTP connection timed out!';
+export const INVALID_CREDENTIALS = '⚠️ Invalid email or password!';
+export const PRISMA_INIT = '⚠️ Failed to initialize prisma client!';
+export const DIRECTORY_NOT_FOUND = '⚠️ Upload directory not found!';
+export const DB_INIT = '⚠️ Failed to initialize database connection!';
+export const E_CONNECT_FAILED = '⚠️ Could not connect to SMTP server!';
+export const E_AUTH_FAILED = '⚠️ Authentication failed with SMTP server!';
+export const PERMISSION_DENIED = '⚠️ Permission denied while saving file!';
+export const TOKEN_NOT_GENERATED = '⚠️ Failed to generate verification token!';
+
 const HOME = '/';
 const LOGIN = '/login';
 const SIGNUP = '/signup';

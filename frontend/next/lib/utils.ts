@@ -1,8 +1,11 @@
-import { User } from 'next-auth';
+import * as P from '@prisma/client';
 import { twMerge } from 'tailwind-merge';
 import { format, parse } from 'date-fns';
+import { AuthError, User } from 'next-auth';
 import { startCase, toLower } from 'lodash';
 import { clsx, type ClassValue } from 'clsx';
+
+import * as CONST from '@/lib/constants';
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -12,8 +15,8 @@ export function capitalize(text: string) {
   return startCase(toLower(text));
 }
 
-export function getDate(): string {
-  return format(new Date(), 'EEEE, MMMM dd, yyyy h:mm a');
+export function getDate(date?: string): string {
+  return format(date || new Date(), 'EEEE, MMMM dd, yyyy h:mm a');
 }
 
 export function formatTime(time: string) {
@@ -47,4 +50,42 @@ export function removeDuplicateTimes(
     timeSet.add(item.time);
     return true;
   });
+}
+
+export function catchErrors(error: Error) {
+  if (error instanceof P.Prisma.PrismaClientKnownRequestError) {
+    return { success: false, message: CONST.DB_INIT };
+  }
+
+  if (error instanceof P.Prisma.PrismaClientInitializationError) {
+    return { success: false, message: CONST.PRISMA_INIT };
+  }
+
+  if (error instanceof Error && 'code' in error) {
+    switch (error.code) {
+      case 'ENOSPC':
+        return { success: false, message: CONST.SPACE_FULL };
+      case 'EAUTH':
+        return { success: false, message: CONST.E_AUTH_FAILED };
+      case 'ETIMEDOUT':
+        return { success: false, message: CONST.SMTP_TIME_OUT };
+      case 'ECONNECTION':
+        return { success: false, message: CONST.E_CONNECT_FAILED };
+      case 'EACCES':
+        return { success: false, message: CONST.PERMISSION_DENIED };
+      case 'ENOENT':
+        return { success: false, message: CONST.DIRECTORY_NOT_FOUND };
+    }
+  }
+
+  if (error instanceof AuthError) {
+    switch (error.type) {
+      case 'CredentialsSignin':
+        return { success: false, message: CONST.INVALID_CREDENTIALS };
+      default:
+        return { success: false, message: CONST.SERVER_ERROR_MESSAGE };
+    }
+  }
+
+  throw error;
 }

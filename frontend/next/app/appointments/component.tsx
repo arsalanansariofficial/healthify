@@ -12,7 +12,6 @@ import * as actions from '@/lib/actions';
 import * as CONST from '@/lib/constants';
 import Footer from '@/components/footer';
 import Sidebar from '@/components/sidebar';
-import { hasPermission } from '@/lib/utils';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
@@ -23,6 +22,7 @@ import * as DT from '@/components/ui/data-table';
 import handler from '@/components/display-toast';
 import * as DM from '@/components/ui/dropdown-menu';
 import { Checkbox } from '@/components/ui/checkbox';
+import { catchErrors, hasPermission } from '@/lib/utils';
 import { Badge, BadgeVariant } from '@/components/ui/badge';
 
 type Props = { user: User; appointments: Appointment[] };
@@ -72,11 +72,10 @@ function Menu({ id, ids, isHeader = false }: MenuProps) {
                 position: 'top-center',
                 loading: 'Deleting speciality',
                 success: CONST.SPECIALITY_DELETED,
-                error: (
-                  <span className="text-destructive">
-                    {CONST.SERVER_ERROR_MESSAGE}
-                  </span>
-                )
+                error(error) {
+                  const { message } = catchErrors(error as Error);
+                  return <span className="text-destructive">{message}</span>;
+                }
               });
             }
 
@@ -85,11 +84,10 @@ function Menu({ id, ids, isHeader = false }: MenuProps) {
                 position: 'top-center',
                 loading: 'Deleting specialities',
                 success: CONST.SPECIALITIES_DELETED,
-                error: (
-                  <span className="text-destructive">
-                    {CONST.SERVER_ERROR_MESSAGE}
-                  </span>
-                )
+                error(error) {
+                  const { message } = catchErrors(error as Error);
+                  return <span className="text-destructive">{message}</span>;
+                }
               });
             }
           }}

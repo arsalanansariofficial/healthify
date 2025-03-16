@@ -14,7 +14,7 @@ import { userSchema } from '@/lib/schemas';
 import Sidebar from '@/components/sidebar';
 import * as RT from '@tanstack/react-table';
 import * as RHF from '@/components/ui/form';
-import { hasPermission } from '@/lib/utils';
+import { catchErrors, getDate, hasPermission } from '@/lib/utils';
 import * as CNC from '@/components/ui/chart';
 import * as Icons from '@tabler/icons-react';
 import { Input } from '@/components/ui/input';
@@ -30,7 +30,6 @@ import * as Select from '@/components/ui/select';
 import handler from '@/components/display-toast';
 import * as DM from '@/components/ui/dropdown-menu';
 import { Checkbox } from '@/components/ui/checkbox';
-import { SERVER_ERROR_MESSAGE } from '@/lib/constants';
 
 type MenuProps = { id?: string; ids?: string[]; isHeader: boolean };
 
@@ -90,11 +89,10 @@ function Menu({ id, ids, isHeader = false }: MenuProps) {
                 position: 'top-center',
                 loading: 'Deleting user',
                 success: '🎉 User deleted successfully.',
-                error: (
-                  <span className="text-destructive">
-                    {SERVER_ERROR_MESSAGE}
-                  </span>
-                )
+                error(error) {
+                  const { message } = catchErrors(error as Error);
+                  return <span className="text-destructive">{message}</span>;
+                }
               });
             }
 
@@ -103,11 +101,10 @@ function Menu({ id, ids, isHeader = false }: MenuProps) {
                 position: 'top-center',
                 loading: 'Deleting users',
                 success: '🎉 Users deleted successfully.',
-                error: (
-                  <span className="text-destructive">
-                    {SERVER_ERROR_MESSAGE}
-                  </span>
-                )
+                error(error) {
+                  const { message } = catchErrors(error as Error);
+                  return <span className="text-destructive">{message}</span>;
+                }
               });
             }
           }}
@@ -343,10 +340,13 @@ export default function Component(props: Props) {
           checked={getEmailChecked(row.original.email)}
           onCheckedChange={async () =>
             toast.promise(actions.verifyEmail(row.original.email), {
-              error: 'Error',
               success: 'Done',
               position: 'top-center',
-              loading: 'Verifying Email'
+              loading: 'Verifying Email',
+              error(error) {
+                const { message } = catchErrors(error as Error);
+                return <span className="text-destructive">{message}</span>;
+              }
             })
           }
         />
@@ -355,15 +355,7 @@ export default function Component(props: Props) {
     {
       accessorKey: 'createdAt',
       header: () => <div>Created At</div>,
-      cell: ({ row }) =>
-        new Date(row.original.createdAt).toLocaleDateString('en-us', {
-          hour12: true,
-          month: 'long',
-          day: 'numeric',
-          year: 'numeric',
-          hour: '2-digit',
-          minute: '2-digit'
-        })
+      cell: ({ row }) => getDate(row.original.createdAt)
     },
     {
       id: 'actions',

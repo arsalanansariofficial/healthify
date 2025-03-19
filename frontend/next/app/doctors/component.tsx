@@ -255,11 +255,11 @@ export default function Component(props: Props) {
                     ))}
                   </ul>
                   <div className="flex items-start justify-between gap-2">
-                    <div className="space-y-1">
+                    <div className="space-y-3">
                       <span className="block text-xs leading-none font-semibold capitalize">
                         {doctor.gender}
                       </span>
-                      <h2 className="font-serif text-xs leading-none font-semibold capitalize">
+                      <h2 className="font-serif text-sm leading-none font-semibold capitalize underline underline-offset-2">
                         {doctor.name}
                       </h2>
                       <ul className="flex flex-wrap gap-2">

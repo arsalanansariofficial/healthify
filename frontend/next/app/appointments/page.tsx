@@ -23,23 +23,37 @@ export default async function Page() {
             {
               id: '1',
               time: '10',
-              status: 'pending',
+              status: 'PENDING',
               date: '2025-08-01',
               patientName: 'Patient 1'
             },
             {
               id: '2',
               time: '11',
-              date: '2025-08-02',
-              status: 'confirmed',
-              patientName: 'Patient 2'
+              date: '2025-08-03',
+              status: 'COMPLETED',
+              patientName: 'Patient 4'
             },
             {
               id: '3',
+              time: '11',
+              date: '2025-08-02',
+              status: 'CONFIRMED',
+              patientName: 'Patient 2'
+            },
+            {
+              id: '4',
               time: '12',
               date: '2025-08-03',
-              status: 'cancelled',
+              status: 'CANCELLED',
               patientName: 'Patient 3'
+            },
+            {
+              id: '5',
+              time: '12',
+              date: '2025-08-03',
+              status: 'COMPLETED',
+              patientName: 'Patient 5'
             }
           ]}
           user={session?.user as User}

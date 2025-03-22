@@ -11,8 +11,10 @@ import * as CONST from '@/lib/constants';
 declare module 'next-auth' {
   interface User {
     roles: Role[];
+    city?: string | null;
+    expiresAt?: number;
+    phone?: string | null;
     permissions: Permission[];
-    expiresAt: number | undefined;
   }
 }
 
@@ -85,6 +87,8 @@ export const { auth, handlers, signIn, signOut, unstable_update } = NextAuth({
     async session({ session, token }) {
       session.user.id = token.id as string;
       session.user.roles = token.roles as Role[];
+      session.user.city = token.city as string | undefined;
+      session.user.phone = token.phone as string | undefined;
       session.user.permissions = token.permissions as Permission[];
       session.user.expiresAt = token.expiresAt as number | undefined;
       return session;
@@ -92,14 +96,18 @@ export const { auth, handlers, signIn, signOut, unstable_update } = NextAuth({
     async jwt({ token, user, session, trigger }) {
       if (user) {
         token.id = user.id;
+        token.city = user.city;
         token.roles = user.roles;
+        token.phone = user.phone;
         token.expiresAt = user.expiresAt;
         token.permissions = user.permissions;
       }
 
       if (trigger === 'update' && session.user) {
         token.id = session.user.id;
+        token.city = session.user.city;
         token.roles = session.user.roles;
+        token.phone = session.user.phone;
         token.expiresAt = session.user.expiresAt;
         token.permissions = session.user.permissions;
       }

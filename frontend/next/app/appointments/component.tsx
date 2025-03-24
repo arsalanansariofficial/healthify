@@ -23,7 +23,7 @@ import * as DT from '@/components/ui/data-table';
 import handler from '@/components/display-toast';
 import * as DM from '@/components/ui/dropdown-menu';
 import { Checkbox } from '@/components/ui/checkbox';
-import { catchErrors, hasPermission } from '@/lib/utils';
+import { catchErrors, formatTime, getDate, hasPermission } from '@/lib/utils';
 import { Badge, BadgeVariant } from '@/components/ui/badge';
 
 type Props = { user: User; appointments: Appointment[] };
@@ -286,23 +286,12 @@ export default function Component(props: Props) {
       }
     },
     {
-      id: 'date',
-      header: 'Date',
-      accessorKey: 'date',
-      cell({ row }) {
-        return (
-          <span>{findItem(props.appointments, row.original.id)?.date}</span>
-        );
-      }
-    },
-    {
       id: 'time',
       header: 'Time',
       accessorKey: 'time',
       cell({ row }) {
-        return (
-          <span>{findItem(props.appointments, row.original.id)?.time}</span>
-        );
+        const time = findItem(props.appointments, row.original.id)?.time;
+        return <span>{formatTime(time as string)}</span>;
       }
     },
     {
@@ -321,6 +310,21 @@ export default function Component(props: Props) {
           <Badge className="capitalize" variant={variant}>
             {status}
           </Badge>
+        );
+      }
+    },
+    {
+      id: 'date',
+      header: 'Date',
+      accessorKey: 'date',
+      cell({ row }) {
+        return (
+          <span>
+            {getDate(
+              findItem(props.appointments, row.original.id)?.date,
+              false
+            )}
+          </span>
         );
       }
     },

@@ -1,24 +1,30 @@
+import Link from 'next/link';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faGithub } from '@fortawesome/free-brands-svg-icons/faGithub';
 import { faLinkedin } from '@fortawesome/free-brands-svg-icons/faLinkedin';
 import { faWhatsapp } from '@fortawesome/free-brands-svg-icons/faWhatsapp';
 import { faEnvelope } from '@fortawesome/free-regular-svg-icons/faEnvelope';
 
-import { GIT_HUB, LINKED_IN, MAIL_TO, WHATS_APP } from '@/lib/constants';
+import * as CONST from '@/lib/constants';
 
 export default function Footer() {
   return (
     <footer className="sticky mx-auto mt-auto max-w-fit space-y-2">
       <p className="text-muted-foreground space-x-1 text-center text-xs leading-5 capitalize">
         <span>Created By</span>
-        <strong>Arsalan Ansari</strong>
+        <Link
+          href={CONST.WEBSITE}
+          className="text-muted-foreground hover:text-foreground font-serif font-semibold underline underline-offset-2"
+        >
+          Arsalan Ansari
+        </Link>
       </p>
       <ul className="mx-auto flex max-w-fit gap-2">
         <li className="h-4 w-4">
           <a
             title="Email"
             target="_blank"
-            href={MAIL_TO}
+            href={CONST.MAIL_TO}
             className="text-muted-foreground hover:text-foreground grid"
           >
             <FontAwesomeIcon icon={faEnvelope} />
@@ -28,7 +34,7 @@ export default function Footer() {
           <a
             title="GitHub"
             target="_blank"
-            href={GIT_HUB}
+            href={CONST.GIT_HUB}
             className="text-muted-foreground hover:text-foreground grid"
           >
             <FontAwesomeIcon icon={faGithub} />
@@ -38,7 +44,7 @@ export default function Footer() {
           <a
             title="LinkedIn"
             target="_blank"
-            href={LINKED_IN}
+            href={CONST.LINKED_IN}
             className="text-muted-foreground hover:text-foreground grid"
           >
             <FontAwesomeIcon icon={faLinkedin} />
@@ -48,7 +54,7 @@ export default function Footer() {
           <a
             target="_blank"
             title="WhatsApp"
-            href={WHATS_APP}
+            href={CONST.WHATS_APP}
             className="text-muted-foreground hover:text-foreground grid"
           >
             <FontAwesomeIcon icon={faWhatsapp} />

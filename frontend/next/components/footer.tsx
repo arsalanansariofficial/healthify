@@ -1,9 +1,9 @@
 import Link from 'next/link';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faGithub } from '@fortawesome/free-brands-svg-icons/faGithub';
+import { faEnvelope } from '@fortawesome/free-solid-svg-icons/faEnvelope';
 import { faLinkedin } from '@fortawesome/free-brands-svg-icons/faLinkedin';
 import { faWhatsapp } from '@fortawesome/free-brands-svg-icons/faWhatsapp';
-import { faEnvelope } from '@fortawesome/free-regular-svg-icons/faEnvelope';
 
 import * as CONST from '@/lib/constants';
 
@@ -20,44 +20,44 @@ export default function Footer() {
         </Link>
       </p>
       <ul className="mx-auto flex max-w-fit gap-2">
-        <li className="h-4 w-4">
+        <li>
           <a
             title="Email"
             target="_blank"
             href={CONST.MAIL_TO}
             className="text-muted-foreground hover:text-foreground grid"
           >
-            <FontAwesomeIcon icon={faEnvelope} />
+            <FontAwesomeIcon size="sm" icon={faEnvelope} />
           </a>
         </li>
-        <li className="h-4 w-4">
+        <li>
           <a
             title="GitHub"
             target="_blank"
             href={CONST.GIT_HUB}
             className="text-muted-foreground hover:text-foreground grid"
           >
-            <FontAwesomeIcon icon={faGithub} />
+            <FontAwesomeIcon size="sm" icon={faGithub} />
           </a>
         </li>
-        <li className="h-4 w-4">
+        <li>
           <a
             title="LinkedIn"
             target="_blank"
             href={CONST.LINKED_IN}
             className="text-muted-foreground hover:text-foreground grid"
           >
-            <FontAwesomeIcon icon={faLinkedin} />
+            <FontAwesomeIcon size="sm" icon={faLinkedin} />
           </a>
         </li>
-        <li className="h-4 w-4">
+        <li>
           <a
             target="_blank"
             title="WhatsApp"
             href={CONST.WHATS_APP}
             className="text-muted-foreground hover:text-foreground grid"
           >
-            <FontAwesomeIcon icon={faWhatsapp} />
+            <FontAwesomeIcon size="sm" icon={faWhatsapp} />
           </a>
         </li>
       </ul>

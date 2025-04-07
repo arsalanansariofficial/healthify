@@ -126,6 +126,7 @@ export const EMAIL = 'theansaricompany@gmail.com';
 export const WHATS_APP = 'https://wa.link/dnq2t8';
 export const RESOURCE = 'resources/refs/heads/main';
 
+export const UNIQUE_ERR = '⚠️ Record already exists!';
 export const CDN = 'https://raw.githubusercontent.com';
 export const EMAIL_FAILED = '⚠️ Failed to send email!';
 export const SPACE_FULL = '⚠️ No space left on device!';
@@ -147,7 +148,6 @@ export const LINKED_IN = `https://www.linkedin.com/in/${USER_NAME}/`;
 export const SMTP_PASSWORD = process.env?.SMTP_PASSWORD || 'password';
 
 export const GIT_HUB = `https://github.com/${USER_NAME}/${USER_NAME}`;
-export const DB_INIT = '⚠️ Failed to initialize database connection!';
 export const E_CONNECT_FAILED = '⚠️ Could not connect to SMTP server!';
 
 export const MAX_DATE = new Date(Date.now() + 14 * 24 * 60 * 60 * 1000);

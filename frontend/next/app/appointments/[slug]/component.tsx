@@ -22,12 +22,16 @@ import handler from '@/components/display-toast';
 import * as Select from '@/components/ui/select';
 import { appointmentSchema } from '@/lib/schemas';
 import { Calendar } from '@/components/ui/calendar';
+import { Textarea } from '@/components/ui/textarea';
 import { MIN_DATE, MAX_DATE } from '@/lib/constants';
 
 type Props = { doctor: User & { timings: TimeSlot[] }; user: AuthUser };
 
 export default function Component({ doctor, user }: Props) {
-  const { pending, handleSubmit } = useHookForm(handler, getAppointment);
+  const { pending, handleSubmit } = useHookForm(
+    handler,
+    getAppointment.bind(null, doctor.id) as (data: unknown) => Promise<unknown>
+  );
 
   const form = useForm({
     resolver: zodResolver(appointmentSchema),
@@ -193,7 +197,7 @@ export default function Component({ doctor, user }: Props) {
                               {doctor.timings.map(time => (
                                 <Select.SelectItem
                                   key={time.id}
-                                  value={time.time}
+                                  value={time.id}
                                   className="capitalize"
                                 >
                                   {formatTime(time.time)}
@@ -201,6 +205,22 @@ export default function Component({ doctor, user }: Props) {
                               ))}
                             </Select.SelectContent>
                           </Select.Select>
+                        </RHF.FormControl>
+                        <RHF.FormMessage />
+                      </RHF.FormItem>
+                    )}
+                  />
+                  <RHF.FormField
+                    name="notes"
+                    control={form.control}
+                    render={({ field }) => (
+                      <RHF.FormItem>
+                        <RHF.FormLabel>Notes</RHF.FormLabel>
+                        <RHF.FormControl>
+                          <Textarea
+                            {...field}
+                            placeholder="Any prior medical history or symptoms..."
+                          />
                         </RHF.FormControl>
                         <RHF.FormMessage />
                       </RHF.FormItem>

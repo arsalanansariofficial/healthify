@@ -117,6 +117,7 @@ export const SIGNUP = '/signup';
 export const FORGET = '/forget';
 export const DASHBOARD = '/dashboard';
 export const AUTH_ERROR = '/auth-error';
+export const APPOINTMENTS = '/appointments';
 
 export const MIN_DATE = new Date(Date.now());
 export const SESSION = 'authjs.session-token';
@@ -165,6 +166,12 @@ export const SMTP_HOST_NAME = process.env?.SMTP_HOST_NAME || 'smtp.gmail.com';
 export const PAGE_NOT_FOUND = process.env?.PAGE_NOT_FOUND || 'Page not found!';
 export const TOKEN_NOT_GENERATED = '⚠️ Failed to generate verification token!';
 export const RESUME = `${CDN}/${USER_NAME}/${RESOURCE}/documents/arsalan-ansari_resume.pdf`;
+
+export let APPOINTMENT_CREATED =
+  '💬 We have informed the doctor about the appointment, once he confirms your appointment you would be able to get the receipt.';
+if (process.env?.APPOINTMENT_CREATED) {
+  APPOINTMENT_CREATED = process.env.APPOINTMENT_CREATED;
+}
 
 export const PUBLIC_ROUTES = [
   '/',

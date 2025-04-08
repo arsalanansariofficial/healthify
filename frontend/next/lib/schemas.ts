@@ -17,6 +17,10 @@ const email = z.object({
   email: z.string().email({ message: 'Email should be valid.' })
 });
 
+const notes = z.object({
+  notes: z.string().min(10, { message: 'Should be valid.' }).optional()
+});
+
 const password = z.object({
   password: z.string().min(1, { message: 'Password should be valid.' })
 });
@@ -114,6 +118,7 @@ export const userRolesSchema = name.merge(email).merge(roles);
 
 export const appointmentSchema = name
   .merge(city)
+  .merge(notes)
   .merge(email)
   .merge(phone)
   .merge(appointmentDate)

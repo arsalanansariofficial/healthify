@@ -1,8 +1,8 @@
 import * as P from '@prisma/client';
+import { titleCase } from 'moderndash';
 import { twMerge } from 'tailwind-merge';
 import { format, parse } from 'date-fns';
 import { AuthError, User } from 'next-auth';
-import { startCase, toLower } from 'lodash';
 import { clsx, type ClassValue } from 'clsx';
 
 import * as CONST from '@/lib/constants';
@@ -12,7 +12,7 @@ export function cn(...inputs: ClassValue[]) {
 }
 
 export function capitalize(text: string) {
-  return startCase(toLower(text));
+  return titleCase(String(text).toLowerCase());
 }
 
 export function getDate(date?: string, day = true, time = true): string {

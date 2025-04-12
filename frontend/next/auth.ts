@@ -19,6 +19,7 @@ declare module 'next-auth' {
 }
 
 export const authConfig = {
+  trustHost: true,
   providers: [
     GitHub({
       clientId: CONST.GITHUB_CLIENT_ID,

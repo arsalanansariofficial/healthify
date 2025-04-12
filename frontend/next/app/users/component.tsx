@@ -11,7 +11,6 @@ import { Bar, BarChart, CartesianGrid, XAxis } from 'recharts';
 import * as actions from '@/lib/actions';
 import Footer from '@/components/footer';
 import { userSchema } from '@/lib/schemas';
-import Sidebar from '@/components/sidebar';
 import * as RT from '@tanstack/react-table';
 import * as RHF from '@/components/ui/form';
 import { catchErrors, getDate, hasPermission } from '@/lib/utils';
@@ -376,23 +375,18 @@ export default function Component(props: Props) {
   ];
 
   return (
-    <div className="grid h-full xl:grid-cols-[1fr_auto] xl:gap-12">
-      <section className="flex flex-col gap-8 lg:mx-auto lg:w-10/12">
-        {hasPermission(props.user.permissions, 'view:users') && (
-          <DT.DataTable
-            data={props.users}
-            columns={columns}
-            filterConfig={[
-              { id: 'name', placeholder: 'Name...' },
-              { id: 'email', placeholder: 'Email...' }
-            ]}
-          />
-        )}
-        <Footer />
-      </section>
-      <div className="hidden xl:block">
-        <Sidebar user={props.user} />
-      </div>
+    <div className="flex h-full flex-col gap-8 lg:mx-auto lg:w-10/12">
+      {hasPermission(props.user.permissions, 'view:users') && (
+        <DT.DataTable
+          data={props.users}
+          columns={columns}
+          filterConfig={[
+            { id: 'name', placeholder: 'Name...' },
+            { id: 'email', placeholder: 'Email...' }
+          ]}
+        />
+      )}
+      <Footer />
     </div>
   );
 }

@@ -7,7 +7,6 @@ import { zodResolver } from '@hookform/resolvers/zod';
 
 import Footer from '@/components/footer';
 import * as CN from '@/components/ui/card';
-import Sidebar from '@/components/sidebar';
 import * as RHF from '@/components/ui/form';
 import { assignRoles } from '@/lib/actions';
 import { Input } from '@/components/ui/input';
@@ -38,84 +37,79 @@ export default function Component({ user, roles }: Props) {
   });
 
   return (
-    <div className="grid h-full xl:grid-cols-[1fr_auto] xl:gap-12">
-      <section className="flex flex-col gap-8 lg:mx-auto lg:w-10/12">
-        <CN.Card>
-          <CN.CardHeader>
-            <CN.CardTitle>Assign roles</CN.CardTitle>
-            <CN.CardDescription>
-              Select the roles from the list that you want to assign
-            </CN.CardDescription>
-          </CN.CardHeader>
-          <CN.CardContent>
-            <RHF.Form {...form}>
-              <form
-                id="roles-form"
-                className="space-y-2"
-                onSubmit={form.handleSubmit(handleSubmit)}
-              >
-                <RHF.FormField
-                  name="name"
-                  control={form.control}
-                  render={({ field }) => (
-                    <RHF.FormItem>
-                      <RHF.FormLabel>Name</RHF.FormLabel>
-                      <RHF.FormControl>
-                        <Input disabled {...field} type="text" />
-                      </RHF.FormControl>
-                      <RHF.FormMessage />
-                    </RHF.FormItem>
-                  )}
-                />
-                <RHF.FormField
-                  name="email"
-                  control={form.control}
-                  render={({ field }) => (
-                    <RHF.FormItem>
-                      <RHF.FormLabel>Email</RHF.FormLabel>
-                      <RHF.FormControl>
-                        <Input disabled {...field} type="email" />
-                      </RHF.FormControl>
-                      <RHF.FormMessage />
-                    </RHF.FormItem>
-                  )}
-                />
-                <RHF.FormField
-                  name="roles"
-                  control={form.control}
-                  render={({ field }) => (
-                    <RHF.FormItem>
-                      <RHF.FormLabel>Roles</RHF.FormLabel>
-                      <RHF.FormControl>
-                        <MultiSelect
-                          options={roles}
-                          selectedValues={field.value}
-                          setSelectedValues={field.onChange}
-                        />
-                      </RHF.FormControl>
-                      <RHF.FormMessage />
-                    </RHF.FormItem>
-                  )}
-                />
-              </form>
-            </RHF.Form>
-          </CN.CardContent>
-          <CN.CardFooter>
-            <Button
-              type="submit"
-              form="roles-form"
-              disabled={pending}
-              className="cursor-pointer"
+    <div className="flex h-full flex-col gap-8 lg:mx-auto lg:w-10/12">
+      <CN.Card>
+        <CN.CardHeader>
+          <CN.CardTitle>Assign roles</CN.CardTitle>
+          <CN.CardDescription>
+            Select the roles from the list that you want to assign
+          </CN.CardDescription>
+        </CN.CardHeader>
+        <CN.CardContent>
+          <RHF.Form {...form}>
+            <form
+              id="roles-form"
+              className="space-y-2"
+              onSubmit={form.handleSubmit(handleSubmit)}
             >
-              {pending ? 'Adding roles...' : 'Add roles'}
-            </Button>
-          </CN.CardFooter>
-        </CN.Card>
-        <Footer />
-      </section>
-      <div className="hidden xl:block">
-        <Sidebar user={user} />
-      </div>
+              <RHF.FormField
+                name="name"
+                control={form.control}
+                render={({ field }) => (
+                  <RHF.FormItem>
+                    <RHF.FormLabel>Name</RHF.FormLabel>
+                    <RHF.FormControl>
+                      <Input disabled {...field} type="text" />
+                    </RHF.FormControl>
+                    <RHF.FormMessage />
+                  </RHF.FormItem>
+                )}
+              />
+              <RHF.FormField
+                name="email"
+                control={form.control}
+                render={({ field }) => (
+                  <RHF.FormItem>
+                    <RHF.FormLabel>Email</RHF.FormLabel>
+                    <RHF.FormControl>
+                      <Input disabled {...field} type="email" />
+                    </RHF.FormControl>
+                    <RHF.FormMessage />
+                  </RHF.FormItem>
+                )}
+              />
+              <RHF.FormField
+                name="roles"
+                control={form.control}
+                render={({ field }) => (
+                  <RHF.FormItem>
+                    <RHF.FormLabel>Roles</RHF.FormLabel>
+                    <RHF.FormControl>
+                      <MultiSelect
+                        options={roles}
+                        selectedValues={field.value}
+                        setSelectedValues={field.onChange}
+                      />
+                    </RHF.FormControl>
+                    <RHF.FormMessage />
+                  </RHF.FormItem>
+                )}
+              />
+            </form>
+          </RHF.Form>
+        </CN.CardContent>
+        <CN.CardFooter>
+          <Button
+            type="submit"
+            form="roles-form"
+            disabled={pending}
+            className="cursor-pointer"
+          >
+            {pending ? 'Adding roles...' : 'Add roles'}
+          </Button>
+        </CN.CardFooter>
+      </CN.Card>
+      <Footer />
     </div>
   );
 }

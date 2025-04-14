@@ -7,6 +7,9 @@ if (process.env?.ADMIN_EMAIL) ADMIN_EMAIL = process.env.ADMIN_EMAIL;
 export let USER_DELETED = '🎉 User deleted successfully.';
 if (process.env?.USER_DELETED) USER_DELETED = process.env.USER_DELETED;
 
+export let FILE_REMOVED = '🎉 File removed successfully.';
+if (process.env?.FILE_REMOVED) FILE_REMOVED = process.env.FILE_REMOVED;
+
 export let USERS_DELETED = '🎉 Users deleted successfully.';
 if (process.env?.USERS_DELETED) USERS_DELETED = process.env.USERS_DELETED;
 
@@ -15,6 +18,15 @@ if (process.env?.TOKEN_EXPIRED) TOKEN_EXPIRED = process.env.TOKEN_EXPIRED;
 
 export let CONFIRM_EMAIL = '🎉 Confirmation email sent.';
 if (process.env?.CONFIRM_EMAIL) CONFIRM_EMAIL = process.env.CONFIRM_EMAIL;
+
+export let FILE_UPLOADED = '🎉 File uploaded successfully.';
+if (process.env?.FILE_UPLOADED) FILE_UPLOADED = process.env.FILE_UPLOADED;
+
+export let UPLOAD_FAILED = '⚠️ Failed to upload file!';
+if (process.env?.UPLOAD_FAILED) UPLOAD_FAILED = process.env.UPLOAD_FAILED;
+
+export let DELETE_FAILED = '⚠️ Failed to delete file!';
+if (process.env?.DELETE_FAILED) DELETE_FAILED = process.env.DELETE_FAILED;
 
 export let EMAIL_VERIFIED = '🎉 Email verified successfully.';
 if (process.env?.EMAIL_VERIFIED) EMAIL_VERIFIED = process.env.EMAIL_VERIFIED;

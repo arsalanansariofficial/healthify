@@ -37,6 +37,9 @@ if (process.env?.INVALID_INPUTS) INVALID_INPUTS = process.env.INVALID_INPUTS;
 export let USER_NOT_FOUND = '⚠️ User does not exist!';
 if (process.env?.USER_NOT_FOUND) USER_NOT_FOUND = process.env.USER_NOT_FOUND;
 
+export let IMAGE_NOT_FOUND = '⚠️ Image does not exist!';
+if (process.env?.IMAGE_NOT_FOUND) IMAGE_NOT_FOUND = process.env.IMAGE_NOT_FOUND;
+
 export let ROLES_ASSIGNED = '🎉 Roles are assigned successfully.';
 if (process.env?.ROLES_ASSIGNED) ROLES_ASSIGNED = process.env.ROLES_ASSIGNED;
 
@@ -127,30 +130,40 @@ export const LOGIN = '/login';
 export const SIGNUP = '/signup';
 
 export const FORGET = '/forget';
+export const RESPONSE_OK_CODE = 200;
+export const BAD_REQUEST_CODE = 400;
+
+export const SERVER_ERROR_CODE = 500;
 export const DASHBOARD = '/dashboard';
 export const AUTH_ERROR = '/auth-error';
-export const APPOINTMENTS = '/appointments';
 
+export const RESPONSE_WRITTEN_CODE = 201;
+export const APPOINTMENTS = '/appointments';
 export const MIN_DATE = new Date(Date.now());
+
 export const SESSION = 'authjs.session-token';
 export const USER_NAME = 'arsalanansariofficial';
-
 export const EMAIL = 'theansaricompany@gmail.com';
+
 export const WHATS_APP = 'https://wa.link/dnq2t8';
 export const RESOURCE = 'resources/refs/heads/main';
-
 export const UNIQUE_ERR = '⚠️ Record already exists!';
+
 export const CDN = 'https://raw.githubusercontent.com';
 export const EMAIL_FAILED = '⚠️ Failed to send email!';
-export const SPACE_FULL = '⚠️ No space left on device!';
+export const OCTET_STREAM = 'application/octet-stream';
 
+export const SPACE_FULL = '⚠️ No space left on device!';
+export const BAD_REQUEST_MESSAGE = '⚠️ 400 Bad request!';
 export const ADMIN_ROLE = process.env?.ADMIN_ROLE || 'ADMIN';
+
 export const SMTP_TIME_OUT = '⚠️ SMTP connection timed out!';
 export const DEFAULT_ROLE = process.env?.DEFAULT_ROLE || 'USER';
-
 export const DOCTOR_ROLE = process.env?.DOCTOR_ROLE || 'DOCTOR';
+
 export const ADMIN_NAME = process.env?.ADMIN_NAME || 'Admin User';
 export const INVALID_CREDENTIALS = '⚠️ Invalid email or password!';
+export const INVALID_IMAGE_FORMAT = '⚠️ Image format is not valid!';
 
 export const IS_PRODUCTION = process.env?.NODE_ENV === 'production';
 export const DIRECTORY_NOT_FOUND = '⚠️ Upload directory not found!';
@@ -162,20 +175,20 @@ export const SMTP_PASSWORD = process.env?.SMTP_PASSWORD || 'password';
 
 export const GIT_HUB = `https://github.com/${USER_NAME}/${USER_NAME}`;
 export const E_CONNECT_FAILED = '⚠️ Could not connect to SMTP server!';
-
 export const MAX_DATE = new Date(Date.now() + 14 * 24 * 60 * 60 * 1000);
+
 export const SMTP_EMAIL = process.env?.SMTP_EMAIL || 'email@domain.com';
 export const ADMIN_PASSWORD = process.env?.ADMIN_PASSWORD || 'admin.user';
-
 export const E_AUTH_FAILED = '⚠️ Authentication failed with SMTP server!';
+
 export const PERMISSION_DENIED = '⚠️ Permission denied while saving file!';
 export const HOST = (process.env?.HOST as string) || 'http://localhost:3000';
-
 export const USER_DIR = (process.env?.USER_DIR as string) || '/public/users';
+
 export const MAIL_TO = `mailto:${EMAIL}?subject=Mail%20To%20Arsalan%20Ansari`;
 export const SMTP_HOST_NAME = process.env?.SMTP_HOST_NAME || 'smtp.gmail.com';
-
 export const PAGE_NOT_FOUND = process.env?.PAGE_NOT_FOUND || 'Page not found!';
+
 export const TOKEN_NOT_GENERATED = '⚠️ Failed to generate verification token!';
 export const RESUME = `${CDN}/${USER_NAME}/${RESOURCE}/documents/arsalan-ansari_resume.pdf`;
 

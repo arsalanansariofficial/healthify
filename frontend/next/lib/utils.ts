@@ -15,12 +15,6 @@ export function capitalize(text: string) {
   return titleCase(String(text).toLowerCase());
 }
 
-export function getDate(date?: string, day = true, time = true): string {
-  if (!day) return format(date || new Date(), 'MMMM dd, yyyy');
-  if (!time) return format(date || new Date(), 'EEEE, MMMM dd, yyyy');
-  return format(date || new Date(), 'EEEE, MMMM dd, yyyy h:mm a');
-}
-
 export function formatTime(time: string) {
   return format(parse(time, 'HH:mm:ss', new Date()), 'hh:mm a');
 }
@@ -33,6 +27,12 @@ export function hasPermission(permissions: User['permissions'], name: string) {
   return permissions
     ?.map(p => p.name.toLowerCase())
     .includes(name.toLowerCase());
+}
+
+export function getDate(date?: string, day = true, time = true): string {
+  if (!day) return format(date || new Date(), 'MMMM dd, yyyy');
+  if (!time) return format(date || new Date(), 'EEEE, MMMM dd, yyyy');
+  return format(date || new Date(), 'EEEE, MMMM dd, yyyy h:mm a');
 }
 
 export function arrayBufferToBase64(buffer: ArrayBuffer): string {
@@ -52,6 +52,18 @@ export function removeDuplicateTimes(
     timeSet.add(item.time);
     return true;
   });
+}
+
+export function shortId(length = 5) {
+  const numbers = '0123456789';
+  const upper = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+  const lower = 'abcdefghijklmnopqrstuvwxyz';
+
+  const chars = upper + lower + numbers;
+  const array = new Uint8Array(length);
+
+  crypto.getRandomValues(array);
+  return Array.from(array, x => chars[x % chars.length]).join('');
 }
 
 export function catchErrors(error: Error) {

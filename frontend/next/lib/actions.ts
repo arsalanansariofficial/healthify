@@ -12,8 +12,8 @@ import { revalidatePath } from 'next/cache';
 import prisma from '@/lib/prisma';
 import * as CONST from '@/lib/constants';
 import * as schemas from '@/lib/schemas';
-import { catchErrors, removeDuplicateTimes } from '@/lib/utils';
 import { auth, signIn, unstable_update as update } from '@/auth';
+import { catchAuthError, catchErrors, removeDuplicateTimes } from '@/lib/utils';
 
 type Schema<T extends ZodSchema> = z.infer<T>;
 
@@ -93,7 +93,7 @@ export async function loginWithCredentials({
       redirectTo: CONST.DASHBOARD
     });
   } catch (error) {
-    return catchErrors(error as Error);
+    return catchAuthError(error as Error);
   }
 }
 

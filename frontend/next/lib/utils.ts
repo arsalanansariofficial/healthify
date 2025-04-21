@@ -66,6 +66,19 @@ export function shortId(length = 5) {
   return Array.from(array, x => chars[x % chars.length]).join('');
 }
 
+export function catchAuthError(error: Error) {
+  if (error instanceof AuthError) {
+    switch (error.type) {
+      case 'CredentialsSignin':
+        return { success: false, message: CONST.INVALID_CREDENTIALS };
+      default:
+        return { success: false, message: CONST.SERVER_ERROR_MESSAGE };
+    }
+  }
+
+  throw error;
+}
+
 export function catchErrors(error: Error) {
   if (error instanceof P.Prisma.PrismaClientKnownRequestError) {
     return { success: false, message: CONST.UNIQUE_ERR };

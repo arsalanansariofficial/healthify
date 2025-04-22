@@ -418,7 +418,7 @@ export default async function seed() {
             name: CONST.ADMIN_NAME,
             email: CONST.ADMIN_EMAIL,
             emailVerified: new Date(),
-            password: await bcrypt.hashSync(CONST.ADMIN_PASSWORD, 10)
+            password: bcrypt.hashSync(CONST.ADMIN_PASSWORD, 10)
           }
         })
       ]);
@@ -510,7 +510,7 @@ export async function updateUser(
         data: {
           name: result.data.name,
           email: result.data.email,
-          password: password ? await bcrypt.hashSync(password, 10) : undefined,
+          password: password ? bcrypt.hashSync(password, 10) : undefined,
           emailVerified: result.data.emailVerified === 'yes' ? new Date() : null
         }
       });
@@ -558,7 +558,7 @@ export async function addDoctor(data: Schema<typeof schemas.doctorSchema>) {
           gender: result.data.gender,
           experience: result.data.experience,
           daysOfVisit: (result.data.daysOfVisit as P.Day[]) || undefined,
-          password: await bcrypt.hashSync(result.data.password as string, 10),
+          password: bcrypt.hashSync(result.data.password as string, 10),
           image: image?.size ? `${imageUUID}.${fileExtension}` : undefined,
           timings: {
             create: removeDuplicateTimes(timings)?.map(t => ({
@@ -624,6 +624,82 @@ export async function getAppointment(
     });
 
     return { success: true, message: CONST.APPOINTMENT_CREATED };
+  } catch (error) {
+    return catchErrors(error as Error);
+  }
+}
+
+export async function updateUserProfile(
+  userId: string,
+  data: Schema<typeof schemas.userProfileSchema>
+) {
+  try {
+    const result = schemas.userProfileSchema.safeParse(data);
+
+    if (!result.success) {
+      return { success: false, message: CONST.INVALID_INPUTS };
+    }
+
+    const imageUUID = randomUUID();
+    const image = result.data?.image && result.data.image[0];
+    const fileExtension = image?.type?.split(CONST.HOME).at(-1);
+
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+      select: {
+        city: true,
+        email: true,
+        phone: true,
+        image: true,
+        gender: true,
+        emailVerified: true
+      }
+    });
+
+    const { email, city, phone, password, gender } = result.data;
+
+    if (!user) return { success: false, message: CONST.USER_NOT_FOUND };
+
+    const emailExists = await prisma.user.findUnique({
+      where: { email },
+      select: { email: true }
+    });
+
+    if (email !== user.email && emailExists) {
+      return { success: false, message: CONST.EMAIL_REGISTERED };
+    }
+
+    await prisma.$transaction(async function (transaction) {
+      const updated = await transaction.user.update({
+        where: { id: userId },
+        data: {
+          name: result.data.name,
+          email: email !== user.email ? email : undefined,
+          city: city && city !== user.city ? city : undefined,
+          phone: phone && phone !== user.phone ? phone : undefined,
+          gender: gender && gender !== user.gender ? gender : undefined,
+          password: password ? bcrypt.hashSync(password, 10) : undefined,
+          image: image?.size ? `${imageUUID}.${fileExtension}` : undefined
+        }
+      });
+
+      if (image?.size && user.image) {
+        await fs.unlink(path.join(dir, `${user.image}`));
+      }
+
+      if (updated && image?.size) {
+        await saveFile(image, `${imageUUID}.${fileExtension}`);
+      }
+    });
+
+    if (email !== user.email) {
+      return loginWithCredentials({
+        email: result.data.email,
+        password: result.data.password || String()
+      });
+    }
+
+    return { success: false, message: CONST.PROFILE_UPDATED };
   } catch (error) {
     return catchErrors(error as Error);
   }

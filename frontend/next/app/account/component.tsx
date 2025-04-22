@@ -2,19 +2,17 @@
 
 import Image from 'next/image';
 import { useState } from 'react';
-import { User } from '@prisma/client';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { FileIcon, PlusIcon, TrashIcon } from 'lucide-react';
+import { Role, Speciality, TimeSlot, User } from '@prisma/client';
 
 import * as utils from '@/lib/utils';
 import { DAYS } from '@/lib/constants';
 import { capitalize } from '@/lib/utils';
 import Footer from '@/components/footer';
-import { addDoctor } from '@/lib/actions';
 import * as CN from '@/components/ui/card';
 import * as RHF from '@/components/ui/form';
-import { doctorSchema } from '@/lib/schemas';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
@@ -22,27 +20,55 @@ import useHookForm from '@/hooks/use-hook-form';
 import * as Select from '@/components/ui/select';
 import handler from '@/components/display-toast';
 import MultiSelect from '@/components/ui/multi-select';
+import { addDoctor, updateUserProfile } from '@/lib/actions';
+import { doctorSchema, userProfileSchema } from '@/lib/schemas';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 type Props = {
   specialities: { value: string; label: string }[];
   user: Omit<User, 'token' | 'accounts' | 'hasOAuth' | 'password'> & {
-    UserRoles: { role: { id: string; name: string } }[];
-    timings: { id: string; time: string; duration: number }[];
-    UserSpecialities: { speciality: { id: string; name: string } }[];
+    timings: TimeSlot[];
+    UserRoles: { role: Role }[];
+    UserSpecialities: { speciality: Speciality }[];
   };
 };
 
 export default function Component({ user, specialities }: Props) {
   const [image, setImage] = useState<File>();
   const [imageSrc, setImageSrc] = useState<string | null>(null);
-  const { pending, handleSubmit } = useHookForm(handler, addDoctor);
 
-  const isUserDoctor = user.UserRoles.map(ur =>
-    ur.role.name.toLowerCase()
-  ).includes('doctor');
+  const isDoctor = utils.hasRole(
+    user.UserRoles.map(ur => ur.role),
+    'doctor'
+  );
 
-  const form = useForm({
+  const [role, setRole] = useState(isDoctor ? 'doctor' : 'user');
+
+  const { pending: savingDoctor, handleSubmit: submitDoctor } = useHookForm(
+    handler,
+    addDoctor
+  );
+
+  const { pending: savingUser, handleSubmit: submitUser } = useHookForm(
+    handler,
+    updateUserProfile.bind(null, user.id) as (data: unknown) => Promise<unknown>
+  );
+
+  const userForm = useForm({
+    resolver: zodResolver(userProfileSchema),
+    defaultValues: {
+      password: String(),
+      name: user.name || String(),
+      email: user.email || String(),
+      phone: user.phone || String(),
+      city: user.city ? capitalize(user.city) : String(),
+      gender: (user.gender as 'male' | 'female') || String()
+    }
+  });
+
+  console.log(userForm.formState.errors);
+
+  const doctorForm = useForm({
     resolver: zodResolver(doctorSchema),
     defaultValues: {
       password: String(),
@@ -73,7 +99,7 @@ export default function Component({ user, specialities }: Props) {
 
   return (
     <div className="flex h-full flex-col gap-8 lg:mx-auto lg:w-10/12">
-      <Tabs defaultValue={isUserDoctor ? 'doctor' : 'user'}>
+      <Tabs defaultValue={role} onValueChange={setRole}>
         <CN.Card>
           <CN.CardHeader>
             <CN.CardTitle>{user.name}</CN.CardTitle>
@@ -90,33 +116,31 @@ export default function Component({ user, specialities }: Props) {
           </CN.CardHeader>
           <CN.CardContent>
             <TabsContent value="user">
-              <RHF.Form {...form}>
+              <RHF.Form {...userForm}>
                 <form
                   className="space-y-2"
-                  onSubmit={form.handleSubmit(handleSubmit)}
+                  onSubmit={userForm.handleSubmit(submitUser)}
                 >
                   <RHF.FormField
                     name="image"
-                    control={form.control}
+                    control={userForm.control}
                     render={({ field }) => (
                       <RHF.FormItem>
                         <RHF.FormControl>
                           <div className="relative grid min-h-80 gap-3 overflow-clip rounded-md border-2 border-dashed">
                             <Label
                               htmlFor="image"
-                              className={utils.cn(
-                                'absolute inset-0 z-10 grid place-items-center',
-                                { 'opacity-0': image }
-                              )}
+                              className="absolute inset-0 z-10 grid place-items-center"
                             >
                               <FileIcon />
                             </Label>
-                            {imageSrc && (
+                            {(imageSrc || user.image) && (
                               <Image
                                 fill
-                                src={imageSrc}
+                                unoptimized
                                 alt="Profile Picture"
                                 className="aspect-video object-cover"
+                                src={imageSrc || `/users/${user.image}`}
                               />
                             )}
                             <Input
@@ -140,7 +164,7 @@ export default function Component({ user, specialities }: Props) {
                   />
                   <RHF.FormField
                     name="name"
-                    control={form.control}
+                    control={userForm.control}
                     render={({ field }) => (
                       <RHF.FormItem>
                         <RHF.FormLabel>Name</RHF.FormLabel>
@@ -157,7 +181,7 @@ export default function Component({ user, specialities }: Props) {
                   />
                   <RHF.FormField
                     name="email"
-                    control={form.control}
+                    control={userForm.control}
                     render={({ field }) => (
                       <RHF.FormItem>
                         <RHF.FormLabel>Email</RHF.FormLabel>
@@ -174,7 +198,7 @@ export default function Component({ user, specialities }: Props) {
                   />
                   <RHF.FormField
                     name="password"
-                    control={form.control}
+                    control={userForm.control}
                     render={({ field }) => (
                       <RHF.FormItem>
                         <RHF.FormLabel>Password</RHF.FormLabel>
@@ -191,7 +215,7 @@ export default function Component({ user, specialities }: Props) {
                   />
                   <RHF.FormField
                     name="phone"
-                    control={form.control}
+                    control={userForm.control}
                     render={({ field }) => (
                       <RHF.FormItem>
                         <RHF.FormLabel>Phone</RHF.FormLabel>
@@ -208,7 +232,7 @@ export default function Component({ user, specialities }: Props) {
                   />
                   <RHF.FormField
                     name="gender"
-                    control={form.control}
+                    control={userForm.control}
                     render={({ field }) => (
                       <RHF.FormItem>
                         <RHF.FormLabel>Gender</RHF.FormLabel>
@@ -235,27 +259,8 @@ export default function Component({ user, specialities }: Props) {
                     )}
                   />
                   <RHF.FormField
-                    name="experience"
-                    control={form.control}
-                    render={({ field }) => (
-                      <RHF.FormItem>
-                        <RHF.FormLabel>Experience</RHF.FormLabel>
-                        <RHF.FormControl>
-                          <Input
-                            min={1}
-                            max={100}
-                            {...field}
-                            type="number"
-                            placeholder="Moradabad"
-                          />
-                        </RHF.FormControl>
-                        <RHF.FormMessage />
-                      </RHF.FormItem>
-                    )}
-                  />
-                  <RHF.FormField
                     name="city"
-                    control={form.control}
+                    control={userForm.control}
                     render={({ field }) => (
                       <RHF.FormItem>
                         <RHF.FormLabel>City</RHF.FormLabel>
@@ -270,21 +275,21 @@ export default function Component({ user, specialities }: Props) {
                       </RHF.FormItem>
                     )}
                   />
-                  <Button type="submit" disabled={pending}>
-                    {pending ? 'Saving...' : 'Save'}
+                  <Button type="submit" disabled={savingUser}>
+                    {savingUser ? 'Saving...' : 'Save'}
                   </Button>
                 </form>
               </RHF.Form>
             </TabsContent>
             <TabsContent value="doctor">
-              <RHF.Form {...form}>
+              <RHF.Form {...doctorForm}>
                 <form
                   className="space-y-2"
-                  onSubmit={form.handleSubmit(handleSubmit)}
+                  onSubmit={doctorForm.handleSubmit(submitDoctor)}
                 >
                   <RHF.FormField
                     name="image"
-                    control={form.control}
+                    control={doctorForm.control}
                     render={({ field }) => (
                       <RHF.FormItem>
                         <RHF.FormControl>
@@ -327,7 +332,7 @@ export default function Component({ user, specialities }: Props) {
                   />
                   <RHF.FormField
                     name="name"
-                    control={form.control}
+                    control={doctorForm.control}
                     render={({ field }) => (
                       <RHF.FormItem>
                         <RHF.FormLabel>Name</RHF.FormLabel>
@@ -344,7 +349,7 @@ export default function Component({ user, specialities }: Props) {
                   />
                   <RHF.FormField
                     name="email"
-                    control={form.control}
+                    control={doctorForm.control}
                     render={({ field }) => (
                       <RHF.FormItem>
                         <RHF.FormLabel>Email</RHF.FormLabel>
@@ -361,7 +366,7 @@ export default function Component({ user, specialities }: Props) {
                   />
                   <RHF.FormField
                     name="password"
-                    control={form.control}
+                    control={doctorForm.control}
                     render={({ field }) => (
                       <RHF.FormItem>
                         <RHF.FormLabel>Password</RHF.FormLabel>
@@ -378,7 +383,7 @@ export default function Component({ user, specialities }: Props) {
                   />
                   <RHF.FormField
                     name="phone"
-                    control={form.control}
+                    control={doctorForm.control}
                     render={({ field }) => (
                       <RHF.FormItem>
                         <RHF.FormLabel>Phone</RHF.FormLabel>
@@ -395,7 +400,7 @@ export default function Component({ user, specialities }: Props) {
                   />
                   <RHF.FormField
                     name="gender"
-                    control={form.control}
+                    control={doctorForm.control}
                     render={({ field }) => (
                       <RHF.FormItem>
                         <RHF.FormLabel>Gender</RHF.FormLabel>
@@ -423,7 +428,7 @@ export default function Component({ user, specialities }: Props) {
                   />
                   <RHF.FormField
                     name="experience"
-                    control={form.control}
+                    control={doctorForm.control}
                     render={({ field }) => (
                       <RHF.FormItem>
                         <RHF.FormLabel>Experience</RHF.FormLabel>
@@ -442,7 +447,7 @@ export default function Component({ user, specialities }: Props) {
                   />
                   <RHF.FormField
                     name="city"
-                    control={form.control}
+                    control={doctorForm.control}
                     render={({ field }) => (
                       <RHF.FormItem>
                         <RHF.FormLabel>City</RHF.FormLabel>
@@ -459,7 +464,7 @@ export default function Component({ user, specialities }: Props) {
                   />
                   <RHF.FormField
                     name="specialities"
-                    control={form.control}
+                    control={doctorForm.control}
                     render={({ field }) => (
                       <RHF.FormItem>
                         <RHF.FormLabel>Specialities</RHF.FormLabel>
@@ -480,7 +485,7 @@ export default function Component({ user, specialities }: Props) {
                   />
                   <RHF.FormField
                     name="daysOfVisit"
-                    control={form.control}
+                    control={doctorForm.control}
                     render={({ field }) => (
                       <RHF.FormItem>
                         <RHF.FormLabel>Visiting Days</RHF.FormLabel>
@@ -501,7 +506,7 @@ export default function Component({ user, specialities }: Props) {
                   />
                   <RHF.FormField
                     name="timings"
-                    control={form.control}
+                    control={doctorForm.control}
                     render={({ field }) => (
                       <RHF.FormItem>
                         <RHF.FormControl>
@@ -582,8 +587,8 @@ export default function Component({ user, specialities }: Props) {
                       </RHF.FormItem>
                     )}
                   />
-                  <Button type="submit" disabled={pending}>
-                    {pending ? 'Saving...' : 'Save'}
+                  <Button type="submit" disabled={savingDoctor}>
+                    {savingDoctor ? 'Saving...' : 'Save'}
                   </Button>
                 </form>
               </RHF.Form>

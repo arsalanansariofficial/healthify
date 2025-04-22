@@ -108,28 +108,27 @@ export async function deleteSpecialities(ids: string[]) {
 }
 
 export async function deleteUser(id: string) {
-  const user = await prisma.user.delete({ where: { id } });
-  if (user && user.image) await fs.unlink(path.join(dir, `${user?.image}`));
+  await prisma.$transaction(async function (transaction) {
+    const user = await transaction.user.delete({ where: { id } });
+    if (user && user.image) await fs.unlink(path.join(dir, `${user?.image}`));
+  });
+
   revalidatePath(CONST.HOME);
 }
 
 export async function deleteUsers(ids: string[]) {
-  const [users, count] = await prisma.$transaction(
-    async function (transaction) {
-      return [
-        await transaction.user.findMany({ where: { id: { in: ids } } }),
-        await transaction.user.deleteMany({ where: { id: { in: ids } } })
-      ];
-    }
-  );
+  await prisma.$transaction(async function (transaction) {
+    const users = await transaction.user.findMany({
+      where: { id: { in: ids } }
+    });
 
-  if (count) {
-    await Promise.all(
-      users
+    await Promise.all([
+      transaction.user.deleteMany({ where: { id: { in: ids } } }),
+      ...users
         .filter(user => !!user.image)
         .map(user => fs.unlink(path.join(dir, `${user?.image}`)))
-    );
-  }
+    ]);
+  });
 
   revalidatePath(CONST.HOME);
 }

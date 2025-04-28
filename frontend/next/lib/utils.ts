@@ -6,6 +6,7 @@ import { AuthError, User } from 'next-auth';
 import { clsx, type ClassValue } from 'clsx';
 
 import * as CONST from '@/lib/constants';
+import { randomUUID } from 'crypto';
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -40,6 +41,14 @@ export function arrayBufferToBase64(buffer: ArrayBuffer): string {
   return window.btoa(
     bytes.reduce((acc, byte) => acc + String.fromCharCode(byte), String())
   );
+}
+
+export function getFileWithName(files: FileList) {
+  const fileUUID = randomUUID();
+  const file: File = files && files[0];
+  const fileExtension = file?.type?.split(CONST.HOME).at(-1);
+
+  return [file, fileUUID, fileExtension] as [File, string, string];
 }
 
 export function removeDuplicateTimes(

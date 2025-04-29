@@ -4,7 +4,6 @@ import path from 'path';
 import fs from 'fs/promises';
 import bcrypt from 'bcrypt-mini';
 import { z, ZodSchema } from 'zod';
-import { randomUUID } from 'crypto';
 import nodemailer from 'nodemailer';
 import * as P from '@prisma/client';
 import { revalidatePath } from 'next/cache';
@@ -13,7 +12,12 @@ import prisma from '@/lib/prisma';
 import * as CONST from '@/lib/constants';
 import * as schemas from '@/lib/schemas';
 import { auth, signIn, unstable_update as update } from '@/auth';
-import { catchAuthError, catchErrors, removeDuplicateTimes } from '@/lib/utils';
+import {
+  catchErrors,
+  catchAuthError,
+  getFileWithName,
+  removeDuplicateTimes
+} from '@/lib/utils';
 
 type Schema<T extends ZodSchema> = z.infer<T>;
 
@@ -530,11 +534,9 @@ export async function addDoctor(data: Schema<typeof schemas.doctorSchema>) {
   const result = schemas.doctorSchema.safeParse(data);
   if (!result.success) return { success: false, message: CONST.INVALID_INPUTS };
 
-  const imageUUID = randomUUID();
   const timings = result.data.timings;
   const specialities = result.data.specialities;
-  const image = result.data?.image && result.data.image[0];
-  const fileExtension = image?.type?.split(CONST.HOME).at(-1);
+  const [file, fileName, fileExtension] = getFileWithName(result.data?.image);
 
   try {
     const user = await prisma.user.findUnique({
@@ -556,9 +558,9 @@ export async function addDoctor(data: Schema<typeof schemas.doctorSchema>) {
           phone: result.data.phone,
           gender: result.data.gender,
           experience: result.data.experience,
-          daysOfVisit: (result.data.daysOfVisit as P.Day[]) || undefined,
+          image: file?.size ? `${file}.${fileExtension}` : undefined,
           password: bcrypt.hashSync(result.data.password as string, 10),
-          image: image?.size ? `${imageUUID}.${fileExtension}` : undefined,
+          daysOfVisit: (result.data.daysOfVisit as P.Day[]) || undefined,
           timings: {
             create: removeDuplicateTimes(timings)?.map(t => ({
               time: t.time,
@@ -581,8 +583,8 @@ export async function addDoctor(data: Schema<typeof schemas.doctorSchema>) {
       return user;
     });
 
-    if (created && image?.size) {
-      await saveFile(image, `${imageUUID}.${fileExtension}`);
+    if (created && file?.size) {
+      await saveFile(file, `${fileName}.${fileExtension}`);
     }
   } catch (error) {
     return catchErrors(error as Error);
@@ -639,9 +641,7 @@ export async function updateUserProfile(
       return { success: false, message: CONST.INVALID_INPUTS };
     }
 
-    const imageUUID = randomUUID();
-    const image = result.data?.image && result.data.image[0];
-    const fileExtension = image?.type?.split(CONST.HOME).at(-1);
+    const [file, fileName, fileExtension] = getFileWithName(result.data?.image);
 
     const user = await prisma.user.findUnique({
       where: { id: userId },
@@ -678,7 +678,7 @@ export async function updateUserProfile(
           phone: phone && phone !== user.phone ? phone : undefined,
           gender: gender && gender !== user.gender ? gender : undefined,
           password: password ? bcrypt.hashSync(password, 10) : undefined,
-          image: image?.size ? `${imageUUID}.${fileExtension}` : undefined
+          image: file?.size ? `${fileName}.${fileExtension}` : undefined
         }
       });
 
@@ -693,12 +693,141 @@ export async function updateUserProfile(
         data: { userId, roleId: role?.id as string }
       });
 
-      if (image?.size && user.image) {
+      if (file?.size && user.image) {
         await fs.unlink(path.join(dir, `${user.image}`));
       }
 
-      if (updated && image?.size) {
-        await saveFile(image, `${imageUUID}.${fileExtension}`);
+      if (updated && file?.size) {
+        await saveFile(file, `${file}.${fileExtension}`);
+      }
+    });
+
+    if (email !== user.email) {
+      return loginWithCredentials({
+        email: result.data.email,
+        password: result.data.password || String()
+      });
+    }
+
+    return { success: false, message: CONST.PROFILE_UPDATED };
+  } catch (error) {
+    return catchErrors(error as Error);
+  }
+}
+
+export async function updateDoctorProfile(
+  doctorId: string,
+  data: Schema<typeof schemas.doctorProfileSchema>
+) {
+  try {
+    const result = schemas.doctorProfileSchema.safeParse(data);
+
+    if (!result.success) {
+      return { success: false, message: CONST.INVALID_INPUTS };
+    }
+
+    const [file, fileName, fileExtension] = getFileWithName(result.data?.image);
+
+    const user = await prisma.user.findUnique({
+      where: { id: doctorId },
+      select: {
+        city: true,
+        email: true,
+        phone: true,
+        image: true,
+        gender: true,
+        emailVerified: true,
+        experience: true
+      }
+    });
+
+    const {
+      city,
+      email,
+      phone,
+      gender,
+      timings,
+      password,
+      experience,
+      daysOfVisit,
+      specialities
+    } = result.data;
+
+    if (!user) return { success: false, message: CONST.USER_NOT_FOUND };
+
+    const emailExists = await prisma.user.findUnique({
+      where: { email },
+      select: { email: true }
+    });
+
+    if (email !== user.email && emailExists) {
+      return { success: false, message: CONST.EMAIL_REGISTERED };
+    }
+
+    await prisma.$transaction(async function (transaction) {
+      const updated = await transaction.user.update({
+        where: { id: doctorId },
+        data: {
+          name: result.data.name,
+          email: email !== user.email ? email : undefined,
+          city: city && city !== user.city ? city : undefined,
+          phone: phone && phone !== user.phone ? phone : undefined,
+          gender: gender && gender !== user.gender ? gender : undefined,
+          password: password ? bcrypt.hashSync(password, 10) : undefined,
+          image: file?.size ? `${fileName}.${fileExtension}` : undefined,
+          experience:
+            experience && experience !== user.experience
+              ? experience
+              : undefined,
+          daysOfVisit:
+            daysOfVisit && daysOfVisit.length
+              ? (daysOfVisit as P.Day[])
+              : undefined
+        }
+      });
+
+      if (specialities && specialities.length) {
+        await transaction.userSpeciality.deleteMany({
+          where: { userId: doctorId }
+        });
+
+        await transaction.userSpeciality.createMany({
+          data: specialities.map(s => ({ userId: doctorId, specialityId: s }))
+        });
+      }
+
+      if (timings && timings.length) {
+        await transaction.timeSlot.deleteMany({ where: { userId: doctorId } });
+        await transaction.user.update({
+          where: { id: doctorId },
+          data: {
+            timings: {
+              create: removeDuplicateTimes(timings)?.map(t => ({
+                time: t.time,
+                duration: t.duration
+              })) as P.TimeSlot[]
+            }
+          }
+        });
+      }
+
+      const [role] = await Promise.all([
+        transaction.role.findUnique({ where: { name: CONST.DOCTOR_ROLE } }),
+        transaction.userRole.deleteMany({
+          where: { userId: doctorId }
+        })
+      ]);
+
+      await transaction.userRole.create({
+        data: { userId: doctorId, roleId: role?.id as string }
+      });
+
+      if (file?.size && user.image) {
+        await fs.unlink(path.join(dir, `${user.image}`));
+      }
+
+      if (updated && file?.size) {
+        await saveFile(file, `${file}.${fileExtension}`);
       }
     });
 

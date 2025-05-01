@@ -1,4 +1,3 @@
-import * as P from '@prisma/client';
 import { titleCase } from 'moderndash';
 import { twMerge } from 'tailwind-merge';
 import { format, parse } from 'date-fns';
@@ -6,7 +5,6 @@ import { AuthError, User } from 'next-auth';
 import { clsx, type ClassValue } from 'clsx';
 
 import * as CONST from '@/lib/constants';
-import { randomUUID } from 'crypto';
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -41,14 +39,6 @@ export function arrayBufferToBase64(buffer: ArrayBuffer): string {
   return window.btoa(
     bytes.reduce((acc, byte) => acc + String.fromCharCode(byte), String())
   );
-}
-
-export function getFileWithName(files: FileList) {
-  const fileUUID = randomUUID();
-  const file: File = files && files[0];
-  const fileExtension = file?.type?.split(CONST.HOME).at(-1);
-
-  return [file, fileUUID, fileExtension] as [File, string, string];
 }
 
 export function removeDuplicateTimes(
@@ -89,11 +79,11 @@ export function catchAuthError(error: Error) {
 }
 
 export function catchErrors(error: Error) {
-  if (error instanceof P.Prisma.PrismaClientKnownRequestError) {
+  if (error.name === 'PrismaClientKnownRequestError') {
     return { success: false, message: CONST.UNIQUE_ERR };
   }
 
-  if (error instanceof P.Prisma.PrismaClientInitializationError) {
+  if (error.name === 'PrismaClientInitializationError') {
     return { success: false, message: CONST.PRISMA_INIT };
   }
 
@@ -114,16 +104,7 @@ export function catchErrors(error: Error) {
     }
   }
 
-  if (error instanceof AuthError) {
-    switch (error.type) {
-      case 'CredentialsSignin':
-        return { success: false, message: CONST.INVALID_CREDENTIALS };
-      default:
-        return { success: false, message: CONST.SERVER_ERROR_MESSAGE };
-    }
-  }
-
-  throw error;
+  return { success: false, message: error.message };
 }
 
 export function hasFormChanged<T extends Record<string, unknown>>(

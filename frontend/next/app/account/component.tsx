@@ -9,11 +9,11 @@ import { FileIcon, PlusIcon, TrashIcon } from 'lucide-react';
 import { Role, Speciality, TimeSlot, User } from '@prisma/client';
 
 import * as utils from '@/lib/utils';
-import { DAYS } from '@/lib/constants';
 import { capitalize } from '@/lib/utils';
 import Footer from '@/components/footer';
 import * as CN from '@/components/ui/card';
 import * as RHF from '@/components/ui/form';
+import { DAYS, HOST } from '@/lib/constants';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
@@ -28,9 +28,9 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 type Props = {
   specialities: { value: string; label: string }[];
   user: Omit<User, 'token' | 'accounts' | 'hasOAuth' | 'password'> & {
-    timings: TimeSlot[];
-    UserRoles: { role: Role }[];
-    UserSpecialities: { speciality: Speciality }[];
+    timings: Pick<TimeSlot, 'id' | 'time' | 'duration'>[];
+    UserRoles: { role: Pick<Role, 'id' | 'name'> }[];
+    UserSpecialities: { speciality: Pick<Speciality, 'id' | 'name'> }[];
   };
 };
 
@@ -38,7 +38,7 @@ export default function Component({ user, specialities }: Props) {
   const [imageSrc, setImageSrc] = useState<string | null>(null);
 
   const isDoctor = utils.hasRole(
-    user.UserRoles.map(ur => ur.role),
+    user.UserRoles.map(ur => ur.role as Role),
     'doctor'
   );
 
@@ -140,7 +140,9 @@ export default function Component({ user, specialities }: Props) {
                                 unoptimized
                                 alt="Profile Picture"
                                 className="aspect-video object-cover"
-                                src={imageSrc || `/users/${user.image}`}
+                                src={
+                                  imageSrc || `${HOST}/api/upload/${user.image}`
+                                }
                               />
                             )}
                             <Input
@@ -297,7 +299,7 @@ export default function Component({ user, specialities }: Props) {
                 >
                   <RHF.FormField
                     name="image"
-                    control={userForm.control}
+                    control={doctorForm.control}
                     render={({ field }) => (
                       <RHF.FormItem>
                         <RHF.FormControl>
@@ -314,7 +316,9 @@ export default function Component({ user, specialities }: Props) {
                                 unoptimized
                                 alt="Profile Picture"
                                 className="aspect-video object-cover"
-                                src={imageSrc || `/users/${user.image}`}
+                                src={
+                                  imageSrc || `${HOST}/api/upload/${user.image}`
+                                }
                               />
                             )}
                             <Input

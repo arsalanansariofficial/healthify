@@ -1,6 +1,6 @@
+import * as dateFns from 'date-fns';
 import { titleCase } from 'moderndash';
 import { twMerge } from 'tailwind-merge';
-import { format, parse } from 'date-fns';
 import { AuthError, User } from 'next-auth';
 import { clsx, type ClassValue } from 'clsx';
 
@@ -15,7 +15,7 @@ export function capitalize(text: string) {
 }
 
 export function formatTime(time: string) {
-  return format(parse(time, 'HH:mm:ss', new Date()), 'hh:mm a');
+  return dateFns.format(dateFns.parse(time, 'HH:mm:ss', new Date()), 'hh:mm a');
 }
 
 export function hasRole(roles: User['roles'], name: string) {
@@ -29,9 +29,9 @@ export function hasPermission(permissions: User['permissions'], name: string) {
 }
 
 export function getDate(date?: string, day = true, time = true): string {
-  if (!day) return format(date || new Date(), 'MMMM dd, yyyy');
-  if (!time) return format(date || new Date(), 'EEEE, MMMM dd, yyyy');
-  return format(date || new Date(), 'EEEE, MMMM dd, yyyy h:mm a');
+  if (!day) return dateFns.format(date || new Date(), 'MMMM dd, yyyy');
+  if (!time) return dateFns.format(date || new Date(), 'EEEE, MMMM dd, yyyy');
+  return dateFns.format(date || new Date(), 'EEEE, MMMM dd, yyyy h:mm a');
 }
 
 export function arrayBufferToBase64(buffer: ArrayBuffer): string {
@@ -63,6 +63,21 @@ export function shortId(length = 5) {
 
   crypto.getRandomValues(array);
   return Array.from(array, x => chars[x % chars.length]).join('');
+}
+
+export function isPastByTime(date: Date, time: string, diff: number) {
+  const [hours, minutes, seconds] = time.split(':').map(Number);
+  return dateFns.isBefore(
+    new Date(),
+    new Date(
+      dateFns
+        .setSeconds(
+          dateFns.setMinutes(dateFns.setHours(date, hours), minutes),
+          seconds
+        )
+        .getTime() - diff
+    )
+  );
 }
 
 export function catchAuthError(error: Error) {

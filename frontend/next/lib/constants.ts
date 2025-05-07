@@ -192,6 +192,29 @@ export const PAGE_NOT_FOUND = process.env?.PAGE_NOT_FOUND || 'Page not found!';
 export const TOKEN_NOT_GENERATED = '⚠️ Failed to generate verification token!';
 export const RESUME = `${CDN}/${USER_NAME}/${RESOURCE}/documents/arsalan-ansari_resume.pdf`;
 
+export let APPOINTMENT_NOT_FOUND =
+  '⚠️ No details found for the current appointment!';
+if (process.env?.APPOINTMENT_NOT_FOUND) {
+  APPOINTMENT_NOT_FOUND = process.env.APPOINTMENT_NOT_FOUND;
+}
+
+export let APPOINTMENT_ACTION_RESTRICTED =
+  '⚠️ Appointment status can not be updated!';
+if (process.env?.APPOINTMENT_ACTION_RESTRICTED) {
+  APPOINTMENT_ACTION_RESTRICTED = process.env.APPOINTMENT_ACTION_RESTRICTED;
+}
+
+export let APPOINTMENT_CONFIRMED =
+  '🎉 Appointment confirmed, you can print appointment receipt now.';
+if (process.env?.APPOINTMENT_CONFIRMED) {
+  APPOINTMENT_CONFIRMED = process.env.APPOINTMENT_CONFIRMED;
+}
+
+export let APPOINTMENT_CANCELLED = '💬 Appointment cancelled.';
+if (process.env?.APPOINTMENT_CANCELLED) {
+  APPOINTMENT_CANCELLED = process.env.APPOINTMENT_CANCELLED;
+}
+
 export let APPOINTMENT_CREATED =
   '💬 We have informed the doctor about the appointment, once he confirms your appointment you would be able to get the receipt.';
 if (process.env?.APPOINTMENT_CREATED) {

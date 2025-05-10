@@ -7,10 +7,12 @@ import * as P from '@prisma/client';
 import { revalidatePath } from 'next/cache';
 
 import prisma from '@/lib/prisma';
+import * as utils from '@/lib/utils';
 import * as CONST from '@/lib/constants';
 import * as schemas from '@/lib/schemas';
+import { VerifyEmail } from '@/components/email/account/email';
 import { auth, signIn, unstable_update as update } from '@/auth';
-import { catchErrors, catchAuthError, removeDuplicateTimes } from '@/lib/utils';
+import * as Template from '@/components/email/appointment/email';
 
 type Schema<T extends ZodSchema> = z.infer<T>;
 
@@ -84,11 +86,9 @@ export async function loginWithCredentials({
         return { success: false, message: CONST.TOKEN_NOT_GENERATED };
       }
 
-      const emailSent = await sendEmail(
-        email,
-        `${CONST.HOST}/verify?token=${token.id}`,
-        `<p>Click <a href="${CONST.HOST}/verify?token=${token.id}">here</a> to verify your email.</p>`
-      );
+      const html = VerifyEmail({ data: { token: token.id } });
+      const subject = `${CONST.HOST}/verify?token=${token.id}`;
+      const emailSent = await sendEmail(email, subject, html);
 
       if (!emailSent) {
         return { success: false, message: CONST.EMAIL_FAILED };
@@ -103,7 +103,7 @@ export async function loginWithCredentials({
       redirectTo: CONST.DASHBOARD
     });
   } catch (error) {
-    return catchAuthError(error as Error);
+    return utils.catchAuthError(error as Error);
   }
 }
 
@@ -169,7 +169,7 @@ export async function assignRoles(
     await update({ user: { ...session?.user, roles: roles.map(r => r.role) } });
     return { success: true, message: CONST.ROLES_ASSIGNED };
   } catch (error) {
-    return catchErrors(error as Error);
+    return utils.catchErrors(error as Error);
   }
 }
 
@@ -195,7 +195,7 @@ export async function verifyEmail(email: string) {
     if (!user) return { success: false, message: CONST.USER_NOT_FOUND };
     revalidatePath(CONST.HOME);
   } catch (error) {
-    return catchErrors(error as Error);
+    return utils.catchErrors(error as Error);
   }
 }
 
@@ -237,7 +237,7 @@ export async function assignPermissions({
     revalidatePath(CONST.HOME);
     return { success: true, message: CONST.PERMISSIONS_ASSIGNED };
   } catch (error) {
-    return catchErrors(error as Error);
+    return utils.catchErrors(error as Error);
   }
 }
 
@@ -260,7 +260,7 @@ export async function updateSpeciality(
       message: CONST.SPECIALITY_UPDATED
     };
   } catch (error) {
-    return catchErrors(error as Error);
+    return utils.catchErrors(error as Error);
   }
 }
 
@@ -282,7 +282,7 @@ export async function addSpeciality({
       message: CONST.SPECIALITY_ADDED
     };
   } catch (error) {
-    return catchErrors(error as Error);
+    return utils.catchErrors(error as Error);
   }
 }
 
@@ -297,7 +297,7 @@ export async function addRole(data: Schema<typeof schemas.roleSchema>) {
 
     return { ...data, success: true, message: CONST.ROLE_ADDED };
   } catch (error) {
-    return catchErrors(error as Error);
+    return utils.catchErrors(error as Error);
   }
 }
 
@@ -318,7 +318,7 @@ export async function addPermission(
       message: CONST.PERMISSION_ADDED
     };
   } catch (error) {
-    return catchErrors(error as Error);
+    return utils.catchErrors(error as Error);
   }
 }
 
@@ -363,7 +363,7 @@ export async function verifyToken(id: string) {
       message: CONST.EMAIL_VERIFIED
     };
   } catch (error) {
-    return { email: undefined, ...catchErrors(error as Error) };
+    return { email: undefined, ...utils.catchErrors(error as Error) };
   }
 }
 
@@ -406,7 +406,7 @@ export async function signup(data: Schema<typeof schemas.signupSchema>) {
       });
     });
   } catch (error) {
-    return catchErrors(error as Error);
+    return utils.catchErrors(error as Error);
   }
 
   return loginWithCredentials(data);
@@ -444,7 +444,7 @@ export default async function seed() {
 
     return { success: true, message: CONST.DATABASE_UPDATED };
   } catch (error) {
-    return catchErrors(error as Error);
+    return utils.catchErrors(error as Error);
   }
 }
 
@@ -461,7 +461,7 @@ export async function updatePassword({
       data: { password: bcrypt.hashSync(password, 10) }
     });
   } catch (error) {
-    return catchErrors(error as Error);
+    return utils.catchErrors(error as Error);
   }
 
   return await loginWithCredentials({ email, password });
@@ -490,7 +490,7 @@ export async function forgetPassword({
     if (!emailSent) return { success: false, message: CONST.EMAIL_FAILED };
     return { email, success: true, message: CONST.CONFIRM_EMAIL };
   } catch (error) {
-    return { email, ...catchErrors(error as Error) };
+    return { email, ...utils.catchErrors(error as Error) };
   }
 }
 
@@ -532,7 +532,7 @@ export async function updateUser(
     revalidatePath(CONST.HOME);
     return { success: true, message: CONST.PROFILE_UPDATED };
   } catch (error) {
-    return catchErrors(error as Error);
+    return utils.catchErrors(error as Error);
   }
 }
 
@@ -571,7 +571,7 @@ export async function addDoctor(data: Schema<typeof schemas.doctorSchema>) {
           password: bcrypt.hashSync(result.data.password as string, 10),
           daysOfVisit: (result.data.daysOfVisit as P.Day[]) || undefined,
           timings: {
-            create: removeDuplicateTimes(timings)?.map(t => ({
+            create: utils.removeDuplicateTimes(timings)?.map(t => ({
               time: t.time,
               duration: t.duration
             })) as P.TimeSlot[]
@@ -590,7 +590,7 @@ export async function addDoctor(data: Schema<typeof schemas.doctorSchema>) {
       });
     });
   } catch (error) {
-    return catchErrors(error as Error);
+    return utils.catchErrors(error as Error);
   }
 
   return loginWithCredentials({
@@ -629,7 +629,7 @@ export async function getAppointment(
 
     return { success: true, message: CONST.APPOINTMENT_CREATED };
   } catch (error) {
-    return catchErrors(error as Error);
+    return utils.catchErrors(error as Error);
   }
 }
 
@@ -710,7 +710,7 @@ export async function updateUserProfile(
 
     return { success: false, message: CONST.PROFILE_UPDATED };
   } catch (error) {
-    return catchErrors(error as Error);
+    return utils.catchErrors(error as Error);
   }
 }
 
@@ -805,7 +805,7 @@ export async function updateDoctorProfile(
           where: { id: doctorId },
           data: {
             timings: {
-              create: removeDuplicateTimes(timings)?.map(t => ({
+              create: utils.removeDuplicateTimes(timings)?.map(t => ({
                 time: t.time,
                 duration: t.duration
               })) as P.TimeSlot[]
@@ -835,6 +835,99 @@ export async function updateDoctorProfile(
 
     return { success: false, message: CONST.PROFILE_UPDATED };
   } catch (error) {
-    return catchErrors(error as Error);
+    return utils.catchErrors(error as Error);
+  }
+}
+
+export async function updateAppointmentStatus(id: string, status: string) {
+  try {
+    const session = await auth();
+
+    if (!session?.user?.id) {
+      return { success: false, message: CONST.USER_NOT_FOUND };
+    }
+
+    const appointment = await prisma.appointment.findUnique({
+      where: { id },
+      select: { date: true, timeSlot: { select: { time: true } } }
+    });
+
+    if (!appointment) {
+      return { success: false, message: CONST.APPOINTMENT_NOT_FOUND };
+    }
+
+    const isInFuture = utils.isPastByTime(
+      appointment?.date,
+      appointment?.timeSlot.time,
+      CONST.EXPIRES_AT * 1000
+    );
+
+    if (!isInFuture) {
+      return { success: false, message: CONST.APPOINTMENT_ACTION_RESTRICTED };
+    }
+
+    const updated = await prisma.$transaction(async function (transaction) {
+      return await transaction.appointment.update({
+        where: { id },
+        data: { status: status as P.AppointmentStatus },
+        select: {
+          date: true,
+          doctor: { select: { email: true, name: true } },
+          patient: { select: { email: true, name: true } },
+          timeSlot: { select: { time: true, duration: true } }
+        }
+      });
+    });
+
+    const data = {
+      data: {
+        time: updated.timeSlot.time,
+        date: updated.date.toString(),
+        doctorName: updated.doctor.name as string,
+        patientName: updated.patient.name as string,
+        duration: updated.timeSlot.duration.toString()
+      }
+    };
+
+    if (status === P.AppointmentStatus.CONFIRMED) {
+      await Promise.all([
+        sendEmail(
+          updated.doctor.email as string,
+          'Appointment Confirmed',
+          Template.ConfirmAppointment(data)
+        ),
+        sendEmail(
+          updated.patient.email as string,
+          'Appointment Confirmed',
+          Template.ConfirmAppointment(data)
+        )
+      ]);
+    }
+
+    if (status === P.AppointmentStatus.CANCELLED) {
+      await Promise.all([
+        sendEmail(
+          updated.doctor.email as string,
+          'Appointment Cancelled',
+          Template.CancelAppointment(data)
+        ),
+        sendEmail(
+          updated.patient.email as string,
+          'Appointment Cancelled',
+          Template.CancelAppointment(data)
+        )
+      ]);
+    }
+
+    revalidatePath('/');
+    return {
+      success: true,
+      message:
+        status === P.AppointmentStatus.CONFIRMED
+          ? CONST.APPOINTMENT_CONFIRMED
+          : CONST.APPOINTMENT_CANCELLED
+    };
+  } catch (error) {
+    return utils.catchErrors(error as Error);
   }
 }

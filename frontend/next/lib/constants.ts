@@ -258,7 +258,6 @@ export const URLS = [
   { value: '/users', permission: 'view:users' },
   { value: '/roles/add', permission: 'add:role' },
   { value: '/doctors', permission: 'view:doctors' },
-  { value: '/receipt', permission: 'view:receipt' },
   { value: '/doctors/add', permission: 'add:doctor' },
   { value: '/dashboard', permission: 'view:dashboard' },
   { value: '/roles/assign', permission: 'assign:roles' },
@@ -266,7 +265,8 @@ export const URLS = [
   { value: '/appointments', permission: 'view:appointments' },
   { value: '/permissions/add', permission: 'add:permission' },
   { value: '/permissions/assign', permission: 'assign:permissions' },
-  { value: '/doctors/specialities/add', permission: 'add:speciality' }
+  { value: '/doctors/specialities/add', permission: 'add:speciality' },
+  { value: '/appointments/[slug]/receipt', permission: 'view:receipt' }
 ];
 
 export const CARDS_DATA = [
@@ -313,21 +313,14 @@ export const SIDEBAR_ITEMS = new Map([
     ]
   ],
   [
+    { label: 'Appointments', permission: 'view:appointments' },
+    [{ label: 'View', url: '/appointments', permission: 'view:appointments' }]
+  ],
+  [
     { label: 'Specialities', permission: 'view:specialities' },
     [
       { label: 'View', url: '/specialities', permission: 'view:specialities' },
       { label: 'Add', url: '/specialities/add', permission: 'add:speciality' }
-    ]
-  ],
-  [
-    { label: 'Appointments', permission: 'view:appointments' },
-    [
-      { label: 'View', url: '/appointments', permission: 'view:appointments' },
-      {
-        label: 'Receipt',
-        permission: 'view:receipt',
-        url: '/appointments/receipt'
-      }
     ]
   ],
   [

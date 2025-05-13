@@ -248,7 +248,7 @@ export function TableCellViewer<T extends z.ZodType>(props: TCVProps<T>) {
                   form="appointment-form"
                   className="cursor-pointer"
                 >
-                  <Link href="/appointments/receipt">
+                  <Link href={`/appointments/${props.item.id}/receipt`}>
                     {!isMobile && <span>View Receipt</span>}
                     <Printer />
                   </Link>

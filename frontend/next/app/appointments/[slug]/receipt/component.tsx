@@ -1,5 +1,10 @@
 'use client';
 
+import jsPDF from 'jspdf';
+import { useTheme } from 'next-themes';
+import { useEffect, useRef } from 'react';
+import * as htmlToImage from 'html-to-image';
+import { usePathname } from 'next/navigation';
 import { ArrowDown, Printer } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
@@ -22,6 +27,45 @@ type Props = {
 };
 
 export default function Page({ appointment }: Props) {
+  const pathname = usePathname();
+  const { theme, setTheme } = useTheme();
+  const receiptRef = useRef<HTMLDivElement>(null);
+  const originalTheme = useRef<string | null>(null);
+
+  useEffect(() => {
+    setTheme('light');
+
+    if (!originalTheme.current) {
+      originalTheme.current = theme || 'system';
+    }
+
+    return () => {
+      if (originalTheme.current) setTheme(originalTheme.current);
+    };
+  }, [pathname, setTheme, theme]);
+
+  async function downloadPdf() {
+    const element = receiptRef.current;
+    if (!element) return;
+
+    const dataUrl = await htmlToImage.toPng(element);
+
+    const pdf = new jsPDF({
+      unit: 'px',
+      format: 'a4',
+      orientation: 'portrait'
+    });
+
+    const y = 16;
+    const size = 200;
+    const format = 'PNG';
+    const x = (pdf.internal.pageSize.getWidth() - size) / 2;
+
+    pdf
+      .addImage(dataUrl, format, x, y, size, size)
+      .save(`appointment-${appointment.id}.pdf`);
+  }
+
   return (
     <main className="row-start-2 grid place-items-center">
       <section className="bg-background text-foreground font-serif font-semibold print:bg-white print:text-black">
@@ -31,7 +75,7 @@ export default function Page({ appointment }: Props) {
           </h1>
           <div className="mx-auto h-5 rounded-md border-5 shadow" />
         </header>
-        <main className="overflow-hidden">
+        <main ref={receiptRef} className="overflow-hidden">
           <div className="print-animation -translate-y-[calc(100%+1rem)]">
             <Card className="mx-auto mt-4 print:border print:border-dashed print:border-black print:shadow-none">
               <CardContent className="grid min-h-50 grid-cols-2 gap-2 print:text-black">
@@ -102,7 +146,10 @@ export default function Page({ appointment }: Props) {
             <span>Print</span>
             <Printer className="h-1 w-1" />
           </Button>
-          <Button className="flex h-full cursor-pointer items-center gap-1 font-sans">
+          <Button
+            onClick={downloadPdf}
+            className="flex h-full cursor-pointer items-center gap-1 font-sans"
+          >
             <span>Download</span>
             <ArrowDown className="h-1 w-1" />
           </Button>

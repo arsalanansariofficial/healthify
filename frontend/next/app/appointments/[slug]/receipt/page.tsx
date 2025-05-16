@@ -1,7 +1,8 @@
-import Component from './component';
 import { notFound } from 'next/navigation';
+import { AppointmentStatus } from '@prisma/client';
 
 import prisma from '@/lib/prisma';
+import Component from './component';
 
 type Props = { params: Promise<{ slug: string }> };
 
@@ -14,6 +15,7 @@ export default async function Page(props: Props) {
       id: true,
       date: true,
       city: true,
+      status: true,
       patient: { select: { name: true } },
       timeSlot: { select: { time: true } },
       doctor: {
@@ -28,6 +30,9 @@ export default async function Page(props: Props) {
     }
   });
 
-  if (!appointment) notFound();
+  if (!appointment || appointment.status !== AppointmentStatus.CONFIRMED) {
+    notFound();
+  }
+
   return <Component appointment={appointment} />;
 }

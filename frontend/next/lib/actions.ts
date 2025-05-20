@@ -4,12 +4,15 @@ import bcrypt from 'bcrypt-mini';
 import { z, ZodSchema } from 'zod';
 import nodemailer from 'nodemailer';
 import * as P from '@prisma/client';
+import { isFuture } from 'date-fns';
 import { revalidatePath } from 'next/cache';
 
+import * as dfns from 'date-fns';
 import prisma from '@/lib/prisma';
 import * as utils from '@/lib/utils';
 import * as CONST from '@/lib/constants';
 import * as schemas from '@/lib/schemas';
+import { formatChange } from '@/lib/utils';
 import { VerifyEmail } from '@/components/email/account/email';
 import { auth, signIn, unstable_update as update } from '@/auth';
 import * as Template from '@/components/email/appointment/email';
@@ -930,4 +933,224 @@ export async function updateAppointmentStatus(id: string, status: string) {
   } catch (error) {
     return utils.catchErrors(error as Error);
   }
+}
+
+export async function getMonthlyUserData(
+  year: number = new Date().getFullYear()
+) {
+  const users = await prisma.user.findMany({
+    select: { createdAt: true },
+    where: {
+      createdAt: {
+        gte: dfns.startOfYear(new Date(year, 0, 1)),
+        lt: dfns.endOfYear(new Date(year, 11, 31))
+      }
+    }
+  });
+
+  const data = CONST.MONTHS.map(month => ({ month, users: 0 }));
+  users.forEach(user => data[user.createdAt.getMonth()].users++);
+
+  return data;
+}
+
+export async function getMonthlyAppointmentData(
+  userId: string,
+  year: number = new Date().getFullYear()
+) {
+  const appointments = await prisma.appointment.findMany({
+    select: { date: true, status: true, doctorId: true },
+    where: {
+      patientId: userId,
+      date: {
+        lt: dfns.endOfYear(new Date(year, 11, 31)),
+        gte: dfns.startOfYear(new Date(year, 0, 1))
+      }
+    }
+  });
+
+  const data = CONST.MONTHS.map(month => ({ month, appointments: 0 }));
+
+  appointments.forEach(appointment => {
+    data[appointment.date.getMonth()].appointments++;
+  });
+
+  return data;
+}
+
+export async function getDashboardCards() {
+  const now = new Date();
+
+  const thisWeekEnd = dfns.endOfWeek(now, { weekStartsOn: 1 });
+  const thisWeekStart = dfns.startOfWeek(now, { weekStartsOn: 1 });
+
+  const prevWeekEnd = dfns.subWeeks(thisWeekEnd, 1);
+  const prevWeekStart = dfns.subWeeks(thisWeekStart, 1);
+
+  const thisMonthEnd = dfns.endOfMonth(now);
+  const thisMonthStart = dfns.startOfMonth(now);
+  const prevMonthEnd = dfns.subMonths(thisMonthEnd, 1);
+  const prevMonthStart = dfns.subMonths(thisMonthStart, 1);
+
+  const [appointments, users] = await Promise.all([
+    prisma.appointment.findMany({ select: { date: true, status: true } }),
+    prisma.user.findMany({
+      select: {
+        city: true,
+        createdAt: true,
+        UserRoles: { select: { role: { select: { name: true } } } }
+      }
+    })
+  ]);
+
+  const doctors = users.filter(u =>
+    u.UserRoles.map(r => r.role.name).includes(CONST.DOCTOR_ROLE)
+  );
+
+  const appointmentsThisWeek = appointments.filter(a =>
+    dfns.isWithinInterval(a.date, { start: thisWeekStart, end: thisWeekEnd })
+  );
+
+  const appointmentsPrevWeek = appointments.filter(a =>
+    dfns.isWithinInterval(a.date, { start: prevWeekStart, end: prevWeekEnd })
+  );
+
+  const doctorsPrevMonth = doctors.filter(d =>
+    dfns.isWithinInterval(d.createdAt, {
+      start: prevMonthStart,
+      end: prevMonthEnd
+    })
+  );
+
+  const doctorsThisMonth = doctors.filter(d =>
+    dfns.isWithinInterval(d.createdAt, {
+      start: thisMonthStart,
+      end: thisMonthEnd
+    })
+  );
+
+  const pendingAppointments = appointments.filter(
+    a => a.status === P.AppointmentStatus.PENDING
+  );
+
+  const pendingPrevWeek = appointmentsPrevWeek.filter(
+    a => a.status === P.AppointmentStatus.PENDING
+  );
+
+  const cities = new Set(users.map(u => u.city).filter(Boolean));
+
+  const prevCities = new Set(
+    users
+      .filter(u =>
+        dfns.isWithinInterval(u.createdAt, {
+          end: prevMonthEnd,
+          start: prevMonthStart
+        })
+      )
+      .map(u => u.city)
+      .filter(Boolean)
+  );
+
+  const doctorChange = formatChange(
+    doctorsThisMonth.length,
+    doctorsPrevMonth.length
+  );
+
+  const pendingChange = formatChange(
+    pendingPrevWeek.length,
+    pendingAppointments.length
+  );
+
+  const appointmentChange = formatChange(
+    appointmentsThisWeek.length,
+    appointmentsPrevWeek.length
+  );
+
+  const cityChange = formatChange(cities.size, prevCities.size);
+
+  return [
+    {
+      action: appointmentChange,
+      summary: 'Week over week comparison',
+      description: 'Appointments This Week',
+      subtitle: 'Appointments scheduled this week',
+      title: appointmentsThisWeek.length.toString()
+    },
+    {
+      action: doctorChange,
+      description: 'Active Doctors',
+      title: doctors.length.toString(),
+      summary: 'Change since last month',
+      subtitle: `${doctors.length} doctors currently registered`
+    },
+    {
+      action: pendingChange,
+      summary: 'Pending bookings trend',
+      description: 'Pending Appointments',
+      title: pendingAppointments.length.toString(),
+      subtitle: `${pendingAppointments.length} awaiting confirmation`
+    },
+    {
+      action: cityChange,
+      description: 'Cities Served',
+      title: cities.size.toString(),
+      summary: 'Change in service coverage',
+      subtitle: Array.from(cities)
+        .map(c => utils.capitalize(c as string))
+        .join(', ')
+    }
+  ];
+}
+
+export async function getUserDashboardCards(userId: string) {
+  const [specialities, appointments, doctors] = await Promise.all([
+    prisma.speciality.findMany({ select: { name: true } }),
+    prisma.appointment.findMany({
+      where: { patientId: userId },
+      select: { date: true, status: true }
+    }),
+    prisma.user.findMany({
+      select: { name: true },
+      where: { UserRoles: { some: { role: { name: CONST.DOCTOR_ROLE } } } }
+    })
+  ]);
+
+  const upcoming = appointments.filter(
+    a => isFuture(a.date) && a.status !== P.AppointmentStatus.CANCELLED
+  );
+
+  const completed = appointments.filter(
+    a => dfns.isPast(a.date) && a.status === P.AppointmentStatus.CONFIRMED
+  );
+
+  return [
+    {
+      action: 'Updated',
+      description: 'Available Doctors',
+      title: doctors.length.toString(),
+      summary: 'Available for consultation',
+      subtitle: `${doctors.length} medical professionals`
+    },
+    {
+      action: '+10%',
+      title: completed.length.toString(),
+      description: 'Completed Appointments',
+      summary: 'Track your healthcare history',
+      subtitle: `${completed.length} appointments completed`
+    },
+    {
+      action: '+1',
+      description: 'Available Specialties',
+      title: specialities.length.toString(),
+      summary: 'More expertise now available',
+      subtitle: specialities.map(s => utils.capitalize(s.name)).join(', ')
+    },
+    {
+      title: upcoming.length.toString(),
+      description: 'Upcoming Appointments',
+      summary: 'Stay prepared for your next visit',
+      action: `+${((upcoming.length / (completed.length || 1)) * 100).toFixed(0)}%`,
+      subtitle: `You have ${upcoming.length} upcoming appointment${upcoming.length !== 1 ? 's' : String()}`
+    }
+  ];
 }

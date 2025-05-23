@@ -16,16 +16,16 @@ export default async function Page() {
 
   let appointments = await prisma.appointment.findMany({
     orderBy: { date: 'desc' },
-    include: { timeSlot: true, patient: true, doctor: true }
+    include: { timeSlot: true, patient: true, doctor: true },
+    where: {
+      OR: [{ patientId: session.user.id }, { doctorId: session.user.id }]
+    }
   });
 
   if (hasRole(session.user.roles, ADMIN_ROLE)) {
     appointments = await prisma.appointment.findMany({
       orderBy: { date: 'desc' },
-      include: { timeSlot: true, patient: true, doctor: true },
-      where: {
-        OR: [{ patientId: session.user.id }, { doctorId: session.user.id }]
-      }
+      include: { timeSlot: true, patient: true, doctor: true }
     });
   }
 

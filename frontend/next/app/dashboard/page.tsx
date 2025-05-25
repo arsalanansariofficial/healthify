@@ -9,8 +9,6 @@ import Header from '@/components/header';
 import Session from '@/components/session';
 import Sidebar from '@/components/sidebar';
 import { ChartConfig } from '@/components/ui/chart';
-import { hasRole } from '@/lib/utils';
-import { ADMIN_ROLE } from '@/lib/constants';
 
 const chartConfig = {
   users: { label: 'Users', color: 'var(--primary)' }
@@ -23,9 +21,7 @@ const userChartConfig = {
 export default async function Page() {
   const session = await auth();
   if (!session?.user) notFound();
-
-  const isAdmin = hasRole(session.user.roles, ADMIN_ROLE);
-  const users = isAdmin ? await prisma.user.findMany() : [];
+  const users = await prisma.user.findMany();
 
   return (
     <Session expiresAt={session?.user?.expiresAt}>
@@ -37,19 +33,15 @@ export default async function Page() {
           chartConfig={chartConfig}
           user={session?.user as User}
           userChartConfig={userChartConfig}
-          cardsData={isAdmin ? await utils.getDashboardCards() : []}
-          chartData={isAdmin ? await utils.getMonthlyUserData() : []}
+          cardsData={await utils.getDashboardCards()}
+          chartData={await utils.getMonthlyUserData()}
+          userChartData={await utils.getMonthlyAppointmentData(
+            session.user.id as string
+          )}
           users={users.filter(user => user.email !== session?.user?.email)}
-          userCardsData={
-            !isAdmin
-              ? await utils.getUserDashboardCards(session?.user?.id as string)
-              : []
-          }
-          userChartData={
-            !isAdmin
-              ? await utils.getMonthlyAppointmentData(session.user.id as string)
-              : []
-          }
+          userCardsData={await utils.getUserDashboardCards(
+            session?.user?.id as string
+          )}
         />
       </main>
     </Session>

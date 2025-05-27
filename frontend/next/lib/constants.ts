@@ -49,6 +49,11 @@ if (process.env?.PROFILE_UPDATED) PROFILE_UPDATED = process.env.PROFILE_UPDATED;
 export let EMAIL_NOT_FOUND = "⚠️ Email doesn't exist!";
 if (process.env?.EMAIL_NOT_FOUND) EMAIL_NOT_FOUND = process.env.EMAIL_NOT_FOUND;
 
+export let INVALID_TIME_SLOT = '⚠️ Invalid time slot!';
+if (process.env?.INVALID_TIME_SLOT) {
+  INVALID_TIME_SLOT = process.env.INVALID_TIME_SLOT;
+}
+
 export let TOKEN_NOT_FOUND = "⚠️ Token doesn't exist!";
 if (process.env?.TOKEN_NOT_FOUND) {
   TOKEN_NOT_FOUND = process.env.TOKEN_NOT_FOUND;
@@ -191,6 +196,11 @@ export const PAGE_NOT_FOUND = process.env?.PAGE_NOT_FOUND || 'Page not found!';
 
 export const TOKEN_NOT_GENERATED = '⚠️ Failed to generate verification token!';
 export const RESUME = `${CDN}/${USER_NAME}/${RESOURCE}/documents/arsalan-ansari_resume.pdf`;
+
+export let APPOINTMENT_EXISTS = '⚠️ Appointment already exists!';
+if (process.env?.APPOINTMENT_EXISTS) {
+  APPOINTMENT_EXISTS = process.env.APPOINTMENT_EXISTS;
+}
 
 export let APPOINTMENT_NOT_FOUND =
   '⚠️ No details found for the current appointment!';

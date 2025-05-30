@@ -4,6 +4,7 @@ import { z } from 'zod';
 import * as React from 'react';
 import * as Core from '@dnd-kit/core';
 import { CSS } from '@dnd-kit/utilities';
+import { useDebounce } from 'use-debounce';
 import * as RT from '@tanstack/react-table';
 import * as Icons from '@tabler/icons-react';
 import * as Sortable from '@dnd-kit/sortable';
@@ -98,6 +99,17 @@ export function DataTable<T extends z.ZodType>(props: DataTableProps<T>) {
     Core.useSensor(Core.KeyboardSensor, {})
   );
 
+  const [filterValues, setFilterValues] = React.useState(() =>
+    props.filterConfig.reduce(
+      (acc, filter) => {
+        acc[filter.id] =
+          (table.getColumn(filter.id)?.getFilterValue() as string) ?? String();
+        return acc;
+      },
+      {} as Record<string, string>
+    )
+  );
+
   const table = RT.useReactTable({
     data,
     columns: props.columns,
@@ -123,6 +135,14 @@ export function DataTable<T extends z.ZodType>(props: DataTableProps<T>) {
     getFacetedUniqueValues: RT.getFacetedUniqueValues()
   });
 
+  const [debouncedFilterValues] = useDebounce(filterValues, 300);
+
+  React.useEffect(() => {
+    Object.entries(debouncedFilterValues).forEach(([id, value]) => {
+      table.getColumn(id)?.setFilterValue(value);
+    });
+  }, [debouncedFilterValues, table]);
+
   function handleDragEnd(event: Core.DragEndEvent) {
     const { active, over } = event;
     if (active && over && active.id !== over.id) {
@@ -147,12 +167,12 @@ export function DataTable<T extends z.ZodType>(props: DataTableProps<T>) {
               name={filter.id}
               className="max-w-sm"
               placeholder={filter.placeholder}
-              onChange={event =>
-                table.getColumn(filter.id)?.setFilterValue(event.target.value)
-              }
-              value={
-                (table.getColumn(filter.id)?.getFilterValue() as string) ??
-                String()
+              value={filterValues[filter.id] ?? ''}
+              onChange={e =>
+                setFilterValues(prev => ({
+                  ...prev,
+                  [filter.id]: e.target.value
+                }))
               }
             />
           ))}

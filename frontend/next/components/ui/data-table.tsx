@@ -99,17 +99,6 @@ export function DataTable<T extends z.ZodType>(props: DataTableProps<T>) {
     Core.useSensor(Core.KeyboardSensor, {})
   );
 
-  const [filterValues, setFilterValues] = React.useState(() =>
-    props.filterConfig.reduce(
-      (acc, filter) => {
-        acc[filter.id] =
-          (table.getColumn(filter.id)?.getFilterValue() as string) ?? String();
-        return acc;
-      },
-      {} as Record<string, string>
-    )
-  );
-
   const table = RT.useReactTable({
     data,
     columns: props.columns,
@@ -134,6 +123,17 @@ export function DataTable<T extends z.ZodType>(props: DataTableProps<T>) {
     getPaginationRowModel: RT.getPaginationRowModel(),
     getFacetedUniqueValues: RT.getFacetedUniqueValues()
   });
+
+  const [filterValues, setFilterValues] = React.useState(() =>
+    props.filterConfig.reduce(
+      (acc, filter) => {
+        acc[filter.id] =
+          (table.getColumn(filter.id)?.getFilterValue() as string) ?? String();
+        return acc;
+      },
+      {} as Record<string, string>
+    )
+  );
 
   const [debouncedFilterValues] = useDebounce(filterValues, 300);
 

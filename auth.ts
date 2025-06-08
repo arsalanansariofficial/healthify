@@ -40,6 +40,7 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
   ...authConfig,
   session: { strategy: 'jwt' },
   adapter: PrismaAdapter(prisma),
+  pages: { signIn: '/login', error: '/auth-error' },
   events: {
     async linkAccount({ user }) {
       await prisma.user.update({

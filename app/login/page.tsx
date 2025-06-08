@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { useActionState } from 'react';
 import { signIn } from 'next-auth/react';
+import { useSearchParams } from 'next/navigation';
 import { faGithub } from '@fortawesome/free-brands-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
@@ -12,7 +13,13 @@ import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
 
 export default function Page() {
+  let oAuthError;
+  const searchParams = useSearchParams();
   const [state, action] = useActionState(login, undefined);
+
+  if (searchParams.get('error') === 'OAuthAccountNotLinked') {
+    oAuthError = 'Email already registered with another provider.';
+  }
 
   return (
     <main className="row-start-2 grid grid-rows-1 p-4">
@@ -51,6 +58,9 @@ export default function Page() {
           </div>
           {state?.message && (
             <p className="text-destructive text-xs">{state.message}</p>
+          )}
+          {oAuthError && (
+            <p className="text-destructive text-xs">{oAuthError}</p>
           )}
           <Button type="submit" className="w-full cursor-pointer">
             Login

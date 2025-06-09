@@ -111,6 +111,25 @@ async function loginWithCredentials(email: string, password: string) {
   }
 }
 
+export async function verifyToken(id: string) {
+  const token = await prisma.token.findUnique({ where: { id } });
+  if (!token) return { error: "Token doesn't exist!" };
+
+  const hasExpired = new Date(token.expires) < new Date();
+  if (hasExpired) return { error: 'Token has expired!' };
+
+  const user = await prisma.user.findUnique({ where: { email: token.email } });
+  if (!user) return { error: "Email doesn't exist!" };
+
+  await prisma.user.update({
+    where: { id: user.id },
+    data: { email: token.email, emailVerified: new Date() }
+  });
+
+  await prisma.token.delete({ where: { id: token.id } });
+  return { success: 'Email verified.' };
+}
+
 export async function login(
   _: unknown,
   formData: FormData

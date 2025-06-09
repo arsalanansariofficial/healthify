@@ -12,7 +12,7 @@ import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
 
 export default function Page() {
-  const [state, action] = useActionState(signup, undefined);
+  const [state, action, pending] = useActionState(signup, undefined);
 
   return (
     <main className="row-start-2 grid grid-rows-1 p-4">
@@ -65,8 +65,12 @@ export default function Page() {
           {state?.message && (
             <p className="text-destructive text-xs">{state.message}</p>
           )}
-          <Button type="submit" className="w-full cursor-pointer">
-            Signup
+          <Button
+            type="submit"
+            disabled={pending}
+            className="w-full cursor-pointer"
+          >
+            {!pending ? 'Signup' : 'Signing Up...'}
           </Button>
         </form>
       </section>

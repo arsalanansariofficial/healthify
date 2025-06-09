@@ -1,7 +1,14 @@
 import NextAuth from 'next-auth';
 import { authConfig } from '@/auth';
 
-const publicRoutes = ['/', '/login', '/signup', '/verify'];
+const publicRoutes = [
+  '/',
+  '/login',
+  '/signup',
+  '/verify',
+  '/forget',
+  '/create-password'
+];
 
 export const config = {
   matcher: ['/((?!api|_next/static|_next/image|.*\\.png$).*)']

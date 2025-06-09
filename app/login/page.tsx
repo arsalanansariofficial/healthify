@@ -23,7 +23,7 @@ export default function Page() {
 
   return (
     <main className="row-start-2 grid grid-rows-1 p-4">
-      <section className="place-self-center p-4">
+      <section className="grid place-items-center gap-4 place-self-center">
         <form
           action={action}
           className="min-w-sm space-y-4 rounded-md border border-dashed p-4"
@@ -70,6 +70,12 @@ export default function Page() {
             {!pending ? 'Login' : 'Logging In...'}
           </Button>
         </form>
+        <Link
+          href="/forget"
+          className="block cursor-pointer text-sm font-medium underline-offset-2 hover:underline"
+        >
+          Forgot Password?
+        </Link>
       </section>
       <footer className="grid place-items-center gap-1">
         <button onClick={() => signIn('github')} className="cursor-pointer">

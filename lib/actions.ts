@@ -25,6 +25,14 @@ type SignupState = {
   errors?: { name?: string[]; email?: string[]; password?: string[] };
 };
 
+const emailSchema = z.object({
+  email: z.string().email({ message: 'Email should be valid.' })
+});
+
+const passwordSchema = z.object({
+  password: z.string().min(1, { message: 'Password should be valid.' })
+});
+
 const loginSchema = z.object({
   email: z.string().email({ message: 'Email should be valid.' }),
   password: z.string().min(1, { message: 'Password should be valid.' })
@@ -127,7 +135,7 @@ export async function verifyToken(id: string) {
   });
 
   await prisma.token.delete({ where: { id: token.id } });
-  return { success: 'Email verified.' };
+  return { email: token.email, success: 'Email verified.' };
 }
 
 export async function login(
@@ -147,6 +155,55 @@ export async function login(
   }
 
   return await loginWithCredentials(email, password);
+}
+
+export async function updatePassword(
+  _: unknown,
+  formData: FormData
+): Promise<LoginState | undefined> {
+  const email = formData.get('email') as string;
+  const password = formData.get('password') as string;
+  const result = passwordSchema.safeParse({ password });
+
+  if (!result.success) {
+    return { password, errors: result.error.flatten().fieldErrors };
+  }
+
+  await prisma.user.update({
+    where: { email },
+    data: { password: await bcrypt.hash(password, 10) }
+  });
+
+  return await loginWithCredentials(email, password);
+}
+
+export async function forgetPassword(
+  _: unknown,
+  formData: FormData
+): Promise<LoginState | undefined> {
+  const email = formData.get('email') as string;
+  const result = emailSchema.safeParse({ email });
+
+  if (!result.success) {
+    return { email, errors: result.error.flatten().fieldErrors };
+  }
+
+  const user = await prisma.user.findUnique({ where: { email } });
+  if (!user) return { email, message: "Email doesn't exist!" };
+  const token = await generateToken(user.email as string);
+
+  if (token) {
+    const subject = 'Reset Your Password';
+    const link = `http://localhost:3000/create-password?token=${token.id}`;
+    const html = `<p>Click <a href="${link}">here</a> to reset your password`;
+
+    const emailSent = await sendEmail(email, subject, html);
+    if (emailSent) return { email, message: 'Confirmation email sent.' };
+
+    return { email, message: 'Failed to send email!' };
+  }
+
+  return { email, message: 'Failed to generate token!' };
 }
 
 export async function signup(

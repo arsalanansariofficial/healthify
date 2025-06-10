@@ -1,13 +1,13 @@
 'use server';
 
 import bcrypt from 'bcrypt-mini';
+import * as dfns from 'date-fns';
 import { z, ZodSchema } from 'zod';
 import nodemailer from 'nodemailer';
 import * as P from '@prisma/client';
 import { isFuture } from 'date-fns';
 import { revalidatePath } from 'next/cache';
 
-import * as dfns from 'date-fns';
 import prisma from '@/lib/prisma';
 import * as utils from '@/lib/utils';
 import * as CONST from '@/lib/constants';
@@ -1149,32 +1149,38 @@ export async function getUserDashboardCards(userId: string) {
 
   return [
     {
-      action: 'Updated',
       description: 'Available Doctors',
       title: doctors.length.toString(),
       summary: 'Available for consultation',
-      subtitle: `${doctors.length} medical professionals`
+      subtitle: `${doctors.length} medical professional${doctors.length !== 1 ? 's' : String()}`,
+      action: doctors.length
+        ? `+${((doctors.length / doctors.length) * 100).toFixed(0)}%`
+        : '+0%'
     },
     {
-      action: '+10%',
       title: completed.length.toString(),
       description: 'Completed Appointments',
       summary: 'Track your healthcare history',
-      subtitle: `${completed.length} appointments completed`
+      subtitle: `${completed.length} appointment${completed.length !== 1 ? 's' : ''} completed`,
+      action: completed.length
+        ? `+${((completed.length / (appointments.length || 1)) * 100).toFixed(0)}%`
+        : '+0%'
     },
     {
-      action: '+1',
       description: 'Available Specialties',
       title: specialities.length.toString(),
       summary: 'More expertise now available',
+      action: specialities.length ? `+${specialities.length}` : '+0',
       subtitle: specialities.map(s => utils.capitalize(s.name)).join(', ')
     },
     {
       title: upcoming.length.toString(),
       description: 'Upcoming Appointments',
       summary: 'Stay prepared for your next visit',
-      action: `+${((upcoming.length / (completed.length || 1)) * 100).toFixed(0)}%`,
-      subtitle: `You have ${upcoming.length} upcoming appointment${upcoming.length !== 1 ? 's' : String()}`
+      subtitle: `You have ${upcoming.length} upcoming appointment${upcoming.length !== 1 ? 's' : String()}`,
+      action: upcoming.length
+        ? `+${((upcoming.length / (appointments.length || 1)) * 100).toFixed(0)}%`
+        : '+0%'
     }
   ];
 }

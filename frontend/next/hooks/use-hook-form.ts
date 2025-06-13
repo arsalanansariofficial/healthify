@@ -1,5 +1,5 @@
-import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { useCallback, useState } from 'react';
 
 type Action<T, R> = (data: T) => Promise<R>;
 
@@ -18,12 +18,15 @@ export default function useHookForm<T, R>(
   const router = useRouter();
   const [pending, setPending] = useState(false);
 
-  async function handleSubmit(data: T) {
-    setPending(true);
-    await handler(data, action, error);
-    if (updateClient) router.refresh();
-    setPending(false);
-  }
+  const handleSubmit = useCallback(
+    async function handleSubmit(data: T) {
+      setPending(true);
+      await handler(data, action, error);
+      if (updateClient) router.refresh();
+      setPending(false);
+    },
+    [action, error, handler, router, updateClient]
+  );
 
   return { pending, handleSubmit };
 }

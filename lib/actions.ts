@@ -4,7 +4,7 @@ import { z } from 'zod';
 import bcrypt from 'bcryptjs';
 import nodemailer from 'nodemailer';
 import { AuthError } from 'next-auth';
-import { PrismaClient } from '@prisma/client';
+import { PrismaClient, Role } from '@prisma/client';
 
 import { signIn } from '@/auth';
 
@@ -25,6 +25,20 @@ type SignupState = {
   errors?: { name?: string[]; email?: string[]; password?: string[] };
 };
 
+export type UserState = {
+  name?: string;
+  role?: string;
+  email?: string;
+  message?: string;
+  password?: string;
+  errors?: {
+    name?: string[];
+    role?: string[];
+    email?: string[];
+    password?: string[];
+  };
+};
+
 const emailSchema = z.object({
   email: z.string().email({ message: 'Email should be valid.' })
 });
@@ -42,6 +56,17 @@ const signupSchema = z.object({
   email: z.string().email({ message: 'Email should be valid.' }),
   password: z.string().min(1, { message: 'Password should be valid.' }),
   name: z.string().min(3, { message: 'Should be atleast 3 characters.' })
+});
+
+const userSchema = z.object({
+  email: z.string().email({ message: 'Email should be valid.' }),
+  name: z.string().min(3, { message: 'Should be atleast 3 characters.' }),
+  role: z.nativeEnum(Role, {
+    message: 'Role must be one of: ADMIN, USER'
+  }),
+  password: z.optional(
+    z.string().min(1, { message: 'Password should be valid.' })
+  )
 });
 
 async function generateToken(email: string) {
@@ -240,4 +265,51 @@ export async function signup(
   });
 
   return loginWithCredentials(email, password);
+}
+
+export async function updateUser(
+  id: string,
+  _: unknown,
+  formData: FormData
+): Promise<UserState | undefined> {
+  const name = formData.get('name') as string;
+  const role = formData.get('role') as string;
+  const email = formData.get('email') as string;
+  const password = formData.get('password') as string;
+  const result = userSchema.safeParse({ name, role, email, password });
+
+  if (!result.success) {
+    return {
+      name,
+      role,
+      email,
+      password,
+      errors: result.error.flatten().fieldErrors
+    };
+  }
+
+  const user = await prisma.user.findUnique({ where: { id } });
+  const existingUser = await prisma.user.findUnique({ where: { email } });
+
+  if (email !== user?.email && existingUser) {
+    return {
+      name,
+      role,
+      email,
+      password,
+      message: 'Email already registered!'
+    };
+  }
+
+  await prisma.user.update({
+    where: { id },
+    data: {
+      name,
+      email,
+      role: role as Role,
+      password: password ? await bcrypt.hash(password, 10) : undefined
+    }
+  });
+
+  return { name, role, email, password };
 }

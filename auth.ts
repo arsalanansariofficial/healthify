@@ -45,7 +45,7 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
     async linkAccount({ user }) {
       await prisma.user.update({
         where: { id: user.id },
-        data: { emailVerified: new Date() }
+        data: { hasOAuth: true, emailVerified: new Date() }
       });
     }
   },

@@ -8,22 +8,51 @@ import { useCallback, useMemo, useState } from 'react';
 import { FileIcon, PlusIcon, TrashIcon } from 'lucide-react';
 import { Role, Speciality, TimeSlot, User } from '@prisma/client';
 
-import * as utils from '@/lib/utils';
-import { capitalize } from '@/lib/utils';
 import Footer from '@/components/footer';
-import * as CN from '@/components/ui/card';
-import * as RHF from '@/components/ui/form';
 import { DAYS, HOST } from '@/lib/constants';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
 import useHookForm from '@/hooks/use-hook-form';
-import * as Select from '@/components/ui/select';
 import handler from '@/components/display-toast';
 import MultiSelect from '@/components/ui/multi-select';
 import { doctorProfileSchema, userProfileSchema } from '@/lib/schemas';
 import { updateDoctorProfile, updateUserProfile } from '@/lib/actions';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+
+import {
+  hasRole,
+  shortId,
+  capitalize,
+  hasFormChanged,
+  arrayBufferToBase64
+} from '@/lib/utils';
+
+import {
+  Form,
+  FormItem,
+  FormField,
+  FormLabel,
+  FormControl,
+  FormMessage
+} from '@/components/ui/form';
+
+import {
+  Select,
+  SelectItem,
+  SelectValue,
+  SelectContent,
+  SelectTrigger
+} from '@/components/ui/select';
+
+import {
+  Card,
+  CardTitle,
+  CardHeader,
+  CardAction,
+  CardContent,
+  CardDescription
+} from '@/components/ui/card';
 
 type Props = {
   specialities: { value: string; label: string }[];
@@ -37,7 +66,7 @@ type Props = {
 export default function Component({ user, specialities }: Props) {
   const isDoctor = useMemo(
     () =>
-      utils.hasRole(
+      hasRole(
         user.UserRoles.map(ur => ur.role as Role),
         'doctor'
       ),
@@ -109,7 +138,7 @@ export default function Component({ user, specialities }: Props) {
     if (!file) return;
 
     const arrayBuffer = await file.arrayBuffer();
-    const base64 = utils.arrayBufferToBase64(arrayBuffer);
+    const base64 = arrayBufferToBase64(arrayBuffer);
     const dataUrl = `data:${file.type};base64,${base64}`;
 
     setImageSrc(dataUrl);
@@ -118,33 +147,33 @@ export default function Component({ user, specialities }: Props) {
   return (
     <div className="flex h-full flex-col gap-8 lg:mx-auto lg:w-10/12">
       <Tabs defaultValue={role} onValueChange={setRole}>
-        <CN.Card>
-          <CN.CardHeader>
-            <CN.CardTitle>{user.name}</CN.CardTitle>
-            <CN.CardDescription>
+        <Card>
+          <CardHeader>
+            <CardTitle>{user.name}</CardTitle>
+            <CardDescription>
               Add details for your profile here. Click save when you&apos;re
               done.
-            </CN.CardDescription>
-            <CN.CardAction>
+            </CardDescription>
+            <CardAction>
               <TabsList>
                 <TabsTrigger value="user">User</TabsTrigger>
                 <TabsTrigger value="doctor">Doctor</TabsTrigger>
               </TabsList>
-            </CN.CardAction>
-          </CN.CardHeader>
-          <CN.CardContent>
+            </CardAction>
+          </CardHeader>
+          <CardContent>
             <TabsContent value="user">
-              <RHF.Form {...userForm}>
+              <Form {...userForm}>
                 <form
                   className="space-y-2"
                   onSubmit={userForm.handleSubmit(submitUser)}
                 >
-                  <RHF.FormField
+                  <FormField
                     name="image"
                     control={userForm.control}
                     render={({ field }) => (
-                      <RHF.FormItem>
-                        <RHF.FormControl>
+                      <FormItem>
+                        <FormControl>
                           <div className="relative grid min-h-80 gap-3 overflow-clip rounded-md border-2 border-dashed">
                             <Label
                               htmlFor="image"
@@ -177,150 +206,144 @@ export default function Component({ user, specialities }: Props) {
                               }}
                             />
                           </div>
-                        </RHF.FormControl>
-                        <RHF.FormMessage />
-                      </RHF.FormItem>
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
                     )}
                   />
-                  <RHF.FormField
+                  <FormField
                     name="name"
                     control={userForm.control}
                     render={({ field }) => (
-                      <RHF.FormItem>
-                        <RHF.FormLabel>Name</RHF.FormLabel>
-                        <RHF.FormControl>
+                      <FormItem>
+                        <FormLabel>Name</FormLabel>
+                        <FormControl>
                           <Input
                             {...field}
                             type="text"
                             placeholder="Gwen Tennyson"
                           />
-                        </RHF.FormControl>
-                        <RHF.FormMessage />
-                      </RHF.FormItem>
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
                     )}
                   />
-                  <RHF.FormField
+                  <FormField
                     name="email"
                     control={userForm.control}
                     render={({ field }) => (
-                      <RHF.FormItem>
-                        <RHF.FormLabel>Email</RHF.FormLabel>
-                        <RHF.FormControl>
+                      <FormItem>
+                        <FormLabel>Email</FormLabel>
+                        <FormControl>
                           <Input
                             {...field}
                             type="email"
                             placeholder="your.name@domain.com"
                           />
-                        </RHF.FormControl>
-                        <RHF.FormMessage />
-                      </RHF.FormItem>
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
                     )}
                   />
-                  <RHF.FormField
+                  <FormField
                     name="password"
                     control={userForm.control}
                     render={({ field }) => (
-                      <RHF.FormItem>
-                        <RHF.FormLabel>Password</RHF.FormLabel>
-                        <RHF.FormControl>
+                      <FormItem>
+                        <FormLabel>Password</FormLabel>
+                        <FormControl>
                           <Input
                             {...field}
                             type="password"
                             placeholder="Secret@123"
                           />
-                        </RHF.FormControl>
-                        <RHF.FormMessage />
-                      </RHF.FormItem>
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
                     )}
                   />
-                  <RHF.FormField
+                  <FormField
                     name="phone"
                     control={userForm.control}
                     render={({ field }) => (
-                      <RHF.FormItem>
-                        <RHF.FormLabel>Phone</RHF.FormLabel>
-                        <RHF.FormControl>
+                      <FormItem>
+                        <FormLabel>Phone</FormLabel>
+                        <FormControl>
                           <Input
                             {...field}
                             type="tel"
                             placeholder="+919876543210"
                           />
-                        </RHF.FormControl>
-                        <RHF.FormMessage />
-                      </RHF.FormItem>
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
                     )}
                   />
-                  <RHF.FormField
+                  <FormField
                     name="gender"
                     control={userForm.control}
                     render={({ field }) => (
-                      <RHF.FormItem>
-                        <RHF.FormLabel>Gender</RHF.FormLabel>
-                        <RHF.FormControl>
-                          <Select.Select
+                      <FormItem>
+                        <FormLabel>Gender</FormLabel>
+                        <FormControl>
+                          <Select
                             defaultValue={field.value}
                             onValueChange={field.onChange}
                           >
-                            <Select.SelectTrigger className="w-full [&_span[data-slot]]:block [&_span[data-slot]]:truncate">
-                              <Select.SelectValue placeholder="Select a gender" />
-                            </Select.SelectTrigger>
-                            <Select.SelectContent>
-                              <Select.SelectItem value="male">
-                                Male
-                              </Select.SelectItem>
-                              <Select.SelectItem value="female">
-                                Female
-                              </Select.SelectItem>
-                            </Select.SelectContent>
-                          </Select.Select>
-                        </RHF.FormControl>
-                        <RHF.FormMessage />
-                      </RHF.FormItem>
+                            <SelectTrigger className="w-full [&_span[data-slot]]:block [&_span[data-slot]]:truncate">
+                              <SelectValue placeholder="Select a gender" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="male">Male</SelectItem>
+                              <SelectItem value="female">Female</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
                     )}
                   />
-                  <RHF.FormField
+                  <FormField
                     name="city"
                     control={userForm.control}
                     render={({ field }) => (
-                      <RHF.FormItem>
-                        <RHF.FormLabel>City</RHF.FormLabel>
-                        <RHF.FormControl>
+                      <FormItem>
+                        <FormLabel>City</FormLabel>
+                        <FormControl>
                           <Input
                             {...field}
                             type="text"
                             placeholder="Moradabad"
                           />
-                        </RHF.FormControl>
-                        <RHF.FormMessage />
-                      </RHF.FormItem>
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
                     )}
                   />
                   <Button
                     type="submit"
                     disabled={
-                      !utils.hasFormChanged(
-                        defaultUserValues,
-                        userForm.watch()
-                      ) || userForm.formState.isSubmitting
+                      !hasFormChanged(defaultUserValues, userForm.watch()) ||
+                      userForm.formState.isSubmitting
                     }
                   >
                     {userForm.formState.isSubmitting ? 'Saving...' : 'Save'}
                   </Button>
                 </form>
-              </RHF.Form>
+              </Form>
             </TabsContent>
             <TabsContent value="doctor">
-              <RHF.Form {...doctorForm}>
+              <Form {...doctorForm}>
                 <form
                   className="space-y-2"
                   onSubmit={doctorForm.handleSubmit(submitDoctor)}
                 >
-                  <RHF.FormField
+                  <FormField
                     name="image"
                     control={doctorForm.control}
                     render={({ field }) => (
-                      <RHF.FormItem>
-                        <RHF.FormControl>
+                      <FormItem>
+                        <FormControl>
                           <div className="relative grid min-h-80 gap-3 overflow-clip rounded-md border-2 border-dashed">
                             <Label
                               htmlFor="image"
@@ -353,148 +376,144 @@ export default function Component({ user, specialities }: Props) {
                               }}
                             />
                           </div>
-                        </RHF.FormControl>
-                        <RHF.FormMessage />
-                      </RHF.FormItem>
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
                     )}
                   />
-                  <RHF.FormField
+                  <FormField
                     name="name"
                     control={doctorForm.control}
                     render={({ field }) => (
-                      <RHF.FormItem>
-                        <RHF.FormLabel>Name</RHF.FormLabel>
-                        <RHF.FormControl>
+                      <FormItem>
+                        <FormLabel>Name</FormLabel>
+                        <FormControl>
                           <Input
                             {...field}
                             type="text"
                             placeholder="Gwen Tennyson"
                           />
-                        </RHF.FormControl>
-                        <RHF.FormMessage />
-                      </RHF.FormItem>
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
                     )}
                   />
-                  <RHF.FormField
+                  <FormField
                     name="email"
                     control={doctorForm.control}
                     render={({ field }) => (
-                      <RHF.FormItem>
-                        <RHF.FormLabel>Email</RHF.FormLabel>
-                        <RHF.FormControl>
+                      <FormItem>
+                        <FormLabel>Email</FormLabel>
+                        <FormControl>
                           <Input
                             {...field}
                             type="email"
                             placeholder="your.name@domain.com"
                           />
-                        </RHF.FormControl>
-                        <RHF.FormMessage />
-                      </RHF.FormItem>
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
                     )}
                   />
-                  <RHF.FormField
+                  <FormField
                     name="password"
                     control={doctorForm.control}
                     render={({ field }) => (
-                      <RHF.FormItem>
-                        <RHF.FormLabel>Password</RHF.FormLabel>
-                        <RHF.FormControl>
+                      <FormItem>
+                        <FormLabel>Password</FormLabel>
+                        <FormControl>
                           <Input
                             {...field}
                             type="password"
                             placeholder="Secret@123"
                           />
-                        </RHF.FormControl>
-                        <RHF.FormMessage />
-                      </RHF.FormItem>
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
                     )}
                   />
-                  <RHF.FormField
+                  <FormField
                     name="phone"
                     control={doctorForm.control}
                     render={({ field }) => (
-                      <RHF.FormItem>
-                        <RHF.FormLabel>Phone</RHF.FormLabel>
-                        <RHF.FormControl>
+                      <FormItem>
+                        <FormLabel>Phone</FormLabel>
+                        <FormControl>
                           <Input
                             {...field}
                             type="tel"
                             placeholder="+919876543210"
                           />
-                        </RHF.FormControl>
-                        <RHF.FormMessage />
-                      </RHF.FormItem>
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
                     )}
                   />
-                  <RHF.FormField
+                  <FormField
                     name="gender"
                     control={doctorForm.control}
                     render={({ field }) => (
-                      <RHF.FormItem>
-                        <RHF.FormLabel>Gender</RHF.FormLabel>
-                        <RHF.FormControl>
-                          <Select.Select
+                      <FormItem>
+                        <FormLabel>Gender</FormLabel>
+                        <FormControl>
+                          <Select
                             defaultValue={field.value}
                             onValueChange={field.onChange}
                           >
-                            <Select.SelectTrigger className="w-full [&_span[data-slot]]:block [&_span[data-slot]]:truncate">
-                              <Select.SelectValue placeholder="Select a gender" />
-                            </Select.SelectTrigger>
-                            <Select.SelectContent>
-                              <Select.SelectItem value="male">
-                                Male
-                              </Select.SelectItem>
-                              <Select.SelectItem value="female">
-                                Female
-                              </Select.SelectItem>
-                            </Select.SelectContent>
-                          </Select.Select>
-                        </RHF.FormControl>
-                        <RHF.FormMessage />
-                      </RHF.FormItem>
+                            <SelectTrigger className="w-full [&_span[data-slot]]:block [&_span[data-slot]]:truncate">
+                              <SelectValue placeholder="Select a gender" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="male">Male</SelectItem>
+                              <SelectItem value="female">Female</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
                     )}
                   />
-                  <RHF.FormField
+                  <FormField
                     name="experience"
                     control={doctorForm.control}
                     render={({ field }) => (
-                      <RHF.FormItem>
-                        <RHF.FormLabel>Experience</RHF.FormLabel>
-                        <RHF.FormControl>
+                      <FormItem>
+                        <FormLabel>Experience</FormLabel>
+                        <FormControl>
                           <Input
                             {...field}
                             type="number"
                             placeholder="1 Year"
                           />
-                        </RHF.FormControl>
-                        <RHF.FormMessage />
-                      </RHF.FormItem>
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
                     )}
                   />
-                  <RHF.FormField
+                  <FormField
                     name="city"
                     control={doctorForm.control}
                     render={({ field }) => (
-                      <RHF.FormItem>
-                        <RHF.FormLabel>City</RHF.FormLabel>
-                        <RHF.FormControl>
+                      <FormItem>
+                        <FormLabel>City</FormLabel>
+                        <FormControl>
                           <Input
                             {...field}
                             type="text"
                             placeholder="Moradabad"
                           />
-                        </RHF.FormControl>
-                        <RHF.FormMessage />
-                      </RHF.FormItem>
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
                     )}
                   />
-                  <RHF.FormField
+                  <FormField
                     name="specialities"
                     control={doctorForm.control}
                     render={({ field }) => (
-                      <RHF.FormItem>
-                        <RHF.FormLabel>Specialities</RHF.FormLabel>
-                        <RHF.FormControl>
+                      <FormItem>
+                        <FormLabel>Specialities</FormLabel>
+                        <FormControl>
                           <MultiSelect
                             setSelectedValues={field.onChange}
                             placeholder="Select specialities ..."
@@ -504,18 +523,18 @@ export default function Component({ user, specialities }: Props) {
                               label: capitalize(s.label)
                             }))}
                           />
-                        </RHF.FormControl>
-                        <RHF.FormMessage />
-                      </RHF.FormItem>
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
                     )}
                   />
-                  <RHF.FormField
+                  <FormField
                     name="daysOfVisit"
                     control={doctorForm.control}
                     render={({ field }) => (
-                      <RHF.FormItem>
-                        <RHF.FormLabel>Visiting Days</RHF.FormLabel>
-                        <RHF.FormControl>
+                      <FormItem>
+                        <FormLabel>Visiting Days</FormLabel>
+                        <FormControl>
                           <MultiSelect
                             selectedValues={field.value}
                             setSelectedValues={field.onChange}
@@ -525,17 +544,17 @@ export default function Component({ user, specialities }: Props) {
                               value: capitalize(d.value)
                             }))}
                           />
-                        </RHF.FormControl>
-                        <RHF.FormMessage />
-                      </RHF.FormItem>
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
                     )}
                   />
-                  <RHF.FormField
+                  <FormField
                     name="timings"
                     control={doctorForm.control}
                     render={({ field }) => (
-                      <RHF.FormItem>
-                        <RHF.FormControl>
+                      <FormItem>
+                        <FormControl>
                           <div className="grid gap-0.5">
                             <div className="flex items-center justify-between">
                               <Label>Timings</Label>
@@ -548,7 +567,7 @@ export default function Component({ user, specialities }: Props) {
                                     {
                                       duration: 1,
                                       time: '10:00:00',
-                                      id: utils.shortId(5)
+                                      id: shortId(5)
                                     }
                                   ]);
                                 }}
@@ -603,18 +622,18 @@ export default function Component({ user, specialities }: Props) {
                                   </li>
                                 ))}
                               </ul>
-                              <RHF.FormMessage />
+                              <FormMessage />
                             </div>
                           </div>
-                        </RHF.FormControl>
-                        <RHF.FormMessage />
-                      </RHF.FormItem>
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
                     )}
                   />
                   <Button
                     type="submit"
                     disabled={
-                      !utils.hasFormChanged(
+                      !hasFormChanged(
                         defaultDoctorValues,
                         doctorForm.watch()
                       ) || doctorForm.formState.isSubmitting
@@ -623,10 +642,10 @@ export default function Component({ user, specialities }: Props) {
                     {doctorForm.formState.isSubmitting ? 'Saving...' : 'Save'}
                   </Button>
                 </form>
-              </RHF.Form>
+              </Form>
             </TabsContent>
-          </CN.CardContent>
-        </CN.Card>
+          </CardContent>
+        </Card>
       </Tabs>
       <Footer />
     </div>

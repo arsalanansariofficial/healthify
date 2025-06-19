@@ -4,25 +4,28 @@ import z from 'zod';
 import Link from 'next/link';
 import { toast } from 'sonner';
 import { User } from 'next-auth';
-import * as RT from '@tanstack/react-table';
-import * as Icons from '@tabler/icons-react';
 import { Check, Printer, X } from 'lucide-react';
+import { ColumnDef } from '@tanstack/react-table';
 import { AppointmentStatus } from '@prisma/client';
+import { IconDotsVertical } from '@tabler/icons-react';
 
-import * as actions from '@/lib/actions';
-import * as CONST from '@/lib/constants';
 import Footer from '@/components/footer';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
 import useHookForm from '@/hooks/use-hook-form';
-import * as Drawer from '@/components/ui/drawer';
 import { useIsMobile } from '@/hooks/use-mobile';
-import * as DT from '@/components/ui/data-table';
 import handler from '@/components/display-toast';
-import * as DM from '@/components/ui/dropdown-menu';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Badge, BadgeVariant } from '@/components/ui/badge';
+import { DataTable, DragHandle } from '@/components/ui/data-table';
+
+import {
+  EXPIRES_AT,
+  SPECIALITY_DELETED,
+  SPECIALITIES_DELETED
+} from '@/lib/constants';
+
 import {
   getDate,
   formatTime,
@@ -30,6 +33,30 @@ import {
   isPastByTime,
   hasPermission
 } from '@/lib/utils';
+
+import {
+  deleteSpeciality,
+  deleteSpecialities,
+  updateAppointmentStatus
+} from '@/lib/actions';
+
+import {
+  DropdownMenu,
+  DropdownMenuItem,
+  DropdownMenuContent,
+  DropdownMenuTrigger
+} from '@/components/ui/dropdown-menu';
+
+import {
+  Drawer,
+  DrawerClose,
+  DrawerTitle,
+  DrawerFooter,
+  DrawerHeader,
+  DrawerContent,
+  DrawerTrigger,
+  DrawerDescription
+} from '@/components/ui/drawer';
 
 type TableSchema = { id: number } & Omit<Appointment, 'id'>;
 type MenuProps = { id?: string; ids?: string[]; isHeader: boolean };
@@ -53,31 +80,31 @@ function findItem<T extends { id: string | string }>(
 
 function Menu({ id, ids, isHeader = false }: MenuProps) {
   const menuTrigger = (
-    <DM.DropdownMenuTrigger asChild>
+    <DropdownMenuTrigger asChild>
       <Button
         size="icon"
         variant="ghost"
         className="data-[state=open]:bg-muted text-muted-foreground flex size-8"
       >
-        <Icons.IconDotsVertical />
+        <IconDotsVertical />
         <span className="sr-only">Open menu</span>
       </Button>
-    </DM.DropdownMenuTrigger>
+    </DropdownMenuTrigger>
   );
 
   return (
-    <DM.DropdownMenu>
+    <DropdownMenu>
       {!isHeader && menuTrigger}
       {ids && ids.length > 0 && isHeader && menuTrigger}
-      <DM.DropdownMenuContent align="end" className="w-32">
-        <DM.DropdownMenuItem
+      <DropdownMenuContent align="end" className="w-32">
+        <DropdownMenuItem
           variant="destructive"
           onClick={async () => {
             if (!isHeader) {
-              toast.promise(actions.deleteSpeciality(id as string), {
+              toast.promise(deleteSpeciality(id as string), {
                 position: 'top-center',
+                success: SPECIALITY_DELETED,
                 loading: 'Deleting speciality',
-                success: CONST.SPECIALITY_DELETED,
                 error(error) {
                   const { message } = catchErrors(error as Error);
                   return <span className="text-destructive">{message}</span>;
@@ -86,10 +113,10 @@ function Menu({ id, ids, isHeader = false }: MenuProps) {
             }
 
             if (isHeader) {
-              toast.promise(actions.deleteSpecialities(ids as string[]), {
+              toast.promise(deleteSpecialities(ids as string[]), {
                 position: 'top-center',
                 loading: 'Deleting specialities',
-                success: CONST.SPECIALITIES_DELETED,
+                success: SPECIALITIES_DELETED,
                 error(error) {
                   const { message } = catchErrors(error as Error);
                   return <span className="text-destructive">{message}</span>;
@@ -99,20 +126,20 @@ function Menu({ id, ids, isHeader = false }: MenuProps) {
           }}
         >
           Delete
-        </DM.DropdownMenuItem>
-      </DM.DropdownMenuContent>
-    </DM.DropdownMenu>
+        </DropdownMenuItem>
+      </DropdownMenuContent>
+    </DropdownMenu>
   );
 }
 
 export function TableCellViewer<T extends z.ZodType>(props: TCVProps<T>) {
   const isMobile = useIsMobile();
   const { status, date, time } = props.item;
-  const isInFuture = isPastByTime(date, time, CONST.EXPIRES_AT * 1000);
+  const isInFuture = isPastByTime(date, time, EXPIRES_AT * 1000);
 
   const { pending: validating, handleSubmit: confirmAppointment } = useHookForm(
     handler,
-    actions.updateAppointmentStatus.bind(
+    updateAppointmentStatus.bind(
       null,
       props.item.id,
       AppointmentStatus.CONFIRMED
@@ -121,7 +148,7 @@ export function TableCellViewer<T extends z.ZodType>(props: TCVProps<T>) {
 
   const { pending: cancelling, handleSubmit: cancelAppointment } = useHookForm(
     handler,
-    actions.updateAppointmentStatus.bind(
+    updateAppointmentStatus.bind(
       null,
       props.item.id,
       AppointmentStatus.CANCELLED
@@ -129,19 +156,19 @@ export function TableCellViewer<T extends z.ZodType>(props: TCVProps<T>) {
   );
 
   return (
-    <Drawer.Drawer direction={isMobile ? 'bottom' : 'right'}>
-      <Drawer.DrawerTrigger asChild onClick={e => e.currentTarget.blur()}>
+    <Drawer direction={isMobile ? 'bottom' : 'right'}>
+      <DrawerTrigger asChild onClick={e => e.currentTarget.blur()}>
         <Button variant="link" className="text-foreground px-0">
           {props.item.id.slice(-5)}
         </Button>
-      </Drawer.DrawerTrigger>
-      <Drawer.DrawerContent>
-        <Drawer.DrawerHeader className="gap-1">
-          <Drawer.DrawerTitle>Appointment</Drawer.DrawerTitle>
-          <Drawer.DrawerDescription>
+      </DrawerTrigger>
+      <DrawerContent>
+        <DrawerHeader className="gap-1">
+          <DrawerTitle>Appointment</DrawerTitle>
+          <DrawerDescription>
             Here are the details of the appointment.
-          </Drawer.DrawerDescription>
-        </Drawer.DrawerHeader>
+          </DrawerDescription>
+        </DrawerHeader>
         <div className="flex flex-col gap-4 overflow-y-auto px-4 text-sm">
           <form id="appointment-form" className="space-y-2">
             <div className="space-y-2">
@@ -204,7 +231,7 @@ export function TableCellViewer<T extends z.ZodType>(props: TCVProps<T>) {
             </div>
           </form>
         </div>
-        <Drawer.DrawerFooter>
+        <DrawerFooter>
           <div className="grid grid-flow-col gap-2">
             {isInFuture &&
               (status === AppointmentStatus.PENDING ||
@@ -255,21 +282,21 @@ export function TableCellViewer<T extends z.ZodType>(props: TCVProps<T>) {
                 </Button>
               )}
           </div>
-          <Drawer.DrawerClose asChild>
+          <DrawerClose asChild>
             <Button variant="outline">Done</Button>
-          </Drawer.DrawerClose>
-        </Drawer.DrawerFooter>
-      </Drawer.DrawerContent>
-    </Drawer.Drawer>
+          </DrawerClose>
+        </DrawerFooter>
+      </DrawerContent>
+    </Drawer>
   );
 }
 
 export default function Component(props: Props) {
-  const columns: RT.ColumnDef<TableSchema>[] = [
+  const columns: ColumnDef<TableSchema>[] = [
     {
       id: 'drag',
       cell({ row }) {
-        return <DT.DragHandle id={row.original.id} />;
+        return <DragHandle id={row.original.id} />;
       }
     },
     {
@@ -397,13 +424,13 @@ export default function Component(props: Props) {
   return (
     <div className="flex h-full flex-col gap-8 lg:mx-auto lg:w-10/12">
       {hasPermission(props.user.permissions, 'view:appointments') && (
-        <DT.DataTable
+        <DataTable
           columns={columns}
           data={props.appointments}
           filterConfig={[
-            { id: 'date', placeholder: 'Date' },
-            { id: 'time', placeholder: 'Time' },
-            { id: 'patient', placeholder: 'Patient' }
+            { id: 'patient', placeholder: 'Patient' },
+            { id: 'date', placeholder: 'Date', type: 'date' },
+            { id: 'time', placeholder: 'Time', type: 'time' },
           ]}
         />
       )}

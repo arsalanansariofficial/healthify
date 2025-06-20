@@ -4,68 +4,41 @@ import { z } from 'zod';
 import bcrypt from 'bcryptjs';
 import nodemailer from 'nodemailer';
 import { AuthError } from 'next-auth';
-import { PrismaClient, Role } from '@prisma/client';
+import { PrismaClient } from '@prisma/client';
 
 import { signIn } from '@/auth';
 
 const prisma = new PrismaClient();
 
-type LoginState = {
-  email?: string;
-  message?: string;
-  password?: string;
-  errors?: { email?: string[]; password?: string[] };
-};
-
-type SignupState = {
-  name?: string;
-  email?: string;
-  message?: string;
-  password?: string;
-  errors?: { name?: string[]; email?: string[]; password?: string[] };
-};
-
-export type UserState = {
+export type FormState = {
   name?: string;
   role?: string;
   email?: string;
   message?: string;
   password?: string;
+  permission?: string;
   errors?: {
     name?: string[];
     role?: string[];
     email?: string[];
     password?: string[];
+    permission?: string[];
   };
 };
 
-const emailSchema = z.object({
-  email: z.string().email({ message: 'Email should be valid.' })
-});
-
-const passwordSchema = z.object({
-  password: z.string().min(1, { message: 'Password should be valid.' })
-});
-
-const loginSchema = z.object({
-  email: z.string().email({ message: 'Email should be valid.' }),
-  password: z.string().min(1, { message: 'Password should be valid.' })
-});
-
-const signupSchema = z.object({
-  email: z.string().email({ message: 'Email should be valid.' }),
-  password: z.string().min(1, { message: 'Password should be valid.' }),
-  name: z.string().min(3, { message: 'Should be atleast 3 characters.' })
-});
-
-const userSchema = z.object({
-  email: z.string().email({ message: 'Email should be valid.' }),
-  name: z.string().min(3, { message: 'Should be atleast 3 characters.' }),
-  role: z.nativeEnum(Role, {
-    message: 'Role must be one of: ADMIN, USER'
-  }),
+const formSchema = z.object({
+  email: z.optional(z.string().email({ message: 'Email should be valid.' })),
   password: z.optional(
     z.string().min(1, { message: 'Password should be valid.' })
+  ),
+  name: z.optional(
+    z.string().min(3, { message: 'Should be atleast 3 characters.' })
+  ),
+  role: z.optional(
+    z.string().toUpperCase().min(1, { message: 'Role should be valid.' })
+  ),
+  permission: z.optional(
+    z.string().toUpperCase().min(1, { message: 'Permission should be valid.' })
   )
 });
 
@@ -144,6 +117,46 @@ async function loginWithCredentials(email: string, password: string) {
   }
 }
 
+export async function addRole(
+  _: unknown,
+  formData: FormData
+): Promise<FormState | undefined> {
+  const role = formData.get('role') as string;
+  const result = formSchema.safeParse({ role });
+
+  if (!result.success) {
+    return { role, errors: result.error.flatten().fieldErrors };
+  }
+
+  try {
+    await prisma.role.create({ data: { name: result.data.role as string } });
+    return { role };
+  } catch {
+    return { role, message: 'Something went wrong!' };
+  }
+}
+
+export async function addPermission(
+  _: unknown,
+  formData: FormData
+): Promise<FormState | undefined> {
+  const permission = formData.get('permission') as string;
+  const result = formSchema.safeParse({ permission });
+
+  if (!result.success) {
+    return { permission, errors: result.error.flatten().fieldErrors };
+  }
+
+  try {
+    await prisma.permission.create({
+      data: { name: result.data.permission as string }
+    });
+    return { permission };
+  } catch {
+    return { permission, message: 'Something went wrong!' };
+  }
+}
+
 export async function verifyToken(id: string) {
   const token = await prisma.token.findUnique({ where: { id } });
   if (!token) return { error: "Token doesn't exist!" };
@@ -166,10 +179,10 @@ export async function verifyToken(id: string) {
 export async function login(
   _: unknown,
   formData: FormData
-): Promise<LoginState | undefined> {
+): Promise<FormState | undefined> {
   const email = formData.get('email') as string;
   const password = formData.get('password') as string;
-  const result = loginSchema.safeParse({ email, password });
+  const result = formSchema.safeParse({ email, password });
 
   if (!result.success) {
     return {
@@ -185,10 +198,10 @@ export async function login(
 export async function updatePassword(
   _: unknown,
   formData: FormData
-): Promise<LoginState | undefined> {
+): Promise<FormState | undefined> {
   const email = formData.get('email') as string;
   const password = formData.get('password') as string;
-  const result = passwordSchema.safeParse({ password });
+  const result = formSchema.safeParse({ password });
 
   if (!result.success) {
     return { password, errors: result.error.flatten().fieldErrors };
@@ -205,9 +218,9 @@ export async function updatePassword(
 export async function forgetPassword(
   _: unknown,
   formData: FormData
-): Promise<LoginState | undefined> {
+): Promise<FormState | undefined> {
   const email = formData.get('email') as string;
-  const result = emailSchema.safeParse({ email });
+  const result = formSchema.safeParse({ email });
 
   if (!result.success) {
     return { email, errors: result.error.flatten().fieldErrors };
@@ -234,11 +247,11 @@ export async function forgetPassword(
 export async function signup(
   _: unknown,
   formData: FormData
-): Promise<SignupState | undefined> {
+): Promise<FormState | undefined> {
   const name = formData.get('name') as string;
   const email = formData.get('email') as string;
   const password = formData.get('password') as string;
-  const result = signupSchema.safeParse({ name, email, password });
+  const result = formSchema.safeParse({ name, email, password });
 
   if (!result.success) {
     return {
@@ -271,12 +284,12 @@ export async function updateUser(
   id: string,
   _: unknown,
   formData: FormData
-): Promise<UserState | undefined> {
+): Promise<FormState | undefined> {
   const name = formData.get('name') as string;
   const role = formData.get('role') as string;
   const email = formData.get('email') as string;
   const password = formData.get('password') as string;
-  const result = userSchema.safeParse({ name, role, email, password });
+  const result = formSchema.safeParse({ name, role, email, password });
 
   if (!result.success) {
     return {
@@ -306,7 +319,6 @@ export async function updateUser(
     data: {
       name,
       email,
-      role: role as Role,
       password: password ? await bcrypt.hash(password, 10) : undefined
     }
   });

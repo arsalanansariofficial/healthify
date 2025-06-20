@@ -8,14 +8,14 @@ import * as CN from '@/components/ui/select';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
-import { updateUser, UserState } from '@/lib/actions';
+import { updateUser, FormState } from '@/lib/actions';
 
 export default function Component({ user }: { user: User }) {
   const [isSigningOut, setIsSigningOut] = useState(false);
 
   const [state, action, pending] = useActionState(
     updateUser.bind(null, user.id),
-    { name: user.name, email: user.email } as UserState
+    { name: user.name, email: user.email } as FormState
   );
 
   return (

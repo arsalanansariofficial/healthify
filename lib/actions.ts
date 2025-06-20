@@ -4,7 +4,7 @@ import { z } from 'zod';
 import bcrypt from 'bcryptjs';
 import nodemailer from 'nodemailer';
 import { AuthError } from 'next-auth';
-import { PrismaClient } from '@prisma/client';
+import { Permission, PrismaClient } from '@prisma/client';
 
 import { signIn } from '@/auth';
 
@@ -114,6 +114,22 @@ async function loginWithCredentials(email: string, password: string) {
     }
 
     throw error;
+  }
+}
+
+export async function assignPermissions(formData: {
+  role: string;
+  permissions: Permission[];
+}): Promise<FormState | undefined> {
+  try {
+    await prisma.role.update({
+      where: { name: formData.role },
+      data: {
+        permissions: { set: formData.permissions.map(({ id }) => ({ id })) }
+      }
+    });
+  } catch {
+    return { message: 'Something went wrong!' };
   }
 }
 

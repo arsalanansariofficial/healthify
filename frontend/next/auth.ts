@@ -10,11 +10,11 @@ import * as CONST from '@/lib/constants';
 
 declare module 'next-auth' {
   interface User {
-    roles: Role[];
-    city?: string | null;
+    roles?: Role[];
     expiresAt?: number;
+    city?: string | null;
     phone?: string | null;
-    permissions: Permission[];
+    permissions?: Permission[];
   }
 }
 
@@ -37,26 +37,7 @@ export const authConfig = {
         if (!user || !user.password) return null;
         if (!bcrypt.compareSync(password, user.password)) return null;
 
-        const roles = (
-          await prisma.userRole.findMany({
-            select: { role: true },
-            where: { userId: user.id }
-          })
-        ).map(ur => ur.role);
-
-        const permissions = (
-          await prisma.rolePermission.findMany({
-            select: { permission: true },
-            where: { roleId: { in: roles.map(r => r.id) } }
-          })
-        ).map(rp => rp.permission);
-
-        return {
-          ...user,
-          roles,
-          permissions,
-          expiresAt: Date.now() + CONST.EXPIRES_AT * 1000
-        };
+        return user;
       }
     })
   ]
@@ -69,10 +50,25 @@ export const { auth, handlers, signIn, signOut, unstable_update } = NextAuth({
   pages: { signIn: CONST.LOGIN, error: CONST.AUTH_ERROR },
   events: {
     async linkAccount({ user }) {
-      await prisma.user.update({
+      const existingUser = await prisma.user.update({
         where: { id: user.id },
+        select: { UserRoles: true },
         data: { hasOAuth: true, emailVerified: new Date() }
       });
+
+      if (!existingUser?.UserRoles.length) {
+        const defaultRole = await prisma.role.findUnique({
+          select: { id: true },
+          where: { name: CONST.DEFAULT_ROLE }
+        });
+
+        await prisma.userRole.create({
+          data: {
+            userId: user?.id as string,
+            roleId: defaultRole?.id as string
+          }
+        });
+      }
     }
   },
   callbacks: {
@@ -96,12 +92,31 @@ export const { auth, handlers, signIn, signOut, unstable_update } = NextAuth({
     },
     async jwt({ token, user, session, trigger }) {
       if (user) {
+        if (!user.roles || !user.permissions) {
+          const roles = (
+            await prisma.userRole.findMany({
+              select: { role: true },
+              where: { userId: user.id }
+            })
+          ).map(ur => ur.role);
+
+          const permissions = (
+            await prisma.rolePermission.findMany({
+              select: { permission: true },
+              where: { roleId: { in: roles.map(r => r.id) } }
+            })
+          ).map(rp => rp.permission);
+
+          user.roles = roles;
+          user.permissions = permissions;
+        }
+
         token.id = user.id;
         token.city = user.city;
         token.roles = user.roles;
         token.phone = user.phone;
-        token.expiresAt = user.expiresAt;
         token.permissions = user.permissions;
+        token.expiresAt = Date.now() + CONST.EXPIRES_AT * 1000;
       }
 
       if (trigger === 'update' && session.user) {

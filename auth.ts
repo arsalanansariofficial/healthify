@@ -5,9 +5,12 @@ import NextAuth, { NextAuthConfig } from 'next-auth';
 import { PrismaAdapter } from '@auth/prisma-adapter';
 import Credentials from 'next-auth/providers/credentials';
 
+import { User as ExtendedUser } from '@/lib/types';
+
 declare module 'next-auth' {
   interface User {
-    role?: 'ADMIN' | 'USER';
+    roles: ExtendedUser['roles'];
+    expiresAt: number | undefined;
   }
 }
 
@@ -26,11 +29,21 @@ export const authConfig = {
           password: string;
         };
 
-        const user = await prisma.user.findUnique({ where: { email } });
+        const user = await prisma.user.findUnique({
+          where: { email },
+          include: { roles: { include: { permissions: true } } }
+        });
+
         if (!user || !user.password) return null;
 
+        let expiresAt;
         const hasPasswordMatch = await bcrypt.compare(password, user.password);
-        return user && hasPasswordMatch ? user : null;
+
+        if (process.env.EXPIRES_AT) {
+          expiresAt = Date.now() + Number(process.env.EXPIRES_AT) * 1000;
+        }
+
+        return user && hasPasswordMatch ? { ...user, expiresAt } : null;
       }
     })
   ]
@@ -61,13 +74,15 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
     },
     async session({ session, token }) {
       session.user.id = token.id as string;
-      session.user.role = token.role as 'ADMIN' | 'USER';
+      session.user.roles = token.roles as ExtendedUser['roles'];
+      session.user.expiresAt = token.expiresAt as number | undefined;
       return session;
     },
     async jwt({ token, user }) {
       if (user) {
         token.id = user.id;
-        token.role = user.role;
+        token.roles = user.roles;
+        token.expiresAt = user.expiresAt;
       }
 
       return token;

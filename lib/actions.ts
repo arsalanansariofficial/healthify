@@ -15,6 +15,7 @@ export type FormState = {
   role?: string;
   email?: string;
   message?: string;
+  success?: boolean;
   password?: string;
   permission?: string;
   errors?: {
@@ -223,6 +224,31 @@ export async function login(
   }
 
   return await loginWithCredentials(email, password);
+}
+
+export default async function seed(): Promise<FormState | undefined> {
+  try {
+    await prisma.user.create({
+      data: {
+        name: 'Admin User',
+        emailVerified: new Date(),
+        email: 'admin.user@ansari.dashboard',
+        password: await bcrypt.hash('admin.user', 10),
+        roles: {
+          create: [
+            {
+              name: 'ADMIN',
+              permissions: { create: [{ name: 'VIEW:DASHBOARD' }] }
+            }
+          ]
+        }
+      }
+    });
+
+    return { success: true, message: '🎉 Database updated successfully.' };
+  } catch {
+    return { success: false, message: '⚠️ Something went wrong!' };
+  }
 }
 
 export async function updatePassword(

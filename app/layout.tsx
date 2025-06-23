@@ -4,6 +4,7 @@ import '@/app/globals.css';
 
 import { auth } from '@/auth';
 import Session from '@/app/session';
+import { Toaster } from '@/components/ui/sonner';
 
 type Props = Readonly<{ children: React.ReactNode }>;
 
@@ -18,6 +19,7 @@ export default async function RootLayout({ children }: Props) {
   return (
     <html lang="en">
       <body className="grid min-h-screen grid-rows-[auto_1fr_auto] antialiased">
+        <Toaster />
         <Session expiresAt={session?.user?.expiresAt}>{children}</Session>
       </body>
     </html>

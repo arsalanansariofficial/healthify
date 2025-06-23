@@ -194,9 +194,13 @@ export async function addPermission(
     await prisma.permission.create({
       data: { name: result.data.permission as string }
     });
-    return { permission };
+    return {
+      permission,
+      success: true,
+      message: '🎉 Permission added successfully.'
+    };
   } catch {
-    return { permission, message: 'Something went wrong!' };
+    return { permission, success: false, message: '⚠️ Something went wrong!' };
   }
 }
 

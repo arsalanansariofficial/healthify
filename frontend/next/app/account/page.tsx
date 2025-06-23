@@ -19,6 +19,7 @@ export default async function Page() {
       image: true,
       phone: true,
       gender: true,
+      hasOAuth: true,
       createdAt: true,
       updatedAt: true,
       experience: true,

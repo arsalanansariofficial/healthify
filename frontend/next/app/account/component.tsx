@@ -56,7 +56,7 @@ import {
 
 type Props = {
   specialities: { value: string; label: string }[];
-  user: Omit<User, 'token' | 'accounts' | 'hasOAuth' | 'password'> & {
+  user: Omit<User, 'token' | 'accounts' | 'password'> & {
     UserRoles: { role: Pick<Role, 'id' | 'name'> }[];
     timings: Pick<TimeSlot, 'id' | 'time' | 'duration'>[];
     UserSpecialities: { speciality: Pick<Speciality, 'id' | 'name'> }[];
@@ -188,7 +188,7 @@ export default function Component({ user, specialities }: Props) {
                                 alt="Profile Picture"
                                 className="aspect-video object-cover"
                                 src={
-                                  imageSrc || `${HOST}/api/upload/${user.image}`
+                                  imageSrc || `${!user.hasOAuth ? `${HOST}/api/upload/` : ''}${user.image}`
                                 }
                               />
                             )}
@@ -358,7 +358,8 @@ export default function Component({ user, specialities }: Props) {
                                 alt="Profile Picture"
                                 className="aspect-video object-cover"
                                 src={
-                                  imageSrc || `${HOST}/api/upload/${user.image}`
+                                  imageSrc ||
+                                  `${!user.hasOAuth ? `${HOST}/api/upload/` : ''}${user.image}`
                                 }
                               />
                             )}

@@ -123,7 +123,7 @@ export async function deleteSpecialities(ids: string[]) {
 export async function deleteUser(id: string) {
   await prisma.$transaction(async function (transaction) {
     const user = await transaction.user.delete({ where: { id } });
-    if (user && user.image) await removeFile(user.image);
+    if (user && !user.hasOAuth && user.image) await removeFile(user.image);
   });
 
   revalidatePath(CONST.HOME);
@@ -138,7 +138,7 @@ export async function deleteUsers(ids: string[]) {
     await Promise.all([
       transaction.user.deleteMany({ where: { id: { in: ids } } }),
       ...users
-        .filter(user => !!user.image)
+        .filter(user => !user.hasOAuth && user.image)
         .map(user => removeFile(user?.image as string))
     ]);
   });
@@ -230,7 +230,7 @@ export async function assignPermissions({
 
     const permits = await prisma.rolePermission.findMany({
       select: { permission: true },
-      where: { roleId: { in: session?.user?.roles.map(r => r.id) } }
+      where: { roleId: { in: session?.user?.roles?.map(r => r.id) } }
     });
 
     await update({

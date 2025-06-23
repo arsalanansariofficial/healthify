@@ -21,7 +21,7 @@ export default function Component(props: Props) {
   const pathname = usePathname();
 
   const searchParams = useSearchParams();
-  const selectedRole = searchParams.get('role') ?? undefined;
+  const selectedRole = searchParams.get('role') ?? props.roles[0].name;
 
   const [role, setRole] = useState<string | undefined>(selectedRole);
   const [assigned, setAssigned] = useState<Permission[]>(props.assigned ?? []);
@@ -78,7 +78,11 @@ export default function Component(props: Props) {
                 setRole(role);
                 updateParam('role', role);
               }}
-              value={props.roles.some(r => r.name === role) ? role : undefined}
+              value={
+                props.roles.some(r => r.name === role)
+                  ? role
+                  : props.roles[0].name
+              }
             >
               <CN.SelectTrigger className="w-full">
                 <CN.SelectValue placeholder="Select a role" />

@@ -7,23 +7,23 @@ const prisma = new PrismaClient();
 type Props = { searchParams: Promise<{ role: string }> };
 
 export default async function Page({ searchParams }: Props) {
-  let assigned, permissions;
   const { role } = await searchParams;
 
-  if (role) {
-    permissions = await prisma.permission.findMany();
-    assigned = await prisma.role.findUnique({
-      where: { name: role },
-      select: { permissions: true }
-    });
-  }
+  const existingRole = await prisma.role.findUnique({
+    where: { name: role ? role : 'USER' }
+  });
+
+  const assigned = await prisma.role.findUnique({
+    select: { permissions: true },
+    where: { name: existingRole ? existingRole.name : 'USER' }
+  });
 
   return (
     <Component
       key={role}
-      permissions={permissions}
       assigned={assigned?.permissions}
       roles={await prisma.role.findMany()}
+      permissions={await prisma.permission.findMany()}
     />
   );
 }

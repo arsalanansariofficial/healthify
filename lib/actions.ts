@@ -343,7 +343,7 @@ export async function signup(
       name,
       email,
       password,
-      message: 'Email already exist.'
+      message: '⚠️ Email already exist!'
     };
   }
 

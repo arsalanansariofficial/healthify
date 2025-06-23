@@ -4,7 +4,6 @@ import { signOut } from 'next-auth/react';
 import { useActionState, useState } from 'react';
 
 import { User } from '@/lib/types';
-import * as CN from '@/components/ui/select';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
@@ -68,24 +67,6 @@ export default function Component({ user }: { user: User }) {
               )}
             </div>
           )}
-          <div className="space-y-2">
-            <Label htmlFor="role">Role</Label>
-            <CN.Select name="role">
-              <CN.SelectTrigger className="w-full">
-                <CN.SelectValue placeholder="Select a role" />
-              </CN.SelectTrigger>
-              <CN.SelectContent>
-                {user.roles.map(role => (
-                  <CN.SelectItem key={role.id} value={role.id}>
-                    {role.name}
-                  </CN.SelectItem>
-                ))}
-              </CN.SelectContent>
-            </CN.Select>
-            {state?.errors?.role && (
-              <p className="text-destructive text-xs">{state.errors.role}</p>
-            )}
-          </div>
           {state?.message && (
             <p className="text-destructive text-xs">{state.message}</p>
           )}

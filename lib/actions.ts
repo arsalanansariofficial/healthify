@@ -295,21 +295,27 @@ export async function forgetPassword(
   }
 
   const user = await prisma.user.findUnique({ where: { email } });
-  if (!user) return { email, message: "Email doesn't exist!" };
+
+  if (!user) {
+    return { email, success: false, message: "⚠️ Email doesn't exist!" };
+  }
+
   const token = await generateToken(user.email as string);
 
   if (token) {
     const subject = 'Reset Your Password';
     const link = `http://localhost:3000/create-password?token=${token.id}`;
     const html = `<p>Click <a href="${link}">here</a> to reset your password`;
-
     const emailSent = await sendEmail(email, subject, html);
-    if (emailSent) return { email, message: 'Confirmation email sent.' };
 
-    return { email, message: 'Failed to send email!' };
+    if (emailSent) {
+      return { email, success: true, message: '🎉 Confirmation email sent.' };
+    }
+
+    return { email, success: false, message: '⚠️ Failed to send email!' };
   }
 
-  return { email, message: 'Failed to generate token!' };
+  return { email, success: false, message: '⚠️ Failed to generate token!' };
 }
 
 export async function signup(

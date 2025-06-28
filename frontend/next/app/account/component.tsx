@@ -131,18 +131,19 @@ export default function Component({ user, specialities }: Props) {
     resolver: zodResolver(doctorProfileSchema)
   });
 
-  const handleFileChange = useCallback(async function (
-    e: React.ChangeEvent<HTMLInputElement>
-  ) {
-    const file = e.target.files && e.target.files[0];
-    if (!file) return;
+  const handleFileChange = useCallback(
+    async (e: React.ChangeEvent<HTMLInputElement>) => {
+      const file = e.target.files && e.target.files[0];
+      if (!file) return;
 
-    const arrayBuffer = await file.arrayBuffer();
-    const base64 = arrayBufferToBase64(arrayBuffer);
-    const dataUrl = `data:${file.type};base64,${base64}`;
+      const arrayBuffer = await file.arrayBuffer();
+      const base64 = arrayBufferToBase64(arrayBuffer);
+      const dataUrl = `data:${file.type};base64,${base64}`;
 
-    setImageSrc(dataUrl);
-  }, []);
+      setImageSrc(dataUrl);
+    },
+    []
+  );
 
   return (
     <div className="flex h-full flex-col gap-8 lg:mx-auto lg:w-10/12">
@@ -188,7 +189,8 @@ export default function Component({ user, specialities }: Props) {
                                 alt="Profile Picture"
                                 className="aspect-video object-cover"
                                 src={
-                                  imageSrc || `${!user.hasOAuth ? `${HOST}/api/upload/` : ''}${user.image}`
+                                  imageSrc ||
+                                  `${!user.hasOAuth ? `${HOST}/api/upload/` : ''}${user.image}`
                                 }
                               />
                             )}

@@ -19,7 +19,7 @@ export default function useHookForm<T, R>(
   const [pending, setPending] = useState(false);
 
   const handleSubmit = useCallback(
-    async function handleSubmit(data: T) {
+    async (data: T) => {
       setPending(true);
       await handler(data, action, error);
       if (updateClient) router.refresh();

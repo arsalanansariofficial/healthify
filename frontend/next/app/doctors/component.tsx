@@ -7,27 +7,62 @@ import { User } from 'next-auth';
 import { useForm } from 'react-hook-form';
 import { getHours, parse } from 'date-fns';
 import { useDebounce } from 'use-debounce';
-import { FormEvent, useState } from 'react';
+import { FormEvent, useCallback, useMemo, useState } from 'react';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Speciality, TimeSlot, User as Doctor } from '@prisma/client';
 
 import { HOST } from '@/lib/constants';
-import * as actions from '@/lib/actions';
 import Footer from '@/components/footer';
 import { formatTime } from '@/lib/utils';
-import * as CN from '@/components/ui/card';
 import { nameSchema } from '@/lib/schemas';
-import * as RHF from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
-import * as CND from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import useHookForm from '@/hooks/use-hook-form';
-import * as Drawer from '@/components/ui/drawer';
 import { useIsMobile } from '@/hooks/use-mobile';
-import * as Select from '@/components/ui/select';
 import handler from '@/components/display-toast';
+import { updateSpeciality } from '@/lib/actions';
+import { Card, CardContent } from '@/components/ui/card';
+
+import {
+  Select,
+  SelectItem,
+  SelectValue,
+  SelectContent,
+  SelectTrigger
+} from '@/components/ui/select';
+
+import {
+  Form,
+  FormItem,
+  FormField,
+  FormLabel,
+  FormMessage,
+  FormControl
+} from '@/components/ui/form';
+
+import {
+  Dialog,
+  DialogClose,
+  DialogTitle,
+  DialogFooter,
+  DialogHeader,
+  DialogTrigger,
+  DialogContent,
+  DialogDescription
+} from '@/components/ui/dialog';
+
+import {
+  Drawer,
+  DrawerClose,
+  DrawerTitle,
+  DrawerFooter,
+  DrawerHeader,
+  DrawerTrigger,
+  DrawerContent,
+  DrawerDescription
+} from '@/components/ui/drawer';
 
 type TCVProps<T extends z.ZodType> = { item: z.infer<T> };
 
@@ -45,7 +80,7 @@ export function TableCellViewer<T extends z.ZodType>(props: TCVProps<T>) {
 
   const { pending, handleSubmit } = useHookForm(
     handler,
-    actions.updateSpeciality.bind(null, props.item.id) as (
+    updateSpeciality.bind(null, props.item.id) as (
       data: unknown
     ) => Promise<unknown>,
     true
@@ -57,43 +92,43 @@ export function TableCellViewer<T extends z.ZodType>(props: TCVProps<T>) {
   });
 
   return (
-    <Drawer.Drawer direction={isMobile ? 'bottom' : 'right'}>
-      <Drawer.DrawerTrigger asChild onClick={e => e.currentTarget.blur()}>
+    <Drawer direction={isMobile ? 'bottom' : 'right'}>
+      <DrawerTrigger asChild onClick={e => e.currentTarget.blur()}>
         <Button variant="link" className="text-foreground px-0">
           {props.item.id}
         </Button>
-      </Drawer.DrawerTrigger>
-      <Drawer.DrawerContent>
-        <Drawer.DrawerHeader className="gap-1">
-          <Drawer.DrawerTitle>Speciality</Drawer.DrawerTitle>
-          <Drawer.DrawerDescription>
+      </DrawerTrigger>
+      <DrawerContent>
+        <DrawerHeader className="gap-1">
+          <DrawerTitle>Speciality</DrawerTitle>
+          <DrawerDescription>
             You can change the name for the selected speciality
-          </Drawer.DrawerDescription>
-        </Drawer.DrawerHeader>
+          </DrawerDescription>
+        </DrawerHeader>
         <div className="flex flex-col gap-4 overflow-y-auto px-4 text-sm">
-          <RHF.Form {...form}>
+          <Form {...form}>
             <form
               id="speciality-form"
               className="space-y-2"
               onSubmit={form.handleSubmit(handleSubmit)}
             >
-              <RHF.FormField
+              <FormField
                 name="name"
                 control={form.control}
                 render={({ field }) => (
-                  <RHF.FormItem>
-                    <RHF.FormLabel>Speciality</RHF.FormLabel>
-                    <RHF.FormControl>
+                  <FormItem>
+                    <FormLabel>Speciality</FormLabel>
+                    <FormControl>
                       <Input {...field} type="name" placeholder="Physician" />
-                    </RHF.FormControl>
-                    <RHF.FormMessage />
-                  </RHF.FormItem>
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
                 )}
               />
             </form>
-          </RHF.Form>
+          </Form>
         </div>
-        <Drawer.DrawerFooter>
+        <DrawerFooter>
           <Button
             type="submit"
             disabled={pending}
@@ -102,12 +137,12 @@ export function TableCellViewer<T extends z.ZodType>(props: TCVProps<T>) {
           >
             {pending ? 'Saving...' : 'Save'}
           </Button>
-          <Drawer.DrawerClose asChild>
+          <DrawerClose asChild>
             <Button variant="outline">Done</Button>
-          </Drawer.DrawerClose>
-        </Drawer.DrawerFooter>
-      </Drawer.DrawerContent>
-    </Drawer.Drawer>
+          </DrawerClose>
+        </DrawerFooter>
+      </DrawerContent>
+    </Drawer>
   );
 }
 
@@ -121,72 +156,81 @@ export default function Component(props: Props) {
   const [experience, setExperience] = useState(String());
   const [time, setTime] = useState<'morning' | 'evening' | string>(String());
 
-  const doctors = props.doctors.filter(doctor => {
-    const doctorGender = doctor.gender?.toLowerCase() || String();
-    const doctorExperience = doctor.experience?.toString() || String();
+  const doctors = useMemo(
+    () =>
+      props.doctors.filter(doctor => {
+        const doctorGender = doctor.gender?.toLowerCase() || String();
+        const doctorExperience = doctor.experience?.toString() || String();
 
-    const doctorSpecialities = doctor.UserSpecialities?.map(us =>
-      us.speciality.name.toLowerCase()
-    );
+        const doctorSpecialities = doctor.UserSpecialities?.map(us =>
+          us.speciality.name.toLowerCase()
+        );
 
-    const doctorTimings = doctor.timings?.map(t => ({
-      formatted: formatTime(t.time).toLowerCase(),
-      hour: getHours(parse(t.time, 'HH:mm:ss', new Date()))
-    }));
+        const doctorTimings = doctor.timings?.map(t => ({
+          formatted: formatTime(t.time).toLowerCase(),
+          hour: getHours(parse(t.time, 'HH:mm:ss', new Date()))
+        }));
 
-    if (
-      debouncedQuery &&
-      !(
-        doctorGender == debouncedQuery ||
-        doctorExperience.includes(debouncedQuery) ||
-        doctor.name?.toLowerCase().includes(debouncedQuery) ||
-        doctorTimings.some(t => t.formatted.includes(debouncedQuery)) ||
-        doctorSpecialities.some(spec => spec.includes(debouncedQuery))
-      )
-    ) {
-      return false;
-    }
+        if (
+          debouncedQuery &&
+          !(
+            doctorGender == debouncedQuery ||
+            doctorExperience.includes(debouncedQuery) ||
+            doctor.name?.toLowerCase().includes(debouncedQuery) ||
+            doctorTimings.some(t => t.formatted.includes(debouncedQuery)) ||
+            doctorSpecialities.some(spec => spec.includes(debouncedQuery))
+          )
+        ) {
+          return false;
+        }
 
-    if (gender && doctorGender != gender.toLowerCase()) return false;
-    if (experience && !doctorExperience.includes(experience)) return false;
+        if (gender && doctorGender != gender.toLowerCase()) return false;
+        if (experience && !doctorExperience.includes(experience)) return false;
 
-    if (
-      speciality &&
-      !doctorSpecialities.some(spec => spec.includes(speciality.toLowerCase()))
-    ) {
-      return false;
-    }
+        if (
+          speciality &&
+          !doctorSpecialities.some(spec =>
+            spec.includes(speciality.toLowerCase())
+          )
+        ) {
+          return false;
+        }
 
-    if (
-      time &&
-      !doctorTimings.some(({ hour }) => {
-        if (time === 'morning') return hour >= 6 && hour < 12;
-        if (time === 'evening') return hour >= 12 && hour < 20;
-        return false;
-      })
-    ) {
-      return false;
-    }
+        if (
+          time &&
+          !doctorTimings.some(({ hour }) => {
+            if (time === 'morning') return hour >= 6 && hour < 12;
+            if (time === 'evening') return hour >= 12 && hour < 20;
+            return false;
+          })
+        ) {
+          return false;
+        }
 
-    return true;
-  });
+        return true;
+      }),
+    [debouncedQuery, experience, gender, props.doctors, speciality, time]
+  );
 
-  function resetFilters() {
+  const resetFilters = useCallback(() => {
     setTime(String());
     setGender(String());
     setSpeciality(String());
     setExperience(String());
-  }
+  }, []);
 
-  function applyFilters(event: FormEvent<HTMLFormElement>): void {
-    event.preventDefault();
-    const formData = new FormData(event.target as HTMLFormElement);
+  const applyFilters = useCallback(
+    (event: FormEvent<HTMLFormElement>): void => {
+      event.preventDefault();
+      const formData = new FormData(event.target as HTMLFormElement);
 
-    setTime(formData.get('time') as string);
-    setGender(formData.get('gender') as string);
-    setSpeciality(formData.get('speciality') as string);
-    setExperience(formData.get('experience') as string);
-  }
+      setTime(formData.get('time') as string);
+      setGender(formData.get('gender') as string);
+      setSpeciality(formData.get('speciality') as string);
+      setExperience(formData.get('experience') as string);
+    },
+    []
+  );
 
   return (
     <div className="flex h-full flex-col gap-8 lg:mx-auto lg:w-10/12">
@@ -199,18 +243,18 @@ export default function Component(props: Props) {
           placeholder="Search doctor..."
           onChange={e => setQuery(e.target.value.toLowerCase())}
         />
-        <CND.Dialog>
+        <Dialog>
           <div>
-            <CND.DialogTrigger asChild>
+            <DialogTrigger asChild>
               <Button className="block w-full">Filter</Button>
-            </CND.DialogTrigger>
-            <CND.DialogContent className="sm:max-w-[425px]">
-              <CND.DialogHeader>
-                <CND.DialogTitle>Apply Filters</CND.DialogTitle>
-                <CND.DialogDescription>
+            </DialogTrigger>
+            <DialogContent className="sm:max-w-[425px]">
+              <DialogHeader>
+                <DialogTitle>Apply Filters</DialogTitle>
+                <DialogDescription>
                   Find doctors based on your preferences.
-                </CND.DialogDescription>
-              </CND.DialogHeader>
+                </DialogDescription>
+              </DialogHeader>
               <form
                 id="filter-form"
                 className="space-y-4"
@@ -218,94 +262,84 @@ export default function Component(props: Props) {
               >
                 <div className="space-y-2">
                   <Label htmlFor="doctor-speciality">Speciality</Label>
-                  <Select.Select name="speciality">
-                    <Select.SelectTrigger
+                  <Select name="speciality">
+                    <SelectTrigger
                       id="doctor-speciality"
                       className="w-full [&_span[data-slot]]:block [&_span[data-slot]]:truncate"
                     >
-                      <Select.SelectValue placeholder="Select a speciality" />
-                    </Select.SelectTrigger>
-                    <Select.SelectContent>
-                      <Select.SelectItem value="physician">
-                        Physician
-                      </Select.SelectItem>
-                      <Select.SelectItem value="dentist">
-                        Dentist
-                      </Select.SelectItem>
-                    </Select.SelectContent>
-                  </Select.Select>
+                      <SelectValue placeholder="Select a speciality" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="physician">Physician</SelectItem>
+                      <SelectItem value="dentist">Dentist</SelectItem>
+                    </SelectContent>
+                  </Select>
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="doctor-experience">Experience</Label>
-                  <Select.Select name="experience">
-                    <Select.SelectTrigger
+                  <Select name="experience">
+                    <SelectTrigger
                       id="doctor-experience"
                       className="w-full [&_span[data-slot]]:block [&_span[data-slot]]:truncate"
                     >
-                      <Select.SelectValue placeholder="Select experience in years" />
-                    </Select.SelectTrigger>
-                    <Select.SelectContent>
-                      <Select.SelectItem value="1">1 year</Select.SelectItem>
-                      <Select.SelectItem value="2">2 Years</Select.SelectItem>
-                      <Select.SelectItem value="3">3 Years</Select.SelectItem>
-                      <Select.SelectItem value="4">4 Years</Select.SelectItem>
-                      <Select.SelectItem value="5">5 Years</Select.SelectItem>
-                      <Select.SelectItem value="Infinity">
+                      <SelectValue placeholder="Select experience in years" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="1">1 year</SelectItem>
+                      <SelectItem value="2">2 Years</SelectItem>
+                      <SelectItem value="3">3 Years</SelectItem>
+                      <SelectItem value="4">4 Years</SelectItem>
+                      <SelectItem value="5">5 Years</SelectItem>
+                      <SelectItem value="Infinity">
                         More than 5 Years
-                      </Select.SelectItem>
-                    </Select.SelectContent>
-                  </Select.Select>
+                      </SelectItem>
+                    </SelectContent>
+                  </Select>
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="doctor-gender">Gender</Label>
-                  <Select.Select name="gender">
-                    <Select.SelectTrigger
+                  <Select name="gender">
+                    <SelectTrigger
                       id="doctor-gender"
                       className="w-full [&_span[data-slot]]:block [&_span[data-slot]]:truncate"
                     >
-                      <Select.SelectValue placeholder="Select a gender" />
-                    </Select.SelectTrigger>
-                    <Select.SelectContent>
-                      <Select.SelectItem value="male">Male</Select.SelectItem>
-                      <Select.SelectItem value="female">
-                        Female
-                      </Select.SelectItem>
-                    </Select.SelectContent>
-                  </Select.Select>
+                      <SelectValue placeholder="Select a gender" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="male">Male</SelectItem>
+                      <SelectItem value="female">Female</SelectItem>
+                    </SelectContent>
+                  </Select>
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="doctor-time">Time</Label>
-                  <Select.Select name="time">
-                    <Select.SelectTrigger
+                  <Select name="time">
+                    <SelectTrigger
                       id="doctor-time"
                       className="w-full [&_span[data-slot]]:block [&_span[data-slot]]:truncate"
                     >
-                      <Select.SelectValue placeholder="Select a time" />
-                    </Select.SelectTrigger>
-                    <Select.SelectContent>
-                      <Select.SelectItem value="morning">
-                        Morning
-                      </Select.SelectItem>
-                      <Select.SelectItem value="evening">
-                        Evening
-                      </Select.SelectItem>
-                    </Select.SelectContent>
-                  </Select.Select>
+                      <SelectValue placeholder="Select a time" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="morning">Morning</SelectItem>
+                      <SelectItem value="evening">Evening</SelectItem>
+                    </SelectContent>
+                  </Select>
                 </div>
               </form>
-              <CND.DialogFooter>
-                <CND.DialogClose asChild>
+              <DialogFooter>
+                <DialogClose asChild>
                   <Button variant="outline" onClick={resetFilters}>
                     Reset
                   </Button>
-                </CND.DialogClose>
+                </DialogClose>
                 <Button type="submit" form="filter-form">
                   Filter
                 </Button>
-              </CND.DialogFooter>
-            </CND.DialogContent>
+              </DialogFooter>
+            </DialogContent>
           </div>
-        </CND.Dialog>
+        </Dialog>
         <Button variant="secondary" onClick={resetFilters}>
           Reset
         </Button>
@@ -313,8 +347,8 @@ export default function Component(props: Props) {
       <ul className="grid grid-cols-[repeat(auto-fill,minmax(15em,1fr))] gap-4">
         {doctors.map(doctor => (
           <li key={doctor.id}>
-            <CN.Card className="rounded-md py-3">
-              <CN.CardContent className="space-y-3 px-3">
+            <Card className="rounded-md py-3">
+              <CardContent className="space-y-3 px-3">
                 <div className="relative min-h-40 overflow-hidden rounded-md">
                   <Image
                     fill
@@ -376,8 +410,8 @@ export default function Component(props: Props) {
                     Get Appointment
                   </Link>
                 </Button>
-              </CN.CardContent>
-            </CN.Card>
+              </CardContent>
+            </Card>
           </li>
         ))}
       </ul>

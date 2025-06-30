@@ -12,7 +12,7 @@ model Token {
   expires DateTime
   email   String   @unique
 
-  user User @relation(fields: [email], references: [email])
+  user User @relation(fields: [email], references: [email], onDelete: Cascade)
 }
 
 model Permission {

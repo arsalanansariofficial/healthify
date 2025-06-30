@@ -4,6 +4,7 @@ import { z } from 'zod';
 import bcrypt from 'bcryptjs';
 import nodemailer from 'nodemailer';
 import { AuthError } from 'next-auth';
+import { revalidatePath } from 'next/cache';
 import { Permission, PrismaClient, Role } from '@prisma/client';
 
 import { signIn } from '@/auth';
@@ -74,7 +75,11 @@ async function sendEmail(to: string, subject: string, html: string) {
   }
 }
 
-async function loginWithCredentials(email: string, password: string) {
+async function loginWithCredentials(
+  email: string,
+  password: string,
+  name?: string
+) {
   try {
     const user = await prisma.user.findUnique({ where: { email } });
 
@@ -89,6 +94,7 @@ async function loginWithCredentials(email: string, password: string) {
 
       if (token && emailSent) {
         return {
+          name,
           email,
           password,
           success: true,
@@ -97,6 +103,7 @@ async function loginWithCredentials(email: string, password: string) {
       }
 
       return {
+        name,
         email,
         password,
         success: false,
@@ -110,6 +117,7 @@ async function loginWithCredentials(email: string, password: string) {
       switch (error.type) {
         case 'CredentialsSignin':
           return {
+            name,
             email,
             password,
             success: false,
@@ -118,6 +126,7 @@ async function loginWithCredentials(email: string, password: string) {
 
         default:
           return {
+            name,
             email,
             password,
             success: false,
@@ -128,6 +137,16 @@ async function loginWithCredentials(email: string, password: string) {
 
     throw error;
   }
+}
+
+export async function deleteUser(id: string) {
+  await prisma.user.delete({ where: { id } });
+  revalidatePath('/');
+}
+
+export async function deleteUsers(ids: string[]) {
+  await prisma.user.deleteMany({ where: { id: { in: ids } } });
+  revalidatePath('/');
 }
 
 export async function assignRoles(formData: {
@@ -141,6 +160,29 @@ export async function assignRoles(formData: {
     });
   } catch {
     return { message: 'Something went wrong!' };
+  }
+}
+
+export async function verifyEmail(
+  email: string
+): Promise<FormState | undefined> {
+  try {
+    const user = await prisma.user.findUnique({ where: { email } });
+    if (!user) return { success: false, message: '⚠️ User does not exist!' };
+
+    await prisma.user.update({
+      where: { email },
+      data: { emailVerified: user.emailVerified ? null : new Date() }
+    });
+
+    const token = await prisma.token.findUnique({
+      where: { email: user.email as string }
+    });
+
+    if (token) await prisma.token.delete({ where: { id: token.id } });
+    revalidatePath('/');
+  } catch {
+    return { success: false, message: '⚠️ Something went wrong!' };
   }
 }
 
@@ -360,7 +402,7 @@ export async function signup(
     data: { name, email, password: await bcrypt.hash(password, 10) }
   });
 
-  return loginWithCredentials(email, password);
+  return loginWithCredentials(email, password, name);
 }
 
 export async function updateUser(

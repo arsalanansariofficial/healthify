@@ -1,150 +1,427 @@
 'use client';
 
+import z from 'zod';
+import Link from 'next/link';
 import { toast } from 'sonner';
-import { signOut } from 'next-auth/react';
-import { useActionState, useState } from 'react';
+import { User as PrismaUser } from '@prisma/client';
+import { Bar, BarChart, CartesianGrid, XAxis } from 'recharts';
 
 import { User } from '@/lib/types';
 import * as CN from '@/components/ui/card';
+import * as RT from '@tanstack/react-table';
+import * as CNC from '@/components/ui/chart';
+import * as Icons from '@tabler/icons-react';
 import { Input } from '@/components/ui/input';
+import { Badge } from '@/components/ui/badge';
 import { Label } from '@/components/ui/label';
+import * as Chart from '@/components/ui/chart';
 import { Button } from '@/components/ui/button';
-import { updateUser, FormState } from '@/lib/actions';
+import { Switch } from '@/components/ui/switch';
+import * as Drawer from '@/components/ui/drawer';
+import { useIsMobile } from '@/hooks/use-mobile';
+import * as DT from '@/components/ui/data-table';
+import * as Select from '@/components/ui/select';
+import * as DM from '@/components/ui/dropdown-menu';
+import { Checkbox } from '@/components/ui/checkbox';
+import { deleteUser, deleteUsers, verifyEmail } from '@/lib/actions';
 
-export default function Component({ user }: { user: User }) {
-  const [isSigningOut, setIsSigningOut] = useState(false);
+type TCVProps<T extends z.ZodType> = {
+  item: z.infer<T>;
+  chartConfig: CNC.ChartConfig;
+  chartData: { month: string; users: number }[];
+};
 
-  const [state, action, pending] = useActionState(
-    async function (prevState: unknown, formData: FormData) {
-      const result = await updateUser(user.id, prevState, formData);
+type TableSchema = {
+  id: number;
+  name: string;
+  email: string;
+  header: string;
+  createdAt: string;
+  emailVerified: string;
+};
 
-      if (result?.success) {
-        toast(result.message, {
-          position: 'top-center',
-          description: (
-            <span className="text-foreground">
-              {new Date().toLocaleString('en-US', {
-                hour12: true,
-                month: 'long',
-                day: '2-digit',
-                weekday: 'long',
-                year: 'numeric',
-                hour: 'numeric',
-                minute: '2-digit'
-              })}
-            </span>
-          )
-        });
-      }
+type Props = {
+  user: User;
+  users: PrismaUser[];
+  chartConfig: CNC.ChartConfig;
+  chartData: { month: string; users: number }[];
+  cardsData: {
+    title: string;
+    action: string;
+    summary: string;
+    subtitle: string;
+    description: string;
+  }[];
+};
 
-      if (!result?.success && result?.message) {
-        toast(<h2 className="text-destructive">{result?.message}</h2>, {
-          position: 'top-center',
-          description: (
-            <p className="text-destructive">
-              {new Date().toLocaleString('en-US', {
-                hour12: true,
-                month: 'long',
-                day: '2-digit',
-                weekday: 'long',
-                year: 'numeric',
-                hour: 'numeric',
-                minute: '2-digit'
-              })}
-            </p>
-          )
-        });
-      }
+type MenuProps = {
+  id?: string;
+  ids?: string[];
+  isHeader: boolean;
+};
 
-      return result;
-    },
-    { name: user.name, email: user.email } as FormState
+function Menu({ id, ids, isHeader = false }: MenuProps) {
+  const menuTrigger = (
+    <DM.DropdownMenuTrigger asChild>
+      <Button
+        size="icon"
+        variant="ghost"
+        className="data-[state=open]:bg-muted text-muted-foreground flex size-8"
+      >
+        <Icons.IconDotsVertical />
+        <span className="sr-only">Open menu</span>
+      </Button>
+    </DM.DropdownMenuTrigger>
   );
 
   return (
-    <main className="row-start-2 grid place-items-center">
-      <section className="grid place-items-center p-4">
-        <CN.Card className="min-w-sm">
-          <CN.CardHeader>
-            <CN.CardTitle>Update your profile</CN.CardTitle>
-            <CN.CardDescription>
-              Update below given fields to update your account profile
-            </CN.CardDescription>
-          </CN.CardHeader>
-          <CN.CardContent>
-            <form id="dashboard-form" className="space-y-2">
-              <div className="space-y-2">
-                <Label htmlFor="name">Name</Label>
-                <Input
-                  id="name"
-                  name="name"
-                  type="text"
-                  defaultValue={state?.name}
-                  placeholder="Gwen Tennyson"
+    <DM.DropdownMenu>
+      {!isHeader && menuTrigger}
+      {ids && ids.length > 0 && isHeader && menuTrigger}
+      <DM.DropdownMenuContent align="end" className="w-32">
+        <DM.DropdownMenuItem
+          variant="destructive"
+          onClick={async () => {
+            if (!isHeader) {
+              toast.promise(deleteUser(id as string), {
+                position: 'top-center',
+                loading: 'Deleting user',
+                success: '🎉 User deleted successfully.',
+                error: (
+                  <span className="text-destructive">
+                    ⚠️ Something went wrong!
+                  </span>
+                )
+              });
+            }
+
+            if (isHeader) {
+              toast.promise(deleteUsers(ids as string[]), {
+                position: 'top-center',
+                loading: 'Deleting users',
+                success: '🎉 Users deleted successfully.',
+                error: (
+                  <span className="text-destructive">
+                    ⚠️ Something went wrong!
+                  </span>
+                )
+              });
+            }
+          }}
+        >
+          Delete
+        </DM.DropdownMenuItem>
+      </DM.DropdownMenuContent>
+    </DM.DropdownMenu>
+  );
+}
+
+export function TableCellViewer<T extends z.ZodType>(props: TCVProps<T>) {
+  const { item } = props;
+  const isMobile = useIsMobile();
+
+  return (
+    <Drawer.Drawer direction={isMobile ? 'bottom' : 'right'}>
+      <Drawer.DrawerTrigger asChild onClick={e => e.currentTarget.blur()}>
+        <Button variant="link" className="text-foreground px-0">
+          {item.name}
+        </Button>
+      </Drawer.DrawerTrigger>
+      <Drawer.DrawerContent>
+        <Drawer.DrawerHeader className="gap-1">
+          <Drawer.DrawerTitle>Users Chart</Drawer.DrawerTitle>
+          <Drawer.DrawerDescription>
+            Showing total users for the last 6 months
+          </Drawer.DrawerDescription>
+        </Drawer.DrawerHeader>
+        <div className="flex flex-col gap-4 overflow-y-auto px-4 text-sm">
+          {!isMobile && (
+            <Chart.ChartContainer config={props.chartConfig}>
+              <BarChart accessibilityLayer data={props.chartData}>
+                <CartesianGrid vertical={false} />
+                <XAxis
+                  dataKey="month"
+                  tickMargin={10}
+                  tickLine={false}
+                  axisLine={false}
                 />
-                {state?.errors?.name && (
-                  <p className="text-destructive text-xs">
-                    {state.errors.name}
-                  </p>
-                )}
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="email">Email</Label>
-                <Input
-                  id="email"
-                  name="email"
-                  type="email"
-                  defaultValue={state?.email}
-                  placeholder="yourname@domain.com"
+                <CNC.ChartTooltip content={<CNC.ChartTooltipContent />} />
+                <CNC.ChartLegend
+                  content={<CNC.ChartLegendContent payload={[]} />}
                 />
-                {state?.errors?.email && (
-                  <p className="text-destructive text-xs">
-                    {state.errors.email}
-                  </p>
-                )}
-              </div>
-              {!user.hasOAuth && (
-                <div className="space-y-2">
-                  <Label htmlFor="password">Password</Label>
-                  <Input
-                    id="password"
-                    name="password"
-                    type="password"
-                    placeholder="Secret@123"
-                    defaultValue={state?.password}
+                <Bar radius={4} dataKey="users" fill="var(--color-blue-500)" />
+              </BarChart>
+            </Chart.ChartContainer>
+          )}
+          <form className="flex flex-col gap-4">
+            <div className="flex flex-col gap-3">
+              <Label htmlFor="name">Name</Label>
+              <Input
+                id="name"
+                defaultValue={item.name}
+                placeholder="Gwen Tennyson"
+              />
+            </div>
+            <div className="flex flex-col gap-3">
+              <Label htmlFor="email">Email</Label>
+              <Input
+                id="email"
+                defaultValue={item.email}
+                placeholder="your.name@domain.com"
+              />
+            </div>
+            <div className="flex flex-col gap-3">
+              <Label htmlFor="has-email-verified">Status</Label>
+              <Select.Select defaultValue={item.emailVerified ? 'Yes' : 'No'}>
+                <Select.SelectTrigger
+                  className="w-full"
+                  id="has-email-verified"
+                >
+                  <Select.SelectValue placeholder="Select a status" />
+                </Select.SelectTrigger>
+                <Select.SelectContent>
+                  <Select.SelectItem value="No">No</Select.SelectItem>
+                  <Select.SelectItem value="Yes">Yes</Select.SelectItem>
+                </Select.SelectContent>
+              </Select.Select>
+            </div>
+          </form>
+        </div>
+        <Drawer.DrawerFooter>
+          <Button>Submit</Button>
+          <Drawer.DrawerClose asChild>
+            <Button variant="outline">Done</Button>
+          </Drawer.DrawerClose>
+        </Drawer.DrawerFooter>
+      </Drawer.DrawerContent>
+    </Drawer.Drawer>
+  );
+}
+
+export default function Component(props: Props) {
+  function getEmailChecked(email: string) {
+    const user = props.users.find(user => email === user.email);
+    return user?.emailVerified ? true : false;
+  }
+
+  const columns: RT.ColumnDef<TableSchema>[] = [
+    {
+      id: 'drag',
+      cell: ({ row }) => <DT.DragHandle id={row.original.id} />
+    },
+    {
+      id: 'select',
+      enableHiding: false,
+      enableSorting: false,
+      header: ({ table }) => (
+        <Checkbox
+          aria-label="Select all"
+          onCheckedChange={value => table.toggleAllPageRowsSelected(!!value)}
+          checked={
+            table.getIsAllPageRowsSelected() ||
+            (table.getIsSomePageRowsSelected() && 'indeterminate')
+          }
+        />
+      ),
+      cell: ({ row }) => (
+        <Checkbox
+          aria-label="Select row"
+          checked={row.getIsSelected()}
+          onCheckedChange={value => row.toggleSelected(!!value)}
+        />
+      )
+    },
+    {
+      header: 'Name',
+      enableHiding: false,
+      accessorKey: 'name',
+      cell: ({ row }) => (
+        <TableCellViewer
+          item={row.original}
+          chartData={props.chartData}
+          chartConfig={props.chartConfig}
+        />
+      )
+    },
+    {
+      header: 'Email',
+      accessorKey: 'email',
+      cell: ({ row }) => (
+        <Badge variant="outline" className="text-muted-foreground">
+          {row.original.email}
+        </Badge>
+      )
+    },
+    {
+      header: () => <div className="flex justify-center">Email Verified</div>,
+      accessorKey: 'emailVerified',
+      cell: ({ row }) => (
+        <Switch
+          id="verify-email"
+          className="mx-auto block"
+          checked={getEmailChecked(row.original.email)}
+          onCheckedChange={async () =>
+            toast.promise(verifyEmail(row.original.email), {
+              error: 'Error',
+              success: 'Done',
+              position: 'top-center',
+              loading: 'Updating Email'
+            })
+          }
+        />
+      )
+    },
+    {
+      accessorKey: 'createdAt',
+      header: () => <div>Created At</div>,
+      cell: ({ row }) =>
+        new Date(row.original.createdAt).toLocaleDateString('en-us', {
+          hour12: true,
+          month: 'long',
+          day: 'numeric',
+          year: 'numeric',
+          hour: '2-digit',
+          minute: '2-digit'
+        })
+    },
+    {
+      id: 'actions',
+      cell: ({ row }) => (
+        <Menu isHeader={false} id={row.original.id.toString()} />
+      ),
+      header: ({ table }) => {
+        return (
+          <Menu
+            isHeader={true}
+            ids={table
+              .getSelectedRowModel()
+              .rows.map(r => r.original.id.toString())}
+          />
+        );
+      }
+    }
+  ];
+
+  return (
+    <main className="row-start-2 grid grid-cols-[auto_1fr] lg:pl-8">
+      <aside className="hidden min-w-[10em] space-y-4 overflow-y-auto border-r pt-4 lg:block">
+        <div className="space-y-2">
+          <Link
+            href="/docs"
+            className="text-muted-foreground block text-xs font-semibold"
+          >
+            Docs
+          </Link>
+          <ul>
+            <li>
+              <Link href="/dashboard" className="font-semibold">
+                Dashboard
+              </Link>
+            </li>
+            <li>
+              <Link href="/lifecycle" className="font-semibold">
+                Lifecycle
+              </Link>
+            </li>
+            <li>
+              <Link href="/projects" className="font-semibold">
+                Projects
+              </Link>
+            </li>
+            <li>
+              <Link href="/teams" className="font-semibold">
+                Teams
+              </Link>
+            </li>
+          </ul>
+        </div>
+        <div className="space-y-2">
+          <Link
+            href="/components"
+            className="text-muted-foreground block text-xs font-semibold"
+          >
+            Components
+          </Link>
+          <ul>
+            <li>
+              <Link href="/data-library" className="font-semibold">
+                Data Library
+              </Link>
+            </li>
+            <li>
+              <Link href="/reports" className="font-semibold">
+                Reports
+              </Link>
+            </li>
+          </ul>
+        </div>
+      </aside>
+      <div className="col-span-2 space-y-8 pb-8 lg:col-start-2">
+        <section className="@container/main col-span-2 rounded-tl-md px-8 lg:col-start-2 lg:space-y-4 lg:px-0">
+          <header>
+            <h1 className="max-h-fit px-2 py-4 font-semibold lg:border-b lg:p-4">
+              Dashboard
+            </h1>
+          </header>
+          <main className="grid grid-cols-1 gap-4 *:data-[slot=card]:bg-gradient-to-t *:data-[slot=card]:shadow-xs lg:px-6 @xl/main:grid-cols-2 @5xl/main:grid-cols-4">
+            {props.cardsData.map((card, index) => (
+              <CN.Card key={index} className="@container/card">
+                <CN.CardHeader>
+                  <CN.CardDescription>{card.description}</CN.CardDescription>
+                  <CN.CardTitle className="text-2xl font-semibold tabular-nums @[250px]/card:text-3xl">
+                    {card.title}
+                  </CN.CardTitle>
+                  <CN.CardAction>{card.action}</CN.CardAction>
+                </CN.CardHeader>
+                <CN.CardFooter className="flex-col items-start gap-1.5 text-sm">
+                  <div className="line-clamp-1 flex gap-2 font-medium">
+                    {card.subtitle}
+                  </div>
+                  <div className="text-muted-foreground">{card.summary}</div>
+                </CN.CardFooter>
+              </CN.Card>
+            ))}
+          </main>
+        </section>
+        <section className="lg:col-start col-span-2 px-8 lg:px-6">
+          <CN.Card>
+            <CN.CardHeader>
+              <CN.CardDescription>Total Visitors</CN.CardDescription>
+              <CN.CardTitle className="text-2xl font-semibold tabular-nums @[250px]/card:text-3xl">
+                Total visitors for the last 3 months
+              </CN.CardTitle>
+            </CN.CardHeader>
+            <CN.CardContent>
+              <CNC.ChartContainer
+                config={props.chartConfig}
+                className="max-h-80 w-full"
+              >
+                <BarChart accessibilityLayer data={props.chartData}>
+                  <CartesianGrid vertical={false} />
+                  <XAxis
+                    dataKey="month"
+                    tickMargin={10}
+                    tickLine={false}
+                    axisLine={false}
                   />
-                  {state?.errors?.password && (
-                    <p className="text-destructive text-xs">
-                      {state.errors.password}
-                    </p>
-                  )}
-                </div>
-              )}
-            </form>
-          </CN.CardContent>
-          <CN.CardFooter className="grid gap-2">
-            <Button
-              type="submit"
-              disabled={pending}
-              formAction={action}
-              form="dashboard-form"
-              className="cursor-pointer"
-            >
-              {pending ? 'Saving...' : 'Save'}
-            </Button>
-            <Button
-              variant="outline"
-              className="cursor-pointer"
-              onClick={async () => {
-                setIsSigningOut(true);
-                await signOut();
-              }}
-            >
-              {isSigningOut ? 'Signing out...' : 'Signout'}
-            </Button>
-          </CN.CardFooter>
-        </CN.Card>
-      </section>
+                  <CNC.ChartTooltip content={<CNC.ChartTooltipContent />} />
+                  <CNC.ChartLegend
+                    content={<CNC.ChartLegendContent payload={[]} />}
+                  />
+                  <Bar
+                    radius={4}
+                    dataKey="users"
+                    fill="var(--color-blue-500)"
+                  />
+                </BarChart>
+              </CNC.ChartContainer>
+            </CN.CardContent>
+          </CN.Card>
+        </section>
+        <section className="lg:col-start col-span-2 px-4 lg:px-0">
+          <DT.DataTable data={props.users} columns={columns} />
+        </section>
+      </div>
     </main>
   );
 }

@@ -303,67 +303,73 @@ export default function Component(props: Props) {
   ];
 
   return (
-    <main className="row-start-2 grid grid-cols-[auto_1fr] lg:pl-8">
-      <aside className="hidden min-w-[10em] space-y-4 overflow-y-auto border-r pt-4 lg:block">
-        <div className="space-y-2">
-          <Link
-            href="/docs"
-            className="text-muted-foreground block text-xs font-semibold"
-          >
-            Docs
-          </Link>
-          <ul>
-            <li>
-              <Link href="/dashboard" className="font-semibold">
-                Dashboard
+    <main className="row-start-2 mx-8 grid grid-cols-[auto_1fr] gap-4">
+      <aside className="sticky top-[7.35em] hidden h-[90%] max-h-[50em] min-w-[10em] overflow-y-auto lg:block">
+        <CN.Card className="h-full">
+          <CN.CardContent className="space-y-4">
+            <div className="space-y-2">
+              <Link
+                href="/docs"
+                className="text-muted-foreground block text-xs font-semibold"
+              >
+                Docs
               </Link>
-            </li>
-            <li>
-              <Link href="/lifecycle" className="font-semibold">
-                Lifecycle
+              <ul>
+                <li>
+                  <Link href="/dashboard" className="font-semibold">
+                    Dashboard
+                  </Link>
+                </li>
+                <li>
+                  <Link href="/lifecycle" className="font-semibold">
+                    Lifecycle
+                  </Link>
+                </li>
+                <li>
+                  <Link href="/projects" className="font-semibold">
+                    Projects
+                  </Link>
+                </li>
+                <li>
+                  <Link href="/teams" className="font-semibold">
+                    Teams
+                  </Link>
+                </li>
+              </ul>
+            </div>
+            <div className="space-y-2">
+              <Link
+                href="/components"
+                className="text-muted-foreground block text-xs font-semibold"
+              >
+                Components
               </Link>
-            </li>
-            <li>
-              <Link href="/projects" className="font-semibold">
-                Projects
-              </Link>
-            </li>
-            <li>
-              <Link href="/teams" className="font-semibold">
-                Teams
-              </Link>
-            </li>
-          </ul>
-        </div>
-        <div className="space-y-2">
-          <Link
-            href="/components"
-            className="text-muted-foreground block text-xs font-semibold"
-          >
-            Components
-          </Link>
-          <ul>
-            <li>
-              <Link href="/data-library" className="font-semibold">
-                Data Library
-              </Link>
-            </li>
-            <li>
-              <Link href="/reports" className="font-semibold">
-                Reports
-              </Link>
-            </li>
-          </ul>
-        </div>
+              <ul>
+                <li>
+                  <Link href="/data-library" className="font-semibold">
+                    Data Library
+                  </Link>
+                </li>
+                <li>
+                  <Link href="/reports" className="font-semibold">
+                    Reports
+                  </Link>
+                </li>
+              </ul>
+            </div>
+          </CN.CardContent>
+        </CN.Card>
       </aside>
-      <div className="col-span-2 space-y-8 pb-8 lg:col-start-2">
-        <section className="@container/main col-span-2 rounded-tl-md px-8 lg:col-start-2 lg:space-y-4 lg:px-0">
+      <div className="col-span-2 space-y-4 lg:col-start-2">
+        <section className="@container/main space-y-4">
           <header>
-            <h1 className="max-h-fit px-2 py-4 font-semibold lg:border-b lg:p-4">
-              Dashboard
-            </h1>
+            <CN.Card>
+              <CN.CardContent>
+                <h1 className="font-semibold">Dashboard</h1>
+              </CN.CardContent>
+            </CN.Card>
           </header>
-          <main className="grid grid-cols-1 gap-4 *:data-[slot=card]:bg-gradient-to-t *:data-[slot=card]:shadow-xs lg:px-6 @xl/main:grid-cols-2 @5xl/main:grid-cols-4">
+          <main className="grid grid-cols-1 gap-4 *:data-[slot=card]:bg-gradient-to-t *:data-[slot=card]:shadow-xs @xl/main:grid-cols-2 @5xl/main:grid-cols-4">
             {props.cardsData.map((card, index) => (
               <CN.Card key={index} className="@container/card">
                 <CN.CardHeader>
@@ -383,7 +389,7 @@ export default function Component(props: Props) {
             ))}
           </main>
         </section>
-        <section className="lg:col-start col-span-2 px-8 lg:px-6">
+        <section>
           <CN.Card>
             <CN.CardHeader>
               <CN.CardDescription>Total Visitors</CN.CardDescription>
@@ -418,7 +424,7 @@ export default function Component(props: Props) {
             </CN.CardContent>
           </CN.Card>
         </section>
-        <section className="lg:col-start col-span-2 px-4 lg:px-0">
+        <section>
           <DT.DataTable data={props.users} columns={columns} />
         </section>
       </div>

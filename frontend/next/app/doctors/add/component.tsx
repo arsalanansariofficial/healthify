@@ -1,26 +1,49 @@
 'use client';
 
 import Image from 'next/image';
-import { useState } from 'react';
 import { User } from 'next-auth';
 import { useForm } from 'react-hook-form';
+import { useCallback, useState } from 'react';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { FileIcon, PlusIcon, TrashIcon } from 'lucide-react';
 
-import * as utils from '@/lib/utils';
 import { DAYS } from '@/lib/constants';
 import Footer from '@/components/footer';
 import { addDoctor } from '@/lib/actions';
-import * as CN from '@/components/ui/card';
-import * as RHF from '@/components/ui/form';
 import { doctorSchema } from '@/lib/schemas';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
 import useHookForm from '@/hooks/use-hook-form';
-import * as Select from '@/components/ui/select';
 import handler from '@/components/display-toast';
+import { arrayBufferToBase64, cn } from '@/lib/utils';
 import MultiSelect from '@/components/ui/multi-select';
+
+import {
+  Card,
+  CardTitle,
+  CardFooter,
+  CardHeader,
+  CardContent,
+  CardDescription
+} from '@/components/ui/card';
+
+import {
+  Form,
+  FormItem,
+  FormField,
+  FormLabel,
+  FormMessage,
+  FormControl
+} from '@/components/ui/form';
+
+import {
+  Select,
+  SelectItem,
+  SelectValue,
+  SelectContent,
+  SelectTrigger
+} from '@/components/ui/select';
 
 export type Props = {
   user: User;
@@ -47,45 +70,48 @@ export default function Component({ specialities }: Props) {
     }
   });
 
-  async function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
-    const file = e.target.files && e.target.files[0];
+  const handleFileChange = useCallback(
+    async (e: React.ChangeEvent<HTMLInputElement>) => {
+      const file = e.target.files && e.target.files[0];
 
-    if (!file) return;
-    setImage(file);
+      if (!file) return;
+      setImage(file);
 
-    const arrayBuffer = await file.arrayBuffer();
-    const base64 = utils.arrayBufferToBase64(arrayBuffer);
-    const dataUrl = `data:${file.type};base64,${base64}`;
+      const arrayBuffer = await file.arrayBuffer();
+      const base64 = arrayBufferToBase64(arrayBuffer);
+      const dataUrl = `data:${file.type};base64,${base64}`;
 
-    setImageSrc(dataUrl);
-  }
+      setImageSrc(dataUrl);
+    },
+    []
+  );
 
   return (
     <div className="flex h-full flex-col gap-8 lg:mx-auto lg:w-10/12">
-      <CN.Card>
-        <CN.CardHeader>
-          <CN.CardTitle>Add Doctor</CN.CardTitle>
-          <CN.CardDescription>
+      <Card>
+        <CardHeader>
+          <CardTitle>Add Doctor</CardTitle>
+          <CardDescription>
             Add details for the doctor here. Click save when you&apos;re done.
-          </CN.CardDescription>
-        </CN.CardHeader>
-        <CN.CardContent>
-          <RHF.Form {...form}>
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <Form {...form}>
             <form
               id="doctor-form"
               className="space-y-2"
               onSubmit={form.handleSubmit(handleSubmit)}
             >
-              <RHF.FormField
+              <FormField
                 name="image"
                 control={form.control}
                 render={({ field }) => (
-                  <RHF.FormItem>
-                    <RHF.FormControl>
+                  <FormItem>
+                    <FormControl>
                       <div className="relative grid min-h-80 gap-3 overflow-clip rounded-md border-2 border-dashed">
                         <Label
                           htmlFor="image"
-                          className={utils.cn(
+                          className={cn(
                             'absolute inset-0 z-10 grid place-items-center',
                             { 'opacity-0': image }
                           )}
@@ -114,114 +140,110 @@ export default function Component({ specialities }: Props) {
                           }}
                         />
                       </div>
-                    </RHF.FormControl>
-                    <RHF.FormMessage />
-                  </RHF.FormItem>
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
                 )}
               />
-              <RHF.FormField
+              <FormField
                 name="name"
                 control={form.control}
                 render={({ field }) => (
-                  <RHF.FormItem>
-                    <RHF.FormLabel>Name</RHF.FormLabel>
-                    <RHF.FormControl>
+                  <FormItem>
+                    <FormLabel>Name</FormLabel>
+                    <FormControl>
                       <Input
                         {...field}
                         type="text"
                         placeholder="Gwen Tennyson"
                       />
-                    </RHF.FormControl>
-                    <RHF.FormMessage />
-                  </RHF.FormItem>
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
                 )}
               />
-              <RHF.FormField
+              <FormField
                 name="email"
                 control={form.control}
                 render={({ field }) => (
-                  <RHF.FormItem>
-                    <RHF.FormLabel>Email</RHF.FormLabel>
-                    <RHF.FormControl>
+                  <FormItem>
+                    <FormLabel>Email</FormLabel>
+                    <FormControl>
                       <Input
                         {...field}
                         type="email"
                         placeholder="your.name@domain.com"
                       />
-                    </RHF.FormControl>
-                    <RHF.FormMessage />
-                  </RHF.FormItem>
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
                 )}
               />
-              <RHF.FormField
+              <FormField
                 name="password"
                 control={form.control}
                 render={({ field }) => (
-                  <RHF.FormItem>
-                    <RHF.FormLabel>Password</RHF.FormLabel>
-                    <RHF.FormControl>
+                  <FormItem>
+                    <FormLabel>Password</FormLabel>
+                    <FormControl>
                       <Input
                         {...field}
                         type="password"
                         placeholder="Secret@123"
                       />
-                    </RHF.FormControl>
-                    <RHF.FormMessage />
-                  </RHF.FormItem>
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
                 )}
               />
-              <RHF.FormField
+              <FormField
                 name="phone"
                 control={form.control}
                 render={({ field }) => (
-                  <RHF.FormItem>
-                    <RHF.FormLabel>Phone</RHF.FormLabel>
-                    <RHF.FormControl>
+                  <FormItem>
+                    <FormLabel>Phone</FormLabel>
+                    <FormControl>
                       <Input
                         {...field}
                         type="tel"
                         placeholder="+919876543210"
                       />
-                    </RHF.FormControl>
-                    <RHF.FormMessage />
-                  </RHF.FormItem>
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
                 )}
               />
-              <RHF.FormField
+              <FormField
                 name="gender"
                 control={form.control}
                 render={({ field }) => (
-                  <RHF.FormItem>
-                    <RHF.FormLabel>Gender</RHF.FormLabel>
-                    <RHF.FormControl>
-                      <Select.Select
+                  <FormItem>
+                    <FormLabel>Gender</FormLabel>
+                    <FormControl>
+                      <Select
                         defaultValue={field.value}
                         onValueChange={field.onChange}
                       >
-                        <Select.SelectTrigger className="w-full [&_span[data-slot]]:block [&_span[data-slot]]:truncate">
-                          <Select.SelectValue placeholder="Select a gender" />
-                        </Select.SelectTrigger>
-                        <Select.SelectContent>
-                          <Select.SelectItem value="male">
-                            Male
-                          </Select.SelectItem>
-                          <Select.SelectItem value="female">
-                            Female
-                          </Select.SelectItem>
-                        </Select.SelectContent>
-                      </Select.Select>
-                    </RHF.FormControl>
-                    <RHF.FormMessage />
-                  </RHF.FormItem>
+                        <SelectTrigger className="w-full [&_span[data-slot]]:block [&_span[data-slot]]:truncate">
+                          <SelectValue placeholder="Select a gender" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="male">Male</SelectItem>
+                          <SelectItem value="female">Female</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
                 )}
               />
-              <RHF.FormField
+              <FormField
                 name="experience"
                 control={form.control}
                 render={({ field }) => (
-                  <RHF.FormItem>
-                    <RHF.FormLabel>Experience</RHF.FormLabel>
-                    <RHF.FormControl>
+                  <FormItem>
+                    <FormLabel>Experience</FormLabel>
+                    <FormControl>
                       <Input
                         min={1}
                         max={100}
@@ -229,66 +251,66 @@ export default function Component({ specialities }: Props) {
                         type="number"
                         placeholder="Moradabad"
                       />
-                    </RHF.FormControl>
-                    <RHF.FormMessage />
-                  </RHF.FormItem>
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
                 )}
               />
-              <RHF.FormField
+              <FormField
                 name="city"
                 control={form.control}
                 render={({ field }) => (
-                  <RHF.FormItem>
-                    <RHF.FormLabel>City</RHF.FormLabel>
-                    <RHF.FormControl>
+                  <FormItem>
+                    <FormLabel>City</FormLabel>
+                    <FormControl>
                       <Input {...field} type="text" placeholder="Moradabad" />
-                    </RHF.FormControl>
-                    <RHF.FormMessage />
-                  </RHF.FormItem>
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
                 )}
               />
-              <RHF.FormField
+              <FormField
                 name="specialities"
                 control={form.control}
                 render={({ field }) => (
-                  <RHF.FormItem>
-                    <RHF.FormLabel>Specialities</RHF.FormLabel>
-                    <RHF.FormControl>
+                  <FormItem>
+                    <FormLabel>Specialities</FormLabel>
+                    <FormControl>
                       <MultiSelect
                         options={specialities}
                         selectedValues={field.value}
                         setSelectedValues={field.onChange}
                         placeholder="Select specialities ..."
                       />
-                    </RHF.FormControl>
-                    <RHF.FormMessage />
-                  </RHF.FormItem>
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
                 )}
               />
-              <RHF.FormField
+              <FormField
                 name="daysOfVisit"
                 control={form.control}
                 render={({ field }) => (
-                  <RHF.FormItem>
-                    <RHF.FormLabel>Days Of Visit</RHF.FormLabel>
-                    <RHF.FormControl>
+                  <FormItem>
+                    <FormLabel>Days Of Visit</FormLabel>
+                    <FormControl>
                       <MultiSelect
                         options={DAYS}
                         selectedValues={field.value}
                         setSelectedValues={field.onChange}
                         placeholder="Select specialities ..."
                       />
-                    </RHF.FormControl>
-                    <RHF.FormMessage />
-                  </RHF.FormItem>
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
                 )}
               />
-              <RHF.FormField
+              <FormField
                 name="timings"
                 control={form.control}
                 render={({ field }) => (
-                  <RHF.FormItem>
-                    <RHF.FormControl>
+                  <FormItem>
+                    <FormControl>
                       <div className="grid gap-0.5">
                         <div className="flex items-center justify-between">
                           <Label>Time of visit</Label>
@@ -357,23 +379,23 @@ export default function Component({ specialities }: Props) {
                               </li>
                             ))}
                           </ul>
-                          <RHF.FormMessage />
+                          <FormMessage />
                         </div>
                       </div>
-                    </RHF.FormControl>
-                    <RHF.FormMessage />
-                  </RHF.FormItem>
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
                 )}
               />
             </form>
-          </RHF.Form>
-        </CN.CardContent>
-        <CN.CardFooter>
+          </Form>
+        </CardContent>
+        <CardFooter>
           <Button type="submit" form="doctor-form" disabled={pending}>
             {pending ? 'Saving...' : 'Save'}
           </Button>
-        </CN.CardFooter>
-      </CN.Card>
+        </CardFooter>
+      </Card>
       <Footer />
     </div>
   );

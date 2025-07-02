@@ -19,16 +19,21 @@ export type FormState = {
   success?: boolean;
   password?: string;
   permission?: string;
+  emailVerified?: string;
   errors?: {
     name?: string[];
     role?: string[];
     email?: string[];
     password?: string[];
     permission?: string[];
+    emailVerified?: string[];
   };
 };
 
 const formSchema = z.object({
+  emailVerified: z.optional(
+    z.enum(['yes', 'no']).transform(val => val === 'yes')
+  ),
   email: z.optional(z.string().email({ message: 'Email should be valid.' })),
   password: z.optional(
     z.string().min(1, { message: 'Password should be valid.' })
@@ -413,13 +418,20 @@ export async function updateUser(
   const name = formData.get('name') as string;
   const email = formData.get('email') as string;
   const password = formData.get('password') as string;
-  const result = formSchema.safeParse({ name, email, password });
+  const emailVerified = formData.get('verified') as string;
+  const result = formSchema.safeParse({
+    name,
+    email,
+    emailVerified,
+    password: password ? password : undefined
+  });
 
   if (!result.success) {
     return {
       name,
       email,
       password,
+      emailVerified,
       errors: result.error.flatten().fieldErrors
     };
   }
@@ -432,6 +444,7 @@ export async function updateUser(
       name,
       email,
       password,
+      emailVerified,
       success: false,
       message: '⚠️ Email already registered!'
     };
@@ -442,6 +455,7 @@ export async function updateUser(
     data: {
       name,
       email,
+      emailVerified: result.data.emailVerified ? new Date() : null,
       password: password ? await bcrypt.hash(password, 10) : undefined
     }
   });
@@ -451,6 +465,7 @@ export async function updateUser(
     email,
     password,
     success: true,
+    emailVerified: 'yes',
     message: '🎉 Profile updated successfully.'
   };
 }

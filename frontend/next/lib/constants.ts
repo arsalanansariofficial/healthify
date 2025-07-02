@@ -28,6 +28,9 @@ if (process.env?.UPLOAD_FAILED) UPLOAD_FAILED = process.env.UPLOAD_FAILED;
 export let DELETE_FAILED = '⚠️ Failed to delete file!';
 if (process.env?.DELETE_FAILED) DELETE_FAILED = process.env.DELETE_FAILED;
 
+export let EMAIL_BOUNCED = "⚠️ Email address not found!";
+if (process.env?.EMAIL_BOUNCED) EMAIL_BOUNCED = process.env.EMAIL_BOUNCED;
+
 export let EMAIL_VERIFIED = '🎉 Email verified successfully.';
 if (process.env?.EMAIL_VERIFIED) EMAIL_VERIFIED = process.env.EMAIL_VERIFIED;
 

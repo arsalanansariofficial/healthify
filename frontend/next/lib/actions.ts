@@ -1,26 +1,107 @@
 'use server';
 
 import bcrypt from 'bcrypt-mini';
-import * as dfns from 'date-fns';
 import { z, ZodSchema } from 'zod';
 import nodemailer from 'nodemailer';
-import * as P from '@prisma/client';
-import { isFuture } from 'date-fns';
 import { revalidatePath } from 'next/cache';
 
+import {
+  isPast,
+  isFuture,
+  subWeeks,
+  endOfWeek,
+  endOfYear,
+  subMonths,
+  endOfMonth,
+  startOfWeek,
+  startOfYear,
+  startOfMonth,
+  isWithinInterval
+} from 'date-fns';
+
 import prisma from '@/lib/prisma';
-import * as utils from '@/lib/utils';
-import * as CONST from '@/lib/constants';
-import * as schemas from '@/lib/schemas';
-import { formatChange } from '@/lib/utils';
 import { VerifyEmail } from '@/components/email/account/email';
 import { auth, signIn, unstable_update as update } from '@/auth';
-import * as Template from '@/components/email/appointment/email';
+import { AppointmentStatus, Day, TimeSlot } from '@prisma/client';
+
+import {
+  CancelAppointment,
+  ConfirmAppointment
+} from '@/components/email/appointment/email';
+
+import {
+  capitalize,
+  catchErrors,
+  formatChange,
+  isPastByTime,
+  catchAuthError,
+  removeDuplicateTimes
+} from '@/lib/utils';
+
+import {
+  nameSchema,
+  roleSchema,
+  userSchema,
+  loginSchema,
+  emailSchema,
+  signupSchema,
+  doctorSchema,
+  userRolesSchema,
+  permissionSchema,
+  appointmentSchema,
+  userProfileSchema,
+  doctorProfileSchema,
+  rolePermissionsSchema
+} from '@/lib/schemas';
+
+import {
+  HOME,
+  HOST,
+  MONTHS,
+  DASHBOARD,
+  ADMIN_NAME,
+  ADMIN_ROLE,
+  EXPIRES_AT,
+  ROLE_ADDED,
+  SMTP_EMAIL,
+  ADMIN_EMAIL,
+  DOCTOR_ROLE,
+  DEFAULT_ROLE,
+  EMAIL_FAILED,
+  CONFIRM_EMAIL,
+  SMTP_PASSWORD,
+  TOKEN_EXPIRED,
+  USER_NOT_FOUND,
+  ADMIN_PASSWORD,
+  EMAIL_VERIFIED,
+  INVALID_INPUTS,
+  ROLES_ASSIGNED,
+  SMTP_HOST_NAME,
+  EMAIL_NOT_FOUND,
+  PROFILE_UPDATED,
+  TOKEN_NOT_FOUND,
+  DATABASE_UPDATED,
+  EMAIL_REGISTERED,
+  PERMISSION_ADDED,
+  SMTP_PORT_NUMBER,
+  SPECIALITY_ADDED,
+  INVALID_TIME_SLOT,
+  APPOINTMENT_EXISTS,
+  DEFAULT_PERMISSION,
+  SPECIALITY_UPDATED,
+  APPOINTMENT_CREATED,
+  TOKEN_NOT_GENERATED,
+  PERMISSIONS_ASSIGNED,
+  APPOINTMENT_CANCELLED,
+  APPOINTMENT_CONFIRMED,
+  APPOINTMENT_NOT_FOUND,
+  APPOINTMENT_ACTION_RESTRICTED
+} from '@/lib/constants';
 
 type Schema<T extends ZodSchema> = z.infer<T>;
 
 async function removeFile(slug: string) {
-  const result = await fetch(`${CONST.HOST}/api/upload/${slug}`, {
+  const result = await fetch(`${HOST}/api/upload/${slug}`, {
     method: 'DELETE'
   });
 
@@ -32,7 +113,7 @@ async function saveFile(file: File) {
   const formData = new FormData();
   formData.append('file', file);
 
-  const result = await fetch(`${CONST.HOST}/api/upload`, {
+  const result = await fetch(`${HOST}/api/upload`, {
     method: 'POST',
     body: formData
   });
@@ -47,7 +128,7 @@ async function generateToken(userId: string) {
     const token = await transaction.token.findUnique({ where: { userId } });
     if (token) await transaction.token.delete({ where: { userId } });
     return await transaction.token.create({
-      data: { userId, expires: new Date(Date.now() + CONST.EXPIRES_AT * 1000) }
+      data: { userId, expires: new Date(Date.now() + EXPIRES_AT * 1000) }
     });
   });
 }
@@ -55,11 +136,11 @@ async function generateToken(userId: string) {
 async function sendEmail(to: string, subject: string, html: string) {
   const transporter = nodemailer.createTransport({
     secure: true,
-    host: CONST.SMTP_HOST_NAME,
-    port: CONST.SMTP_PORT_NUMBER,
+    host: SMTP_HOST_NAME,
+    port: SMTP_PORT_NUMBER,
     auth: {
-      user: CONST.SMTP_EMAIL,
-      pass: CONST.SMTP_PASSWORD
+      user: SMTP_EMAIL,
+      pass: SMTP_PASSWORD
     }
   });
 
@@ -67,57 +148,57 @@ async function sendEmail(to: string, subject: string, html: string) {
     to,
     html,
     subject,
-    from: CONST.SMTP_EMAIL
+    from: SMTP_EMAIL
   });
 }
 
 export async function loginWithCredentials({
   email,
   password
-}: Schema<typeof schemas.loginSchema>) {
+}: Schema<typeof loginSchema>) {
   try {
     const user = await prisma.user.findUnique({ where: { email } });
 
     if (!user) {
-      return { success: false, message: CONST.EMAIL_NOT_FOUND };
+      return { success: false, message: EMAIL_NOT_FOUND };
     }
 
     if (!user.emailVerified) {
       const token = await generateToken(user.id as string);
 
       if (!token) {
-        return { success: false, message: CONST.TOKEN_NOT_GENERATED };
+        return { success: false, message: TOKEN_NOT_GENERATED };
       }
 
       const html = VerifyEmail({ data: { token: token.id } });
-      const subject = `${CONST.HOST}/verify?token=${token.id}`;
+      const subject = `${HOST}/verify?token=${token.id}`;
       const emailSent = await sendEmail(email, subject, html);
 
       if (!emailSent) {
-        return { success: false, message: CONST.EMAIL_FAILED };
+        return { success: false, message: EMAIL_FAILED };
       }
 
-      return { success: true, message: CONST.CONFIRM_EMAIL };
+      return { success: true, message: CONFIRM_EMAIL };
     }
 
     await signIn('credentials', {
       email,
       password,
-      redirectTo: CONST.DASHBOARD
+      redirectTo: DASHBOARD
     });
   } catch (error) {
-    return utils.catchAuthError(error as Error);
+    return catchAuthError(error as Error);
   }
 }
 
 export async function deleteSpeciality(id: string) {
   await prisma.speciality.delete({ where: { id } });
-  revalidatePath(CONST.HOME);
+  revalidatePath(HOME);
 }
 
 export async function deleteSpecialities(ids: string[]) {
   await prisma.speciality.deleteMany({ where: { id: { in: ids } } });
-  revalidatePath(CONST.HOME);
+  revalidatePath(HOME);
 }
 
 export async function deleteUser(id: string) {
@@ -126,7 +207,7 @@ export async function deleteUser(id: string) {
     if (user && !user.hasOAuth && user.image) await removeFile(user.image);
   });
 
-  revalidatePath(CONST.HOME);
+  revalidatePath(HOME);
 }
 
 export async function deleteUsers(ids: string[]) {
@@ -143,15 +224,15 @@ export async function deleteUsers(ids: string[]) {
     ]);
   });
 
-  revalidatePath(CONST.HOME);
+  revalidatePath(HOME);
 }
 
 export async function assignRoles(
   id: string,
-  data: Schema<typeof schemas.userRolesSchema>
+  data: Schema<typeof userRolesSchema>
 ) {
-  const result = schemas.userRolesSchema.safeParse(data);
-  if (!result.success) return { success: false, message: CONST.INVALID_INPUTS };
+  const result = userRolesSchema.safeParse(data);
+  if (!result.success) return { success: false, message: INVALID_INPUTS };
 
   try {
     const session = await auth();
@@ -170,9 +251,9 @@ export async function assignRoles(
     });
 
     await update({ user: { ...session?.user, roles: roles.map(r => r.role) } });
-    return { success: true, message: CONST.ROLES_ASSIGNED };
+    return { success: true, message: ROLES_ASSIGNED };
   } catch (error) {
-    return utils.catchErrors(error as Error);
+    return catchErrors(error as Error);
   }
 }
 
@@ -180,7 +261,7 @@ export async function verifyEmail(email: string) {
   try {
     const user = await prisma.$transaction(async function (transaction) {
       const user = await transaction.user.findUnique({ where: { email } });
-      if (!user) return { success: false, message: CONST.INVALID_INPUTS };
+      if (!user) return { success: false, message: INVALID_INPUTS };
 
       await transaction.user.update({
         where: { email },
@@ -195,19 +276,19 @@ export async function verifyEmail(email: string) {
       return user;
     });
 
-    if (!user) return { success: false, message: CONST.USER_NOT_FOUND };
-    revalidatePath(CONST.HOME);
+    if (!user) return { success: false, message: USER_NOT_FOUND };
+    revalidatePath(HOME);
   } catch (error) {
-    return utils.catchErrors(error as Error);
+    return catchErrors(error as Error);
   }
 }
 
 export async function assignPermissions({
   name,
   permissions
-}: Schema<typeof schemas.rolePermissionsSchema>) {
-  const result = schemas.rolePermissionsSchema.safeParse({ name, permissions });
-  if (!result.success) return { success: false, message: CONST.INVALID_INPUTS };
+}: Schema<typeof rolePermissionsSchema>) {
+  const result = rolePermissionsSchema.safeParse({ name, permissions });
+  if (!result.success) return { success: false, message: INVALID_INPUTS };
 
   try {
     const session = await auth();
@@ -237,19 +318,19 @@ export async function assignPermissions({
       user: { ...session?.user, permissions: permits.map(rp => rp.permission) }
     });
 
-    revalidatePath(CONST.HOME);
-    return { success: true, message: CONST.PERMISSIONS_ASSIGNED };
+    revalidatePath(HOME);
+    return { success: true, message: PERMISSIONS_ASSIGNED };
   } catch (error) {
-    return utils.catchErrors(error as Error);
+    return catchErrors(error as Error);
   }
 }
 
 export async function updateSpeciality(
   id: string,
-  { name }: Schema<typeof schemas.nameSchema>
+  { name }: Schema<typeof nameSchema>
 ) {
-  const result = schemas.nameSchema.safeParse({ name });
-  if (!result.success) return { success: false, message: CONST.INVALID_INPUTS };
+  const result = nameSchema.safeParse({ name });
+  if (!result.success) return { success: false, message: INVALID_INPUTS };
 
   try {
     await prisma.speciality.update({
@@ -257,58 +338,54 @@ export async function updateSpeciality(
       data: { name: name.toUpperCase() }
     });
 
-    revalidatePath(CONST.HOME);
+    revalidatePath(HOME);
     return {
       success: true,
-      message: CONST.SPECIALITY_UPDATED
+      message: SPECIALITY_UPDATED
     };
   } catch (error) {
-    return utils.catchErrors(error as Error);
+    return catchErrors(error as Error);
   }
 }
 
-export async function addSpeciality({
-  name
-}: Schema<typeof schemas.nameSchema>) {
-  const result = schemas.nameSchema.safeParse({ name });
-  if (!result.success) return { success: false, message: CONST.INVALID_INPUTS };
+export async function addSpeciality({ name }: Schema<typeof nameSchema>) {
+  const result = nameSchema.safeParse({ name });
+  if (!result.success) return { success: false, message: INVALID_INPUTS };
 
   try {
     await prisma.speciality.create({
       data: { name: result.data.name?.toUpperCase() as string }
     });
 
-    revalidatePath(CONST.HOME);
+    revalidatePath(HOME);
     return {
       success: true,
       name: name.toUpperCase(),
-      message: CONST.SPECIALITY_ADDED
+      message: SPECIALITY_ADDED
     };
   } catch (error) {
-    return utils.catchErrors(error as Error);
+    return catchErrors(error as Error);
   }
 }
 
-export async function addRole(data: Schema<typeof schemas.roleSchema>) {
-  const result = schemas.roleSchema.safeParse(data);
-  if (!result.success) return { success: false, message: CONST.INVALID_INPUTS };
+export async function addRole(data: Schema<typeof roleSchema>) {
+  const result = roleSchema.safeParse(data);
+  if (!result.success) return { success: false, message: INVALID_INPUTS };
 
   try {
     await prisma.role.create({
       data: { name: result.data.name.toUpperCase() }
     });
 
-    return { ...data, success: true, message: CONST.ROLE_ADDED };
+    return { ...data, success: true, message: ROLE_ADDED };
   } catch (error) {
-    return utils.catchErrors(error as Error);
+    return catchErrors(error as Error);
   }
 }
 
-export async function addPermission(
-  data: Schema<typeof schemas.permissionSchema>
-) {
-  const result = schemas.permissionSchema.safeParse(data);
-  if (!result.success) return { success: false, message: CONST.INVALID_INPUTS };
+export async function addPermission(data: Schema<typeof permissionSchema>) {
+  const result = permissionSchema.safeParse(data);
+  if (!result.success) return { success: false, message: INVALID_INPUTS };
 
   try {
     await prisma.permission.create({
@@ -318,10 +395,10 @@ export async function addPermission(
     return {
       ...data,
       success: true,
-      message: CONST.PERMISSION_ADDED
+      message: PERMISSION_ADDED
     };
   } catch (error) {
-    return utils.catchErrors(error as Error);
+    return catchErrors(error as Error);
   }
 }
 
@@ -329,16 +406,16 @@ export async function verifyToken(id: string) {
   try {
     const result = await prisma.$transaction(async function (transaction) {
       const token = await transaction.token.findUnique({ where: { id } });
-      if (!token) return { success: false, message: CONST.INVALID_INPUTS };
+      if (!token) return { success: false, message: INVALID_INPUTS };
 
       const hasExpired = new Date(token.expires) < new Date();
-      if (hasExpired) return { success: false, message: CONST.INVALID_INPUTS };
+      if (hasExpired) return { success: false, message: INVALID_INPUTS };
 
       const user = await transaction.user.findUnique({
         where: { id: token.userId }
       });
 
-      if (!user) return { success: false, message: CONST.INVALID_INPUTS };
+      if (!user) return { success: false, message: INVALID_INPUTS };
       await transaction.user.update({
         where: { id: user.id },
         data: { emailVerified: new Date() }
@@ -349,51 +426,51 @@ export async function verifyToken(id: string) {
     });
 
     if (!result?.token) {
-      return { success: false, message: CONST.TOKEN_NOT_FOUND };
+      return { success: false, message: TOKEN_NOT_FOUND };
     }
 
     if (!result?.user) {
-      return { success: false, message: CONST.EMAIL_NOT_FOUND };
+      return { success: false, message: EMAIL_NOT_FOUND };
     }
 
     if (result?.hasExpired) {
-      return { success: false, message: CONST.TOKEN_EXPIRED };
+      return { success: false, message: TOKEN_EXPIRED };
     }
 
     return {
       success: true,
       email: result.user.email,
-      message: CONST.EMAIL_VERIFIED
+      message: EMAIL_VERIFIED
     };
   } catch (error) {
-    return { email: undefined, ...utils.catchErrors(error as Error) };
+    return { email: undefined, ...catchErrors(error as Error) };
   }
 }
 
-export async function login(data: Schema<typeof schemas.loginSchema>) {
+export async function login(data: Schema<typeof loginSchema>) {
   const email = data.email as string;
   const password = data.password as string;
 
-  const result = schemas.loginSchema.safeParse({ email, password });
-  if (!result.success) return { success: false, message: CONST.INVALID_INPUTS };
+  const result = loginSchema.safeParse({ email, password });
+  if (!result.success) return { success: false, message: INVALID_INPUTS };
 
   return await loginWithCredentials({ email, password });
 }
 
-export async function signup(data: Schema<typeof schemas.signupSchema>) {
-  const result = schemas.signupSchema.safeParse(data);
-  if (!result.success) return { success: false, message: CONST.INVALID_INPUTS };
+export async function signup(data: Schema<typeof signupSchema>) {
+  const result = signupSchema.safeParse(data);
+  if (!result.success) return { success: false, message: INVALID_INPUTS };
 
   try {
     const user = await prisma.user.findUnique({
       where: { email: result.data.email as string }
     });
 
-    if (user) return { success: false, message: CONST.EMAIL_REGISTERED };
+    if (user) return { success: false, message: EMAIL_REGISTERED };
 
     await prisma.$transaction(async function (transaction) {
       const role = await transaction.role.findUnique({
-        where: { name: CONST.DEFAULT_ROLE }
+        where: { name: DEFAULT_ROLE }
       });
 
       const user = await transaction.user.create({
@@ -409,7 +486,7 @@ export async function signup(data: Schema<typeof schemas.signupSchema>) {
       });
     });
   } catch (error) {
-    return utils.catchErrors(error as Error);
+    return catchErrors(error as Error);
   }
 
   return loginWithCredentials(data);
@@ -420,17 +497,17 @@ export async function seed() {
     await prisma.$transaction(async function (transaction) {
       const [role, permission, user] = await Promise.all([
         await transaction.role.create({
-          data: { name: CONST.ADMIN_ROLE }
+          data: { name: ADMIN_ROLE }
         }),
         transaction.permission.create({
-          data: { name: CONST.DEFAULT_PERMISSION }
+          data: { name: DEFAULT_PERMISSION }
         }),
         transaction.user.create({
           data: {
-            name: CONST.ADMIN_NAME,
-            email: CONST.ADMIN_EMAIL,
+            name: ADMIN_NAME,
+            email: ADMIN_EMAIL,
             emailVerified: new Date(),
-            password: bcrypt.hashSync(CONST.ADMIN_PASSWORD, 10)
+            password: bcrypt.hashSync(ADMIN_PASSWORD, 10)
           }
         })
       ]);
@@ -445,18 +522,18 @@ export async function seed() {
       ]);
     });
 
-    return { success: true, message: CONST.DATABASE_UPDATED };
+    return { success: true, message: DATABASE_UPDATED };
   } catch (error) {
-    return utils.catchErrors(error as Error);
+    return catchErrors(error as Error);
   }
 }
 
 export async function updatePassword({
   email,
   password
-}: Schema<typeof schemas.loginSchema>) {
-  const result = schemas.loginSchema.safeParse({ email, password });
-  if (!result.success) return { success: false, message: CONST.INVALID_INPUTS };
+}: Schema<typeof loginSchema>) {
+  const result = loginSchema.safeParse({ email, password });
+  if (!result.success) return { success: false, message: INVALID_INPUTS };
 
   try {
     await prisma.user.update({
@@ -464,45 +541,40 @@ export async function updatePassword({
       data: { password: bcrypt.hashSync(password, 10) }
     });
   } catch (error) {
-    return utils.catchErrors(error as Error);
+    return catchErrors(error as Error);
   }
 
   return await loginWithCredentials({ email, password });
 }
 
-export async function forgetPassword({
-  email
-}: Schema<typeof schemas.emailSchema>) {
-  const result = schemas.emailSchema.safeParse({ email });
-  if (!result.success) return { success: false, message: CONST.INVALID_INPUTS };
+export async function forgetPassword({ email }: Schema<typeof emailSchema>) {
+  const result = emailSchema.safeParse({ email });
+  if (!result.success) return { success: false, message: INVALID_INPUTS };
 
   try {
     const user = await prisma.user.findUnique({ where: { email } });
 
     if (!user) {
-      return { email, success: false, message: CONST.EMAIL_NOT_FOUND };
+      return { email, success: false, message: EMAIL_NOT_FOUND };
     }
 
     const token = await generateToken(user.id as string);
     const emailSent = await sendEmail(
       email,
       'Reset Your Password',
-      `<p>Click <a href="${CONST.HOST}/create-password?token=${token.id}">here</a> to reset your password`
+      `<p>Click <a href="${HOST}/create-password?token=${token.id}">here</a> to reset your password`
     );
 
-    if (!emailSent) return { success: false, message: CONST.EMAIL_FAILED };
-    return { email, success: true, message: CONST.CONFIRM_EMAIL };
+    if (!emailSent) return { success: false, message: EMAIL_FAILED };
+    return { email, success: true, message: CONFIRM_EMAIL };
   } catch (error) {
-    return { email, ...utils.catchErrors(error as Error) };
+    return catchErrors(error as Error);
   }
 }
 
-export async function updateUser(
-  id: string,
-  data: Schema<typeof schemas.userSchema>
-) {
-  const result = schemas.userSchema.safeParse(data);
-  if (!result.success) return { success: false, message: CONST.INVALID_INPUTS };
+export async function updateUser(id: string, data: Schema<typeof userSchema>) {
+  const result = userSchema.safeParse(data);
+  if (!result.success) return { success: false, message: INVALID_INPUTS };
 
   try {
     const user = await prisma.$transaction(async function (transaction) {
@@ -515,7 +587,7 @@ export async function updateUser(
       }
 
       if (email && email !== user?.email && existingUser)
-        return { success: false, message: CONST.INVALID_INPUTS };
+        return { success: false, message: INVALID_INPUTS };
 
       return await prisma.user.update({
         where: { id },
@@ -529,19 +601,19 @@ export async function updateUser(
     });
 
     if (!user) {
-      return { success: false, message: CONST.EMAIL_REGISTERED };
+      return { success: false, message: EMAIL_REGISTERED };
     }
 
-    revalidatePath(CONST.HOME);
-    return { success: true, message: CONST.PROFILE_UPDATED };
+    revalidatePath(HOME);
+    return { success: true, message: PROFILE_UPDATED };
   } catch (error) {
-    return utils.catchErrors(error as Error);
+    return catchErrors(error as Error);
   }
 }
 
-export async function addDoctor(data: Schema<typeof schemas.doctorSchema>) {
-  const result = schemas.doctorSchema.safeParse(data);
-  if (!result.success) return { success: false, message: CONST.INVALID_INPUTS };
+export async function addDoctor(data: Schema<typeof doctorSchema>) {
+  const result = doctorSchema.safeParse(data);
+  if (!result.success) return { success: false, message: INVALID_INPUTS };
 
   const timings = result.data.timings;
   const specialities = result.data.specialities;
@@ -552,14 +624,14 @@ export async function addDoctor(data: Schema<typeof schemas.doctorSchema>) {
       where: { email: result.data.email }
     });
 
-    if (user) return { success: false, message: CONST.EMAIL_REGISTERED };
+    if (user) return { success: false, message: EMAIL_REGISTERED };
 
     await prisma.$transaction(async function (transaction) {
       let fileName;
       if (image?.size) fileName = await saveFile(image);
 
       const role = await transaction.role.findUnique({
-        where: { name: CONST.DOCTOR_ROLE }
+        where: { name: DOCTOR_ROLE }
       });
 
       const user = await transaction.user.create({
@@ -571,13 +643,13 @@ export async function addDoctor(data: Schema<typeof schemas.doctorSchema>) {
           phone: result.data.phone,
           gender: result.data.gender,
           experience: result.data.experience,
+          daysOfVisit: (result.data.daysOfVisit as Day[]) || undefined,
           password: bcrypt.hashSync(result.data.password as string, 10),
-          daysOfVisit: (result.data.daysOfVisit as P.Day[]) || undefined,
           timings: {
-            create: utils.removeDuplicateTimes(timings)?.map(t => ({
+            create: removeDuplicateTimes(timings)?.map(t => ({
               time: t.time,
               duration: t.duration
-            })) as P.TimeSlot[]
+            })) as TimeSlot[]
           }
         }
       });
@@ -593,7 +665,7 @@ export async function addDoctor(data: Schema<typeof schemas.doctorSchema>) {
       });
     });
   } catch (error) {
-    return utils.catchErrors(error as Error);
+    return catchErrors(error as Error);
   }
 
   return loginWithCredentials({
@@ -604,16 +676,16 @@ export async function addDoctor(data: Schema<typeof schemas.doctorSchema>) {
 
 export async function getAppointment(
   doctorId: string,
-  data: Schema<typeof schemas.appointmentSchema>
+  data: Schema<typeof appointmentSchema>
 ) {
-  const result = schemas.appointmentSchema.safeParse(data);
-  if (!result.success) return { success: false, message: CONST.INVALID_INPUTS };
+  const result = appointmentSchema.safeParse(data);
+  if (!result.success) return { success: false, message: INVALID_INPUTS };
 
   try {
     const session = await auth();
 
     if (!session?.user?.id) {
-      return { success: false, message: CONST.USER_NOT_FOUND };
+      return { success: false, message: USER_NOT_FOUND };
     }
 
     const time = await prisma.timeSlot.findUnique({
@@ -623,9 +695,9 @@ export async function getAppointment(
 
     if (
       !time ||
-      !utils.isPastByTime(result.data.date, time.time, CONST.EXPIRES_AT * 1000)
+      !isPastByTime(result.data.date, time.time, EXPIRES_AT * 1000)
     ) {
-      return { success: false, message: CONST.INVALID_TIME_SLOT };
+      return { success: false, message: INVALID_TIME_SLOT };
     }
 
     if (
@@ -637,7 +709,7 @@ export async function getAppointment(
         }
       })
     ) {
-      return { success: false, message: CONST.APPOINTMENT_EXISTS };
+      return { success: false, message: APPOINTMENT_EXISTS };
     }
 
     await prisma.appointment.create({
@@ -654,21 +726,21 @@ export async function getAppointment(
       }
     });
 
-    return { success: true, message: CONST.APPOINTMENT_CREATED };
+    return { success: true, message: APPOINTMENT_CREATED };
   } catch (error) {
-    return utils.catchErrors(error as Error);
+    return catchErrors(error as Error);
   }
 }
 
 export async function updateUserProfile(
   userId: string,
-  data: Schema<typeof schemas.userProfileSchema>
+  data: Schema<typeof userProfileSchema>
 ) {
   try {
-    const result = schemas.userProfileSchema.safeParse(data);
+    const result = userProfileSchema.safeParse(data);
 
     if (!result.success) {
-      return { success: false, message: CONST.INVALID_INPUTS };
+      return { success: false, message: INVALID_INPUTS };
     }
 
     const user = await prisma.user.findUnique({
@@ -686,7 +758,7 @@ export async function updateUserProfile(
     const image = result.data.image && result.data.image[0];
     const { email, city, phone, password, gender } = result.data;
 
-    if (!user) return { success: false, message: CONST.USER_NOT_FOUND };
+    if (!user) return { success: false, message: USER_NOT_FOUND };
 
     const emailExists = await prisma.user.findUnique({
       where: { email },
@@ -694,7 +766,7 @@ export async function updateUserProfile(
     });
 
     if (email !== user.email && emailExists) {
-      return { success: false, message: CONST.EMAIL_REGISTERED };
+      return { success: false, message: EMAIL_REGISTERED };
     }
 
     await prisma.$transaction(async function (transaction) {
@@ -717,7 +789,7 @@ export async function updateUserProfile(
       });
 
       const [role] = await Promise.all([
-        transaction.role.findUnique({ where: { name: CONST.DEFAULT_ROLE } }),
+        transaction.role.findUnique({ where: { name: DEFAULT_ROLE } }),
         transaction.userRole.deleteMany({
           where: { userId }
         })
@@ -735,21 +807,21 @@ export async function updateUserProfile(
       });
     }
 
-    return { success: false, message: CONST.PROFILE_UPDATED };
+    return { success: false, message: PROFILE_UPDATED };
   } catch (error) {
-    return utils.catchErrors(error as Error);
+    return catchErrors(error as Error);
   }
 }
 
 export async function updateDoctorProfile(
   doctorId: string,
-  data: Schema<typeof schemas.doctorProfileSchema>
+  data: Schema<typeof doctorProfileSchema>
 ) {
   try {
-    const result = schemas.doctorProfileSchema.safeParse(data);
+    const result = doctorProfileSchema.safeParse(data);
 
     if (!result.success) {
-      return { success: false, message: CONST.INVALID_INPUTS };
+      return { success: false, message: INVALID_INPUTS };
     }
 
     const user = await prisma.user.findUnique({
@@ -778,7 +850,7 @@ export async function updateDoctorProfile(
     } = result.data;
 
     const image = result.data.image && result.data.image[0];
-    if (!user) return { success: false, message: CONST.USER_NOT_FOUND };
+    if (!user) return { success: false, message: USER_NOT_FOUND };
 
     const emailExists = await prisma.user.findUnique({
       where: { email },
@@ -786,7 +858,7 @@ export async function updateDoctorProfile(
     });
 
     if (email !== user.email && emailExists) {
-      return { success: false, message: CONST.EMAIL_REGISTERED };
+      return { success: false, message: EMAIL_REGISTERED };
     }
 
     await prisma.$transaction(async function (transaction) {
@@ -811,7 +883,7 @@ export async function updateDoctorProfile(
               : undefined,
           daysOfVisit:
             daysOfVisit && daysOfVisit.length
-              ? (daysOfVisit as P.Day[])
+              ? (daysOfVisit as Day[])
               : undefined
         }
       });
@@ -832,17 +904,17 @@ export async function updateDoctorProfile(
           where: { id: doctorId },
           data: {
             timings: {
-              create: utils.removeDuplicateTimes(timings)?.map(t => ({
+              create: removeDuplicateTimes(timings)?.map(t => ({
                 time: t.time,
                 duration: t.duration
-              })) as P.TimeSlot[]
+              })) as TimeSlot[]
             }
           }
         });
       }
 
       const [role] = await Promise.all([
-        transaction.role.findUnique({ where: { name: CONST.DOCTOR_ROLE } }),
+        transaction.role.findUnique({ where: { name: DOCTOR_ROLE } }),
         transaction.userRole.deleteMany({
           where: { userId: doctorId }
         })
@@ -860,9 +932,9 @@ export async function updateDoctorProfile(
       });
     }
 
-    return { success: false, message: CONST.PROFILE_UPDATED };
+    return { success: false, message: PROFILE_UPDATED };
   } catch (error) {
-    return utils.catchErrors(error as Error);
+    return catchErrors(error as Error);
   }
 }
 
@@ -871,7 +943,7 @@ export async function updateAppointmentStatus(id: string, status: string) {
     const session = await auth();
 
     if (!session?.user?.id) {
-      return { success: false, message: CONST.USER_NOT_FOUND };
+      return { success: false, message: USER_NOT_FOUND };
     }
 
     const appointment = await prisma.appointment.findUnique({
@@ -880,23 +952,23 @@ export async function updateAppointmentStatus(id: string, status: string) {
     });
 
     if (!appointment) {
-      return { success: false, message: CONST.APPOINTMENT_NOT_FOUND };
+      return { success: false, message: APPOINTMENT_NOT_FOUND };
     }
 
-    const isInFuture = utils.isPastByTime(
+    const isInFuture = isPastByTime(
       appointment?.date,
       appointment?.timeSlot.time,
-      CONST.EXPIRES_AT * 1000
+      EXPIRES_AT * 1000
     );
 
     if (!isInFuture) {
-      return { success: false, message: CONST.APPOINTMENT_ACTION_RESTRICTED };
+      return { success: false, message: APPOINTMENT_ACTION_RESTRICTED };
     }
 
     const updated = await prisma.$transaction(async function (transaction) {
       return await transaction.appointment.update({
         where: { id },
-        data: { status: status as P.AppointmentStatus },
+        data: { status: status as AppointmentStatus },
         select: {
           date: true,
           doctor: { select: { email: true, name: true } },
@@ -916,32 +988,32 @@ export async function updateAppointmentStatus(id: string, status: string) {
       }
     };
 
-    if (status === P.AppointmentStatus.CONFIRMED) {
+    if (status === AppointmentStatus.CONFIRMED) {
       await Promise.all([
         sendEmail(
           updated.doctor.email as string,
           'Appointment Confirmed',
-          Template.ConfirmAppointment(data)
+          ConfirmAppointment(data)
         ),
         sendEmail(
           updated.patient.email as string,
           'Appointment Confirmed',
-          Template.ConfirmAppointment(data)
+          ConfirmAppointment(data)
         )
       ]);
     }
 
-    if (status === P.AppointmentStatus.CANCELLED) {
+    if (status === AppointmentStatus.CANCELLED) {
       await Promise.all([
         sendEmail(
           updated.doctor.email as string,
           'Appointment Cancelled',
-          Template.CancelAppointment(data)
+          CancelAppointment(data)
         ),
         sendEmail(
           updated.patient.email as string,
           'Appointment Cancelled',
-          Template.CancelAppointment(data)
+          CancelAppointment(data)
         )
       ]);
     }
@@ -950,12 +1022,12 @@ export async function updateAppointmentStatus(id: string, status: string) {
     return {
       success: true,
       message:
-        status === P.AppointmentStatus.CONFIRMED
-          ? CONST.APPOINTMENT_CONFIRMED
-          : CONST.APPOINTMENT_CANCELLED
+        status === AppointmentStatus.CONFIRMED
+          ? APPOINTMENT_CONFIRMED
+          : APPOINTMENT_CANCELLED
     };
   } catch (error) {
-    return utils.catchErrors(error as Error);
+    return catchErrors(error as Error);
   }
 }
 
@@ -966,13 +1038,13 @@ export async function getMonthlyUserData(
     select: { createdAt: true },
     where: {
       createdAt: {
-        gte: dfns.startOfYear(new Date(year, 0, 1)),
-        lt: dfns.endOfYear(new Date(year, 11, 31))
+        gte: startOfYear(new Date(year, 0, 1)),
+        lt: endOfYear(new Date(year, 11, 31))
       }
     }
   });
 
-  const data = CONST.MONTHS.map(month => ({ month, users: 0 }));
+  const data = MONTHS.map(month => ({ month, users: 0 }));
   users.forEach(user => data[user.createdAt.getMonth()].users++);
 
   return data;
@@ -987,13 +1059,13 @@ export async function getMonthlyAppointmentData(
     where: {
       patientId: userId,
       date: {
-        lt: dfns.endOfYear(new Date(year, 11, 31)),
-        gte: dfns.startOfYear(new Date(year, 0, 1))
+        lt: endOfYear(new Date(year, 11, 31)),
+        gte: startOfYear(new Date(year, 0, 1))
       }
     }
   });
 
-  const data = CONST.MONTHS.map(month => ({ month, appointments: 0 }));
+  const data = MONTHS.map(month => ({ month, appointments: 0 }));
 
   appointments.forEach(appointment => {
     data[appointment.date.getMonth()].appointments++;
@@ -1005,16 +1077,16 @@ export async function getMonthlyAppointmentData(
 export async function getDashboardCards() {
   const now = new Date();
 
-  const thisWeekEnd = dfns.endOfWeek(now, { weekStartsOn: 1 });
-  const thisWeekStart = dfns.startOfWeek(now, { weekStartsOn: 1 });
+  const thisWeekEnd = endOfWeek(now, { weekStartsOn: 1 });
+  const thisWeekStart = startOfWeek(now, { weekStartsOn: 1 });
 
-  const prevWeekEnd = dfns.subWeeks(thisWeekEnd, 1);
-  const prevWeekStart = dfns.subWeeks(thisWeekStart, 1);
+  const prevWeekEnd = subWeeks(thisWeekEnd, 1);
+  const prevWeekStart = subWeeks(thisWeekStart, 1);
 
-  const thisMonthEnd = dfns.endOfMonth(now);
-  const thisMonthStart = dfns.startOfMonth(now);
-  const prevMonthEnd = dfns.subMonths(thisMonthEnd, 1);
-  const prevMonthStart = dfns.subMonths(thisMonthStart, 1);
+  const thisMonthEnd = endOfMonth(now);
+  const thisMonthStart = startOfMonth(now);
+  const prevMonthEnd = subMonths(thisMonthEnd, 1);
+  const prevMonthStart = subMonths(thisMonthStart, 1);
 
   const [appointments, users] = await Promise.all([
     prisma.appointment.findMany({ select: { date: true, status: true } }),
@@ -1028,37 +1100,37 @@ export async function getDashboardCards() {
   ]);
 
   const doctors = users.filter(u =>
-    u.UserRoles.map(r => r.role.name).includes(CONST.DOCTOR_ROLE)
+    u.UserRoles.map(r => r.role.name).includes(DOCTOR_ROLE)
   );
 
   const appointmentsThisWeek = appointments.filter(a =>
-    dfns.isWithinInterval(a.date, { start: thisWeekStart, end: thisWeekEnd })
+    isWithinInterval(a.date, { start: thisWeekStart, end: thisWeekEnd })
   );
 
   const appointmentsPrevWeek = appointments.filter(a =>
-    dfns.isWithinInterval(a.date, { start: prevWeekStart, end: prevWeekEnd })
+    isWithinInterval(a.date, { start: prevWeekStart, end: prevWeekEnd })
   );
 
   const doctorsPrevMonth = doctors.filter(d =>
-    dfns.isWithinInterval(d.createdAt, {
+    isWithinInterval(d.createdAt, {
       start: prevMonthStart,
       end: prevMonthEnd
     })
   );
 
   const doctorsThisMonth = doctors.filter(d =>
-    dfns.isWithinInterval(d.createdAt, {
+    isWithinInterval(d.createdAt, {
       start: thisMonthStart,
       end: thisMonthEnd
     })
   );
 
   const pendingAppointments = appointments.filter(
-    a => a.status === P.AppointmentStatus.PENDING
+    a => a.status === AppointmentStatus.PENDING
   );
 
   const pendingPrevWeek = appointmentsPrevWeek.filter(
-    a => a.status === P.AppointmentStatus.PENDING
+    a => a.status === AppointmentStatus.PENDING
   );
 
   const cities = new Set(users.map(u => u.city).filter(Boolean));
@@ -1066,7 +1138,7 @@ export async function getDashboardCards() {
   const prevCities = new Set(
     users
       .filter(u =>
-        dfns.isWithinInterval(u.createdAt, {
+        isWithinInterval(u.createdAt, {
           end: prevMonthEnd,
           start: prevMonthStart
         })
@@ -1120,7 +1192,7 @@ export async function getDashboardCards() {
       title: cities.size.toString(),
       summary: 'Change in service coverage',
       subtitle: Array.from(cities)
-        .map(c => utils.capitalize(c as string))
+        .map(c => capitalize(c as string))
         .join(', ')
     }
   ];
@@ -1135,16 +1207,16 @@ export async function getUserDashboardCards(userId: string) {
     }),
     prisma.user.findMany({
       select: { name: true },
-      where: { UserRoles: { some: { role: { name: CONST.DOCTOR_ROLE } } } }
+      where: { UserRoles: { some: { role: { name: DOCTOR_ROLE } } } }
     })
   ]);
 
   const upcoming = appointments.filter(
-    a => isFuture(a.date) && a.status !== P.AppointmentStatus.CANCELLED
+    a => isFuture(a.date) && a.status !== AppointmentStatus.CANCELLED
   );
 
   const completed = appointments.filter(
-    a => dfns.isPast(a.date) && a.status === P.AppointmentStatus.CONFIRMED
+    a => isPast(a.date) && a.status === AppointmentStatus.CONFIRMED
   );
 
   return [
@@ -1171,7 +1243,7 @@ export async function getUserDashboardCards(userId: string) {
       title: specialities.length.toString(),
       summary: 'More expertise now available',
       action: specialities.length ? `+${specialities.length}` : '+0',
-      subtitle: specialities.map(s => utils.capitalize(s.name)).join(', ')
+      subtitle: specialities.map(s => capitalize(s.name)).join(', ')
     },
     {
       title: upcoming.length.toString(),

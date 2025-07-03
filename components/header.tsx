@@ -20,7 +20,7 @@ export default function Header() {
 
   return (
     <>
-      <header className="sticky top-8 mx-8 mt-8 backdrop-blur-xs">
+      <header className="sticky top-8 z-10 mx-8 mt-8 backdrop-blur-xs">
         <Card className="bg-transparent py-4">
           <CardContent className="grid grid-cols-[1fr_auto] gap-4">
             <div className="grid grid-flow-col grid-cols-[auto_1fr] items-center gap-4">

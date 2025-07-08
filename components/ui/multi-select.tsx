@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { Check, ChevronsUpDown, X } from 'lucide-react';
 
 import { cn } from '@/lib/utils';
@@ -18,7 +18,9 @@ type MultiSelectProps = {
 
 export default function MultiSelect(props: MultiSelectProps) {
   const [open, setOpen] = useState(false);
+  const triggerRef = useRef<HTMLButtonElement>(null);
   const [inputValue, setInputValue] = useState(String());
+  const [triggerWidth, setTriggerWidth] = useState<number | undefined>();
 
   const filteredOptions = props.options.filter(option =>
     option.label.toLowerCase().includes(inputValue.toLowerCase())
@@ -50,16 +52,31 @@ export default function MultiSelect(props: MultiSelectProps) {
     props.setSelectedValues(allValues);
   }
 
+  useEffect(() => {
+    if (triggerRef.current) setTriggerWidth(triggerRef.current.offsetWidth);
+  }, [props.selectedValues.length]);
+
+  useEffect(() => {
+    updateWidth();
+    function updateWidth() {
+      if (triggerRef.current) setTriggerWidth(triggerRef.current.offsetWidth);
+    }
+
+    window.addEventListener('resize', updateWidth);
+    return () => window.removeEventListener('resize', updateWidth);
+  }, []);
+
   return (
     <CNP.Popover open={open} onOpenChange={setOpen}>
       <CNP.PopoverTrigger asChild>
         <Button
+          ref={triggerRef}
           variant="outline"
           className="flex h-full min-w-[200px] items-center justify-between px-2 pb-2"
         >
           <div className="flex flex-wrap gap-1">
             {props.selectedValues.length === 0 && (
-              <span className="truncate text-gray-500">
+              <span className="truncate font-normal text-gray-500">
                 {props.placeholder || 'Select options...'}
               </span>
             )}
@@ -91,7 +108,11 @@ export default function MultiSelect(props: MultiSelectProps) {
           <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
         </Button>
       </CNP.PopoverTrigger>
-      <CNP.PopoverContent className="w-[300px] p-0" align="start">
+      <CNP.PopoverContent
+        align="start"
+        className="p-0"
+        style={{ width: triggerWidth }}
+      >
         <CMD.Command>
           <CMD.CommandInput
             value={inputValue}

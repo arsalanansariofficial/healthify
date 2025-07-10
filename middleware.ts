@@ -7,9 +7,12 @@ const publicRoutes = [
   '/',
   '/seed',
   '/login',
+  '/error',
   '/signup',
   '/verify',
   '/forget',
+  '/not-found',
+  '/auth-error',
   '/create-password'
 ];
 

@@ -87,82 +87,78 @@ export default function Page() {
   }, undefined);
 
   return (
-    <main className="row-start-2 grid grid-rows-1 p-4">
-      <section className="grid place-items-center gap-4 place-self-center">
-        <CN.Card className="min-w-sm">
-          <CN.CardHeader>
-            <CN.CardTitle>Login to your account</CN.CardTitle>
-            <CN.CardDescription>
-              Enter your email below to login to your account
-            </CN.CardDescription>
-            <CN.CardAction>
-              <Button variant="link">
-                <Link href="/signup">Signup</Link>
-              </Button>
-            </CN.CardAction>
-          </CN.CardHeader>
-          <CN.CardContent>
-            <form id="login-form" className="space-y-2">
-              <div className="space-y-2">
-                <Label htmlFor="email">Email</Label>
-                <Input
-                  id="email"
-                  name="email"
-                  type="email"
-                  defaultValue={state?.email}
-                  placeholder="your.name@domain.com"
-                />
-                {state?.errors?.email && (
-                  <p className="text-destructive text-xs">
-                    {state.errors.email}
-                  </p>
-                )}
-              </div>
-              <div className="space-y-2">
-                <div className="flex items-center">
-                  <Label htmlFor="password">Password</Label>
-                  <Link
-                    href="/forget"
-                    className="ml-auto inline-block text-sm underline-offset-4 hover:underline"
-                  >
-                    Forgot your password?
-                  </Link>
-                </div>
-                <Input
-                  id="password"
-                  name="password"
-                  type="password"
-                  placeholder="Password@123"
-                  defaultValue={state?.password}
-                />
-                {state?.errors?.password && (
-                  <p className="text-destructive text-xs">
-                    {state.errors.password}
-                  </p>
-                )}
-              </div>
-            </form>
-          </CN.CardContent>
-          <CN.CardFooter className="grid gap-2">
-            <Button
-              type="submit"
-              form="login-form"
-              disabled={pending}
-              formAction={action}
-              className="cursor-pointer"
-            >
-              {pending ? 'Logging in...' : 'Login'}
+    <section className="col-span-2 grid place-items-center gap-4 place-self-center">
+      <CN.Card className="min-w-sm">
+        <CN.CardHeader>
+          <CN.CardTitle>Login to your account</CN.CardTitle>
+          <CN.CardDescription>
+            Enter your email below to login to your account
+          </CN.CardDescription>
+          <CN.CardAction>
+            <Button variant="link">
+              <Link href="/signup">Signup</Link>
             </Button>
-            <Button
-              variant="outline"
-              className="cursor-pointer"
-              onClick={() => signIn('github')}
-            >
-              Login with GitHub
-            </Button>
-          </CN.CardFooter>
-        </CN.Card>
-      </section>
-    </main>
+          </CN.CardAction>
+        </CN.CardHeader>
+        <CN.CardContent>
+          <form id="login-form" className="space-y-2">
+            <div className="space-y-2">
+              <Label htmlFor="email">Email</Label>
+              <Input
+                id="email"
+                name="email"
+                type="email"
+                defaultValue={state?.email}
+                placeholder="your.name@domain.com"
+              />
+              {state?.errors?.email && (
+                <p className="text-destructive text-xs">{state.errors.email}</p>
+              )}
+            </div>
+            <div className="space-y-2">
+              <div className="flex items-center">
+                <Label htmlFor="password">Password</Label>
+                <Link
+                  href="/forget"
+                  className="ml-auto inline-block text-sm underline-offset-4 hover:underline"
+                >
+                  Forgot your password?
+                </Link>
+              </div>
+              <Input
+                id="password"
+                name="password"
+                type="password"
+                placeholder="Password@123"
+                defaultValue={state?.password}
+              />
+              {state?.errors?.password && (
+                <p className="text-destructive text-xs">
+                  {state.errors.password}
+                </p>
+              )}
+            </div>
+          </form>
+        </CN.CardContent>
+        <CN.CardFooter className="grid gap-2">
+          <Button
+            type="submit"
+            form="login-form"
+            disabled={pending}
+            formAction={action}
+            className="cursor-pointer"
+          >
+            {pending ? 'Logging in...' : 'Login'}
+          </Button>
+          <Button
+            variant="outline"
+            className="cursor-pointer"
+            onClick={() => signIn('github')}
+          >
+            Login with GitHub
+          </Button>
+        </CN.CardFooter>
+      </CN.Card>
+    </section>
   );
 }

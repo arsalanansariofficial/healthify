@@ -55,30 +55,28 @@ export default function Page() {
   const [action, pending] = [actionState[1], actionState[2]];
 
   return (
-    <main className="row-start-2 grid place-items-center">
-      <section className="grid place-items-center p-4">
-        <CN.Card className="min-w-sm">
-          <CN.CardHeader>
-            <CN.CardTitle>Seed Database</CN.CardTitle>
-            <CN.CardDescription>
-              This will populate the database with predefined roles,
-              permissions, and default users. Useful for development or
-              resetting demo environments.
-            </CN.CardDescription>
-          </CN.CardHeader>
-          <CN.CardFooter className="block">
-            <form action={action} className="w-full">
-              <Button
-                type="submit"
-                disabled={pending}
-                className="w-full cursor-pointer"
-              >
-                {pending ? 'Seeding...' : 'Seed database'}
-              </Button>
-            </form>
-          </CN.CardFooter>
-        </CN.Card>
-      </section>
-    </main>
+    <section className="col-span-2 grid place-items-center place-self-center">
+      <CN.Card className="min-w-sm">
+        <CN.CardHeader>
+          <CN.CardTitle>Seed Database</CN.CardTitle>
+          <CN.CardDescription>
+            This will populate the database with predefined roles, permissions,
+            and default users. Useful for development or resetting demo
+            environments.
+          </CN.CardDescription>
+        </CN.CardHeader>
+        <CN.CardFooter className="block">
+          <form action={action} className="w-full">
+            <Button
+              type="submit"
+              disabled={pending}
+              className="w-full cursor-pointer"
+            >
+              {pending ? 'Seeding...' : 'Seed database'}
+            </Button>
+          </form>
+        </CN.CardFooter>
+      </CN.Card>
+    </section>
   );
 }

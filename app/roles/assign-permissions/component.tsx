@@ -107,79 +107,77 @@ export default function Component(props: Props) {
   }
 
   return (
-    <main className="row-start-2 grid grid-rows-1 p-4">
-      <section className="grid place-items-center gap-4 place-self-center">
-        <SCN.Card className="min-w-sm">
-          <SCN.CardHeader>
-            <SCN.CardTitle>Add permissions for a given role</SCN.CardTitle>
-            <SCN.CardDescription>
-              Select a given role from the dropdown and choose the permissions
-              to assign to that role
-            </SCN.CardDescription>
-          </SCN.CardHeader>
-          <SCN.CardContent>
-            <form id="role-permissions-form" className="space-y-2">
-              <div className="space-y-2">
-                <Label htmlFor="role">Role</Label>
-                <CN.Select
-                  name="role"
-                  onValueChange={role => {
-                    setRole(role);
-                    updateParam('role', role);
-                  }}
-                  value={
-                    props.roles.some(r => r.name === role)
-                      ? role
-                      : props.roles[0].name
-                  }
-                >
-                  <CN.SelectTrigger className="w-full">
-                    <CN.SelectValue placeholder="Select a role" />
-                  </CN.SelectTrigger>
-                  <CN.SelectContent>
-                    {props.roles.map(role => (
-                      <CN.SelectItem key={role.id} value={role.name}>
-                        {role.name}
-                      </CN.SelectItem>
-                    ))}
-                  </CN.SelectContent>
-                </CN.Select>
+    <section className="col-span-2 grid place-items-center gap-4 place-self-center lg:col-start-2">
+      <SCN.Card className="min-w-sm">
+        <SCN.CardHeader>
+          <SCN.CardTitle>Add permissions for a given role</SCN.CardTitle>
+          <SCN.CardDescription>
+            Select a given role from the dropdown and choose the permissions to
+            assign to that role
+          </SCN.CardDescription>
+        </SCN.CardHeader>
+        <SCN.CardContent>
+          <form id="role-permissions-form" className="space-y-2">
+            <div className="space-y-2">
+              <Label htmlFor="role">Role</Label>
+              <CN.Select
+                name="role"
+                onValueChange={role => {
+                  setRole(role);
+                  updateParam('role', role);
+                }}
+                value={
+                  props.roles.some(r => r.name === role)
+                    ? role
+                    : props.roles[0].name
+                }
+              >
+                <CN.SelectTrigger className="w-full">
+                  <CN.SelectValue placeholder="Select a role" />
+                </CN.SelectTrigger>
+                <CN.SelectContent>
+                  {props.roles.map(role => (
+                    <CN.SelectItem key={role.id} value={role.name}>
+                      {role.name}
+                    </CN.SelectItem>
+                  ))}
+                </CN.SelectContent>
+              </CN.Select>
+            </div>
+            {props.permissions && props.permissions.length > 0 && (
+              <div>
+                <ul className="space-y-2">
+                  {props.permissions.map(permission => {
+                    return (
+                      <li
+                        key={permission.id}
+                        onClick={() => toggleAssignment(permission)}
+                        className={cn(
+                          getSelected(permission),
+                          'cursor-pointer rounded-md border p-2 text-center text-sm font-medium lowercase shadow-xs'
+                        )}
+                      >
+                        {permission.name}
+                      </li>
+                    );
+                  })}
+                </ul>
               </div>
-              {props.permissions && props.permissions.length > 0 && (
-                <div>
-                  <ul className="space-y-2">
-                    {props.permissions.map(permission => {
-                      return (
-                        <li
-                          key={permission.id}
-                          onClick={() => toggleAssignment(permission)}
-                          className={cn(
-                            getSelected(permission),
-                            'cursor-pointer rounded-md border p-2 text-center text-sm font-medium lowercase shadow-xs'
-                          )}
-                        >
-                          {permission.name}
-                        </li>
-                      );
-                    })}
-                  </ul>
-                </div>
-              )}
-            </form>
-          </SCN.CardContent>
-          <SCN.CardFooter>
-            <Button
-              type="submit"
-              disabled={pending}
-              formAction={action}
-              form="role-permissions-form"
-              className="w-full cursor-pointer"
-            >
-              {pending ? 'Assigning permissions...' : 'Assign permissions'}
-            </Button>
-          </SCN.CardFooter>
-        </SCN.Card>
-      </section>
-    </main>
+            )}
+          </form>
+        </SCN.CardContent>
+        <SCN.CardFooter>
+          <Button
+            type="submit"
+            disabled={pending}
+            formAction={action}
+            form="role-permissions-form"
+            className="w-full cursor-pointer"
+          >
+            {pending ? 'Assigning permissions...' : 'Assign permissions'}
+          </Button>
+        </SCN.CardFooter>
+      </SCN.Card>
+    </section>
   );
 }

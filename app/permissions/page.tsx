@@ -58,47 +58,45 @@ export default function Page() {
   }, undefined);
 
   return (
-    <main className="row-start-2 grid grid-rows-1 p-4">
-      <section className="grid place-items-center gap-4 place-self-center">
-        <CN.Card className="min-w-sm">
-          <CN.CardHeader>
-            <CN.CardTitle>Login to your account</CN.CardTitle>
-            <CN.CardDescription>
-              Enter your email below to login to your account
-            </CN.CardDescription>
-          </CN.CardHeader>
-          <CN.CardContent>
-            <form id="permission-form" className="space-y-2">
-              <div className="space-y-2">
-                <Label htmlFor="permission">Permission</Label>
-                <Input
-                  type="text"
-                  id="permission"
-                  name="permission"
-                  placeholder="view:dashboard"
-                  defaultValue={state?.permission}
-                />
-                {state?.errors?.permission && (
-                  <p className="text-destructive text-xs">
-                    {state.errors.permission}
-                  </p>
-                )}
-              </div>
-            </form>
-          </CN.CardContent>
-          <CN.CardFooter>
-            <Button
-              type="submit"
-              disabled={pending}
-              formAction={action}
-              form="permission-form"
-              className="w-full cursor-pointer"
-            >
-              {pending ? 'Adding permission...' : 'Add permission'}
-            </Button>
-          </CN.CardFooter>
-        </CN.Card>
-      </section>
-    </main>
+    <section className="col-span-2 grid place-items-center gap-4 place-self-center lg:col-start-2">
+      <CN.Card className="min-w-sm">
+        <CN.CardHeader>
+          <CN.CardTitle>Login to your account</CN.CardTitle>
+          <CN.CardDescription>
+            Enter your email below to login to your account
+          </CN.CardDescription>
+        </CN.CardHeader>
+        <CN.CardContent>
+          <form id="permission-form" className="space-y-2">
+            <div className="space-y-2">
+              <Label htmlFor="permission">Permission</Label>
+              <Input
+                type="text"
+                id="permission"
+                name="permission"
+                placeholder="view:dashboard"
+                defaultValue={state?.permission}
+              />
+              {state?.errors?.permission && (
+                <p className="text-destructive text-xs">
+                  {state.errors.permission}
+                </p>
+              )}
+            </div>
+          </form>
+        </CN.CardContent>
+        <CN.CardFooter>
+          <Button
+            type="submit"
+            disabled={pending}
+            formAction={action}
+            form="permission-form"
+            className="w-full cursor-pointer"
+          >
+            {pending ? 'Adding permission...' : 'Add permission'}
+          </Button>
+        </CN.CardFooter>
+      </CN.Card>
+    </section>
   );
 }

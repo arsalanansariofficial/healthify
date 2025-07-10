@@ -1,12 +1,13 @@
 import type { Metadata } from 'next';
 
-import '@/app/globals.css';
-
 import { auth } from '@/auth';
 import Session from '@/app/session';
 import Header from '@/components/header';
+import Sidebar from '@/components/sidebar';
 import { Toaster } from '@/components/ui/sonner';
 import { ThemeProvider } from '@/components/theme-provider';
+
+import '@/app/globals.css';
 
 type Props = Readonly<{ children: React.ReactNode }>;
 
@@ -24,7 +25,10 @@ export default async function RootLayout({ children }: Props) {
         <ThemeProvider enableSystem attribute="class" defaultTheme="system">
           <Session expiresAt={session?.user?.expiresAt}>
             {session?.user && <Header />}
-            {children}
+            <main className="row-start-2 mx-8 grid grid-cols-[auto_1fr] gap-4">
+              {session?.user && <Sidebar />}
+              {children}
+            </main>
             <Toaster />
           </Session>
         </ThemeProvider>

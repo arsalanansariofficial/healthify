@@ -58,47 +58,43 @@ export default function Page() {
   }, undefined);
 
   return (
-    <main className="row-start-2 grid grid-rows-1 p-4">
-      <section className="grid place-items-center gap-4 place-self-center">
-        <CN.Card className="min-w-sm">
-          <CN.CardHeader>
-            <CN.CardTitle>Add roles</CN.CardTitle>
-            <CN.CardDescription>
-              Enter a name for a role that you want to add
-            </CN.CardDescription>
-          </CN.CardHeader>
-          <CN.CardContent>
-            <form id="role-form" className="space-y-2">
-              <div className="space-y-2">
-                <Label htmlFor="role">Role</Label>
-                <Input
-                  id="role"
-                  type="text"
-                  name="role"
-                  placeholder="user"
-                  defaultValue={state?.role}
-                />
-                {state?.errors?.role && (
-                  <p className="text-destructive text-xs">
-                    {state.errors.role}
-                  </p>
-                )}
-              </div>
-            </form>
-          </CN.CardContent>
-          <CN.CardFooter>
-            <Button
-              type="submit"
-              form="role-form"
-              disabled={pending}
-              formAction={action}
-              className="w-full cursor-pointer"
-            >
-              {pending ? 'Adding role...' : 'Add role'}
-            </Button>
-          </CN.CardFooter>
-        </CN.Card>
-      </section>
-    </main>
+    <section className="col-span-2 grid place-items-center gap-4 place-self-center lg:col-start-2">
+      <CN.Card className="min-w-sm">
+        <CN.CardHeader>
+          <CN.CardTitle>Add roles</CN.CardTitle>
+          <CN.CardDescription>
+            Enter a name for a role that you want to add
+          </CN.CardDescription>
+        </CN.CardHeader>
+        <CN.CardContent>
+          <form id="role-form" className="space-y-2">
+            <div className="space-y-2">
+              <Label htmlFor="role">Role</Label>
+              <Input
+                id="role"
+                type="text"
+                name="role"
+                placeholder="user"
+                defaultValue={state?.role}
+              />
+              {state?.errors?.role && (
+                <p className="text-destructive text-xs">{state.errors.role}</p>
+              )}
+            </div>
+          </form>
+        </CN.CardContent>
+        <CN.CardFooter>
+          <Button
+            type="submit"
+            form="role-form"
+            disabled={pending}
+            formAction={action}
+            className="w-full cursor-pointer"
+          >
+            {pending ? 'Adding role...' : 'Add role'}
+          </Button>
+        </CN.CardFooter>
+      </CN.Card>
+    </section>
   );
 }

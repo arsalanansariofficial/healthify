@@ -23,6 +23,7 @@ type DraggableRowProps<T extends z.ZodType> = { row: RT.Row<z.infer<T>> };
 type DataTableProps<T extends z.ZodType> = {
   data: z.infer<T>[];
   columns: RT.ColumnDef<z.infer<T>>[];
+  filterConfig: { id: string; placeholder: string }[];
 };
 
 export function DragHandle({ id }: { id: number }) {
@@ -140,29 +141,22 @@ export function DataTable<T extends z.ZodType>(props: DataTableProps<T>) {
       className="w-full flex-col justify-start gap-6"
     >
       <div className="flex items-center justify-between">
-        <div className="grid grid-flow-col gap-2">
-          <Input
-            name="name"
-            className="max-w-sm"
-            placeholder="Filter names..."
-            value={
-              (table.getColumn('name')?.getFilterValue() as string) ?? String()
-            }
-            onChange={event =>
-              table.getColumn('name')?.setFilterValue(event.target.value)
-            }
-          />
-          <Input
-            name="email"
-            className="max-w-sm"
-            placeholder="Filter emails..."
-            value={
-              (table.getColumn('email')?.getFilterValue() as string) ?? String()
-            }
-            onChange={event =>
-              table.getColumn('email')?.setFilterValue(event.target.value)
-            }
-          />
+        <div className="grid auto-cols-auto grid-flow-col gap-2">
+          {props.filterConfig.map(filter => (
+            <Input
+              key={filter.id}
+              name={filter.id}
+              className="max-w-sm"
+              placeholder={filter.placeholder}
+              onChange={event =>
+                table.getColumn(filter.id)?.setFilterValue(event.target.value)
+              }
+              value={
+                (table.getColumn(filter.id)?.getFilterValue() as string) ??
+                String()
+              }
+            />
+          ))}
         </div>
         <Tabs.TabsList className="**:data-[slot=badge]:bg-muted-foreground/30 hidden **:data-[slot=badge]:size-5 **:data-[slot=badge]:rounded-full **:data-[slot=badge]:px-1 @4xl/main:flex">
           <Tabs.TabsTrigger value="outline">Outline</Tabs.TabsTrigger>

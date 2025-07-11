@@ -448,7 +448,14 @@ export default function Component(props: Props) {
         </CN.Card>
       </section>
       <section>
-        <DT.DataTable data={props.users} columns={columns} />
+        <DT.DataTable
+          data={props.users}
+          columns={columns}
+          filterConfig={[
+            { id: 'name', placeholder: 'Name...' },
+            { id: 'email', placeholder: 'Email...' }
+          ]}
+        />
       </section>
     </div>
   );

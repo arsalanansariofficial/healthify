@@ -13,7 +13,7 @@ const items = [
 
 export default function Sidebar() {
   return (
-    <aside className="sticky top-[7.35em] hidden max-h-[calc(100vh-10.5em)] min-w-[10em] lg:block">
+    <aside className="sticky top-[7.35em] hidden max-h-[calc(100vh-10.5em)] min-w-[10em] scroll-mt-0 lg:block">
       <CN.Card className="h-full">
         <ScrollArea className="h-full">
           <CN.CardContent>

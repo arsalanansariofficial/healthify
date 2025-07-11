@@ -1,7 +1,7 @@
 'use client';
 
 import { toast } from 'sonner';
-import { useActionState, useState } from 'react';
+import { useActionState } from 'react';
 import { useRouter } from 'next/navigation';
 
 import { getDate } from '@/lib/utils';
@@ -21,6 +21,7 @@ export default function Page() {
     const result = await addSpeciality(prevState, formData);
 
     if (result?.success) {
+      router.back();
       toast(result.message, {
         position: 'top-center',
         description: <span className="text-foreground">{getDate()}</span>
@@ -28,13 +29,13 @@ export default function Page() {
     }
 
     if (!result?.success && result?.message) {
+      router.back();
       toast(<h2 className="text-destructive">{result?.message}</h2>, {
         position: 'top-center',
         description: <p className="text-destructive">{getDate()}</p>
       });
     }
 
-    router.back();
     return result;
   }, undefined);
 

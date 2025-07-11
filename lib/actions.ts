@@ -313,7 +313,7 @@ export async function addSpeciality(
 
   try {
     await prisma.speciality.create({
-      data: { name: result.data.name as string }
+      data: { name: result.data.name?.toUpperCase() as string }
     });
 
     revalidatePath('/');

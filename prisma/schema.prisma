@@ -7,51 +7,76 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+enum Gender {
+  MALE
+  FEMALE
+}
+
+enum Day {
+  SUNDAY
+  MONDAY
+  FRIDAY
+  TUESDAY
+  THURSDAY
+  SATURDAY
+  WEDNESDAY
+}
+
 model Token {
-  id      String   @id @default(auto()) @map("_id") @db.ObjectId
-  expires DateTime
-  email   String   @unique
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  expires   DateTime
+  email     String   @unique
+  updatedAt DateTime @updatedAt
+  createdAt DateTime @default(now())
 
   user User @relation(fields: [email], references: [email], onDelete: Cascade)
 }
 
 model Permission {
-  id   String @id @default(auto()) @map("_id") @db.ObjectId
-  name String @unique
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  name      String   @unique
+  updatedAt DateTime @updatedAt
+  createdAt DateTime @default(now())
 
   roleIDs String[] @db.ObjectId
 
   roles Role[] @relation(fields: [roleIDs], references: [id])
 }
 
+model Speciality {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  name      String   @unique
+  updatedAt DateTime @updatedAt
+  createdAt DateTime @default(now())
+
+  userIds String[] @db.ObjectId
+
+  users User[] @relation(fields: [userIds], references: [id])
+}
+
+model TimeSlot {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  duration  Int
+  time      String
+  updatedAt DateTime @updatedAt
+  createdAt DateTime @default(now())
+
+  userId String? @db.ObjectId
+
+  User User? @relation(fields: [userId], references: [id])
+}
+
 model Role {
-  id   String @id @default(auto()) @map("_id") @db.ObjectId
-  name String @unique
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  name      String   @unique
+  updatedAt DateTime @updatedAt
+  createdAt DateTime @default(now())
 
   userIDs       String[] @db.ObjectId
   permissionIDs String[] @db.ObjectId
 
   users       User[]       @relation(fields: [userIDs], references: [id])
   permissions Permission[] @relation(fields: [permissionIDs], references: [id])
-}
-
-model User {
-  id            String    @id @default(auto()) @map("_id") @db.ObjectId
-  name          String?
-  image         String?
-  password      String?
-  emailVerified DateTime?
-  email         String?   @unique
-  updatedAt     DateTime  @updatedAt
-  createdAt     DateTime  @default(now())
-  hasOAuth      Boolean   @default(false)
-
-  roleIDs    String[] @db.ObjectId
-  accountIDs String[] @db.ObjectId
-
-  token    Token?
-  accounts Account[]
-  roles    Role[]    @relation(fields: [roleIDs], references: [id])
 }
 
 model Account {
@@ -73,4 +98,31 @@ model Account {
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([provider, providerAccountId])
+}
+
+model User {
+  id            String     @id @default(auto()) @map("_id") @db.ObjectId
+  daysOfVisit   Day[]
+  experience    Int?
+  name          String?
+  image         String?
+  password      String?
+  city          String?
+  phone         String?
+  gender        String?
+  timings       TimeSlot[]
+  emailVerified DateTime?
+  email         String?    @unique
+  updatedAt     DateTime   @updatedAt
+  createdAt     DateTime   @default(now())
+  hasOAuth      Boolean    @default(false)
+
+  roleIDs       String[] @db.ObjectId
+  specialityIDs String[] @db.ObjectId
+  accountIDs    String[] @db.ObjectId
+
+  token        Token?
+  accounts     Account[]
+  roles        Role[]       @relation(fields: [roleIDs], references: [id])
+  specialities Speciality[] @relation(fields: [specialityIDs], references: [id])
 }

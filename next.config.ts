@@ -1,3 +1,6 @@
 import type { NextConfig } from 'next';
 
-export default { devIndicators: false } as NextConfig;
+export default {
+  devIndicators: false,
+  experimental: { serverActions: { bodySizeLimit: '15mb' } }
+} as NextConfig;

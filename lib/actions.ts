@@ -2,14 +2,58 @@
 
 import { z } from 'zod';
 import bcrypt from 'bcryptjs';
+import path from 'path';
+import fs from 'fs/promises';
 import nodemailer from 'nodemailer';
 import { AuthError } from 'next-auth';
 import { revalidatePath } from 'next/cache';
-import { Day, Permission, PrismaClient, Role, TimeSlot } from '@prisma/client';
+import {
+  Day,
+  Permission,
+  Prisma,
+  PrismaClient,
+  Role,
+  TimeSlot
+} from '@prisma/client';
 
 import { signIn } from '@/auth';
+import { randomUUID } from 'crypto';
 
-const prisma = new PrismaClient();
+const dir = path.join(process.cwd(), '/public/users');
+
+const prisma = new PrismaClient().$extends({
+  model: {
+    user: {
+      async deleteManyWithCleanup(args: Prisma.UserDeleteManyArgs) {
+        const users = await prisma.user.findMany({
+          where: args.where,
+          select: { id: true, image: true }
+        });
+
+        const ids = users.map(user => user.id).filter(Boolean);
+
+        await prisma.$transaction([
+          prisma.timeSlot.deleteMany({ where: { userId: { in: ids } } }),
+          prisma.user.deleteMany(args)
+        ]);
+
+        return users;
+      },
+      async deleteWithCleanup(args: Prisma.UserDeleteArgs) {
+        const user = await prisma.user.findUnique({
+          where: args.where,
+          select: { id: true, image: true }
+        });
+
+        await prisma.timeSlot.deleteMany({
+          where: { id: user?.id }
+        });
+
+        return prisma.user.delete(args);
+      }
+    }
+  }
+});
 
 export type FormState = {
   name?: string;
@@ -17,6 +61,7 @@ export type FormState = {
   city?: string;
   email?: string;
   phone?: string;
+  image?: string;
   gender?: string;
   message?: string;
   success?: boolean;
@@ -25,13 +70,14 @@ export type FormState = {
   experience?: number;
   emailVerified?: string;
   daysOfVisit?: string[];
-  specialities?: { id: string; name: string }[];
+  specialities?: string[];
   timings?: { time: `${number}:${number}:${number}`; duration: number }[];
   errors?: {
     city?: string[];
     name?: string[];
     role?: string[];
     phone?: string[];
+    image?: string[];
     email?: string[];
     gender?: string[];
     timings?: string[];
@@ -55,41 +101,34 @@ const formSchema = z.object({
   experience: z.optional(
     z.number().min(1, { message: 'Experience should be valid.' })
   ),
+  specialities: z.optional(
+    z.array(z.string().min(1, { message: 'Id should be valid.' }))
+  ),
+  daysOfVisit: z.optional(
+    z.array(z.string().min(1, { message: 'Day should be valid.' }))
+  ),
   name: z.optional(
     z.string().min(3, { message: 'Should be atleast 3 characters.' })
+  ),
+  gender: z.optional(
+    z.enum(['male', 'female'], { message: 'Gender should be valid.' })
   ),
   role: z.optional(
     z.string().toUpperCase().min(1, { message: 'Role should be valid.' })
   ),
-  gender: z.optional(
-    z.enum(['MALE', 'FEMALE'], { message: 'Gender should be valid.' })
-  ),
   city: z.optional(
     z.string().toUpperCase().min(1, { message: 'City should be valid.' })
   ),
+  image: z.optional(
+    z.string().min(5, { message: 'Name should be atleast 5 characters.' })
+  ),
   permission: z.optional(
     z.string().toUpperCase().min(1, { message: 'Permission should be valid.' })
-  ),
-  daysOfVisit: z.optional(
-    z.array(
-      z.string().toUpperCase().min(1, { message: 'Day should be valid.' })
-    )
   ),
   phone: z.optional(
     z
       .string()
       .regex(/^\+?\d{10,15}$/, { message: 'Invalid phone number format.' })
-  ),
-  specialities: z.optional(
-    z.array(
-      z.object({
-        id: z.string().min(1, { message: 'Id should be valid.' }),
-        name: z
-          .string()
-          .toUpperCase()
-          .min(1, { message: 'Name should be valid.' })
-      })
-    )
   ),
   timings: z.optional(
     z.array(
@@ -136,60 +175,58 @@ async function sendEmail(to: string, subject: string, html: string) {
   }
 }
 
-async function loginWithCredentials(
-  email: string,
-  password: string,
-  name?: string
-) {
+async function loginWithCredentials(response: FormState) {
   try {
-    const user = await prisma.user.findUnique({ where: { email } });
+    const user = await prisma.user.findUnique({
+      where: { email: response.email }
+    });
 
     if (user && !user.emailVerified) {
-      const token = await generateToken(email);
+      const token = await generateToken(response.email as string);
 
       const subject = 'Verify Your Email';
       const link = `http://localhost:3000/verify?token=${token.id}`;
       const html = `<p>Click <a href="${link}">here</a> to verify.</p>`;
 
-      const emailSent = await sendEmail(email, subject, html);
+      const emailSent = await sendEmail(
+        response.email as string,
+        subject,
+        html
+      );
 
       if (token && emailSent) {
         return {
-          name,
-          email,
-          password,
+          ...response,
           success: true,
           message: '🎉 Confirmation email sent.'
         };
       }
 
       return {
-        name,
-        email,
-        password,
+        ...response,
         success: false,
         message: '⚠️ Something went wrong!'
       };
     }
 
-    await signIn('credentials', { email, password, redirectTo: '/dashboard' });
+    await signIn('credentials', {
+      email: response.email,
+      password: response.password,
+      redirectTo: '/dashboard'
+    });
   } catch (error) {
     if (error instanceof AuthError) {
       switch (error.type) {
         case 'CredentialsSignin':
           return {
-            name,
-            email,
-            password,
+            ...response,
             success: false,
             message: '⚠️ Invalid email or password!'
           };
 
         default:
           return {
-            name,
-            email,
-            password,
+            ...response,
             success: false,
             message: '⚠️ Something went wrong!'
           };
@@ -201,12 +238,18 @@ async function loginWithCredentials(
 }
 
 export async function deleteUser(id: string) {
-  await prisma.user.delete({ where: { id } });
+  const user = await prisma.user.deleteWithCleanup({ where: { id } });
+  await fs.unlink(path.join(dir, `${user?.image}`));
   revalidatePath('/');
 }
 
 export async function deleteUsers(ids: string[]) {
-  await prisma.user.deleteMany({ where: { id: { in: ids } } });
+  const users = await prisma.user.deleteManyWithCleanup({
+    where: { id: { in: ids } }
+  });
+  await Promise.all(
+    users.map(user => fs.unlink(path.join(dir, `${user?.image}`)))
+  );
   revalidatePath('/');
 }
 
@@ -406,7 +449,7 @@ export async function login(
     };
   }
 
-  return await loginWithCredentials(email, password);
+  return await loginWithCredentials({ email, password });
 }
 
 export default async function seed(): Promise<FormState | undefined> {
@@ -451,7 +494,7 @@ export async function updatePassword(
     data: { password: await bcrypt.hash(password, 10) }
   });
 
-  return await loginWithCredentials(email, password);
+  return await loginWithCredentials({ email, password });
 }
 
 export async function forgetPassword(
@@ -557,6 +600,7 @@ export async function signup(
   const city = formData.get('city') as string;
   const email = formData.get('email') as string;
 
+  const image = formData.get('image') as File;
   const phone = formData.get('phone') as string;
   const gender = formData.get('gender') as string;
   const password = formData.get('password') as string;
@@ -572,7 +616,7 @@ export async function signup(
   ) as FormState['specialities'];
 
   const daysOfVisit = JSON.parse(
-    formData.get('days-of-visit') as string
+    formData.get('daysOfVisit') as string
   ) as FormState['daysOfVisit'];
 
   const result = formSchema.safeParse({
@@ -584,58 +628,65 @@ export async function signup(
     timings,
     password,
     experience,
+    daysOfVisit,
     specialities,
-    daysOfVisit
+    image: image.name
   });
 
+  const response = {
+    name,
+    city,
+    email,
+    phone,
+    gender,
+    timings,
+    password,
+    experience,
+    daysOfVisit,
+    specialities
+  };
+
   if (!result.success) {
-    return {
-      name,
-      city,
-      email,
-      phone,
-      gender,
-      timings,
-      password,
-      experience,
-      daysOfVisit,
-      specialities,
-      errors: result.error.flatten().fieldErrors
-    };
+    return { ...response, errors: result.error.flatten().fieldErrors };
   }
 
   const user = await prisma.user.findUnique({ where: { email } });
+  if (user) return { ...response, message: '⚠️ Email already exist!' };
 
-  if (user) {
-    return {
-      name,
-      city,
-      email,
-      phone,
-      gender,
-      timings,
-      password,
-      experience,
-      daysOfVisit,
-      specialities,
-      message: '⚠️ Email already exist!'
-    };
+  const imageUUID = randomUUID();
+  const fileExtension = image.type.split('/').at(-1);
+  const filePath = path.join(dir, `${imageUUID}.${fileExtension}`);
+
+  try {
+    const user = await prisma.user.create({
+      data: {
+        name,
+        city,
+        email,
+        phone,
+        gender,
+        experience,
+        image: `${imageUUID}.${fileExtension}`,
+        password: await bcrypt.hash(password, 10),
+        daysOfVisit: daysOfVisit?.map(d => d.toUpperCase() as Day),
+        specialities: { connect: specialities?.map(s => ({ name: s })) },
+        timings: {
+          create: timings?.map(t => ({
+            time: t.time,
+            duration: t.duration
+          })) as TimeSlot[]
+        }
+      }
+    });
+
+    if (user && image.size) {
+      await fs.mkdir(dir, { recursive: true });
+      await fs.writeFile(filePath, Buffer.from(await image.arrayBuffer()));
+    }
+  } catch (error) {
+    console.log(error);
+    return { ...response, success: false, message: '⚠️ Something went wrong!' };
   }
 
-  await prisma.user.create({
-    data: {
-      name,
-      email,
-      city,
-      phone,
-      gender,
-      experience,
-      daysOfVisit: daysOfVisit as Day[],
-      password: await bcrypt.hash(password, 10),
-      timings: { create: timings as TimeSlot[] },
-      specialityIDs: specialities?.map(s => s.id)
-    }
-  });
-
-  return loginWithCredentials(email, password, name);
+  return loginWithCredentials(response);
 }

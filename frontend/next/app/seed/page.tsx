@@ -1,10 +1,17 @@
 'use client';
 
 import { seed } from '@/lib/actions';
-import * as EMPTY from '@/components/ui/empty';
 import { Button } from '@/components/ui/button';
 import useHookForm from '@/hooks/use-hook-form';
 import handler from '@/components/display-toast';
+
+import {
+  Empty,
+  EmptyTitle,
+  EmptyHeader,
+  EmptyContent,
+  EmptyDescription
+} from '@/components/ui/empty';
 
 export default function Page() {
   const { handleSubmit, pending } = useHookForm(handler, seed);
@@ -12,16 +19,16 @@ export default function Page() {
   return (
     <main className="row-start-2 mx-8 grid place-items-center">
       <section>
-        <EMPTY.Empty>
-          <EMPTY.EmptyHeader>
-            <EMPTY.EmptyTitle>Seed Database</EMPTY.EmptyTitle>
-            <EMPTY.EmptyDescription>
+        <Empty>
+          <EmptyHeader>
+            <EmptyTitle>Seed Database</EmptyTitle>
+            <EmptyDescription>
               This will populate the database with predefined roles,
               permissions, and default users. Useful for development or
               resetting demo environments.
-            </EMPTY.EmptyDescription>
-          </EMPTY.EmptyHeader>
-          <EMPTY.EmptyContent>
+            </EmptyDescription>
+          </EmptyHeader>
+          <EmptyContent>
             <Button
               type="submit"
               disabled={pending}
@@ -30,8 +37,8 @@ export default function Page() {
             >
               {pending ? 'Seeding...' : 'Seed database'}
             </Button>
-          </EMPTY.EmptyContent>
-        </EMPTY.Empty>
+          </EmptyContent>
+        </Empty>
       </section>
     </main>
   );

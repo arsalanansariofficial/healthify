@@ -7,13 +7,14 @@ import { useActionState, useState } from 'react';
 import { User as PrismaUser } from '@prisma/client';
 import { Bar, BarChart, CartesianGrid, XAxis } from 'recharts';
 
+import { User } from 'next-auth';
 import * as actions from '@/lib/actions';
+import { DoctorProps } from '@/lib/types';
 import * as CN from '@/components/ui/card';
 import * as CNC from '@/components/ui/chart';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import * as Chart from '@/components/ui/chart';
-import { DoctorProps, User } from '@/lib/types';
 import { Button } from '@/components/ui/button';
 import * as Drawer from '@/components/ui/drawer';
 import { useIsMobile } from '@/hooks/use-mobile';

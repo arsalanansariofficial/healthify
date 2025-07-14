@@ -1,7 +1,7 @@
-import { redirect } from 'next/navigation';
 import { PrismaClient } from '@prisma/client';
 
 import { auth } from '@/auth';
+import { User } from 'next-auth';
 import Component from '@/app/dashboard/component';
 import { ChartConfig } from '@/components/ui/chart';
 
@@ -53,22 +53,16 @@ const cardsData = [
 
 export default async function Page() {
   const session = await auth();
-  const user = await prisma.user.findUnique({
-    where: { id: session?.user?.id },
-    include: { roles: { include: { permissions: true } } }
-  });
-
-  if (!user) redirect('/login');
 
   const users = await prisma.user.findMany();
 
   return (
     <Component
-      user={user}
       key={users.length}
       cardsData={cardsData}
       chartData={chartsData}
       chartConfig={chartConfig}
+      user={session?.user as User}
       users={users.filter(user => user.email !== session?.user?.email)}
       specialities={(await prisma.speciality.findMany()).map(s => ({
         value: s.id,

@@ -1,9 +1,9 @@
 import type { Metadata } from 'next';
 
+import { auth } from '@/auth';
 import Session from '@/app/session';
 import Header from '@/components/header';
 import Sidebar from '@/components/sidebar';
-import { getSessionUser } from '@/lib/actions';
 import { Toaster } from '@/components/ui/sonner';
 import { SessionProvider } from 'next-auth/react';
 import { ThemeProvider } from '@/components/theme-provider';
@@ -18,7 +18,7 @@ export const metadata: Metadata = {
 };
 
 export default async function RootLayout({ children }: Props) {
-  const { user, session } = await getSessionUser();
+  const session = await auth();
 
   return (
     <html lang="en" suppressHydrationWarning>
@@ -26,9 +26,9 @@ export default async function RootLayout({ children }: Props) {
         <ThemeProvider enableSystem attribute="class" defaultTheme="system">
           <SessionProvider>
             <Session expiresAt={session?.user?.expiresAt}>
-              {user && <Header />}
+              {session?.user && <Header />}
               <main className="row-start-2 mx-8 grid grid-cols-[auto_1fr] gap-4">
-                {user && <Sidebar user={user} />}
+                {session?.user && <Sidebar user={session.user} />}
                 {children}
               </main>
               <Toaster />

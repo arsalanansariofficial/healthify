@@ -30,7 +30,9 @@ export default function Component(props: Props) {
 
   const actionState = useActionState(async function () {
     const result = await assignPermissions({
-      role: role as string,
+      role: props.roles.some(r => r.name === role)
+        ? (role as string)
+        : props.roles[0].name,
       permissions: assigned
     });
 

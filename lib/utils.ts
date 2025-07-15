@@ -11,11 +11,9 @@ export function hasRole(roles: User['roles'], name: string) {
 }
 
 export function hasPermission(roles: User['roles'], name: string) {
-  return roles
-    .map(r => r.permissions)
-    .flat()
-    .map(p => p.name.toLowerCase())
-    .includes(name.toLowerCase());
+  const permissionsArray = roles.map(r => r.permissions).flat();
+  const permissions = permissionsArray.map(p => p.name.toLowerCase());
+  return permissions.includes(name.toLowerCase());
 }
 
 export function getDate() {

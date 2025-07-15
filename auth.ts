@@ -6,6 +6,7 @@ import { PrismaAdapter } from '@auth/prisma-adapter';
 import Credentials from 'next-auth/providers/credentials';
 
 import { User as ExtendedUser } from '@/lib/types';
+import { LOGIN, AUTH_ERROR } from '@/lib/constants';
 
 declare module 'next-auth' {
   interface User {
@@ -53,7 +54,7 @@ export const { auth, handlers, signIn, signOut, unstable_update } = NextAuth({
   ...authConfig,
   session: { strategy: 'jwt' },
   adapter: PrismaAdapter(prisma),
-  pages: { signIn: '/login', error: '/auth-error' },
+  pages: { signIn: LOGIN, error: AUTH_ERROR },
   events: {
     async linkAccount({ user }) {
       await prisma.user.update({

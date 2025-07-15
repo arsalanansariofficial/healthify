@@ -4,14 +4,30 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 
 import Footer from '@/components/footer';
-import * as CN from '@/components/ui/card';
 import { nameSchema } from '@/lib/schemas';
-import * as RHF from '@/components/ui/form';
 import { addSpeciality } from '@/lib/actions';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import useHookForm from '@/hooks/use-hook-form';
 import handler from '@/components/display-toast';
+
+import {
+  Form,
+  FormItem,
+  FormField,
+  FormLabel,
+  FormControl,
+  FormMessage
+} from '@/components/ui/form';
+
+import {
+  Card,
+  CardTitle,
+  CardFooter,
+  CardHeader,
+  CardContent,
+  CardDescription
+} from '@/components/ui/card';
 
 export default function Component() {
   const { pending, handleSubmit } = useHookForm(handler, addSpeciality);
@@ -23,47 +39,47 @@ export default function Component() {
 
   return (
     <div className="flex h-full flex-col gap-8 lg:mx-auto lg:w-10/12">
-      <CN.Card>
-        <CN.CardHeader>
-          <CN.CardTitle>Add Speciality</CN.CardTitle>
-          <CN.CardDescription>
+      <Card>
+        <CardHeader>
+          <CardTitle>Add Speciality</CardTitle>
+          <CardDescription>
             Add new speciality here. Click save when you&apos;re done.
-          </CN.CardDescription>
-        </CN.CardHeader>
-        <CN.CardContent>
-          <RHF.Form {...form}>
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <Form {...form}>
             <form
               id="speciality-form"
               className="space-y-2"
               onSubmit={form.handleSubmit(handleSubmit)}
             >
-              <RHF.FormField
+              <FormField
                 name="name"
                 control={form.control}
                 render={({ field }) => (
-                  <RHF.FormItem>
-                    <RHF.FormLabel>Name</RHF.FormLabel>
-                    <RHF.FormControl>
+                  <FormItem>
+                    <FormLabel>Name</FormLabel>
+                    <FormControl>
                       <Input
                         {...field}
                         type="text"
                         className="capitalize"
                         placeholder="Physician"
                       />
-                    </RHF.FormControl>
-                    <RHF.FormMessage />
-                  </RHF.FormItem>
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
                 )}
               />
             </form>
-          </RHF.Form>
-        </CN.CardContent>
-        <CN.CardFooter>
+          </Form>
+        </CardContent>
+        <CardFooter>
           <Button type="submit" disabled={pending} form="speciality-form">
             {pending ? 'Saving...' : 'Save'}
           </Button>
-        </CN.CardFooter>
-      </CN.Card>
+        </CardFooter>
+      </Card>
       <Footer />
     </div>
   );

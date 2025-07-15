@@ -3,7 +3,6 @@ import { notFound } from 'next/navigation';
 
 import { auth } from '@/auth';
 import prisma from '@/lib/prisma';
-import * as utils from '@/lib/actions';
 import Chart from '@/components/chart';
 import Header from '@/components/header';
 import Footer from '@/components/footer';
@@ -11,6 +10,13 @@ import Session from '@/components/session';
 import Sidebar from '@/components/sidebar';
 import { hasPermission } from '@/lib/utils';
 import { ChartConfig } from '@/components/ui/chart';
+
+import {
+  getDashboardCards,
+  getMonthlyUserData,
+  getUserDashboardCards,
+  getMonthlyAppointmentData
+} from '@/lib/actions';
 
 import {
   Card,
@@ -35,18 +41,18 @@ export default async function Page() {
   if (!session?.user) notFound();
 
   const user = session?.user as User;
-  const cardsData = await utils.getDashboardCards();
-  const chartData = await utils.getMonthlyUserData();
+  const cardsData = await getDashboardCards();
+  const chartData = await getMonthlyUserData();
 
   const users = (await prisma.user.findMany()).filter(
     user => user.email !== session?.user?.email
   );
 
-  const userCardsData = await utils.getUserDashboardCards(
+  const userCardsData = await getUserDashboardCards(
     session?.user?.id as string
   );
 
-  const userChartData = await utils.getMonthlyAppointmentData(
+  const userChartData = await getMonthlyAppointmentData(
     session.user.id as string
   );
 

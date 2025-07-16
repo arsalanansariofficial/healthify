@@ -12,7 +12,6 @@ import * as actions from '@/lib/actions';
 import { DoctorProps } from '@/lib/types';
 import * as CN from '@/components/ui/card';
 import * as RT from '@tanstack/react-table';
-import { hasPermission } from '@/lib/utils';
 import * as CNC from '@/components/ui/chart';
 import * as Icons from '@tabler/icons-react';
 import { Input } from '@/components/ui/input';
@@ -27,6 +26,7 @@ import * as DT from '@/components/ui/data-table';
 import * as Select from '@/components/ui/select';
 import * as DM from '@/components/ui/dropdown-menu';
 import { Checkbox } from '@/components/ui/checkbox';
+import { getDate, hasPermission } from '@/lib/utils';
 
 type TCVProps<T extends z.ZodType> = {
   item: z.infer<T>;
@@ -140,38 +140,14 @@ export function TableCellViewer<T extends z.ZodType>(props: TCVProps<T>) {
         toast(result.message, {
           position: 'top-center',
           onAutoClose: router.refresh,
-          description: (
-            <span className="text-foreground">
-              {new Date().toLocaleString('en-US', {
-                hour12: true,
-                month: 'long',
-                day: '2-digit',
-                weekday: 'long',
-                year: 'numeric',
-                hour: 'numeric',
-                minute: '2-digit'
-              })}
-            </span>
-          )
+          description: <span className="text-foreground">{getDate()}</span>
         });
       }
 
       if (!result?.success && result?.message) {
         toast(<h2 className="text-destructive">{result?.message}</h2>, {
           position: 'top-center',
-          description: (
-            <p className="text-destructive">
-              {new Date().toLocaleString('en-US', {
-                hour12: true,
-                month: 'long',
-                day: '2-digit',
-                weekday: 'long',
-                year: 'numeric',
-                hour: 'numeric',
-                minute: '2-digit'
-              })}
-            </p>
-          )
+          description: <p className="text-destructive">{getDate()}</p>
         });
       }
 

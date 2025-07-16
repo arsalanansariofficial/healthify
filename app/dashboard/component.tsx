@@ -19,7 +19,7 @@ import { Button } from '@/components/ui/button';
 import * as Drawer from '@/components/ui/drawer';
 import { useIsMobile } from '@/hooks/use-mobile';
 import * as Select from '@/components/ui/select';
-import { hasPermission, hasRole } from '@/lib/utils';
+import { getDate, hasPermission, hasRole } from '@/lib/utils';
 import { DoctorForm, useDoctorForm } from '@/app/doctors/add/component';
 
 type TCVProps<T extends z.ZodType> = {
@@ -63,38 +63,14 @@ export function TableCellViewer<T extends z.ZodType>(props: TCVProps<T>) {
         toast(result.message, {
           position: 'top-center',
           onAutoClose: router.refresh,
-          description: (
-            <span className="text-foreground">
-              {new Date().toLocaleString('en-US', {
-                hour12: true,
-                month: 'long',
-                day: '2-digit',
-                weekday: 'long',
-                year: 'numeric',
-                hour: 'numeric',
-                minute: '2-digit'
-              })}
-            </span>
-          )
+          description: <span className="text-foreground">{getDate()}</span>
         });
       }
 
       if (!result?.success && result?.message) {
         toast(<h2 className="text-destructive">{result?.message}</h2>, {
           position: 'top-center',
-          description: (
-            <p className="text-destructive">
-              {new Date().toLocaleString('en-US', {
-                hour12: true,
-                month: 'long',
-                day: '2-digit',
-                weekday: 'long',
-                year: 'numeric',
-                hour: 'numeric',
-                minute: '2-digit'
-              })}
-            </p>
-          )
+          description: <p className="text-destructive">{getDate()}</p>
         });
       }
 

@@ -5,6 +5,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { toast } from 'sonner';
 import { useState } from 'react';
+import { User } from 'next-auth';
 import { useActionState } from 'react';
 import { PlusIcon } from 'lucide-react';
 import { useRouter } from 'next/navigation';
@@ -12,7 +13,6 @@ import { Speciality } from '@prisma/client';
 import * as RT from '@tanstack/react-table';
 import * as Icons from '@tabler/icons-react';
 
-import { User } from '@/lib/types';
 import * as actions from '@/lib/actions';
 import * as CN from '@/components/ui/card';
 import { Input } from '@/components/ui/input';

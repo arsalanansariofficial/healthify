@@ -1,27 +1,65 @@
 'use client';
 
 import { z } from 'zod';
-import * as React from 'react';
 import { format } from 'date-fns';
-import * as Core from '@dnd-kit/core';
 import { CSS } from '@dnd-kit/utilities';
 import { useDebounce } from 'use-debounce';
-import * as RT from '@tanstack/react-table';
 import { CalendarIcon } from 'lucide-react';
-import * as Icons from '@tabler/icons-react';
-import * as Sortable from '@dnd-kit/sortable';
 import { restrictToVerticalAxis } from '@dnd-kit/modifiers';
+import React, { useId, useState, useMemo, useEffect } from 'react';
+
+import {
+  arrayMove,
+  useSortable,
+  SortableContext,
+  verticalListSortingStrategy
+} from '@dnd-kit/sortable';
+
+import {
+  IconChevronDown,
+  IconChevronLeft,
+  IconGripVertical,
+  IconChevronsLeft,
+  IconChevronRight,
+  IconLayoutColumns,
+  IconChevronsRight
+} from '@tabler/icons-react';
+
+import {
+  useSensor,
+  DndContext,
+  useSensors,
+  MouseSensor,
+  TouchSensor,
+  closestCenter,
+  KeyboardSensor,
+  type DragEndEvent,
+  type UniqueIdentifier
+} from '@dnd-kit/core';
+
+import {
+  type Row,
+  flexRender,
+  useReactTable,
+  type ColumnDef,
+  getCoreRowModel,
+  getSortedRowModel,
+  type SortingState,
+  getFacetedRowModel,
+  getFilteredRowModel,
+  type VisibilityState,
+  getPaginationRowModel,
+  getFacetedUniqueValues,
+  type ColumnFiltersState
+} from '@tanstack/react-table';
 
 import { getDate } from '@/lib/utils';
-import * as Tabs from '@/components/ui/tabs';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
-import * as Table from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
-import * as Select from '@/components/ui/select';
-import * as DM from '@/components/ui/dropdown-menu';
 import { Calendar } from '@/components/ui/calendar';
 import { TimePicker } from '@/components/time-picker';
+import { Tabs, TabsContent } from '@/components/ui/tabs';
 
 import {
   Popover,
@@ -29,11 +67,35 @@ import {
   PopoverTrigger
 } from '@/components/ui/popover';
 
-type DraggableRowProps<T extends z.ZodType> = { row: RT.Row<z.infer<T>> };
+import {
+  Table,
+  TableRow,
+  TableHead,
+  TableBody,
+  TableCell,
+  TableHeader
+} from '@/components/ui/table';
+
+import {
+  Select,
+  SelectItem,
+  SelectValue,
+  SelectTrigger,
+  SelectContent
+} from '@/components/ui/select';
+
+import {
+  DropdownMenu,
+  DropdownMenuTrigger,
+  DropdownMenuContent,
+  DropdownMenuCheckboxItem
+} from '@/components/ui/dropdown-menu';
+
+type DraggableRowProps<T extends z.ZodType> = { row: Row<z.infer<T>> };
 
 type DataTableProps<T extends z.ZodType> = {
   data: z.infer<T>[];
-  columns: RT.ColumnDef<z.infer<T>>[];
+  columns: ColumnDef<z.infer<T>>[];
   filterConfig: {
     id: string;
     placeholder: string;
@@ -42,7 +104,7 @@ type DataTableProps<T extends z.ZodType> = {
 };
 
 export function DragHandle({ id }: { id: number }) {
-  const { attributes, listeners } = Sortable.useSortable({ id });
+  const { attributes, listeners } = useSortable({ id });
 
   return (
     <Button
@@ -52,7 +114,7 @@ export function DragHandle({ id }: { id: number }) {
       variant="ghost"
       className="text-muted-foreground size-7 hover:bg-transparent"
     >
-      <Icons.IconGripVertical className="text-muted-foreground size-3" />
+      <IconGripVertical className="text-muted-foreground size-3" />
       <span className="sr-only">Drag to reorder</span>
     </Button>
   );
@@ -60,13 +122,12 @@ export function DragHandle({ id }: { id: number }) {
 
 export function DraggableRow<T extends z.ZodType>(props: DraggableRowProps<T>) {
   const { row } = props;
-  const { transform, transition, setNodeRef, isDragging } =
-    Sortable.useSortable({
-      id: row.original.id
-    });
+  const { transform, transition, setNodeRef, isDragging } = useSortable({
+    id: row.original.id
+  });
 
   return (
-    <Table.TableRow
+    <TableRow
       data-state={row.getIsSelected() && 'selected'}
       data-dragging={isDragging}
       ref={setNodeRef}
@@ -77,44 +138,42 @@ export function DraggableRow<T extends z.ZodType>(props: DraggableRowProps<T>) {
       }}
     >
       {row.getVisibleCells().map(cell => (
-        <Table.TableCell key={cell.id}>
-          {RT.flexRender(cell.column.columnDef.cell, cell.getContext())}
-        </Table.TableCell>
+        <TableCell key={cell.id}>
+          {flexRender(cell.column.columnDef.cell, cell.getContext())}
+        </TableCell>
       ))}
-    </Table.TableRow>
+    </TableRow>
   );
 }
 
 export function DataTable<T extends z.ZodType>(props: DataTableProps<T>) {
-  const sortableId = React.useId();
-  const [data, setData] = React.useState(() => props.data);
+  const sortableId = useId();
+  const [data, setData] = useState(() => props.data);
 
-  const [rowSelection, setRowSelection] = React.useState({});
-  const [sorting, setSorting] = React.useState<RT.SortingState>([]);
+  const [rowSelection, setRowSelection] = useState({});
+  const [sorting, setSorting] = useState<SortingState>([]);
 
-  const [columnFilters, setColumnFilters] =
-    React.useState<RT.ColumnFiltersState>([]);
+  const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
 
-  const [columnVisibility, setColumnVisibility] =
-    React.useState<RT.VisibilityState>({});
+  const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
 
-  const dataIds = React.useMemo<Core.UniqueIdentifier[]>(
+  const dataIds = useMemo<UniqueIdentifier[]>(
     () => data?.map(({ id }) => id) || [],
     [data]
   );
 
-  const [pagination, setPagination] = React.useState({
+  const [pagination, setPagination] = useState({
     pageIndex: 0,
     pageSize: 10
   });
 
-  const sensors = Core.useSensors(
-    Core.useSensor(Core.MouseSensor, {}),
-    Core.useSensor(Core.TouchSensor, {}),
-    Core.useSensor(Core.KeyboardSensor, {})
+  const sensors = useSensors(
+    useSensor(MouseSensor, {}),
+    useSensor(TouchSensor, {}),
+    useSensor(KeyboardSensor, {})
   );
 
-  const table = RT.useReactTable({
+  const table = useReactTable({
     data,
     columns: props.columns,
     state: {
@@ -129,17 +188,17 @@ export function DataTable<T extends z.ZodType>(props: DataTableProps<T>) {
     onPaginationChange: setPagination,
     getRowId: row => row.id.toString(),
     onRowSelectionChange: setRowSelection,
-    getCoreRowModel: RT.getCoreRowModel(),
+    getCoreRowModel: getCoreRowModel(),
     onColumnFiltersChange: setColumnFilters,
-    getSortedRowModel: RT.getSortedRowModel(),
-    getFacetedRowModel: RT.getFacetedRowModel(),
+    getSortedRowModel: getSortedRowModel(),
+    getFacetedRowModel: getFacetedRowModel(),
     onColumnVisibilityChange: setColumnVisibility,
-    getFilteredRowModel: RT.getFilteredRowModel(),
-    getPaginationRowModel: RT.getPaginationRowModel(),
-    getFacetedUniqueValues: RT.getFacetedUniqueValues()
+    getFilteredRowModel: getFilteredRowModel(),
+    getPaginationRowModel: getPaginationRowModel(),
+    getFacetedUniqueValues: getFacetedUniqueValues()
   });
 
-  const [filterValues, setFilterValues] = React.useState(() =>
+  const [filterValues, setFilterValues] = useState(() =>
     props.filterConfig.reduce(
       (acc, filter) => {
         acc[filter.id] =
@@ -152,25 +211,25 @@ export function DataTable<T extends z.ZodType>(props: DataTableProps<T>) {
 
   const [debouncedFilterValues] = useDebounce(filterValues, 300);
 
-  React.useEffect(() => {
+  useEffect(() => {
     Object.entries(debouncedFilterValues).forEach(([id, value]) => {
       table.getColumn(id)?.setFilterValue(value);
     });
   }, [debouncedFilterValues, table]);
 
-  function handleDragEnd(event: Core.DragEndEvent) {
+  function handleDragEnd(event: DragEndEvent) {
     const { active, over } = event;
     if (active && over && active.id !== over.id) {
       setData(data => {
         const oldIndex = dataIds.indexOf(active.id);
         const newIndex = dataIds.indexOf(over.id);
-        return Sortable.arrayMove(data, oldIndex, newIndex);
+        return arrayMove(data, oldIndex, newIndex);
       });
     }
   }
 
   return (
-    <Tabs.Tabs
+    <Tabs
       defaultValue="outline"
       className="w-full flex-col justify-start gap-6"
     >
@@ -255,16 +314,16 @@ export function DataTable<T extends z.ZodType>(props: DataTableProps<T>) {
           })}
         </div>
         <div className="flex items-center gap-2">
-          <DM.DropdownMenu>
-            <DM.DropdownMenuTrigger asChild>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
               <Button variant="outline" size="sm" className="h-full">
-                <Icons.IconLayoutColumns />
+                <IconLayoutColumns />
                 <span className="hidden lg:inline">Customize Columns</span>
                 <span className="lg:hidden">Columns</span>
-                <Icons.IconChevronDown />
+                <IconChevronDown />
               </Button>
-            </DM.DropdownMenuTrigger>
-            <DM.DropdownMenuContent align="end" className="w-56">
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-56">
               {table
                 .getAllColumns()
                 .filter(
@@ -274,7 +333,7 @@ export function DataTable<T extends z.ZodType>(props: DataTableProps<T>) {
                 )
                 .map(column => {
                   return (
-                    <DM.DropdownMenuCheckboxItem
+                    <DropdownMenuCheckboxItem
                       key={column.id}
                       className="capitalize"
                       checked={column.getIsVisible()}
@@ -283,70 +342,67 @@ export function DataTable<T extends z.ZodType>(props: DataTableProps<T>) {
                       }
                     >
                       {column.id}
-                    </DM.DropdownMenuCheckboxItem>
+                    </DropdownMenuCheckboxItem>
                   );
                 })}
-            </DM.DropdownMenuContent>
-          </DM.DropdownMenu>
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
       </div>
-      <Tabs.TabsContent
+      <TabsContent
         value="outline"
         className="relative flex flex-col gap-4 overflow-auto"
       >
         <div className="overflow-hidden rounded-lg border">
-          <Core.DndContext
+          <DndContext
             id={sortableId}
             sensors={sensors}
             onDragEnd={handleDragEnd}
-            collisionDetection={Core.closestCenter}
+            collisionDetection={closestCenter}
             modifiers={[restrictToVerticalAxis]}
           >
-            <Table.Table>
-              <Table.TableHeader className="bg-muted sticky top-0 z-10">
+            <Table>
+              <TableHeader className="bg-muted sticky top-0 z-10">
                 {table.getHeaderGroups().map(headerGroup => (
-                  <Table.TableRow key={headerGroup.id}>
+                  <TableRow key={headerGroup.id}>
                     {headerGroup.headers.map(header => {
                       return (
-                        <Table.TableHead
-                          key={header.id}
-                          colSpan={header.colSpan}
-                        >
+                        <TableHead key={header.id} colSpan={header.colSpan}>
                           {!header.isPlaceholder &&
-                            RT.flexRender(
+                            flexRender(
                               header.column.columnDef.header,
                               header.getContext()
                             )}
-                        </Table.TableHead>
+                        </TableHead>
                       );
                     })}
-                  </Table.TableRow>
+                  </TableRow>
                 ))}
-              </Table.TableHeader>
-              <Table.TableBody className="**:data-[slot=table-cell]:first:w-8">
+              </TableHeader>
+              <TableBody className="**:data-[slot=table-cell]:first:w-8">
                 {table.getRowModel().rows?.length === 0 && (
-                  <Table.TableRow>
-                    <Table.TableCell
+                  <TableRow>
+                    <TableCell
                       className="text-center"
                       colSpan={props.columns.length}
                     >
                       No results.
-                    </Table.TableCell>
-                  </Table.TableRow>
+                    </TableCell>
+                  </TableRow>
                 )}
                 {table.getRowModel().rows?.length > 0 && (
-                  <Sortable.SortableContext
+                  <SortableContext
                     items={dataIds}
-                    strategy={Sortable.verticalListSortingStrategy}
+                    strategy={verticalListSortingStrategy}
                   >
                     {table.getRowModel().rows.map(row => (
                       <DraggableRow key={row.id} row={row} />
                     ))}
-                  </Sortable.SortableContext>
+                  </SortableContext>
                 )}
-              </Table.TableBody>
-            </Table.Table>
-          </Core.DndContext>
+              </TableBody>
+            </Table>
+          </DndContext>
         </div>
         <div className="px-4- flex items-center justify-between">
           <div className="text-muted-foreground hidden flex-1 text-sm lg:flex">
@@ -358,29 +414,25 @@ export function DataTable<T extends z.ZodType>(props: DataTableProps<T>) {
               <Label htmlFor="rows-per-page" className="text-sm font-medium">
                 Rows per page
               </Label>
-              <Select.Select
+              <Select
                 value={`${table.getState().pagination.pageSize}`}
                 onValueChange={value => {
                   table.setPageSize(Number(value));
                 }}
               >
-                <Select.SelectTrigger
-                  size="sm"
-                  className="w-20"
-                  id="rows-per-page"
-                >
-                  <Select.SelectValue
+                <SelectTrigger size="sm" className="w-20" id="rows-per-page">
+                  <SelectValue
                     placeholder={table.getState().pagination.pageSize}
                   />
-                </Select.SelectTrigger>
-                <Select.SelectContent side="top">
+                </SelectTrigger>
+                <SelectContent side="top">
                   {[10, 20, 30, 40, 50].map(pageSize => (
-                    <Select.SelectItem key={pageSize} value={`${pageSize}`}>
+                    <SelectItem key={pageSize} value={`${pageSize}`}>
                       {pageSize}
-                    </Select.SelectItem>
+                    </SelectItem>
                   ))}
-                </Select.SelectContent>
-              </Select.Select>
+                </SelectContent>
+              </Select>
             </div>
             <div className="flex w-fit items-center justify-center text-sm font-medium">
               Page {table.getState().pagination.pageIndex + 1} of&nbsp;
@@ -394,7 +446,7 @@ export function DataTable<T extends z.ZodType>(props: DataTableProps<T>) {
                 onClick={() => table.setPageIndex(0)}
               >
                 <span className="sr-only">Go to first page</span>
-                <Icons.IconChevronsLeft />
+                <IconChevronsLeft />
               </Button>
               <Button
                 size="icon"
@@ -404,7 +456,7 @@ export function DataTable<T extends z.ZodType>(props: DataTableProps<T>) {
                 onClick={() => table.previousPage()}
               >
                 <span className="sr-only">Go to previous page</span>
-                <Icons.IconChevronLeft />
+                <IconChevronLeft />
               </Button>
               <Button
                 size="icon"
@@ -414,7 +466,7 @@ export function DataTable<T extends z.ZodType>(props: DataTableProps<T>) {
                 onClick={() => table.nextPage()}
               >
                 <span className="sr-only">Go to next page</span>
-                <Icons.IconChevronRight />
+                <IconChevronRight />
               </Button>
               <Button
                 size="icon"
@@ -424,12 +476,12 @@ export function DataTable<T extends z.ZodType>(props: DataTableProps<T>) {
                 onClick={() => table.setPageIndex(table.getPageCount() - 1)}
               >
                 <span className="sr-only">Go to last page</span>
-                <Icons.IconChevronsRight />
+                <IconChevronsRight />
               </Button>
             </div>
           </div>
         </div>
-      </Tabs.TabsContent>
-    </Tabs.Tabs>
+      </TabsContent>
+    </Tabs>
   );
 }

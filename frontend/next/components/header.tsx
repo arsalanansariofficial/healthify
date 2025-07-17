@@ -12,8 +12,17 @@ import { cn } from '@/lib/utils';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { DASHBOARD, HOME } from '@/lib/constants';
-import * as DM from '@/components/ui/dropdown-menu';
 import { Card, CardContent } from '@/components/ui/card';
+
+import {
+  DropdownMenu,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuGroup,
+  DropdownMenuContent,
+  DropdownMenuTrigger,
+  DropdownMenuSeparator
+} from '@/components/ui/dropdown-menu';
 
 export default function Header() {
   const { theme, setTheme } = useTheme();
@@ -74,8 +83,8 @@ export default function Header() {
               placeholder="Search..."
               className="placeholder:text-muted-foreground hidden placeholder:font-semibold md:block"
             />
-            <DM.DropdownMenu>
-              <DM.DropdownMenuTrigger asChild>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
                 <button>
                   <FontAwesomeIcon
                     size="lg"
@@ -83,19 +92,19 @@ export default function Header() {
                     className="h-5 w-5"
                   />
                 </button>
-              </DM.DropdownMenuTrigger>
-              <DM.DropdownMenuContent>
-                <DM.DropdownMenuLabel>My Account</DM.DropdownMenuLabel>
-                <DM.DropdownMenuGroup>
-                  <DM.DropdownMenuItem>Profile</DM.DropdownMenuItem>
-                  <DM.DropdownMenuItem>Settings</DM.DropdownMenuItem>
-                </DM.DropdownMenuGroup>
-                <DM.DropdownMenuSeparator />
-                <DM.DropdownMenuItem onClick={() => signOut()}>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent>
+                <DropdownMenuLabel>My Account</DropdownMenuLabel>
+                <DropdownMenuGroup>
+                  <DropdownMenuItem>Profile</DropdownMenuItem>
+                  <DropdownMenuItem>Settings</DropdownMenuItem>
+                </DropdownMenuGroup>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={() => signOut()}>
                   Signout
-                </DM.DropdownMenuItem>
-              </DM.DropdownMenuContent>
-            </DM.DropdownMenu>
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
             <Button
               size="icon"
               variant="ghost"

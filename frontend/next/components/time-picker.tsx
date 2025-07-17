@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo } from 'react';
+import { useCallback, useMemo } from 'react';
 import { format, parse, setHours, setMinutes } from 'date-fns';
 
 import {
@@ -35,23 +35,22 @@ export function TimePicker({ value, onChange, label }: Props) {
     i.toString().padStart(2, '0')
   );
 
-  function update(
-    newHours?: string,
-    newMinutes?: string,
-    newPeriod?: 'AM' | 'PM'
-  ) {
-    const hrs = Number(newHours ?? hours12);
-    const mins = Number(newMinutes ?? minutes);
-    const meridiem = newPeriod ?? period;
+  const update = useCallback(
+    (newHours?: string, newMinutes?: string, newPeriod?: 'AM' | 'PM') => {
+      const hrs = Number(newHours ?? hours12);
+      const mins = Number(newMinutes ?? minutes);
+      const meridiem = newPeriod ?? period;
 
-    let h24 = hrs % 12;
-    if (meridiem === 'PM') h24 += 12;
+      let h24 = hrs % 12;
+      if (meridiem === 'PM') h24 += 12;
 
-    let newDate = setHours(date, h24);
-    newDate = setMinutes(newDate, mins);
+      let newDate = setHours(date, h24);
+      newDate = setMinutes(newDate, mins);
 
-    onChange(format(newDate, 'HH:mm:ss'));
-  }
+      onChange(format(newDate, 'HH:mm:ss'));
+    },
+    [date, hours12, minutes, onChange, period]
+  );
 
   return (
     <div className="flex flex-col gap-2">

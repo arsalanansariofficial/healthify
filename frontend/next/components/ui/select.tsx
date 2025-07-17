@@ -1,49 +1,58 @@
 'use client';
 
-import * as React from 'react';
-import * as SelectPrimitive from '@radix-ui/react-select';
-import { CheckIcon, ChevronDownIcon, ChevronUpIcon } from 'lucide-react';
+import { Group, CheckIcon, ChevronUpIcon, ChevronDownIcon } from 'lucide-react';
+
+import {
+  Item,
+  Root,
+  Icon,
+  Label,
+  Value,
+  Portal,
+  Content,
+  Trigger,
+  ItemText,
+  Viewport,
+  Separator,
+  ItemIndicator,
+  ScrollUpButton,
+  ScrollDownButton
+} from '@radix-ui/react-select';
 
 import { cn } from '@/lib/utils';
 
-type SelectProps = React.ComponentProps<typeof SelectPrimitive.Root>;
-type SelectItemProps = React.ComponentProps<typeof SelectPrimitive.Item>;
-type SelectGroupProps = React.ComponentProps<typeof SelectPrimitive.Group>;
-type SelectValueProps = React.ComponentProps<typeof SelectPrimitive.Value>;
-type SelectLabelProps = React.ComponentProps<typeof SelectPrimitive.Label>;
-type SelectContentProps = React.ComponentProps<typeof SelectPrimitive.Content>;
+type SelectProps = React.ComponentProps<typeof Root>;
+type SelectItemProps = React.ComponentProps<typeof Item>;
+type SelectGroupProps = React.ComponentProps<typeof Group>;
+type SelectValueProps = React.ComponentProps<typeof Value>;
+type SelectLabelProps = React.ComponentProps<typeof Label>;
+type SelectContentProps = React.ComponentProps<typeof Content>;
 
-type SelectSeparatorProps = React.ComponentProps<
-  typeof SelectPrimitive.Separator
->;
+type SelectSeparatorProps = React.ComponentProps<typeof Separator>;
 
-type SelectScrollUpProps = React.ComponentProps<
-  typeof SelectPrimitive.ScrollUpButton
->;
+type SelectScrollUpProps = React.ComponentProps<typeof ScrollUpButton>;
 
-type SelectScrollDownProps = React.ComponentProps<
-  typeof SelectPrimitive.ScrollDownButton
->;
+type SelectScrollDownProps = React.ComponentProps<typeof ScrollDownButton>;
 
-type SelectTriggerProps = React.ComponentProps<
-  typeof SelectPrimitive.Trigger
-> & { size?: 'sm' | 'default' };
+type SelectTriggerProps = React.ComponentProps<typeof Trigger> & {
+  size?: 'sm' | 'default';
+};
 
 export function Select({ ...props }: SelectProps) {
-  return <SelectPrimitive.Root data-slot="select" {...props} />;
+  return <Root data-slot="select" {...props} />;
 }
 
 export function SelectGroup({ ...props }: SelectGroupProps) {
-  return <SelectPrimitive.Group data-slot="select-group" {...props} />;
+  return <Group data-slot="select-group" {...props} />;
 }
 
 export function SelectValue({ ...props }: SelectValueProps) {
-  return <SelectPrimitive.Value data-slot="select-value" {...props} />;
+  return <Value data-slot="select-value" {...props} />;
 }
 
 export function SelectLabel({ className, ...props }: SelectLabelProps) {
   return (
-    <SelectPrimitive.Label
+    <Label
       {...props}
       data-slot="select-label"
       className={cn('text-muted-foreground px-2 py-1.5 text-xs', className)}
@@ -53,7 +62,7 @@ export function SelectLabel({ className, ...props }: SelectLabelProps) {
 
 export function SelectSeparator({ className, ...props }: SelectSeparatorProps) {
   return (
-    <SelectPrimitive.Separator
+    <Separator
       {...props}
       data-slot="select-separator"
       className={cn('bg-border pointer-events-none -mx-1 my-1 h-px', className)}
@@ -63,7 +72,7 @@ export function SelectSeparator({ className, ...props }: SelectSeparatorProps) {
 
 export function SelectScrollDownButton(props: SelectScrollDownProps) {
   return (
-    <SelectPrimitive.ScrollDownButton
+    <ScrollDownButton
       {...props}
       data-slot="select-scroll-down-button"
       className={cn(
@@ -72,13 +81,13 @@ export function SelectScrollDownButton(props: SelectScrollDownProps) {
       )}
     >
       <ChevronDownIcon className="size-4" />
-    </SelectPrimitive.ScrollDownButton>
+    </ScrollDownButton>
   );
 }
 
 export function SelectScrollUpButton(props: SelectScrollUpProps) {
   return (
-    <SelectPrimitive.ScrollUpButton
+    <ScrollUpButton
       {...props}
       data-slot="select-scroll-up-button"
       className={cn(
@@ -87,13 +96,13 @@ export function SelectScrollUpButton(props: SelectScrollUpProps) {
       )}
     >
       <ChevronUpIcon className="size-4" />
-    </SelectPrimitive.ScrollUpButton>
+    </ScrollUpButton>
   );
 }
 
 export function SelectItem({ className, children, ...props }: SelectItemProps) {
   return (
-    <SelectPrimitive.Item
+    <Item
       {...props}
       data-slot="select-item"
       className={cn(
@@ -102,12 +111,12 @@ export function SelectItem({ className, children, ...props }: SelectItemProps) {
       )}
     >
       <span className="absolute right-2 flex size-3.5 items-center justify-center">
-        <SelectPrimitive.ItemIndicator>
+        <ItemIndicator>
           <CheckIcon className="size-4" />
-        </SelectPrimitive.ItemIndicator>
+        </ItemIndicator>
       </span>
-      <SelectPrimitive.ItemText>{children}</SelectPrimitive.ItemText>
-    </SelectPrimitive.Item>
+      <ItemText>{children}</ItemText>
+    </Item>
   );
 }
 
@@ -116,7 +125,7 @@ export function SelectTrigger({
   ...props
 }: SelectTriggerProps) {
   return (
-    <SelectPrimitive.Trigger
+    <Trigger
       {...props}
       data-size={size}
       data-slot="select-trigger"
@@ -126,10 +135,10 @@ export function SelectTrigger({
       )}
     >
       {props.children}
-      <SelectPrimitive.Icon asChild>
+      <Icon asChild>
         <ChevronDownIcon className="size-4 opacity-50" />
-      </SelectPrimitive.Icon>
-    </SelectPrimitive.Trigger>
+      </Icon>
+    </Trigger>
   );
 }
 
@@ -138,8 +147,8 @@ export function SelectContent({
   ...props
 }: SelectContentProps) {
   return (
-    <SelectPrimitive.Portal>
-      <SelectPrimitive.Content
+    <Portal>
+      <Content
         {...props}
         position={position}
         data-slot="select-content"
@@ -151,7 +160,7 @@ export function SelectContent({
         )}
       >
         <SelectScrollUpButton />
-        <SelectPrimitive.Viewport
+        <Viewport
           className={cn(
             'p-1',
             position === 'popper' &&
@@ -159,9 +168,9 @@ export function SelectContent({
           )}
         >
           {props.children}
-        </SelectPrimitive.Viewport>
+        </Viewport>
         <SelectScrollDownButton />
-      </SelectPrimitive.Content>
-    </SelectPrimitive.Portal>
+      </Content>
+    </Portal>
   );
 }

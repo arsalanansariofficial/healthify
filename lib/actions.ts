@@ -607,32 +607,43 @@ export async function forgetPassword(
 
 export async function updateUser(
   id: string,
-  _: unknown,
-  formData: FormData
+  { name, email, password, emailVerified }: z.infer<typeof schemas.userSchema>
 ): Promise<FormState | undefined> {
-  const name = formData.get('name') as string;
-  const email = formData.get('email') as string;
-  const password = formData.get('password') as string;
-  const emailVerified = formData.get('verified') as string;
   const response = { name, email, password, emailVerified };
-  const result = formSchema.safeParse({
+  const result = schemas.userSchema.safeParse({
     name,
     email,
-    emailVerified,
-    password: password ? password : undefined
+    password,
+    emailVerified
   });
 
   if (!result.success) {
     return { ...response, errors: result.error.flatten().fieldErrors };
   }
 
-  await prisma.$transaction(async function (transaction) {
-    const user = await transaction.user.findUnique({ where: { id } });
-    const existingUser = await transaction.user.findUnique({
-      where: { email }
+  try {
+    const user = await prisma.$transaction(async function (transaction) {
+      let existingUser;
+      const user = await transaction.user.findUnique({ where: { id } });
+
+      if (email) {
+        existingUser = await transaction.user.findUnique({ where: { email } });
+      }
+
+      if (email && email !== user?.email && existingUser) return;
+
+      return await prisma.user.update({
+        where: { id },
+        data: {
+          name: result.data.name,
+          email: result.data.email,
+          password: password ? await bcrypt.hash(password, 10) : undefined,
+          emailVerified: result.data.emailVerified === 'yes' ? new Date() : null
+        }
+      });
     });
 
-    if (email !== user?.email && existingUser) {
+    if (!user) {
       return {
         ...response,
         success: false,
@@ -641,22 +652,19 @@ export async function updateUser(
       };
     }
 
-    return await prisma.user.update({
-      where: { id },
-      data: {
-        name: result.data.name,
-        email: result.data.email,
-        password: password ? await bcrypt.hash(password, 10) : undefined,
-        emailVerified: result.data.emailVerified === 'yes' ? new Date() : null
-      }
-    });
-  });
-
-  return {
-    ...response,
-    success: true,
-    message: '🎉 Profile updated successfully.'
-  };
+    revalidatePath('/');
+    return {
+      ...response,
+      success: true,
+      message: '🎉 Profile updated successfully.'
+    };
+  } catch {
+    return {
+      ...response,
+      success: false,
+      message: CONST.SERVER_ERROR_MESSAGE
+    };
+  }
 }
 
 export async function signup(

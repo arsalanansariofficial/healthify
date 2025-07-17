@@ -4,7 +4,6 @@ import { User } from 'next-auth';
 import { User as PrismaUser } from '@prisma/client';
 import { Bar, BarChart, CartesianGrid, XAxis } from 'recharts';
 
-import { DoctorProps } from '@/lib/types';
 import * as CN from '@/components/ui/card';
 import { hasPermission } from '@/lib/utils';
 import * as CNC from '@/components/ui/chart';
@@ -13,7 +12,6 @@ type Props = {
   user: User;
   users: PrismaUser[];
   chartConfig: CNC.ChartConfig;
-  specialities: DoctorProps['specialities'];
   chartData: { month: string; users: number }[];
   cardsData: {
     title: string;

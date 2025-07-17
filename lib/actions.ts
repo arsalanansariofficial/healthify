@@ -11,6 +11,7 @@ import { AuthError } from 'next-auth';
 import { revalidatePath } from 'next/cache';
 
 import * as CONST from '@/lib/constants';
+import * as schemas from '@/lib/schemas';
 import { auth, signIn, unstable_update as update } from '@/auth';
 
 const dir = path.join(process.cwd(), CONST.USER_DIR);
@@ -90,11 +91,7 @@ const formSchema = z.object({
     .email({ message: 'Email should be valid.' })
     .optional()
     .nullable(),
-  emailVerified: z
-    .enum(['yes', 'no'])
-    .transform(val => val === 'yes')
-    .optional()
-    .nullable(),
+  emailVerified: z.enum(['yes', 'no']).optional().nullable(),
   password: z
     .string()
     .min(1, { message: 'Password should be valid.' })
@@ -511,12 +508,11 @@ export async function verifyToken(id: string): Promise<FormState> {
 }
 
 export async function login(
-  _: unknown,
-  formData: FormData
+  data: z.infer<typeof schemas.loginSchema>
 ): Promise<FormState | undefined> {
-  const email = formData.get('email') as string;
-  const password = formData.get('password') as string;
-  const result = formSchema.safeParse({ email, password });
+  const email = data.email as string;
+  const password = data.password as string;
+  const result = schemas.loginSchema.safeParse({ email, password });
 
   if (!result.success) {
     return {
@@ -650,8 +646,8 @@ export async function updateUser(
       data: {
         name: result.data.name,
         email: result.data.email,
-        emailVerified: result.data.emailVerified ? new Date() : null,
-        password: password ? await bcrypt.hash(password, 10) : undefined
+        password: password ? await bcrypt.hash(password, 10) : undefined,
+        emailVerified: result.data.emailVerified === 'yes' ? new Date() : null
       }
     });
   });

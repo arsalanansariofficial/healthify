@@ -1,40 +1,36 @@
 'use client';
 
+import z from 'zod';
 import Link from 'next/link';
-import { toast } from 'sonner';
-import { useActionState } from 'react';
 import { signIn } from 'next-auth/react';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
 
-import { getDate } from '@/lib/utils';
-import { signup } from '@/lib/actions';
 import * as CN from '@/components/ui/card';
+import * as RHF from '@/components/ui/form';
+import { signupSchema } from '@/lib/schemas';
 import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
+import useHookForm from '@/hooks/use-hook-form';
+import handler from '@/components/display-toast';
+import { FormState, signup } from '@/lib/actions';
+
+type Schema = z.infer<typeof signupSchema>;
 
 export default function Page() {
-  const [state, action, pending] = useActionState(async function (
-    prevState: unknown,
-    formData: FormData
-  ) {
-    const result = await signup(prevState, formData);
-
-    if (result?.success) {
-      toast(result.message, {
-        position: 'top-center',
-        description: <span className="text-foreground">{getDate()}</span>
-      });
+  const form = useForm<Schema>({
+    resolver: zodResolver(signupSchema),
+    defaultValues: {
+      name: String(),
+      email: String(),
+      password: String()
     }
+  });
 
-    if (!result?.success && result?.message) {
-      toast(<h2 className="text-destructive">{result?.message}</h2>, {
-        position: 'top-center',
-        description: <p className="text-destructive">{getDate()}</p>
-      });
-    }
-
-    return result;
-  }, undefined);
+  const { pending, handleSubmit } = useHookForm<Schema, FormState>(
+    handler,
+    signup
+  );
 
   return (
     <section className="col-span-2 grid place-items-center gap-4 place-self-center">
@@ -51,56 +47,71 @@ export default function Page() {
           </CN.CardAction>
         </CN.CardHeader>
         <CN.CardContent>
-          <form id="signup-form" className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="name">Name</Label>
-              <Input
-                id="name"
+          <RHF.Form {...form}>
+            <form
+              id="signup-form"
+              className="space-y-2"
+              onSubmit={form.handleSubmit(handleSubmit)}
+            >
+              <RHF.FormField
                 name="name"
-                type="text"
-                defaultValue={state?.name}
-                placeholder="Gwen Tennyson"
+                control={form.control}
+                render={({ field }) => (
+                  <RHF.FormItem>
+                    <RHF.FormLabel>Name</RHF.FormLabel>
+                    <RHF.FormControl>
+                      <Input
+                        {...field}
+                        type="text"
+                        placeholder="Gwen Tennyson"
+                      />
+                    </RHF.FormControl>
+                    <RHF.FormMessage />
+                  </RHF.FormItem>
+                )}
               />
-              {state?.errors?.name && (
-                <p className="text-destructive text-xs">{state.errors.name}</p>
-              )}
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="email">Email</Label>
-              <Input
-                id="email"
+              <RHF.FormField
                 name="email"
-                type="email"
-                defaultValue={state?.email}
-                placeholder="your.name@domain.com"
+                control={form.control}
+                render={({ field }) => (
+                  <RHF.FormItem>
+                    <RHF.FormLabel>Email</RHF.FormLabel>
+                    <RHF.FormControl>
+                      <Input
+                        {...field}
+                        type="email"
+                        placeholder="your.name@domain.com"
+                      />
+                    </RHF.FormControl>
+                    <RHF.FormMessage />
+                  </RHF.FormItem>
+                )}
               />
-              {state?.errors?.email && (
-                <p className="text-destructive text-xs">{state.errors.email}</p>
-              )}
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="password">Password</Label>
-              <Input
-                id="password"
+              <RHF.FormField
                 name="password"
-                type="password"
-                placeholder="Password@123"
-                defaultValue={state?.password}
+                control={form.control}
+                render={({ field }) => (
+                  <RHF.FormItem>
+                    <RHF.FormLabel>Password</RHF.FormLabel>
+                    <RHF.FormControl>
+                      <Input
+                        {...field}
+                        type="password"
+                        placeholder="Secret@123"
+                      />
+                    </RHF.FormControl>
+                    <RHF.FormMessage />
+                  </RHF.FormItem>
+                )}
               />
-              {state?.errors?.password && (
-                <p className="text-destructive text-xs">
-                  {state.errors.password}
-                </p>
-              )}
-            </div>
-          </form>
+            </form>
+          </RHF.Form>
         </CN.CardContent>
         <CN.CardFooter className="grid gap-2">
           <Button
             type="submit"
             form="signup-form"
             disabled={pending}
-            formAction={action}
             className="cursor-pointer"
           >
             {pending ? 'Signing up...' : 'Signup'}

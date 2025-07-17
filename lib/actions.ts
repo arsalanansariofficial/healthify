@@ -525,6 +525,43 @@ export async function login(
   return await loginWithCredentials({ email, password });
 }
 
+export async function signup(
+  data: z.infer<typeof schemas.signupSchema>
+): Promise<FormState | undefined> {
+  const result = formSchema.safeParse(data);
+
+  if (!result.success) {
+    return { ...data, errors: result.error.flatten().fieldErrors };
+  }
+
+  try {
+    const user = await prisma.user.findUnique({
+      where: { email: result.data.email as string }
+    });
+
+    if (user) return { ...data, message: '⚠️ Email already exist!' };
+
+    await prisma.$transaction(async function (transaction) {
+      const role = await transaction.role.findUnique({
+        where: { name: 'USER' }
+      });
+
+      return await transaction.user.create({
+        data: {
+          name: result.data.name,
+          email: result.data.email,
+          roles: { connect: { id: role?.id } },
+          password: await bcrypt.hash(result.data.password as string, 10)
+        }
+      });
+    });
+  } catch {
+    return { ...data, success: false, message: CONST.SERVER_ERROR_MESSAGE };
+  }
+
+  return loginWithCredentials(data);
+}
+
 export default async function seed(): Promise<FormState | undefined> {
   try {
     await prisma.user.create({
@@ -667,7 +704,7 @@ export async function updateUser(
   }
 }
 
-export async function signup(
+export async function addDoctor(
   _: unknown,
   formData: FormData
 ): Promise<FormState | undefined> {

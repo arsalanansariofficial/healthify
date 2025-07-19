@@ -1,35 +1,23 @@
 'use client';
 
-import { toast } from 'sonner';
-import { useActionState } from 'react';
+import z from 'zod';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
 
 import seed from '@/lib/actions';
-import { getDate } from '@/lib/utils';
 import * as CN from '@/components/ui/card';
+import { seedSchema } from '@/lib/schemas';
+import * as RHF from '@/components/ui/form';
 import { Button } from '@/components/ui/button';
+import useHookForm from '@/hooks/use-hook-form';
+import handler from '@/components/display-toast';
 
 export default function Page() {
-  const actionState = useActionState(async function () {
-    const result = await seed();
+  const { handleSubmit, pending } = useHookForm(handler, seed);
 
-    if (result?.success) {
-      toast(result.message, {
-        position: 'top-center',
-        description: <span className="text-foreground">{getDate()}</span>
-      });
-    }
-
-    if (!result?.success && result?.message) {
-      toast(<h2 className="text-destructive">{result?.message}</h2>, {
-        position: 'top-center',
-        description: <p className="text-destructive">{getDate()}</p>
-      });
-    }
-
-    return result;
-  }, undefined);
-
-  const [action, pending] = [actionState[1], actionState[2]];
+  const form = useForm<z.infer<typeof seedSchema>>({
+    resolver: zodResolver(seedSchema)
+  });
 
   return (
     <section className="col-span-2 grid place-items-center place-self-center">
@@ -42,16 +30,24 @@ export default function Page() {
             environments.
           </CN.CardDescription>
         </CN.CardHeader>
+        <CN.CardContent>
+          <RHF.Form {...form}>
+            <form
+              id="seed-form"
+              className="space-y-2"
+              onSubmit={form.handleSubmit(handleSubmit)}
+            ></form>
+          </RHF.Form>
+        </CN.CardContent>
         <CN.CardFooter className="block">
-          <form action={action} className="w-full">
-            <Button
-              type="submit"
-              disabled={pending}
-              className="w-full cursor-pointer"
-            >
-              {pending ? 'Seeding...' : 'Seed database'}
-            </Button>
-          </form>
+          <Button
+            type="submit"
+            form="seed-form"
+            disabled={pending}
+            className="w-full cursor-pointer"
+          >
+            {pending ? 'Seeding...' : 'Seed database'}
+          </Button>
         </CN.CardFooter>
       </CN.Card>
     </section>

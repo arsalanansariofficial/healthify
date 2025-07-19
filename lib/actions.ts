@@ -420,21 +420,22 @@ export async function addSpeciality(
 }
 
 export async function addRole(
-  _: unknown,
-  formData: FormData
+  data: z.infer<typeof schemas.roleSchema>
 ): Promise<FormState | undefined> {
-  const role = formData.get('role') as string;
-  const result = formSchema.safeParse({ role });
+  const result = schemas.roleSchema.safeParse(data);
 
   if (!result.success) {
-    return { role, errors: result.error.flatten().fieldErrors };
+    return { ...data, errors: result.error.flatten().fieldErrors };
   }
 
   try {
-    await prisma.role.create({ data: { name: result.data.role as string } });
-    return { role, success: true, message: '🎉 Role added successfully!' };
+    await prisma.role.create({
+      data: { name: result.data.name.toUpperCase() }
+    });
+
+    return { ...data, success: true, message: '🎉 Role added successfully!' };
   } catch {
-    return { role, success: false, message: CONST.SERVER_ERROR_MESSAGE };
+    return { ...data, success: false, message: CONST.SERVER_ERROR_MESSAGE };
   }
 }
 

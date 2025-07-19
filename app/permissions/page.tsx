@@ -1,72 +1,65 @@
 'use client';
 
-import { toast } from 'sonner';
-import { useActionState } from 'react';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
 
-import { getDate } from '@/lib/utils';
 import * as CN from '@/components/ui/card';
-import { addPermission } from '@/lib/actions';
+import * as RHF from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
+import { addPermission } from '@/lib/actions';
 import { Button } from '@/components/ui/button';
+import useHookForm from '@/hooks/use-hook-form';
+import handler from '@/components/display-toast';
+import { permissionSchema } from '@/lib/schemas';
 
 export default function Page() {
-  const [state, action, pending] = useActionState(async function (
-    prevState: unknown,
-    formData: FormData
-  ) {
-    const result = await addPermission(prevState, formData);
+  const { pending, handleSubmit } = useHookForm(handler, addPermission);
 
-    if (result?.success) {
-      toast(result.message, {
-        position: 'top-center',
-        description: <span className="text-foreground">{getDate()}</span>
-      });
-    }
-
-    if (!result?.success && result?.message) {
-      toast(<h2 className="text-destructive">{result?.message}</h2>, {
-        position: 'top-center',
-        description: <p className="text-destructive">{getDate()}</p>
-      });
-    }
-
-    return result;
-  }, undefined);
+  const form = useForm({
+    resolver: zodResolver(permissionSchema),
+    defaultValues: { name: String() }
+  });
 
   return (
     <section className="col-span-2 grid place-items-center gap-4 place-self-center lg:col-start-2">
       <CN.Card className="min-w-sm">
         <CN.CardHeader>
-          <CN.CardTitle>Login to your account</CN.CardTitle>
+          <CN.CardTitle>Add permission</CN.CardTitle>
           <CN.CardDescription>
-            Enter your email below to login to your account
+            Enter a name for a permission that you want to add
           </CN.CardDescription>
         </CN.CardHeader>
         <CN.CardContent>
-          <form id="permission-form" className="space-y-2">
-            <div className="space-y-2">
-              <Label htmlFor="permission">Permission</Label>
-              <Input
-                type="text"
-                id="permission"
-                name="permission"
-                placeholder="view:dashboard"
-                defaultValue={state?.permission}
+          <RHF.Form {...form}>
+            <form
+              id="permission-form"
+              className="space-y-2"
+              onSubmit={form.handleSubmit(handleSubmit)}
+            >
+              <RHF.FormField
+                name="name"
+                control={form.control}
+                render={({ field }) => (
+                  <RHF.FormItem>
+                    <RHF.FormLabel>Name</RHF.FormLabel>
+                    <RHF.FormControl>
+                      <Input
+                        {...field}
+                        type="text"
+                        placeholder="VIEW:DASHBOARD"
+                      />
+                    </RHF.FormControl>
+                    <RHF.FormMessage />
+                  </RHF.FormItem>
+                )}
               />
-              {state?.errors?.permission && (
-                <p className="text-destructive text-xs">
-                  {state.errors.permission}
-                </p>
-              )}
-            </div>
-          </form>
+            </form>
+          </RHF.Form>
         </CN.CardContent>
         <CN.CardFooter>
           <Button
             type="submit"
             disabled={pending}
-            formAction={action}
             form="permission-form"
             className="w-full cursor-pointer"
           >

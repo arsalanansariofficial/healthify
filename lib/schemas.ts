@@ -6,6 +6,10 @@ export const roleSchema = z.object({
   name: z.string().min(1, { message: 'Should be valid.' })
 });
 
+export const permissionSchema = z.object({
+  name: z.string().min(1, { message: 'Should be valid.' })
+});
+
 export const loginSchema = z.object({
   email: z.string().email({ message: 'Email should be valid.' }),
   password: z.string().min(1, { message: 'Password should be valid.' })

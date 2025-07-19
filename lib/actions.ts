@@ -440,28 +440,26 @@ export async function addRole(
 }
 
 export async function addPermission(
-  _: unknown,
-  formData: FormData
+  data: z.infer<typeof schemas.permissionSchema>
 ): Promise<FormState | undefined> {
-  const permission = formData.get('permission') as string;
-  const result = formSchema.safeParse({ permission });
+  const result = schemas.permissionSchema.safeParse(data);
 
   if (!result.success) {
-    return { permission, errors: result.error.flatten().fieldErrors };
+    return { ...data, errors: result.error.flatten().fieldErrors };
   }
 
   try {
     await prisma.permission.create({
-      data: { name: result.data.permission as string }
+      data: { name: result.data.name.toUpperCase() }
     });
 
     return {
-      permission,
+      ...data,
       success: true,
       message: '🎉 Permission added successfully.'
     };
   } catch {
-    return { permission, success: false, message: CONST.SERVER_ERROR_MESSAGE };
+    return { ...data, success: false, message: CONST.SERVER_ERROR_MESSAGE };
   }
 }
 

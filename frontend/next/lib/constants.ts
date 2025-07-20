@@ -28,7 +28,7 @@ if (process.env?.UPLOAD_FAILED) UPLOAD_FAILED = process.env.UPLOAD_FAILED;
 export let DELETE_FAILED = '⚠️ Failed to delete file!';
 if (process.env?.DELETE_FAILED) DELETE_FAILED = process.env.DELETE_FAILED;
 
-export let EMAIL_BOUNCED = "⚠️ Email address not found!";
+export let EMAIL_BOUNCED = '⚠️ Email address not found!';
 if (process.env?.EMAIL_BOUNCED) EMAIL_BOUNCED = process.env.EMAIL_BOUNCED;
 
 export let EMAIL_VERIFIED = '🎉 Email verified successfully.';
@@ -136,6 +136,7 @@ if (process.env?.EXPIRES_AT && !isNaN(Number(process.env.EXPIRES_AT))) {
 export const HOME = '/';
 export const LOGIN = '/login';
 export const SIGNUP = '/signup';
+export const ACCOUNT = '/account';
 
 export const FORGET = '/forget';
 export const RESPONSE_OK_CODE = 200;
@@ -330,10 +331,6 @@ export const CARDS_DATA = [
 
 export const SIDEBAR_ITEMS = new Map([
   [
-    { label: 'Home', permission: 'view:dashboard' },
-    [{ url: '/dashboard', label: 'Dashboard', permission: 'view:dashboard' }]
-  ],
-  [
     { label: 'Doctors', permission: 'view:doctors' },
     [
       { label: 'View', url: '/doctors', permission: 'view:doctors' },
@@ -372,9 +369,5 @@ export const SIDEBAR_ITEMS = new Map([
         permission: 'assign:permissions'
       }
     ]
-  ],
-  [
-    { label: 'Account', permission: 'view:account' },
-    [{ url: '/account', label: 'Profile', permission: 'view:account' }]
   ]
 ]);

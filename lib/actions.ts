@@ -612,12 +612,10 @@ export async function updatePassword(
   return await loginWithCredentials({ email, password });
 }
 
-export async function forgetPassword(
-  _: unknown,
-  formData: FormData
-): Promise<FormState | undefined> {
-  const email = formData.get('email') as string;
-  const result = formSchema.safeParse({ email });
+export async function forgetPassword({
+  email
+}: z.infer<typeof schemas.emailSchema>): Promise<FormState | undefined> {
+  const result = schemas.emailSchema.safeParse({ email });
 
   if (!result.success) {
     return { email, errors: result.error.flatten().fieldErrors };

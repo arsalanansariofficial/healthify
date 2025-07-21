@@ -293,14 +293,20 @@ export async function deleteSpecialities(ids: string[]) {
   revalidatePath('/');
 }
 
-export async function assignRoles(formData: {
-  id: string;
-  roles: P.Role[];
-}): Promise<FormState | undefined> {
+export async function assignRoles(
+  id: string,
+  data: z.infer<typeof schemas.rolesSchema>
+): Promise<FormState | undefined> {
+  const result = schemas.rolesSchema.safeParse(data);
+
+  if (!result.success) {
+    return { ...data, errors: result.error.flatten().fieldErrors };
+  }
+
   try {
     await prisma.user.update({
-      where: { id: formData.id },
-      data: { roles: { set: formData.roles.map(({ id }) => ({ id })) } }
+      where: { id },
+      data: { roles: { set: data.roles.map(r => ({ id: r })) } }
     });
 
     return { success: true, message: '🎉 Roles are assigned successfully.' };

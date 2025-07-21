@@ -1,103 +1,112 @@
 'use client';
 
-import { Role } from '@prisma/client';
-import { useActionState, useState } from 'react';
+import z from 'zod';
+import { User } from 'next-auth';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
 
-import { cn } from '@/lib/utils';
-import { User } from '@/lib/types';
-import { assignRoles } from '@/lib/actions';
-import { Label } from '@/components/ui/label';
+import * as CN from '@/components/ui/card';
+import * as RHF from '@/components/ui/form';
+import { rolesSchema } from '@/lib/schemas';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
+import useHookForm from '@/hooks/use-hook-form';
+import handler from '@/components/display-toast';
+import { assignRoles, FormState } from '@/lib/actions';
+import MultiSelect from '@/components/ui/multi-select';
 
-type Props = { user: User; roles: Role[] };
+type Props = { user: User; roles: { label: string; value: string }[] };
 
 export default function Component({ user, roles }: Props) {
-  const [assigned, setAssigned] = useState<Role[]>(user.roles);
-
-  const [state, action, pending] = useActionState(
-    assignRoles.bind(null, { roles: assigned, id: user.id as string }),
-    undefined
+  const { pending, handleSubmit } = useHookForm(
+    handler,
+    assignRoles.bind(null, user.id as string) as (
+      data: z.infer<typeof rolesSchema>
+    ) => Promise<FormState | undefined>
   );
 
-  function getSelected(role: Role) {
-    const selected = assigned.find(assignedRole => {
-      return role.id === assignedRole.id;
-    });
-
-    return selected ? 'bg-secondary' : 'bg-transparent';
-  }
-
-  function toggleAssignment(role: Role): void {
-    const selected = assigned.find(assignedRole => {
-      return role.id === assignedRole.id;
-    });
-
-    if (selected) {
-      return setAssigned(roles => {
-        return roles.filter(role => role.id !== selected.id);
-      });
+  const form = useForm({
+    resolver: zodResolver(rolesSchema),
+    defaultValues: {
+      name: user.name as string,
+      email: user.email as string,
+      roles: user.roles.map(r => r.id)
     }
-
-    setAssigned(roles => [role, ...roles]);
-  }
+  });
 
   return (
-    <section className="col-span-2 grid place-items-center place-self-center p-4 lg:col-start-2">
-      <form
-        action={action}
-        className="min-w-sm space-y-4 rounded-md border border-dashed p-4 shadow"
-      >
-        <div className="space-y-2">
-          <Label htmlFor="name">Name</Label>
-          <Input
-            disabled
-            id="name"
-            name="name"
-            type="text"
-            value={user.name as string}
-          />
-        </div>
-        <div className="space-y-2">
-          <Label htmlFor="email">Email</Label>
-          <Input
-            disabled
-            id="email"
-            name="email"
-            type="email"
-            value={user.email as string}
-          />
-        </div>
-        <div className="space-y-2">
-          <Label id="roles">Roles</Label>
-          <ul id="roles" className="space-y-2">
-            {roles.map(role => {
-              return (
-                <li
-                  key={role.id}
-                  onClick={() => toggleAssignment(role)}
-                  className={cn(
-                    getSelected(role),
-                    'cursor-pointer rounded-md border p-2 text-center text-sm font-medium lowercase shadow-xs'
-                  )}
-                >
-                  {role.name}
-                </li>
-              );
-            })}
-          </ul>
-        </div>
-        {state?.message && (
-          <p className="text-destructive text-xs">{state.message}</p>
-        )}
-        <Button
-          type="submit"
-          disabled={pending}
-          className="w-full cursor-pointer"
-        >
-          {pending ? 'Adding role...' : 'Add Role'}
-        </Button>
-      </form>
+    <section className="col-span-2 grid place-items-center gap-4 place-self-center lg:col-start-2">
+      <CN.Card className="min-w-sm">
+        <CN.CardHeader>
+          <CN.CardTitle>Assign roles</CN.CardTitle>
+          <CN.CardDescription>
+            Select the roles from the list that you want to assign
+          </CN.CardDescription>
+        </CN.CardHeader>
+        <CN.CardContent>
+          <RHF.Form {...form}>
+            <form
+              id="roles-form"
+              className="space-y-2"
+              onSubmit={form.handleSubmit(handleSubmit)}
+            >
+              <RHF.FormField
+                name="name"
+                control={form.control}
+                render={({ field }) => (
+                  <RHF.FormItem>
+                    <RHF.FormLabel>Name</RHF.FormLabel>
+                    <RHF.FormControl>
+                      <Input disabled {...field} type="text" />
+                    </RHF.FormControl>
+                    <RHF.FormMessage />
+                  </RHF.FormItem>
+                )}
+              />
+              <RHF.FormField
+                name="email"
+                control={form.control}
+                render={({ field }) => (
+                  <RHF.FormItem>
+                    <RHF.FormLabel>Email</RHF.FormLabel>
+                    <RHF.FormControl>
+                      <Input disabled {...field} type="email" />
+                    </RHF.FormControl>
+                    <RHF.FormMessage />
+                  </RHF.FormItem>
+                )}
+              />
+              <RHF.FormField
+                name="roles"
+                control={form.control}
+                render={({ field }) => (
+                  <RHF.FormItem>
+                    <RHF.FormLabel>Roles</RHF.FormLabel>
+                    <RHF.FormControl>
+                      <MultiSelect
+                        options={roles}
+                        selectedValues={field.value}
+                        setSelectedValues={field.onChange}
+                      />
+                    </RHF.FormControl>
+                    <RHF.FormMessage />
+                  </RHF.FormItem>
+                )}
+              />
+            </form>
+          </RHF.Form>
+        </CN.CardContent>
+        <CN.CardFooter>
+          <Button
+            type="submit"
+            form="roles-form"
+            disabled={pending}
+            className="w-full cursor-pointer"
+          >
+            {pending ? 'Adding roles...' : 'Add roles'}
+          </Button>
+        </CN.CardFooter>
+      </CN.Card>
     </section>
   );
 }

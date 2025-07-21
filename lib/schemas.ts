@@ -29,6 +29,14 @@ export const signupSchema = z.object({
   name: z.string().min(3, { message: 'Should be atleast 3 characters.' })
 });
 
+export const rolesSchema = z.object({
+  name: z.string().min(1, { message: 'Should be valid.' }),
+  email: z.string().email({ message: 'Email should be valid.' }),
+  roles: z
+    .array(z.string().min(1, { message: 'Role should be valid.' }))
+    .min(1, { message: 'At least one role must be selected.' })
+});
+
 export const userSchema = z.object({
   emailVerified: z.enum(['yes', 'no']).optional(),
   email: z.string().email({ message: 'Email should be valid.' }).optional(),

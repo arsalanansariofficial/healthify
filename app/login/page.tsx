@@ -73,7 +73,12 @@ export default function Page() {
                 control={form.control}
                 render={({ field }) => (
                   <RHF.FormItem>
-                    <RHF.FormLabel>password</RHF.FormLabel>
+                    <RHF.FormLabel className="flex items-center justify-between">
+                      <span>Password</span>
+                      <Link href="/forget" className="text-primary font-normal">
+                        Forget Password?
+                      </Link>
+                    </RHF.FormLabel>
                     <RHF.FormControl>
                       <Input
                         {...field}

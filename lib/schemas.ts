@@ -2,6 +2,10 @@ import z from 'zod';
 
 export const seedSchema = z.object({});
 
+export const nameSchema = z.object({
+  name: z.string().min(1, { message: 'Should be valid.' })
+});
+
 export const roleSchema = z.object({
   name: z.string().min(1, { message: 'Should be valid.' })
 });

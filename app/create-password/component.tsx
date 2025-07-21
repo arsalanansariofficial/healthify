@@ -1,38 +1,24 @@
 'use client';
 
-import { toast } from 'sonner';
-import { useActionState } from 'react';
+import { useForm } from 'react-hook-form';
+import useHookForm from '@/hooks/use-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
 
-import { getDate } from '@/lib/utils';
 import * as CN from '@/components/ui/card';
-import { Label } from '@/components/ui/label';
+import * as RHF from '@/components/ui/form';
+import { loginSchema } from '@/lib/schemas';
 import { Input } from '@/components/ui/input';
 import { updatePassword } from '@/lib/actions';
 import { Button } from '@/components/ui/button';
+import handler from '@/components/display-toast';
 
 export default function Component({ email }: { email: string }) {
-  const [state, action, pending] = useActionState(async function (
-    prevState: unknown,
-    formData: FormData
-  ) {
-    const result = await updatePassword(prevState, formData);
+  const { pending, handleSubmit } = useHookForm(handler, updatePassword);
 
-    if (result?.success) {
-      toast(result.message, {
-        position: 'top-center',
-        description: <span className="text-foreground">{getDate()}</span>
-      });
-    }
-
-    if (!result?.success && result?.message) {
-      toast(<h2 className="text-destructive">{result?.message}</h2>, {
-        position: 'top-center',
-        description: <p className="text-destructive">{getDate()}</p>
-      });
-    }
-
-    return result;
-  }, undefined);
+  const form = useForm({
+    resolver: zodResolver(loginSchema),
+    defaultValues: { email, password: String() }
+  });
 
   return (
     <CN.Card className="min-w-sm">
@@ -43,31 +29,39 @@ export default function Component({ email }: { email: string }) {
         </CN.CardDescription>
       </CN.CardHeader>
       <CN.CardContent>
-        <form id="reset-form" className="space-y-2">
-          <Input id="email" name="email" type="hidden" value={email} />
-          <div className="space-y-2">
-            <Label htmlFor="password">Password</Label>
-            <Input
-              id="password"
+        <RHF.Form {...form}>
+          <form
+            id="reset-form"
+            className="space-y-2"
+            onSubmit={form.handleSubmit(handleSubmit)}
+          >
+            <RHF.FormField
               name="password"
-              type="password"
-              placeholder="Password@123"
-              defaultValue={state?.password}
+              control={form.control}
+              render={({ field }) => (
+                <RHF.FormItem>
+                  <RHF.FormLabel className="flex items-center justify-between">
+                    <span>Password</span>
+                  </RHF.FormLabel>
+                  <RHF.FormControl>
+                    <Input
+                      {...field}
+                      type="password"
+                      placeholder="Secret@123"
+                    />
+                  </RHF.FormControl>
+                  <RHF.FormMessage />
+                </RHF.FormItem>
+              )}
             />
-            {state?.errors?.password && (
-              <p className="text-destructive text-xs">
-                {state.errors.password}
-              </p>
-            )}
-          </div>
-        </form>
+          </form>
+        </RHF.Form>
       </CN.CardContent>
       <CN.CardFooter>
         <Button
           type="submit"
           form="reset-form"
           disabled={pending}
-          formAction={action}
           className="w-full cursor-pointer"
         >
           {pending ? 'Updating password...' : 'Reset password'}

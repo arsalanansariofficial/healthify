@@ -430,7 +430,7 @@ export default function Component(props: Props) {
           filterConfig={[
             { id: 'patient', placeholder: 'Patient' },
             { id: 'date', placeholder: 'Date', type: 'date' },
-            { id: 'time', placeholder: 'Time', type: 'time' },
+            { id: 'time', placeholder: 'Time', type: 'time' }
           ]}
         />
       )}

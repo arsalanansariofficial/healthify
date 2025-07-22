@@ -297,9 +297,9 @@ export async function deleteSpecialities(ids: string[]) {
 
 export async function assignRoles(
   id: string,
-  data: z.infer<typeof schemas.rolesSchema>
+  data: z.infer<typeof schemas.userRolesSchema>
 ): Promise<FormState | undefined> {
-  const result = schemas.rolesSchema.safeParse(data);
+  const result = schemas.userRolesSchema.safeParse(data);
 
   if (!result.success) {
     return { ...data, errors: result.error.flatten().fieldErrors };

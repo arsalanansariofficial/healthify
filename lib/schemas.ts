@@ -1,78 +1,64 @@
 import z from 'zod';
 
-export const seedSchema = z.object({});
+const emailVerified = z.object({
+  emailVerified: z.enum(['yes', 'no']).optional()
+});
 
-export const nameSchema = z.object({
+const name = z.object({
   name: z.string().min(1, { message: 'Should be valid.' })
 });
 
-export const roleSchema = z.object({
-  name: z.string().min(1, { message: 'Should be valid.' })
-});
-
-export const permissionSchema = z.object({
-  name: z.string().min(1, { message: 'Should be valid.' })
-});
-
-export const emailSchema = z.object({
+const email = z.object({
   email: z.string().email({ message: 'Email should be valid.' })
 });
 
-export const rolePermissionsSchema = z.object({
-  name: z.string().min(1, { message: 'Should be valid.' }),
-  permissions: z.array(z.string().min(1, { message: 'Name should be valid.' }))
-});
-
-export const loginSchema = z.object({
-  email: z.string().email({ message: 'Email should be valid.' }),
+const password = z.object({
   password: z.string().min(1, { message: 'Password should be valid.' })
 });
 
-export const signupSchema = z.object({
-  email: z.string().email({ message: 'Email should be valid.' }),
-  password: z.string().min(1, { message: 'Password should be valid.' }),
-  name: z.string().min(3, { message: 'Should be atleast 3 characters.' })
+const gender = z.object({
+  gender: z.enum(['male', 'female'], { message: 'Gender should be valid.' })
 });
 
-export const rolesSchema = z.object({
-  name: z.string().min(1, { message: 'Should be valid.' }),
-  email: z.string().email({ message: 'Email should be valid.' }),
+const city = z.object({
+  city: z.string().toUpperCase().min(1, { message: 'City should be valid.' })
+});
+
+const permissions = z.object({
+  permissions: z.array(z.string().min(1, { message: 'Name should be valid.' }))
+});
+
+const roles = z.object({
   roles: z
-    .array(z.string().min(1, { message: 'Role should be valid.' }))
+    .array(z.string().min(1, { message: 'Name should be valid.' }))
     .min(1, { message: 'At least one role must be selected.' })
 });
 
-export const userSchema = z.object({
-  emailVerified: z.enum(['yes', 'no']).optional(),
-  email: z.string().email({ message: 'Email should be valid.' }).optional(),
-  password: z
-    .string()
-    .min(1, { message: 'Password should be valid.' })
-    .optional(),
-  name: z
-    .string()
-    .min(3, { message: 'Should be atleast 3 characters.' })
-    .optional()
-});
-
-export const doctorSchema = z.object({
-  email: z.string().email({ message: 'Email should be valid.' }),
-  password: z.string().min(1, { message: 'Password should be valid.' }),
-  name: z.string().min(3, { message: 'Should be atleast 3 characters.' }),
-  gender: z.enum(['male', 'female'], { message: 'Gender should be valid.' }),
-  city: z.string().toUpperCase().min(1, { message: 'City should be valid.' }),
+const specialities = z.object({
   specialities: z
     .array(z.string().min(1, { message: 'Id should be valid.' }))
-    .min(1, { message: 'At least one speciality must be selected.' }),
+    .min(1, { message: 'At least one speciality must be selected.' })
+});
+
+const experience = z.object({
   experience: z.coerce
     .number()
-    .min(1, { message: 'Experience should be valid.' }),
+    .min(1, { message: 'Experience should be valid.' })
+});
+
+const phone = z.object({
   phone: z
     .string()
-    .regex(/^\+?\d{10,15}$/, { message: 'Invalid phone number format.' }),
+    .regex(/^\+?\d{10,15}$/, { message: 'Invalid phone number format.' })
+});
+
+const visitDays = z.object({
   daysOfVisit: z
     .array(z.string().toUpperCase().min(1, { message: 'Day should be valid.' }))
-    .min(1, { message: 'Select at least one day of visit.' }),
+    .min(1, { message: 'Select at least one day of visit.' })
+});
+
+const image = z.object({
   image: z
     .any()
     .optional()
@@ -82,7 +68,10 @@ export const doctorSchema = z.object({
         return fileList[0].name?.length >= 5;
       },
       { message: 'File name should be at least 5 characters.' }
-    ),
+    )
+});
+
+const timings = z.object({
   timings: z.array(
     z.object({
       id: z.number().min(1, { message: 'Id should be valid.' }),
@@ -95,3 +84,28 @@ export const doctorSchema = z.object({
     })
   )
 });
+
+export const nameSchema = name;
+export const roleSchema = name;
+
+export const emailSchema = email;
+export const permissionSchema = name;
+
+export const seedSchema = z.object({});
+export const loginSchema = email.merge(password);
+
+export const signupSchema = name.merge(loginSchema);
+export const userSchema = signupSchema.merge(emailVerified);
+
+export const rolePermissionsSchema = name.merge(permissions);
+export const userRolesSchema = name.merge(email).merge(roles);
+
+export const doctorSchema = userSchema
+  .merge(city)
+  .merge(phone)
+  .merge(image)
+  .merge(gender)
+  .merge(timings)
+  .merge(visitDays)
+  .merge(experience)
+  .merge(specialities);

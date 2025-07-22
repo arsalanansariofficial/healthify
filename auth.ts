@@ -1,12 +1,15 @@
 import bcrypt from 'bcryptjs';
-import { PrismaClient } from '@prisma/client';
 import GitHub from 'next-auth/providers/github';
 import NextAuth, { NextAuthConfig } from 'next-auth';
 import { PrismaAdapter } from '@auth/prisma-adapter';
+import { Prisma, PrismaClient } from '@prisma/client';
 import Credentials from 'next-auth/providers/credentials';
 
-import { User as ExtendedUser } from '@/lib/types';
 import { LOGIN, AUTH_ERROR } from '@/lib/constants';
+
+type ExtendedUser = Prisma.UserGetPayload<{
+  include: { roles: { include: { permissions: true } } };
+}>;
 
 declare module 'next-auth' {
   interface User {

@@ -28,7 +28,7 @@ export default function Menu({ user, entries }: Props) {
                       <li key={item.label}>
                         <Link
                           href={item.url}
-                          className="active:bg-accent block max-w-fit rounded-md text-sm hover:underline hover:underline-offset-4 active:px-2 active:py-1"
+                          className="block max-w-fit rounded-md text-sm hover:underline hover:underline-offset-4"
                         >
                           {item.label}
                         </Link>

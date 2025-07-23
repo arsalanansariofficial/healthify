@@ -65,19 +65,19 @@ async function generateToken(email: string) {
     const token = await transaction.token.findUnique({ where: { email } });
     if (token) await transaction.token.delete({ where: { email } });
     return await transaction.token.create({
-      data: { email, expires: new Date(Date.now() + 60 * 60 * 1000) }
+      data: { email, expires: new Date(Date.now() + CONST.EXPIRES_AT * 1000) }
     });
   });
 }
 
 async function sendEmail(to: string, subject: string, html: string) {
   const transporter = nodemailer.createTransport({
-    port: 465,
     secure: true,
-    host: 'smtp.gmail.com',
+    host: CONST.SMTP_HOST_NAME,
+    port: CONST.SMTP_PORT_NUMBER,
     auth: {
-      user: process.env.MAILER_EMAIL,
-      pass: process.env.MAILER_PASSWORD
+      user: CONST.SMTP_EMAIL,
+      pass: CONST.SMTP_PASSWORD
     }
   });
 
@@ -85,7 +85,7 @@ async function sendEmail(to: string, subject: string, html: string) {
     to,
     html,
     subject,
-    from: process.env.MAILER_EMAIL
+    from: CONST.SMTP_EMAIL
   });
 }
 
@@ -100,7 +100,7 @@ async function loginWithCredentials({
       const token = await generateToken(email as string);
 
       const subject = 'Verify Your Email';
-      const link = `http://localhost:3000/verify?token=${token.id}`;
+      const link = `${CONST.HOST}/verify?token=${token.id}`;
       const html = `<p>Click <a href="${link}">here</a> to verify.</p>`;
 
       const emailSent = await sendEmail(email as string, subject, html);
@@ -108,7 +108,7 @@ async function loginWithCredentials({
       if (token && emailSent) {
         return {
           success: true,
-          message: '🎉 Confirmation email sent.'
+          message: CONST.CONFIRM_EMAIL
         };
       }
 
@@ -146,12 +146,12 @@ async function loginWithCredentials({
 
 export async function deleteSpeciality(id: string) {
   await prisma.speciality.delete({ where: { id } });
-  revalidatePath('/');
+  revalidatePath(CONST.HOME);
 }
 
 export async function deleteSpecialities(ids: string[]) {
   await prisma.speciality.deleteMany({ where: { id: { in: ids } } });
-  revalidatePath('/');
+  revalidatePath(CONST.HOME);
 }
 
 export async function deleteUser(id: string) {
@@ -160,7 +160,7 @@ export async function deleteUser(id: string) {
   });
 
   if (user && user.image) await fs.unlink(path.join(dir, `${user?.image}`));
-  revalidatePath('/');
+  revalidatePath(CONST.HOME);
 }
 
 export async function deleteUsers(ids: string[]) {
@@ -178,7 +178,7 @@ export async function deleteUsers(ids: string[]) {
     );
   }
 
-  revalidatePath('/');
+  revalidatePath(CONST.HOME);
 }
 
 export async function assignRoles(
@@ -186,7 +186,7 @@ export async function assignRoles(
   data: Schema<typeof schemas.userRolesSchema>
 ) {
   const result = schemas.userRolesSchema.safeParse(data);
-  if (!result.success) return { success: false, message: '⚠️ Invalid inputs!' };
+  if (!result.success) return { success: false, message: CONST.INVALID_INPUTS };
 
   try {
     await prisma.user.update({
@@ -194,7 +194,7 @@ export async function assignRoles(
       data: { roles: { set: data.roles.map(r => ({ id: r })) } }
     });
 
-    return { success: true, message: '🎉 Roles are assigned successfully.' };
+    return { success: true, message: CONST.ROLES_ASSIGNED };
   } catch {
     return { success: false, message: CONST.SERVER_ERROR_MESSAGE };
   }
@@ -204,7 +204,7 @@ export async function verifyEmail(email: string) {
   try {
     const user = await prisma.$transaction(async function (transaction) {
       const user = await transaction.user.findUnique({ where: { email } });
-      if (!user) return { success: false, message: '⚠️ Invalid inputs!' };
+      if (!user) return { success: false, message: CONST.INVALID_INPUTS };
 
       await transaction.user.update({
         where: { email },
@@ -219,8 +219,8 @@ export async function verifyEmail(email: string) {
       return user;
     });
 
-    if (!user) return { success: false, message: '⚠️ User does not exist!' };
-    revalidatePath('/');
+    if (!user) return { success: false, message: CONST.USER_NOT_FOUND };
+    revalidatePath(CONST.HOME);
   } catch {
     return { success: false, message: CONST.SERVER_ERROR_MESSAGE };
   }
@@ -231,7 +231,7 @@ export async function assignPermissions({
   permissions
 }: Schema<typeof schemas.rolePermissionsSchema>) {
   const result = schemas.rolePermissionsSchema.safeParse({ name, permissions });
-  if (!result.success) return { success: false, message: '⚠️ Invalid inputs!' };
+  if (!result.success) return { success: false, message: CONST.INVALID_INPUTS };
 
   try {
     const session = await auth();
@@ -248,11 +248,11 @@ export async function assignPermissions({
       });
     });
 
-    revalidatePath('/');
+    revalidatePath(CONST.HOME);
     await update({ user: { ...user, roles: user?.roles } });
     return {
       success: true,
-      message: '🎉 All permissions are assigned successfully.'
+      message: CONST.PERMISSIONS_ASSIGNED
     };
   } catch {
     return { success: false, message: CONST.SERVER_ERROR_MESSAGE };
@@ -264,7 +264,7 @@ export async function updateSpeciality(
   { name }: Schema<typeof schemas.nameSchema>
 ) {
   const result = schemas.nameSchema.safeParse({ name });
-  if (!result.success) return { success: false, message: '⚠️ Invalid inputs!' };
+  if (!result.success) return { success: false, message: CONST.INVALID_INPUTS };
 
   try {
     await prisma.speciality.update({
@@ -272,10 +272,10 @@ export async function updateSpeciality(
       data: { name: name.toUpperCase() }
     });
 
-    revalidatePath('/');
+    revalidatePath(CONST.HOME);
     return {
       success: true,
-      message: '🎉 Speciality updated successfully.'
+      message: CONST.SPECIALITY_UPDATED
     };
   } catch {
     return { success: false, message: CONST.SERVER_ERROR_MESSAGE };
@@ -286,18 +286,18 @@ export async function addSpeciality({
   name
 }: Schema<typeof schemas.nameSchema>) {
   const result = schemas.nameSchema.safeParse({ name });
-  if (!result.success) return { success: false, message: '⚠️ Invalid inputs!' };
+  if (!result.success) return { success: false, message: CONST.INVALID_INPUTS };
 
   try {
     await prisma.speciality.create({
       data: { name: result.data.name?.toUpperCase() as string }
     });
 
-    revalidatePath('/');
+    revalidatePath(CONST.HOME);
     return {
       success: true,
       name: name.toUpperCase(),
-      message: '🎉 Speciality added successfully!'
+      message: CONST.SPECIALITY_ADDED
     };
   } catch {
     return { name, success: false, message: CONST.SERVER_ERROR_MESSAGE };
@@ -306,14 +306,14 @@ export async function addSpeciality({
 
 export async function addRole(data: Schema<typeof schemas.roleSchema>) {
   const result = schemas.roleSchema.safeParse(data);
-  if (!result.success) return { success: false, message: '⚠️ Invalid inputs!' };
+  if (!result.success) return { success: false, message: CONST.INVALID_INPUTS };
 
   try {
     await prisma.role.create({
       data: { name: result.data.name.toUpperCase() }
     });
 
-    return { ...data, success: true, message: '🎉 Role added successfully!' };
+    return { ...data, success: true, message: CONST.ROLE_ADDED };
   } catch {
     return { ...data, success: false, message: CONST.SERVER_ERROR_MESSAGE };
   }
@@ -323,7 +323,7 @@ export async function addPermission(
   data: Schema<typeof schemas.permissionSchema>
 ) {
   const result = schemas.permissionSchema.safeParse(data);
-  if (!result.success) return { success: false, message: '⚠️ Invalid inputs!' };
+  if (!result.success) return { success: false, message: CONST.INVALID_INPUTS };
 
   try {
     await prisma.permission.create({
@@ -333,7 +333,7 @@ export async function addPermission(
     return {
       ...data,
       success: true,
-      message: '🎉 Permission added successfully.'
+      message: CONST.PERMISSION_ADDED
     };
   } catch {
     return { ...data, success: false, message: CONST.SERVER_ERROR_MESSAGE };
@@ -344,16 +344,16 @@ export async function verifyToken(id: string) {
   try {
     const result = await prisma.$transaction(async function (transaction) {
       const token = await transaction.token.findUnique({ where: { id } });
-      if (!token) return { success: false, message: '⚠️ Invalid inputs!' };
+      if (!token) return { success: false, message: CONST.INVALID_INPUTS };
 
       const hasExpired = new Date(token.expires) < new Date();
-      if (hasExpired) return { success: false, message: '⚠️ Invalid inputs!' };
+      if (hasExpired) return { success: false, message: CONST.INVALID_INPUTS };
 
       const user = await transaction.user.findUnique({
         where: { email: token.email }
       });
 
-      if (!user) return { success: false, message: '⚠️ Invalid inputs!' };
+      if (!user) return { success: false, message: CONST.INVALID_INPUTS };
       await transaction.user.update({
         where: { id: user.id },
         data: { email: token.email, emailVerified: new Date() }
@@ -364,21 +364,21 @@ export async function verifyToken(id: string) {
     });
 
     if (!result?.token) {
-      return { success: false, message: "⚠️ Token doesn't exist!" };
+      return { success: false, message: CONST.TOKEN_NOT_FOUND };
     }
 
     if (!result?.user) {
-      return { success: false, message: "⚠️ Email doesn't exist!" };
+      return { success: false, message: CONST.EMAIL_NOT_FOUND };
     }
 
     if (result?.hasExpired) {
-      return { success: false, message: '⚠️ Token has expired!' };
+      return { success: false, message: CONST.TOKEN_EXPIRED };
     }
 
     return {
       success: true,
-      email: result.token.email,
-      message: '🎉 Email verified successfully.'
+      message: CONST.EMAIL_VERIFIED,
+      email: result.token.email
     };
   } catch {
     return { success: false, message: CONST.SERVER_ERROR_MESSAGE };
@@ -390,25 +390,25 @@ export async function login(data: Schema<typeof schemas.loginSchema>) {
   const password = data.password as string;
 
   const result = schemas.loginSchema.safeParse({ email, password });
-  if (!result.success) return { success: false, message: '⚠️ Invalid inputs!' };
+  if (!result.success) return { success: false, message: CONST.INVALID_INPUTS };
 
   return await loginWithCredentials({ email, password });
 }
 
 export async function signup(data: Schema<typeof schemas.signupSchema>) {
   const result = schemas.signupSchema.safeParse(data);
-  if (!result.success) return { success: false, message: '⚠️ Invalid inputs!' };
+  if (!result.success) return { success: false, message: CONST.INVALID_INPUTS };
 
   try {
     const user = await prisma.user.findUnique({
       where: { email: result.data.email as string }
     });
 
-    if (user) return { success: false, message: '⚠️ Email already exist!' };
+    if (user) return { success: false, message: CONST.EMAIL_REGISTERED };
 
     await prisma.$transaction(async function (transaction) {
       const role = await transaction.role.findUnique({
-        where: { name: 'USER' }
+        where: { name: CONST.DEFAULT_ROLE }
       });
 
       return await transaction.user.create({
@@ -431,22 +431,22 @@ export default async function seed() {
   try {
     await prisma.user.create({
       data: {
-        name: 'Admin User',
+        name: CONST.ADMIN_NAME,
         emailVerified: new Date(),
-        email: 'admin.user@ansari.dashboard',
-        password: await bcrypt.hash('admin.user', 10),
+        email: CONST.ADMIN_PASSWORD,
+        password: await bcrypt.hash(CONST.ADMIN_PASSWORD, 10),
         roles: {
           create: [
             {
-              name: 'ADMIN',
-              permissions: { create: [{ name: 'VIEW:DASHBOARD' }] }
+              name: CONST.ADMIN_ROLE,
+              permissions: { create: [{ name: CONST.DEFAULT_PERMISSION }] }
             }
           ]
         }
       }
     });
 
-    return { success: true, message: '🎉 Database updated successfully.' };
+    return { success: true, message: CONST.DATABASE_UPDATED };
   } catch {
     return { success: false, message: CONST.SERVER_ERROR_MESSAGE };
   }
@@ -457,7 +457,7 @@ export async function updatePassword({
   password
 }: Schema<typeof schemas.loginSchema>) {
   const result = schemas.loginSchema.safeParse({ email, password });
-  if (!result.success) return { success: false, message: '⚠️ Invalid inputs!' };
+  if (!result.success) return { success: false, message: CONST.INVALID_INPUTS };
 
   try {
     await prisma.user.update({
@@ -475,13 +475,13 @@ export async function forgetPassword({
   email
 }: Schema<typeof schemas.emailSchema>) {
   const result = schemas.emailSchema.safeParse({ email });
-  if (!result.success) return { success: false, message: '⚠️ Invalid inputs!' };
+  if (!result.success) return { success: false, message: CONST.INVALID_INPUTS };
 
   try {
     const user = await prisma.user.findUnique({ where: { email } });
 
     if (!user) {
-      return { email, success: false, message: "⚠️ Email doesn't exist!" };
+      return { email, success: false, message: CONST.EMAIL_NOT_FOUND };
     }
 
     const token = await generateToken(user.email as string);
@@ -491,7 +491,7 @@ export async function forgetPassword({
     const html = `<p>Click <a href="${link}">here</a> to reset your password`;
 
     await sendEmail(email, subject, html);
-    return { email, success: true, message: '🎉 Confirmation email sent.' };
+    return { email, success: true, message: CONST.CONFIRM_EMAIL };
   } catch {
     return { email, success: false, message: CONST.SERVER_ERROR_MESSAGE };
   }
@@ -502,7 +502,7 @@ export async function updateUser(
   data: Schema<typeof schemas.userSchema>
 ) {
   const result = schemas.userSchema.safeParse(data);
-  if (!result.success) return { success: false, message: '⚠️ Invalid inputs!' };
+  if (!result.success) return { success: false, message: CONST.INVALID_INPUTS };
 
   try {
     const user = await prisma.$transaction(async function (transaction) {
@@ -515,7 +515,7 @@ export async function updateUser(
       }
 
       if (email && email !== user?.email && existingUser)
-        return { success: false, message: '⚠️ Invalid inputs!' };
+        return { success: false, message: CONST.INVALID_INPUTS };
 
       return await prisma.user.update({
         where: { id },
@@ -529,11 +529,11 @@ export async function updateUser(
     });
 
     if (!user) {
-      return { success: false, message: '⚠️ Email already registered!' };
+      return { success: false, message: CONST.EMAIL_REGISTERED };
     }
 
-    revalidatePath('/');
-    return { success: true, message: '🎉 Profile updated successfully.' };
+    revalidatePath(CONST.HOME);
+    return { success: true, message: CONST.PROFILE_UPDATED };
   } catch {
     return { success: false, message: CONST.SERVER_ERROR_MESSAGE };
   }
@@ -541,26 +541,26 @@ export async function updateUser(
 
 export async function addDoctor(data: Schema<typeof schemas.doctorSchema>) {
   const result = schemas.doctorSchema.safeParse(data);
-  if (!result.success) return { success: false, message: '⚠️ Invalid inputs!' };
+  if (!result.success) return { success: false, message: CONST.INVALID_INPUTS };
 
   const imageUUID = randomUUID();
   const image = result.data.image[0];
   const timings = result.data.timings;
   const specialities = result.data.specialities;
-  const fileExtension = image?.type?.split('/').at(-1);
+  const fileExtension = image?.type?.split(CONST.HOME).at(-1);
 
   try {
     const user = await prisma.user.findUnique({
       where: { email: result.data.email }
     });
 
-    if (user) return { success: false, message: '⚠️ Email already exist!' };
+    if (user) return { success: false, message: CONST.EMAIL_REGISTERED };
 
     const created = await prisma.$transaction(async function (transaction) {
       let createTmings, connectSpecialities;
 
       const role = await transaction.role.findUnique({
-        where: { name: 'USER' }
+        where: { name: CONST.DEFAULT_ROLE }
       });
 
       if (specialities.length) {

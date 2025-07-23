@@ -1,12 +1,93 @@
+const EXP = process.env?.EXPIRES_AT;
+const SP = process.env?.SMTP_PORT_NUMBER;
+
 export const HOME = '/';
 export const LOGIN = '/login';
+
 export const SIGNUP = '/signup';
 export const DASHBOARD = '/dashboard';
+
 export const AUTH_ERROR = '/auth-error';
 export const SESSION = 'authjs.session-token';
-export const SERVER_ERROR_MESSAGE = '⚠️ Something went wrong!';
-export const USER_DIR = (process.env.USER_DIR as string) || '/public/users';
-export const HOST = (process.env.HOST as string) || 'http://localhost:3000';
+
+export const ADMIN_ROLE = process.env?.ADMIN_ROLE || 'ADMIN';
+export const DEFAULT_ROLE = process.env?.DEFAULT_ROLE || 'USER';
+
+export const ADMIN_NAME = process.env?.ADMIN_NAME || 'Admin User';
+export const EXPIRES_AT = EXP && !isNaN(Number(EXP)) ? +EXP : 3600;
+
+export const SMTP_PORT_NUMBER = SP && !isNaN(Number(SP)) ? +SP : 465;
+export const SMTP_PASSWORD = process.env?.SMTP_PASSWORD || 'password';
+
+export const ADMIN_PASSWORD = process.env?.ADMIN_EMAIL || 'admin.user';
+export const SMTP_EMAIL = process.env?.SMTP_EMAIL || 'email@domain.com';
+
+export const HOST = (process.env?.HOST as string) || 'http://localhost:3000';
+export const USER_DIR = (process.env?.USER_DIR as string) || '/public/users';
+export const SMTP_HOST_NAME = process.env?.SMTP_HOST_NAME || 'smtp.gmail.com';
+
+export const GITHUB_CLIENT_ID =
+  process.env?.GITHUB_CLIENT_ID || 'GITHUB_CLIENT_ID';
+export const GITHUB_CLIENT_SECRET =
+  process.env?.GITHUB_CLIENT_SECRET || 'GITHUB_CLIENT_SECRET';
+
+export const ROLE_ADDED =
+  process.env?.ROLE_ADDED || '🎉 Role added successfully!';
+
+export const INVALID_INPUTS =
+  process.env?.INVALID_INPUTS || '⚠️ Invalid inputs!';
+
+export const TOKEN_EXPIRED =
+  process.env?.TOKEN_EXPIRED || '⚠️ Token has expired!';
+
+export const ADMIN_EMAIL =
+  process.env?.ADMIN_EMAIL || 'admin.user@ansari.dashboard';
+
+export const USER_NOT_FOUND =
+  process.env?.USER_NOT_FOUND || '⚠️ User does not exist!';
+
+export const DEFAULT_PERMISSION =
+  process.env?.DEFAULT_PERMISSION || 'VIEW:DASHBOARD';
+
+export const EMAIL_NOT_FOUND =
+  process.env?.EMAIL_NOT_FOUND || "⚠️ Email doesn't exist!";
+
+export const CONFIRM_EMAIL =
+  process.env?.CONFIRM_EMAIL || '🎉 Confirmation email sent.';
+
+export const TOKEN_NOT_FOUND =
+  process.env?.TOKEN_NOT_FOUND || "⚠️ Token doesn't exist!";
+
+export const EMAIL_VERIFIED =
+  process.env?.EMAIL_VERIFIED || '🎉 Email verified successfully.';
+
+export const EMAIL_REGISTERED =
+  process.env?.EMAIL_REGISTERED || '⚠️ Email already registered!';
+
+export const PROFILE_UPDATED =
+  process.env?.PROFILE_UPDATED || '🎉 Profile updated successfully.';
+
+export const ROLES_ASSIGNED =
+  process.env?.ROLES_ASSIGNED || '🎉 Roles are assigned successfully.';
+
+export const SPECIALITY_ADDED =
+  process.env?.SPECIALITY_ADDED || '🎉 Speciality added successfully!';
+
+export const DATABASE_UPDATED =
+  process.env?.DATABASE_UPDATED || '🎉 Database updated successfully.';
+
+export const PERMISSION_ADDED =
+  process.env?.PERMISSION_ADDED || '🎉 Permission added successfully.';
+
+export const SERVER_ERROR_MESSAGE =
+  process.env?.SERVER_ERROR_MESSAGE || '⚠️ Something went wrong!';
+
+export const SPECIALITY_UPDATED =
+  process.env?.SPECIALITY_UPDATED || '🎉 Speciality updated successfully.';
+
+export const PERMISSIONS_ASSIGNED =
+  process.env?.PERMISSIONS_ASSIGNED ||
+  '🎉 All permissions are assigned successfully.';
 
 export const publicRoutes = [
   '/',

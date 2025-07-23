@@ -27,12 +27,12 @@ function ErrorCard({ message }: { message: string }) {
 }
 
 async function Verify({ token }: { token: string }) {
-  const { error, email, success } = await verifyToken(token);
+  const { email, success, message } = await verifyToken(token);
 
   return (
     <section className="col-span-2 grid place-items-center place-self-center">
-      {error && <ErrorCard message={error} />}
-      {success && <Component email={email} />}
+      {!success && <ErrorCard message={message} />}
+      {success && <Component email={email as string} />}
     </section>
   );
 }

@@ -1,6 +1,5 @@
 'use client';
 
-import z from 'zod';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 
@@ -13,11 +12,8 @@ import useHookForm from '@/hooks/use-hook-form';
 import handler from '@/components/display-toast';
 
 export default function Page() {
+  const form = useForm({ resolver: zodResolver(seedSchema) });
   const { handleSubmit, pending } = useHookForm(handler, seed);
-
-  const form = useForm<z.infer<typeof seedSchema>>({
-    resolver: zodResolver(seedSchema)
-  });
 
   return (
     <section className="col-span-2 grid place-items-center place-self-center">

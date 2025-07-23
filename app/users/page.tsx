@@ -55,17 +55,11 @@ export default async function Page() {
   const session = await auth();
   const users = await prisma.user.findMany();
 
-  const specialities = (await prisma.speciality.findMany()).map(s => ({
-    value: s.id,
-    label: s.name
-  }));
-
   return (
     <Component
       cardsData={cardsData}
       chartData={chartsData}
       chartConfig={chartConfig}
-      specialities={specialities}
       user={session?.user as User}
       key={users.map(u => u.updatedAt).toString()}
       users={users.filter(user => user.email !== session?.user?.email)}

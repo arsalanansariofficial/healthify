@@ -7,7 +7,6 @@ import { useSearchParams } from 'next/navigation';
 import { zodResolver } from '@hookform/resolvers/zod';
 
 import { login } from '@/lib/actions';
-import { SIGNUP } from '@/lib/constants';
 import * as CN from '@/components/ui/card';
 import { loginSchema } from '@/lib/schemas';
 import * as RHF from '@/components/ui/form';
@@ -15,6 +14,7 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import useHookForm from '@/hooks/use-hook-form';
 import handler from '@/components/display-toast';
+import { FORGET, SIGNUP, EMAIL_REGISTERED } from '@/lib/constants';
 
 export default function Page() {
   let oAuthError: string | undefined;
@@ -32,7 +32,7 @@ export default function Page() {
   });
 
   if (searchParams.get('error') === 'OAuthAccountNotLinked') {
-    oAuthError = '⚠️ Email already registered with another provider.';
+    oAuthError = EMAIL_REGISTERED;
   }
 
   return (
@@ -80,7 +80,7 @@ export default function Page() {
                   <RHF.FormItem>
                     <RHF.FormLabel className="flex items-center justify-between">
                       <span>Password</span>
-                      <Link href="/forget" className="text-primary font-normal">
+                      <Link href={FORGET} className="text-primary font-normal">
                         Forget Password?
                       </Link>
                     </RHF.FormLabel>

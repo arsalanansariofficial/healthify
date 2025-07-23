@@ -1,5 +1,6 @@
 import { PrismaClient } from '@prisma/client';
 
+import { DEFAULT_ROLE } from '@/lib/constants';
 import Component from '@/app/roles/assign-permissions/component';
 
 const prisma = new PrismaClient();
@@ -17,7 +18,7 @@ export default async function Page({ searchParams }: Props) {
 
       const existingRole = await transaction.role.findUnique({
         include: { permissions: true },
-        where: { name: role ? role : defaultRole?.name || 'USER' }
+        where: { name: role ? role : defaultRole?.name || DEFAULT_ROLE }
       });
 
       return { roles, permissions, existingRole };

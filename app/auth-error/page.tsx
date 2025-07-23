@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 
+import { HOME } from '@/lib/constants';
 import { Button } from '@/components/ui/button';
 
 export default function Page() {
@@ -13,7 +14,7 @@ export default function Page() {
     <section className="col-span-2 grid place-items-center gap-2 place-self-center">
       <h1 className="text-xl font-bold">{authError}</h1>
       <Button>
-        <Link href="/">Home Page</Link>
+        <Link href={HOME}>Home Page</Link>
       </Button>
     </section>
   );

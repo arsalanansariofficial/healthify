@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { Suspense } from 'react';
 
+import { HOME } from '@/lib/constants';
 import * as CN from '@/components/ui/card';
 import { verifyToken } from '@/lib/actions';
 import { Button } from '@/components/ui/button';
@@ -19,7 +20,7 @@ function ErrorCard({ message }: { message: string }) {
       </CN.CardHeader>
       <CN.CardFooter>
         <Button className="w-full">
-          <Link href="/">Home</Link>
+          <Link href={HOME}>Home</Link>
         </Button>
       </CN.CardFooter>
     </CN.Card>

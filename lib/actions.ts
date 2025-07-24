@@ -29,18 +29,8 @@ const prisma = new P.PrismaClient().$extends({
 
         const rolePromises: unknown[] = [];
         const specialityPromises: unknown[] = [];
-        const accountDeletePromises: unknown[] = [];
-        const timeSlotDeletePromises: unknown[] = [];
 
         users.forEach(user => {
-          accountDeletePromises.push(
-            prisma.account.deleteMany({ where: { userId: user.id } })
-          );
-
-          timeSlotDeletePromises.push(
-            prisma.timeSlot.deleteMany({ where: { userId: user.id } })
-          );
-
           rolePromises.push(
             prisma.role.findMany({
               where: { userIds: { hasSome: [user?.id as string] } }
@@ -88,13 +78,9 @@ const prisma = new P.PrismaClient().$extends({
           })
         ]);
 
-        await Promise.all([
-          ...accountDeletePromises,
-          ...timeSlotDeletePromises,
-          prisma.user.deleteMany({
-            where: { id: { in: users.map(({ id }) => id) } }
-          })
-        ]);
+        await prisma.user.deleteMany({
+          where: { id: { in: users.map(({ id }) => id) } }
+        });
 
         return users;
       },
@@ -146,13 +132,7 @@ const prisma = new P.PrismaClient().$extends({
           })
         ]);
 
-        await Promise.all([
-          prisma.account.deleteMany({ where: { id: user?.id } }),
-          prisma.timeSlot.deleteMany({ where: { id: user?.id } }),
-          prisma.user.delete({ where: { id: user?.id } })
-        ]);
-
-        return user;
+        return await prisma.user.delete({ where: { id: user?.id } });
       }
     }
   }
@@ -650,9 +630,9 @@ export async function addDoctor(data: Schema<typeof schemas.doctorSchema>) {
   if (!result.success) return { success: false, message: CONST.INVALID_INPUTS };
 
   const imageUUID = randomUUID();
-  const image = result.data.image[0];
   const timings = result.data.timings;
   const specialities = result.data.specialities;
+  const image = result.data?.image && result.data.image[0];
   const fileExtension = image?.type?.split(CONST.HOME).at(-1);
 
   try {
@@ -696,7 +676,7 @@ export async function addDoctor(data: Schema<typeof schemas.doctorSchema>) {
           experience: result.data.experience,
           roles: { connect: { id: role?.id } },
           daysOfVisit: (result.data.daysOfVisit as P.Day[]) || undefined,
-          image: image.size ? `${imageUUID}.${fileExtension}` : undefined,
+          image: image?.size ? `${imageUUID}.${fileExtension}` : undefined,
           password: await bcrypt.hash(result.data.password as string, 10)
         }
       });

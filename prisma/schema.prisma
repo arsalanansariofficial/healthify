@@ -38,9 +38,9 @@ model Permission {
   updatedAt DateTime @updatedAt
   createdAt DateTime @default(now())
 
-  roleIDs String[] @db.ObjectId
+  roleIds String[] @db.ObjectId
 
-  roles Role[] @relation(fields: [roleIDs], references: [id])
+  roles Role[] @relation(fields: [roleIds], references: [id])
 }
 
 model Speciality {
@@ -72,11 +72,11 @@ model Role {
   updatedAt DateTime @updatedAt
   createdAt DateTime @default(now())
 
-  userIDs       String[] @db.ObjectId
-  permissionIDs String[] @db.ObjectId
+  userIds       String[] @db.ObjectId
+  permissionIds String[] @db.ObjectId
 
-  users       User[]       @relation(fields: [userIDs], references: [id])
-  permissions Permission[] @relation(fields: [permissionIDs], references: [id])
+  users       User[]       @relation(fields: [userIds], references: [id])
+  permissions Permission[] @relation(fields: [permissionIds], references: [id])
 }
 
 model Account {
@@ -101,7 +101,7 @@ model Account {
 }
 
 model User {
-  id            String     @id @default(auto()) @map("_id") @db.ObjectId
+  id            String    @id @default(auto()) @map("_id") @db.ObjectId
   daysOfVisit   Day[]
   experience    Int?
   name          String?
@@ -110,19 +110,19 @@ model User {
   city          String?
   phone         String?
   gender        String?
-  timings       TimeSlot[]
   emailVerified DateTime?
-  email         String?    @unique
-  updatedAt     DateTime   @updatedAt
-  createdAt     DateTime   @default(now())
-  hasOAuth      Boolean    @default(false)
+  email         String?   @unique
+  updatedAt     DateTime  @updatedAt
+  createdAt     DateTime  @default(now())
+  hasOAuth      Boolean   @default(false)
 
-  roleIDs       String[] @db.ObjectId
-  specialityIDs String[] @db.ObjectId
-  accountIDs    String[] @db.ObjectId
+  roleIds       String[] @db.ObjectId
+  specialityIds String[] @db.ObjectId
+  accountIds    String[] @db.ObjectId
 
   token        Token?
   accounts     Account[]
-  roles        Role[]       @relation(fields: [roleIDs], references: [id])
-  specialities Speciality[] @relation(fields: [specialityIDs], references: [id])
+  timings      TimeSlot[]
+  roles        Role[]       @relation(fields: [roleIds], references: [id])
+  specialities Speciality[] @relation(fields: [specialityIds], references: [id])
 }

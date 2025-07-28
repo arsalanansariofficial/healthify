@@ -1,14 +1,18 @@
 {
-  "name": "next-auth",
+  "name": "healthify",
   "version": "0.1.0",
   "private": true,
-  "description": "A simple demo on how to use next-auth inside a Next.js app",
+  "description": "A healthcare appointment management platform with user registration, doctor search, scheduling, and role-based access control built using Next.js and NextAuth",
   "license": "MIT",
   "author": "Arsalan Ansari",
+  "type": "module",
   "scripts": {
     "build": "next build",
     "dev": "next dev --turbopack",
     "lint": "next lint",
+    "mongo:export": "node scripts/export.js",
+    "mongo:import": "node scripts/import.js",
+    "print:env": "dotenv -- printenv",
     "start": "next start"
   },
   "dependencies": {
@@ -71,6 +75,7 @@
     "@types/nodemailer": "^6.4.17",
     "@types/react": "19.1.12",
     "@types/react-dom": "19.1.9",
+    "dotenv-cli": "^11.0.0",
     "eslint": "^9",
     "eslint-config-next": "15.5.2",
     "prettier": "^3.5.3",

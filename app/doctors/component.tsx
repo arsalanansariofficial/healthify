@@ -240,7 +240,7 @@ export default function Component(props: Props) {
 
   return (
     <div className="col-span-2 space-y-4 lg:col-start-2">
-      {hasPermission(props.user.roles, 'view:specialities') && (
+      {hasPermission(props.user.permissions, 'view:specialities') && (
         <section className="space-y-4">
           <header>
             <CN.Card>

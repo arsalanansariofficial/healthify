@@ -22,7 +22,8 @@ export default function Component({ user, roles }: Props) {
     handler,
     assignRoles.bind(null, user.id as string) as (
       data: z.infer<typeof userRolesSchema>
-    ) => Promise<unknown>
+    ) => Promise<unknown>,
+    true
   );
 
   const form = useForm({
@@ -35,7 +36,14 @@ export default function Component({ user, roles }: Props) {
   });
 
   return (
-    <section className="col-span-2 grid place-items-center gap-4 place-self-center lg:col-start-2">
+    <section className="col-span-2 space-y-4 lg:col-start-2">
+      <header>
+        <CN.Card>
+          <CN.CardContent>
+            <h1 className="font-semibold">Assign Roles</h1>
+          </CN.CardContent>
+        </CN.Card>
+      </header>
       <CN.Card className="min-w-sm">
         <CN.CardHeader>
           <CN.CardTitle>Assign roles</CN.CardTitle>
@@ -101,7 +109,7 @@ export default function Component({ user, roles }: Props) {
             type="submit"
             form="roles-form"
             disabled={pending}
-            className="w-full cursor-pointer"
+            className="cursor-pointer"
           >
             {pending ? 'Adding roles...' : 'Add roles'}
           </Button>

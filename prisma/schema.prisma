@@ -22,25 +22,34 @@ enum Day {
   WEDNESDAY
 }
 
-model Token {
-  id        String   @id @default(auto()) @map("_id") @db.ObjectId
-  expires   DateTime
-  email     String   @unique
-  updatedAt DateTime @updatedAt
-  createdAt DateTime @default(now())
+model UserRole {
+  id String @id @default(auto()) @map("_id") @db.ObjectId
 
-  user User @relation(fields: [email], references: [email], onDelete: Cascade)
+  userId String @db.ObjectId
+  roleId String @db.ObjectId
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  role Role @relation(fields: [roleId], references: [id], onDelete: Cascade)
 }
 
-model Permission {
-  id        String   @id @default(auto()) @map("_id") @db.ObjectId
-  name      String   @unique
-  updatedAt DateTime @updatedAt
-  createdAt DateTime @default(now())
+model UserSpeciality {
+  id String @id @default(auto()) @map("_id") @db.ObjectId
 
-  roleIds String[] @db.ObjectId
+  userId       String @db.ObjectId
+  specialityId String @db.ObjectId
 
-  roles Role[] @relation(fields: [roleIds], references: [id])
+  user       User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  speciality Speciality @relation(fields: [specialityId], references: [id], onDelete: Cascade)
+}
+
+model RolePermission {
+  id String @id @default(auto()) @map("_id") @db.ObjectId
+
+  roleId       String @db.ObjectId
+  permissionId String @db.ObjectId
+
+  role       Role       @relation(fields: [roleId], references: [id], onDelete: Cascade)
+  permission Permission @relation(fields: [permissionId], references: [id], onDelete: Cascade)
 }
 
 model Speciality {
@@ -49,9 +58,37 @@ model Speciality {
   updatedAt DateTime @updatedAt
   createdAt DateTime @default(now())
 
-  userIds String[] @db.ObjectId
+  userSpecialities UserSpeciality[]
+}
 
-  users User[] @relation(fields: [userIds], references: [id])
+model Permission {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  name      String   @unique
+  updatedAt DateTime @updatedAt
+  createdAt DateTime @default(now())
+
+  rolePermission RolePermission[]
+}
+
+model Role {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  name      String   @unique
+  updatedAt DateTime @updatedAt
+  createdAt DateTime @default(now())
+
+  UserRole        UserRole[]
+  RolePermissions RolePermission[]
+}
+
+model Token {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  expires   DateTime
+  updatedAt DateTime @updatedAt
+  createdAt DateTime @default(now())
+
+  userId String @unique @db.ObjectId
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 model TimeSlot {
@@ -66,43 +103,28 @@ model TimeSlot {
   User User? @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
-model Role {
-  id        String   @id @default(auto()) @map("_id") @db.ObjectId
-  name      String   @unique
-  updatedAt DateTime @updatedAt
-  createdAt DateTime @default(now())
-
-  userIds       String[] @db.ObjectId
-  permissionIds String[] @db.ObjectId
-
-  users       User[]       @relation(fields: [userIds], references: [id])
-  permissions Permission[] @relation(fields: [permissionIds], references: [id])
-}
-
 model Account {
   id                String   @id @default(auto()) @map("_id") @db.ObjectId
   expires_at        Int?
   type              String
-  provider          String
-  providerAccountId String
   refresh_token     String?
   access_token      String?
   token_type        String?
   scope             String?
   id_token          String?
   session_state     String?
+  provider          String   @unique
+  providerAccountId String   @unique
   updatedAt         DateTime @updatedAt
-  userId            String   @db.ObjectId
   createdAt         DateTime @default(now())
 
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId String @db.ObjectId
 
-  @@unique([provider, providerAccountId])
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 model User {
   id            String    @id @default(auto()) @map("_id") @db.ObjectId
-  daysOfVisit   Day[]
   experience    Int?
   name          String?
   image         String?
@@ -116,13 +138,10 @@ model User {
   createdAt     DateTime  @default(now())
   hasOAuth      Boolean   @default(false)
 
-  roleIds       String[] @db.ObjectId
-  specialityIds String[] @db.ObjectId
-  accountIds    String[] @db.ObjectId
-
-  token        Token?
-  accounts     Account[]
-  timings      TimeSlot[]
-  roles        Role[]       @relation(fields: [roleIds], references: [id])
-  specialities Speciality[] @relation(fields: [specialityIds], references: [id])
+  daysOfVisit      Day[]
+  token            Token?
+  accounts         Account[]
+  timings          TimeSlot[]
+  UserRoles        UserRole[]
+  UserSpecialities UserSpeciality[]
 }

@@ -1,5 +1,6 @@
 import NextAuth from 'next-auth';
 import { cookies } from 'next/headers';
+import { Permission } from '@prisma/client';
 
 import { auth, authConfig } from '@/auth';
 import { hasPermission } from '@/lib/utils';
@@ -14,17 +15,17 @@ export default NextAuth(authConfig).auth(async request => {
   const sessionCookie = await cookies();
 
   const user = session?.user;
-  const roles = session?.user?.roles || [];
-
   const isLoggedin = request.auth?.user;
   const path = request.nextUrl.pathname;
 
   const isAvailableRoute = urls.some(u => u.value === path);
-  const permission = urls.find(u => u.value === path)?.permission || String();
-
-  const hasUrlPermission = hasPermission(roles, permission);
   const isPublicRoute = publicRoutes.includes(request.nextUrl.pathname);
   const isExpired = user?.expiresAt && user.expiresAt - Date.now() <= 0;
+
+  const permissions = user?.permissions as Permission[];
+  const permission = urls.find(u => u.value === path)?.permission || String();
+
+  const hasUrlPermission = user && hasPermission(permissions, permission);
 
   if (user && isExpired) {
     sessionCookie.delete(SESSION);

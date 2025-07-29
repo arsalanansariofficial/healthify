@@ -21,48 +21,57 @@ export default function Page() {
   });
 
   return (
-    <section className="col-span-2 grid place-items-center gap-4 place-self-center lg:col-start-2">
-      <CN.Card className="min-w-sm">
-        <CN.CardHeader>
-          <CN.CardTitle>Add roles</CN.CardTitle>
-          <CN.CardDescription>
-            Enter a name for a role that you want to add
-          </CN.CardDescription>
-        </CN.CardHeader>
-        <CN.CardContent>
-          <RHF.Form {...form}>
-            <form
-              id="role-form"
-              className="space-y-2"
-              onSubmit={form.handleSubmit(handleSubmit)}
+    <section className="col-span-2 space-y-4 lg:col-start-2">
+      <header>
+        <CN.Card>
+          <CN.CardContent>
+            <h1 className="font-semibold">Roles</h1>
+          </CN.CardContent>
+        </CN.Card>
+      </header>
+      <main>
+        <CN.Card>
+          <CN.CardHeader>
+            <CN.CardTitle>Add roles</CN.CardTitle>
+            <CN.CardDescription>
+              Enter a name for a role that you want to add
+            </CN.CardDescription>
+          </CN.CardHeader>
+          <CN.CardContent>
+            <RHF.Form {...form}>
+              <form
+                id="role-form"
+                className="space-y-2"
+                onSubmit={form.handleSubmit(handleSubmit)}
+              >
+                <RHF.FormField
+                  name="name"
+                  control={form.control}
+                  render={({ field }) => (
+                    <RHF.FormItem>
+                      <RHF.FormLabel>Name</RHF.FormLabel>
+                      <RHF.FormControl>
+                        <Input {...field} type="text" placeholder="USER" />
+                      </RHF.FormControl>
+                      <RHF.FormMessage />
+                    </RHF.FormItem>
+                  )}
+                />
+              </form>
+            </RHF.Form>
+          </CN.CardContent>
+          <CN.CardFooter>
+            <Button
+              type="submit"
+              form="role-form"
+              disabled={pending}
+              className="cursor-pointer"
             >
-              <RHF.FormField
-                name="name"
-                control={form.control}
-                render={({ field }) => (
-                  <RHF.FormItem>
-                    <RHF.FormLabel>Name</RHF.FormLabel>
-                    <RHF.FormControl>
-                      <Input {...field} type="text" placeholder="USER" />
-                    </RHF.FormControl>
-                    <RHF.FormMessage />
-                  </RHF.FormItem>
-                )}
-              />
-            </form>
-          </RHF.Form>
-        </CN.CardContent>
-        <CN.CardFooter>
-          <Button
-            type="submit"
-            form="role-form"
-            disabled={pending}
-            className="w-full cursor-pointer"
-          >
-            {pending ? 'Adding role...' : 'Add role'}
-          </Button>
-        </CN.CardFooter>
-      </CN.Card>
+              {pending ? 'Adding role...' : 'Add role'}
+            </Button>
+          </CN.CardFooter>
+        </CN.Card>
+      </main>
     </section>
   );
 }

@@ -17,7 +17,7 @@ export default function Sidebar({ user }: { user: User }) {
             <ul className="space-y-1">
               {SIDEBAR_ITEMS.map(
                 (item, index) =>
-                  hasPermission(user.roles, item.permission) && (
+                  hasPermission(user.permissions, item.permission) && (
                     <li key={index}>
                       <Link
                         href={item.url}

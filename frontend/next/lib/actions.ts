@@ -704,6 +704,7 @@ export async function getAppointment(
       await prisma.appointment.findFirst({
         where: {
           doctorId,
+          date: result.data.date,
           patientId: session.user.id,
           timeSlotId: result.data.time
         }

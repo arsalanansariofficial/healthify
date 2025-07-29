@@ -2,7 +2,7 @@
 
 import path from 'path';
 import fs from 'fs/promises';
-import bcrypt from 'bcryptjs';
+import bcrypt from 'bcrypt-mini';
 import { z, ZodSchema } from 'zod';
 import { randomUUID } from 'crypto';
 import nodemailer from 'nodemailer';
@@ -433,7 +433,7 @@ export async function signup(data: Schema<typeof schemas.signupSchema>) {
         data: {
           name: result.data.name,
           email: result.data.email,
-          password: await bcrypt.hash(result.data.password as string, 10)
+          password: bcrypt.hashSync(result.data.password as string, 10)
         }
       });
 
@@ -463,7 +463,7 @@ export default async function seed() {
             name: CONST.ADMIN_NAME,
             email: CONST.ADMIN_EMAIL,
             emailVerified: new Date(),
-            password: await bcrypt.hash(CONST.ADMIN_PASSWORD, 10)
+            password: await bcrypt.hashSync(CONST.ADMIN_PASSWORD, 10)
           }
         })
       ]);
@@ -494,7 +494,7 @@ export async function updatePassword({
   try {
     await prisma.user.update({
       where: { email },
-      data: { password: await bcrypt.hash(password, 10) }
+      data: { password: await bcrypt.hashSync(password, 10) }
     });
   } catch {
     return { success: false, message: CONST.SERVER_ERROR_MESSAGE };
@@ -554,7 +554,7 @@ export async function updateUser(
         data: {
           name: result.data.name,
           email: result.data.email,
-          password: password ? await bcrypt.hash(password, 10) : undefined,
+          password: password ? await bcrypt.hashSync(password, 10) : undefined,
           emailVerified: result.data.emailVerified === 'yes' ? new Date() : null
         }
       });
@@ -602,7 +602,7 @@ export async function addDoctor(data: Schema<typeof schemas.doctorSchema>) {
           gender: result.data.gender,
           experience: result.data.experience,
           daysOfVisit: (result.data.daysOfVisit as P.Day[]) || undefined,
-          password: await bcrypt.hash(result.data.password as string, 10),
+          password: await bcrypt.hashSync(result.data.password as string, 10),
           image: image?.size ? `${imageUUID}.${fileExtension}` : undefined,
           timings: {
             create: removeDuplicateTimes(timings)?.map(t => ({

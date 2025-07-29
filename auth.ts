@@ -1,4 +1,4 @@
-import bcrypt from 'bcryptjs';
+import bcrypt from 'bcrypt-mini';
 import GitHub from 'next-auth/providers/github';
 import NextAuth, { NextAuthConfig } from 'next-auth';
 import { PrismaAdapter } from '@auth/prisma-adapter';
@@ -33,7 +33,7 @@ export const authConfig = {
         const user = await prisma.user.findUnique({ where: { email } });
 
         if (!user || !user.password) return null;
-        if (!(await bcrypt.compare(password, user.password))) return null;
+        if (!bcrypt.compareSync(password, user.password)) return null;
 
         const roles = (
           await prisma.userRole.findMany({

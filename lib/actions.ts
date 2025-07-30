@@ -10,6 +10,7 @@ import * as P from '@prisma/client';
 import { AuthError } from 'next-auth';
 import { revalidatePath } from 'next/cache';
 
+import prisma from '@/lib/prisma';
 import * as CONST from '@/lib/constants';
 import * as schemas from '@/lib/schemas';
 import { removeDuplicateTimes } from '@/lib/utils';
@@ -18,8 +19,6 @@ import { auth, signIn, unstable_update as update } from '@/auth';
 type Schema<T extends ZodSchema> = z.infer<T>;
 
 const dir = path.join(process.cwd(), CONST.USER_DIR);
-
-const prisma = new P.PrismaClient();
 
 async function saveFile(file: File, fileName: string) {
   await fs.mkdir(dir, { recursive: true });

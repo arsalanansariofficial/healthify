@@ -1,9 +1,6 @@
-import { PrismaClient } from '@prisma/client';
-
+import prisma from '@/lib/prisma';
 import { DEFAULT_ROLE } from '@/lib/constants';
 import Component from '@/app/roles/assign-permissions/component';
-
-const prisma = new PrismaClient();
 
 type Props = { searchParams: Promise<{ role: string }> };
 

@@ -1,11 +1,9 @@
 import { User } from 'next-auth';
-import { PrismaClient } from '@prisma/client';
 
 import { auth } from '@/auth';
+import prisma from '@/lib/prisma';
 import Component from '@/app/users/component';
 import { ChartConfig } from '@/components/ui/chart';
-
-const prisma = new PrismaClient();
 
 const chartConfig = {
   users: { label: 'Users', color: 'var(--primary)' }

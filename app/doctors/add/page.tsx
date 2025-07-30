@@ -1,8 +1,5 @@
-import { PrismaClient } from '@prisma/client';
-
+import prisma from '@/lib/prisma';
 import Component from '@/app/doctors/add/component';
-
-const prisma = new PrismaClient();
 
 export default async function Page() {
   return (

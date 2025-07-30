@@ -1,10 +1,11 @@
 import bcrypt from 'bcrypt-mini';
 import GitHub from 'next-auth/providers/github';
+import { Permission, Role } from '@prisma/client';
 import NextAuth, { NextAuthConfig } from 'next-auth';
 import { PrismaAdapter } from '@auth/prisma-adapter';
 import Credentials from 'next-auth/providers/credentials';
-import { Permission, PrismaClient, Role } from '@prisma/client';
 
+import prisma from '@/lib/prisma';
 import * as CONST from '@/lib/constants';
 
 declare module 'next-auth' {
@@ -14,8 +15,6 @@ declare module 'next-auth' {
     expiresAt: number | undefined;
   }
 }
-
-const prisma = new PrismaClient();
 
 export const authConfig = {
   providers: [

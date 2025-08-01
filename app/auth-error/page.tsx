@@ -11,11 +11,13 @@ export default function Page() {
   const authError = searchParams.get('error');
 
   return (
-    <section className="col-span-2 grid place-items-center gap-2 place-self-center">
-      <h1 className="text-xl font-bold">{authError}</h1>
-      <Button>
-        <Link href={HOME}>Home Page</Link>
-      </Button>
-    </section>
+    <main className="row-start-2 mx-8 grid place-items-center">
+      <section className="space-y-4 text-center">
+        <h1 className="text-xl font-bold">{authError}</h1>
+        <Button>
+          <Link href={HOME}>Home Page</Link>
+        </Button>
+      </section>
+    </main>
   );
 }

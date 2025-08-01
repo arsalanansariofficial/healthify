@@ -1,55 +1,60 @@
 'use client';
 
 import { useForm } from 'react-hook-form';
-import useHookForm from '@/hooks/use-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 
 import * as CN from '@/components/ui/card';
 import * as RHF from '@/components/ui/form';
-import { loginSchema } from '@/lib/schemas';
 import { Input } from '@/components/ui/input';
-import { updatePassword } from '@/lib/actions';
+import { addPermission } from '@/lib/actions';
 import { Button } from '@/components/ui/button';
+import useHookForm from '@/hooks/use-hook-form';
 import handler from '@/components/display-toast';
+import { permissionSchema } from '@/lib/schemas';
 
-export default function Component({ email }: { email: string }) {
-  const { pending, handleSubmit } = useHookForm(handler, updatePassword);
+export default function Component() {
+  const { pending, handleSubmit } = useHookForm(handler, addPermission);
 
   const form = useForm({
-    resolver: zodResolver(loginSchema),
-    defaultValues: { email, password: String() }
+    resolver: zodResolver(permissionSchema),
+    defaultValues: { name: String() }
   });
 
   return (
-    <main className="row-start-2 mx-8 grid place-items-center">
-      <section>
-        <CN.Card className="min-w-sm">
+    <section className="col-span-2 space-y-4 lg:col-start-2">
+      <header>
+        <CN.Card>
+          <CN.CardContent>
+            <h1 className="font-semibold">Permissions</h1>
+          </CN.CardContent>
+        </CN.Card>
+      </header>
+      <main>
+        <CN.Card>
           <CN.CardHeader>
-            <CN.CardTitle>Reset your password</CN.CardTitle>
+            <CN.CardTitle>Add permission</CN.CardTitle>
             <CN.CardDescription>
-              Enter a new password below to reset your account&apos;s password
+              Enter a name for a permission that you want to add
             </CN.CardDescription>
           </CN.CardHeader>
           <CN.CardContent>
             <RHF.Form {...form}>
               <form
-                id="reset-form"
+                id="permission-form"
                 className="space-y-2"
                 onSubmit={form.handleSubmit(handleSubmit)}
               >
                 <RHF.FormField
-                  name="password"
+                  name="name"
                   control={form.control}
                   render={({ field }) => (
                     <RHF.FormItem>
-                      <RHF.FormLabel className="flex items-center justify-between">
-                        <span>Password</span>
-                      </RHF.FormLabel>
+                      <RHF.FormLabel>Name</RHF.FormLabel>
                       <RHF.FormControl>
                         <Input
                           {...field}
-                          type="password"
-                          placeholder="Secret@123"
+                          type="text"
+                          placeholder="VIEW:DASHBOARD"
                         />
                       </RHF.FormControl>
                       <RHF.FormMessage />
@@ -62,15 +67,15 @@ export default function Component({ email }: { email: string }) {
           <CN.CardFooter>
             <Button
               type="submit"
-              form="reset-form"
               disabled={pending}
-              className="w-full cursor-pointer"
+              form="permission-form"
+              className="cursor-pointer"
             >
-              {pending ? 'Updating password...' : 'Reset password'}
+              {pending ? 'Adding permission...' : 'Add permission'}
             </Button>
           </CN.CardFooter>
         </CN.Card>
-      </section>
-    </main>
+      </main>
+    </section>
   );
 }

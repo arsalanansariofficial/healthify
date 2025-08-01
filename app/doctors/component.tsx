@@ -624,7 +624,7 @@ export default function Component(props: Props) {
                           >
                             <Link
                               className="text-center"
-                              href={`/doctors/appointments/${doctor.id}`}
+                              href={`/appointments/${doctor.id}`}
                             >
                               Get Appointment
                             </Link>

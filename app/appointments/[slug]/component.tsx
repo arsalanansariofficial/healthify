@@ -1,39 +1,44 @@
 'use client';
 
+import { format } from 'date-fns';
 import { useForm } from 'react-hook-form';
-import { TimeSlot, User } from '@prisma/client';
+import { CalendarIcon } from 'lucide-react';
+import { Day, TimeSlot, User } from '@prisma/client';
 import { zodResolver } from '@hookform/resolvers/zod';
 
 import * as CN from '@/components/ui/card';
 import * as RHF from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import * as PO from '@/components/ui/popover';
 import { getAppointment } from '@/lib/actions';
 import useHookForm from '@/hooks/use-hook-form';
 import { Button } from '@/components/ui/button';
 import handler from '@/components/display-toast';
 import * as Select from '@/components/ui/select';
 import { appointmentSchema } from '@/lib/schemas';
+import { maxDate, minDate } from '@/lib/constants';
+import { Calendar } from '@/components/ui/calendar';
 
-type NewType = { doctor: User & { timings: TimeSlot[] } };
+type Props = { doctor: User & { timings: TimeSlot[] } };
 
-export default function Component({ doctor }: NewType) {
+export default function Component({ doctor }: Props) {
   const { pending, handleSubmit } = useHookForm(handler, getAppointment);
 
   const form = useForm({
     resolver: zodResolver(appointmentSchema),
     defaultValues: {
-      day: String(),
       name: String(),
       city: String(),
       time: String(),
       email: String(),
-      phone: String()
+      phone: String(),
+      date: new Date()
     }
   });
 
   return (
-    <section className="h-full space-y-4">
+    <section className="col-span-2 h-full space-y-4 lg:col-span-1">
       <header>
         <CN.Card>
           <CN.CardContent>
@@ -131,28 +136,41 @@ export default function Component({ doctor }: NewType) {
                   )}
                 />
                 <RHF.FormField
-                  name="day"
+                  name="date"
                   control={form.control}
                   render={({ field }) => (
                     <RHF.FormItem>
                       <RHF.FormLabel>Day</RHF.FormLabel>
                       <RHF.FormControl>
-                        <Select.Select onValueChange={field.onChange}>
-                          <Select.SelectTrigger className="w-full [&_span[data-slot]]:block [&_span[data-slot]]:truncate">
-                            <Select.SelectValue placeholder="Select a day" />
-                          </Select.SelectTrigger>
-                          <Select.SelectContent>
-                            {doctor.daysOfVisit.map(day => (
-                              <Select.SelectItem
-                                key={day}
-                                value={day}
-                                className="capitalize"
-                              >
-                                {day}
-                              </Select.SelectItem>
-                            ))}
-                          </Select.SelectContent>
-                        </Select.Select>
+                        <PO.Popover>
+                          <PO.PopoverTrigger asChild>
+                            <Button
+                              variant="outline"
+                              data-empty={!field.value}
+                              className="data-[empty=true]:text-muted-foreground flex justify-between text-left font-normal"
+                            >
+                              {field.value && format(field.value, 'PPP')}
+                              {!field.value && <span>Pick a date</span>}
+                              <CalendarIcon />
+                            </Button>
+                          </PO.PopoverTrigger>
+                          <PO.PopoverContent className="w-auto p-0">
+                            <Calendar
+                              mode="single"
+                              selected={field.value}
+                              onSelect={field.onChange}
+                              hidden={{ before: minDate, after: maxDate }}
+                              disabled={date => {
+                                const day = date.toLocaleDateString('en-US', {
+                                  weekday: 'long'
+                                });
+                                return !doctor.daysOfVisit
+                                  .map(d => d.toLowerCase())
+                                  .includes(day.toLowerCase() as Day);
+                              }}
+                            />
+                          </PO.PopoverContent>
+                        </PO.Popover>
                       </RHF.FormControl>
                       <RHF.FormMessage />
                     </RHF.FormItem>

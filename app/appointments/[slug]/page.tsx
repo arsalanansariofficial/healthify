@@ -1,7 +1,7 @@
 import { notFound } from 'next/navigation';
 
 import prisma from '@/lib/prisma';
-import Component from '@/app/doctors/appointments/[slug]/component';
+import Component from '@/app/appointments/[slug]/component';
 
 type Props = { params: Promise<{ slug: string }> };
 

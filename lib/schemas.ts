@@ -1,11 +1,8 @@
 import z from 'zod';
+import { maxDate, minDate } from '@/lib/constants';
 
 const emailVerified = z.object({
   emailVerified: z.enum(['yes', 'no']).optional()
-});
-
-const appointmentDay = z.object({
-  day: z.string().min(1, { message: 'Should be valid.' })
 });
 
 const appointmentTime = z.object({
@@ -66,6 +63,13 @@ const visitDays = z.object({
     .min(1, { message: 'Select at least one day of visit.' })
 });
 
+const appointmentDate = z.object({
+  date: z
+    .date()
+    .max(maxDate, { message: `Date must be less than ${maxDate}` })
+    .min(minDate, { message: `Date must be greater than ${minDate}` })
+});
+
 const image = z.object({
   image: z
     .any()
@@ -112,7 +116,7 @@ export const appointmentSchema = name
   .merge(city)
   .merge(email)
   .merge(phone)
-  .merge(appointmentDay)
+  .merge(appointmentDate)
   .merge(appointmentTime);
 
 export const doctorSchema = userSchema

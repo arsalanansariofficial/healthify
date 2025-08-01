@@ -16,6 +16,9 @@ export const ADMIN_NAME = process.env?.ADMIN_NAME || 'Admin User';
 export const IS_PRODUCTION = process.env?.NODE_ENV === 'production';
 export const SMTP_PASSWORD = process.env?.SMTP_PASSWORD || 'password';
 
+export const minDate = new Date(Date.now());
+export const maxDate = new Date(Date.now() + 14 * 24 * 60 * 60 * 1000);
+
 export const SMTP_EMAIL = process.env?.SMTP_EMAIL || 'email@domain.com';
 export const ADMIN_PASSWORD = process.env?.ADMIN_PASSWORD || 'admin.user';
 

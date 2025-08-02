@@ -17,8 +17,11 @@ export default function Page() {
         </header>
         <main className="overflow-hidden">
           <div className="print-animation -translate-y-[calc(100%+1rem)]">
-            <Card className="mx-auto mt-4 print:border print:border-black print:shadow-none">
+            <Card className="mx-auto mt-4 print:border print:border-dashed print:border-black print:shadow-none">
               <CardContent className="grid min-h-50 grid-cols-2 gap-2 print:text-black">
+                <h2 className="col-span-2 text-center">Queue 1</h2>
+                <h2>Appointment Number</h2>
+                <h2 className="text-right">abcde12345</h2>
                 <h2>Dental Checkup</h2>
                 <h2 className="text-right">Confirmation</h2>
                 <div>

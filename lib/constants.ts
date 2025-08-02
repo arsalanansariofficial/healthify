@@ -150,9 +150,11 @@ export const urls = [
   { value: '/roles', permission: 'view:roles' },
   { value: '/users', permission: 'view:users' },
   { value: '/doctors', permission: 'view:doctors' },
+  { value: '/receipt', permission: 'view:receipt' },
   { value: '/doctors/add', permission: 'add:doctor' },
   { value: '/dashboard', permission: 'view:dashboard' },
   { value: '/permissions', permission: 'view:permissions' },
+  { value: '/appointments', permission: 'view:appointments' },
   { value: '/roles/assign-roles', permission: 'view:assign-roles' },
   { value: '/doctors/specialities/add', permission: 'add:speciality' },
   { value: '/roles/assign-permissions', permission: 'view:assign-permissions' }

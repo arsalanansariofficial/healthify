@@ -52,6 +52,9 @@ if (process.env?.PROFILE_UPDATED) PROFILE_UPDATED = process.env.PROFILE_UPDATED;
 export let EMAIL_NOT_FOUND = "⚠️ Email doesn't exist!";
 if (process.env?.EMAIL_NOT_FOUND) EMAIL_NOT_FOUND = process.env.EMAIL_NOT_FOUND;
 
+export let UN_AUTHORIZED = '⚠️ You are not authorized to perform this action!';
+if (process.env?.UN_AUTHORIZED) UN_AUTHORIZED = process.env.UN_AUTHORIZED;
+
 export let INVALID_TIME_SLOT = '⚠️ Invalid time slot!';
 if (process.env?.INVALID_TIME_SLOT) {
   INVALID_TIME_SLOT = process.env.INVALID_TIME_SLOT;

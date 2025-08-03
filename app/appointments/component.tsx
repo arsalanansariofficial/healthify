@@ -1,11 +1,12 @@
 'use client';
 
 import z from 'zod';
+import Link from 'next/link';
 import { toast } from 'sonner';
 import { User } from 'next-auth';
-import { Check, X } from 'lucide-react';
 import * as RT from '@tanstack/react-table';
 import * as Icons from '@tabler/icons-react';
+import { Check, Printer, X } from 'lucide-react';
 
 import * as actions from '@/lib/actions';
 import * as CONST from '@/lib/constants';
@@ -24,9 +25,9 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Badge, BadgeVariant } from '@/components/ui/badge';
 
 type Props = { user: User; appointments: Appointment[] };
-type TCVProps<T extends z.ZodType> = { item: z.infer<T> };
 type TableSchema = { id: number } & Omit<Appointment, 'id'>;
 type MenuProps = { id?: string; ids?: string[]; isHeader: boolean };
+type TCVProps<T extends z.ZodType> = { user: User; item: z.infer<T> };
 
 type Appointment = {
   id: string;
@@ -100,13 +101,9 @@ function Menu({ id, ids, isHeader = false }: MenuProps) {
 }
 
 export function TableCellViewer<T extends z.ZodType>(props: TCVProps<T>) {
-  let availableForCancel = false;
+  const { status } = props.item;
   const isMobile = useIsMobile();
   const { pending } = useHookForm(handler, actions.getAppointment);
-
-  if (props.item.status === 'pending' || props.item.status === 'confirmed') {
-    availableForCancel = true;
-  }
 
   return (
     <Drawer.Drawer direction={isMobile ? 'bottom' : 'right'}>
@@ -173,31 +170,52 @@ export function TableCellViewer<T extends z.ZodType>(props: TCVProps<T>) {
           </form>
         </div>
         <Drawer.DrawerFooter>
-          {availableForCancel && (
-            <div className="grid grid-cols-2 gap-2">
-              <Button
-                type="submit"
-                variant="outline"
-                disabled={pending}
-                form="appointment-form"
-                className="cursor-pointer"
-              >
-                <X />
-                {!isMobile && (
-                  <span>{pending ? 'Cancelling...' : 'Cancel'}</span>
-                )}
-              </Button>
-              <Button
-                type="submit"
-                disabled={pending}
-                form="appointment-form"
-                className="cursor-pointer"
-              >
-                <Check />
-                {!isMobile && <span>{pending ? 'Saving...' : 'Confirm'}</span>}
-              </Button>
-            </div>
-          )}
+          <div className="grid grid-flow-col gap-2">
+            {(status === 'pending' || status === 'confirmed') &&
+              hasPermission(props.user.permissions, 'cancel:appointment') && (
+                <Button
+                  type="submit"
+                  variant="outline"
+                  disabled={pending}
+                  form="appointment-form"
+                  className="cursor-pointer"
+                >
+                  {!isMobile && (
+                    <span>{pending ? 'Cancelling...' : 'Cancel'}</span>
+                  )}
+                  <X />
+                </Button>
+              )}
+            {status === 'pending' &&
+              hasPermission(props.user.permissions, 'confirm:appointment') && (
+                <Button
+                  type="submit"
+                  disabled={pending}
+                  form="appointment-form"
+                  className="cursor-pointer"
+                >
+                  {!isMobile && (
+                    <span>{pending ? 'Saving...' : 'Confirm'}</span>
+                  )}
+                  <Check />
+                </Button>
+              )}
+            {status === 'confirmed' &&
+              hasPermission(props.user.permissions, 'view:receipt') && (
+                <Button
+                  asChild
+                  type="submit"
+                  disabled={pending}
+                  form="appointment-form"
+                  className="cursor-pointer"
+                >
+                  <Link href="/receipt">
+                    {!isMobile && <span>View Receipt</span>}
+                    <Printer />
+                  </Link>
+                </Button>
+              )}
+          </div>
           <Drawer.DrawerClose asChild>
             <Button variant="outline">Done</Button>
           </Drawer.DrawerClose>
@@ -248,6 +266,7 @@ export default function Component(props: Props) {
         return (
           <TableCellViewer
             key={Date.now()}
+            user={props.user}
             item={findItem(props.appointments, row.original.id)}
           />
         );

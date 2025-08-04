@@ -21,6 +21,7 @@ declare module 'next-auth' {
     roles?: Role[];
     expiresAt?: number;
     city?: string | null;
+    cover?: string | null;
     phone?: string | null;
     permissions?: Permission[];
   }
@@ -92,6 +93,8 @@ export const { auth, handlers, signIn, signOut, unstable_update } = NextAuth({
     async session({ session, token }) {
       session.user.id = token.id as string;
       session.user.roles = token.roles as Role[];
+      session.user.image = token.image as string;
+      session.user.cover = token.cover as string;
       session.user.city = token.city as string | undefined;
       session.user.phone = token.phone as string | undefined;
       session.user.permissions = token.permissions as Permission[];
@@ -123,6 +126,8 @@ export const { auth, handlers, signIn, signOut, unstable_update } = NextAuth({
         token.city = user.city;
         token.roles = user.roles;
         token.phone = user.phone;
+        token.image = user.image;
+        token.cover = user.cover;
         token.permissions = user.permissions;
         token.expiresAt = Date.now() + EXPIRES_AT * 1000;
       }
@@ -132,6 +137,8 @@ export const { auth, handlers, signIn, signOut, unstable_update } = NextAuth({
         token.city = session.user.city;
         token.roles = session.user.roles;
         token.phone = session.user.phone;
+        token.image = session.user.image;
+        token.cover = session.user.cover;
         token.expiresAt = session.user.expiresAt;
         token.permissions = session.user.permissions;
       }

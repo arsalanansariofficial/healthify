@@ -38,7 +38,7 @@ export default function Component({ specialities }: Props) {
       phone: String(),
       specialities: [],
       password: String(),
-      timings: [{ id: 1, time: '10:00:00', duration: 1 }]
+      timings: [{ id: '1', time: '10:00:00', duration: 1 }]
     }
   });
 
@@ -306,7 +306,7 @@ export default function Component({ specialities }: Props) {
                                     time: '10:00:00',
                                     id: Math.floor(
                                       10000 + Math.random() * 90000
-                                    )
+                                    ).toString()
                                   }
                                 ]);
                               }}

@@ -2,6 +2,7 @@ import { User } from 'next-auth';
 
 import { auth } from '@/auth';
 import Header from '@/components/header';
+import Footer from '@/components/footer';
 import Session from '@/components/session';
 import Sidebar from '@/components/sidebar';
 import Component from '@/app/doctors/specialities/add/component';
@@ -16,6 +17,7 @@ export default async function Page() {
         <Sidebar user={session?.user as User} />
         <Component />
       </main>
+      <Footer />
     </Session>
   );
 }

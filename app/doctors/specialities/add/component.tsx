@@ -21,7 +21,7 @@ export default function Component() {
   });
 
   return (
-    <section className="col-span-2 h-full space-y-4 lg:col-span-1">
+    <section className="col-span-2 h-full space-y-4 xl:col-span-1 xl:col-start-2">
       <header>
         <CN.Card>
           <CN.CardContent>

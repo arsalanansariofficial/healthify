@@ -72,7 +72,7 @@ export default function Component({ user, specialities }: Props) {
 
   return (
     <>
-      <section className="col-span-2 h-full space-y-4 lg:col-span-1">
+      <section className="col-span-2 h-full space-y-4 xl:col-span-1 xl:col-start-2">
         <header>
           <CN.Card>
             <CN.CardContent>
@@ -604,7 +604,7 @@ export default function Component({ user, specialities }: Props) {
           </Tabs>
         </main>
       </section>
-      <aside className="sticky top-[7.35em] hidden max-h-[calc(100vh-10.5em)] w-sm scroll-mt-0 lg:block">
+      <aside className="sticky top-[7.35em] hidden max-h-[calc(100vh-12em)] w-sm scroll-mt-0 lg:block">
         <CN.Card className="h-full">
           <CN.CardHeader>
             <div className="relative grid min-h-50 gap-3 overflow-clip rounded-md border-2 border-dashed">

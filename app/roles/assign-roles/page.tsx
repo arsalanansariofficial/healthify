@@ -3,6 +3,7 @@ import { User } from 'next-auth';
 import { auth } from '@/auth';
 import prisma from '@/lib/prisma';
 import Header from '@/components/header';
+import Footer from '@/components/footer';
 import Session from '@/components/session';
 import Sidebar from '@/components/sidebar';
 import Component from '@/app/roles/assign-roles/component';
@@ -21,6 +22,7 @@ export default async function Page() {
           roles={roles.map(r => ({ label: r.name, value: r.id }))}
         />
       </main>
+      <Footer />
     </Session>
   );
 }

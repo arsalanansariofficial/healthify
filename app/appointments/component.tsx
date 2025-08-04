@@ -342,7 +342,7 @@ export default function Component(props: Props) {
   ];
 
   return (
-    <div className="col-span-2 space-y-4 lg:col-start-2">
+    <div className="col-span-2 space-y-4 xl:col-span-1 xl:col-start-2">
       {hasPermission(props.user.permissions, 'view:appointments') && (
         <section className="space-y-4">
           <header>

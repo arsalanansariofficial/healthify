@@ -36,7 +36,7 @@ export default function Component({ user, roles }: Props) {
   });
 
   return (
-    <section className="col-span-2 space-y-4 lg:col-start-2">
+    <section className="col-span-2 space-y-4 xl:col-span-1 xl:col-start-2">
       <header>
         <CN.Card>
           <CN.CardContent>

@@ -1,5 +1,5 @@
 import z from 'zod';
-import { maxDate, minDate } from '@/lib/constants';
+import { MAX_DATE, MIN_DATE } from '@/lib/constants';
 
 const emailVerified = z.object({
   emailVerified: z.enum(['yes', 'no']).optional()
@@ -66,8 +66,8 @@ const visitDays = z.object({
 const appointmentDate = z.object({
   date: z
     .date()
-    .max(maxDate, { message: `Date must be less than ${maxDate}` })
-    .min(minDate, { message: `Date must be greater than ${minDate}` })
+    .max(MAX_DATE, { message: `Date must be less than ${MAX_DATE}` })
+    .min(MIN_DATE, { message: `Date must be greater than ${MIN_DATE}` })
 });
 
 const image = z.object({

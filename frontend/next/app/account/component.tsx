@@ -21,6 +21,7 @@ import { updateDoctorProfile, updateUserProfile } from '@/lib/actions';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 import {
+  cn,
   hasRole,
   shortId,
   capitalize,
@@ -79,10 +80,20 @@ export default function Component({ user, specialities }: Props) {
       name: user.name || String(),
       email: user.email || String(),
       phone: user.phone || String(),
+      image: user.image || String(),
+      cover: user.cover || String(),
       city: user.city ? capitalize(user.city) : String(),
       gender: (user.gender as 'male' | 'female') || String()
     }),
-    [user.city, user.email, user.gender, user.name, user.phone]
+    [
+      user.city,
+      user.name,
+      user.cover,
+      user.email,
+      user.image,
+      user.phone,
+      user.gender
+    ]
   );
 
   const defaultDoctorValues = useMemo<z.infer<typeof doctorProfileSchema>>(
@@ -107,18 +118,23 @@ export default function Component({ user, specialities }: Props) {
   );
 
   const [imageSrc, setImageSrc] = useState<string | null>(null);
+  const [coverSrc, setCoverSrc] = useState<string | null>(null);
   const [role, setRole] = useState(isDoctor ? 'doctor' : 'user');
 
   const { handleSubmit: submitUser } = useHookForm(
     handler,
-    updateUserProfile.bind(null, user.id) as (data: unknown) => Promise<unknown>
+    updateUserProfile.bind(null, user.id) as (
+      data: unknown
+    ) => Promise<unknown>,
+    true
   );
 
   const { handleSubmit: submitDoctor } = useHookForm(
     handler,
     updateDoctorProfile.bind(null, user.id) as (
       data: unknown
-    ) => Promise<unknown>
+    ) => Promise<unknown>,
+    true
   );
 
   const userForm = useForm({
@@ -132,7 +148,7 @@ export default function Component({ user, specialities }: Props) {
   });
 
   const handleFileChange = useCallback(
-    async (e: React.ChangeEvent<HTMLInputElement>) => {
+    async (e: React.ChangeEvent<HTMLInputElement>, type: 'image' | 'cover') => {
       const file = e.target.files && e.target.files[0];
       if (!file) return;
 
@@ -140,7 +156,8 @@ export default function Component({ user, specialities }: Props) {
       const base64 = arrayBufferToBase64(arrayBuffer);
       const dataUrl = `data:${file.type};base64,${base64}`;
 
-      setImageSrc(dataUrl);
+      if (type === 'image') setImageSrc(dataUrl);
+      if (type === 'cover') setCoverSrc(dataUrl);
     },
     []
   );
@@ -170,21 +187,80 @@ export default function Component({ user, specialities }: Props) {
                   onSubmit={userForm.handleSubmit(submitUser)}
                 >
                   <FormField
+                    name="cover"
+                    control={userForm.control}
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormControl>
+                          <div
+                            className={cn(
+                              'relative grid min-h-80 gap-3 overflow-clip rounded-md',
+                              {
+                                'border-2': !user.cover,
+                                'border-dashed': !user.cover
+                              }
+                            )}
+                          >
+                            <Label
+                              htmlFor="cover"
+                              className={cn(
+                                'absolute inset-0 z-10 grid place-items-center opacity-0 hover:opacity-100',
+                                { 'opacity-100': !user.cover }
+                              )}
+                            >
+                              <FileIcon />
+                            </Label>
+                            {(coverSrc || user.cover) && (
+                              <Image
+                                fill
+                                priority
+                                unoptimized
+                                alt="Profile Picture"
+                                className="aspect-video object-cover"
+                                src={
+                                  coverSrc || `${HOST}/api/upload/${user.cover}`
+                                }
+                              />
+                            )}
+                            <Input
+                              id="cover"
+                              type="file"
+                              name="cover"
+                              className="hidden"
+                              onChange={e => {
+                                const files = e.target.files;
+                                if (files?.length) {
+                                  field.onChange(files);
+                                  handleFileChange(e, 'cover');
+                                }
+                              }}
+                            />
+                          </div>
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
                     name="image"
                     control={userForm.control}
                     render={({ field }) => (
                       <FormItem>
                         <FormControl>
-                          <div className="relative grid min-h-80 gap-3 overflow-clip rounded-md border-2 border-dashed">
+                          <div className="absolute z-10 grid h-20 w-20 translate-x-2 -translate-y-[calc(100%+theme(spacing.4))] gap-3 overflow-clip rounded-md border-2">
                             <Label
                               htmlFor="image"
-                              className="absolute inset-0 z-10 grid place-items-center"
+                              className={cn(
+                                'absolute inset-0 z-10 grid place-items-center opacity-0 hover:opacity-100',
+                                { 'opacity-100': !user.image }
+                              )}
                             >
                               <FileIcon />
                             </Label>
                             {(imageSrc || user.image) && (
                               <Image
                                 fill
+                                priority
                                 unoptimized
                                 alt="Profile Picture"
                                 className="aspect-video object-cover"
@@ -203,7 +279,7 @@ export default function Component({ user, specialities }: Props) {
                                 const files = e.target.files;
                                 if (files?.length) {
                                   field.onChange(files);
-                                  handleFileChange(e);
+                                  handleFileChange(e, 'image');
                                 }
                               }}
                             />
@@ -341,24 +417,84 @@ export default function Component({ user, specialities }: Props) {
                   onSubmit={doctorForm.handleSubmit(submitDoctor)}
                 >
                   <FormField
+                    name="cover"
+                    control={doctorForm.control}
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormControl>
+                          <div
+                            className={cn(
+                              'relative grid min-h-80 gap-3 overflow-clip rounded-md',
+                              {
+                                'border-2': !user.cover,
+                                'border-dashed': !user.cover
+                              }
+                            )}
+                          >
+                            <Label
+                              htmlFor="cover"
+                              className={cn(
+                                'absolute inset-0 z-10 grid place-items-center opacity-0 hover:opacity-100',
+                                { 'opacity-100': !user.cover }
+                              )}
+                            >
+                              <FileIcon />
+                            </Label>
+                            {(coverSrc || user.cover) && (
+                              <Image
+                                fill
+                                priority
+                                unoptimized
+                                alt="Profile Picture"
+                                className="aspect-video object-cover"
+                                src={
+                                  coverSrc ||
+                                  `${!user.hasOAuth ? `${HOST}/api/upload/` : ''}${user.cover}`
+                                }
+                              />
+                            )}
+                            <Input
+                              id="cover"
+                              type="file"
+                              name="cover"
+                              className="hidden"
+                              onChange={e => {
+                                const files = e.target.files;
+                                if (files?.length) {
+                                  field.onChange(files);
+                                  handleFileChange(e, 'cover');
+                                }
+                              }}
+                            />
+                          </div>
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
                     name="image"
                     control={doctorForm.control}
                     render={({ field }) => (
                       <FormItem>
                         <FormControl>
-                          <div className="relative grid min-h-80 gap-3 overflow-clip rounded-md border-2 border-dashed">
+                          <div className="absolute z-10 grid h-20 w-20 translate-x-2 -translate-y-[calc(100%+theme(spacing.4))] gap-3 overflow-clip rounded-md border-2">
                             <Label
                               htmlFor="image"
-                              className="absolute inset-0 z-10 grid place-items-center"
+                              className={cn(
+                                'absolute inset-0 z-10 grid place-items-center opacity-0 hover:opacity-100',
+                                { 'opacity-100': !user.image }
+                              )}
                             >
                               <FileIcon />
                             </Label>
                             {(imageSrc || user.image) && (
                               <Image
                                 fill
+                                priority
                                 unoptimized
                                 alt="Profile Picture"
-                                className="aspect-video object-cover"
+                                className="object-image aspect-video"
                                 src={
                                   imageSrc ||
                                   `${!user.hasOAuth ? `${HOST}/api/upload/` : ''}${user.image}`
@@ -374,7 +510,7 @@ export default function Component({ user, specialities }: Props) {
                                 const files = e.target.files;
                                 if (files?.length) {
                                   field.onChange(files);
-                                  handleFileChange(e);
+                                  handleFileChange(e, 'image');
                                 }
                               }}
                             />

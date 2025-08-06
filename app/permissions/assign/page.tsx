@@ -1,12 +1,11 @@
 import { auth } from '@/auth';
 import { User } from 'next-auth';
 import prisma from '@/lib/prisma';
+import Component from './component';
 import Header from '@/components/header';
-import Footer from '@/components/footer';
 import Session from '@/components/session';
 import Sidebar from '@/components/sidebar';
 import { DEFAULT_ROLE } from '@/lib/constants';
-import Component from '@/app/roles/assign-permissions/component';
 
 type Props = { searchParams: Promise<{ role: string }> };
 
@@ -35,17 +34,17 @@ export default async function Page({ searchParams }: Props) {
   return (
     <Session expiresAt={session?.user?.expiresAt}>
       <Header />
-      <main className="row-start-2 mx-8 grid grid-cols-[auto_1fr] gap-4">
+      <main className="row-start-2 px-8 py-4 lg:grid lg:grid-cols-[auto_1fr] lg:gap-12">
         <Sidebar user={session?.user as User} />
         <Component
           key={role}
           role={role}
           roles={roles}
+          user={session?.user as User}
           assigned={rolePermissions.map(p => p.permissionId) || []}
           permissions={permissions.map(p => ({ label: p.name, value: p.id }))}
         />
       </main>
-      <Footer />
     </Session>
   );
 }

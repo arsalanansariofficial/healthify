@@ -9,8 +9,9 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { Bar, BarChart, CartesianGrid, XAxis } from 'recharts';
 
 import * as actions from '@/lib/actions';
-import * as CN from '@/components/ui/card';
+import Footer from '@/components/footer';
 import { userSchema } from '@/lib/schemas';
+import Sidebar from '@/components/sidebar';
 import * as RT from '@tanstack/react-table';
 import * as RHF from '@/components/ui/form';
 import { hasPermission } from '@/lib/utils';
@@ -383,32 +384,23 @@ export default function Component(props: Props) {
   ];
 
   return (
-    <div className="col-span-2 space-y-4 xl:col-span-1 xl:col-start-2">
-      {hasPermission(props.user.permissions, 'view:users') && (
-        <section className="space-y-4">
-          <header>
-            <CN.Card>
-              <CN.CardContent>
-                <h1 className="font-semibold">Users</h1>
-              </CN.CardContent>
-            </CN.Card>
-          </header>
-          <main>
-            <CN.Card>
-              <CN.CardContent>
-                <DT.DataTable
-                  data={props.users}
-                  columns={columns}
-                  filterConfig={[
-                    { id: 'name', placeholder: 'Name...' },
-                    { id: 'email', placeholder: 'Email...' }
-                  ]}
-                />
-              </CN.CardContent>
-            </CN.Card>
-          </main>
-        </section>
-      )}
+    <div className="grid h-full xl:grid-cols-[1fr_auto] xl:gap-12">
+      <section className="flex flex-col gap-8 lg:mx-auto lg:w-10/12">
+        {hasPermission(props.user.permissions, 'view:users') && (
+          <DT.DataTable
+            data={props.users}
+            columns={columns}
+            filterConfig={[
+              { id: 'name', placeholder: 'Name...' },
+              { id: 'email', placeholder: 'Email...' }
+            ]}
+          />
+        )}
+        <Footer />
+      </section>
+      <div className="hidden xl:block">
+        <Sidebar user={props.user} />
+      </div>
     </div>
   );
 }

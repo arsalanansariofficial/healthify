@@ -2,14 +2,17 @@
 
 import Image from 'next/image';
 import { useState } from 'react';
+import { User } from 'next-auth';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { FileIcon, PlusIcon, TrashIcon } from 'lucide-react';
 
 import * as utils from '@/lib/utils';
 import { DAYS } from '@/lib/constants';
+import Footer from '@/components/footer';
 import { addDoctor } from '@/lib/actions';
 import * as CN from '@/components/ui/card';
+import Sidebar from '@/components/sidebar';
 import * as RHF from '@/components/ui/form';
 import { doctorSchema } from '@/lib/schemas';
 import { Input } from '@/components/ui/input';
@@ -20,9 +23,12 @@ import * as Select from '@/components/ui/select';
 import handler from '@/components/display-toast';
 import MultiSelect from '@/components/ui/multi-select';
 
-export type Props = { specialities: { value: string; label: string }[] };
+export type Props = {
+  specialities: { value: string; label: string }[];
+  user: User;
+};
 
-export default function Component({ specialities }: Props) {
+export default function Component({ specialities, user }: Props) {
   const [image, setImage] = useState<File>();
   const [imageSrc, setImageSrc] = useState<string | null>(null);
   const { pending, handleSubmit } = useHookForm(handler, addDoctor);
@@ -56,15 +62,8 @@ export default function Component({ specialities }: Props) {
   }
 
   return (
-    <section className="col-span-2 h-full space-y-4 xl:col-span-1 xl:col-start-2">
-      <header>
-        <CN.Card>
-          <CN.CardContent>
-            <h1 className="font-semibold">Doctors</h1>
-          </CN.CardContent>
-        </CN.Card>
-      </header>
-      <main>
+    <div className="grid h-full xl:grid-cols-[1fr_auto] xl:gap-12">
+      <section className="flex flex-col gap-8 lg:mx-auto lg:w-10/12">
         <CN.Card>
           <CN.CardHeader>
             <CN.CardTitle>Add Doctor</CN.CardTitle>
@@ -377,7 +376,11 @@ export default function Component({ specialities }: Props) {
             </Button>
           </CN.CardFooter>
         </CN.Card>
-      </main>
-    </section>
+        <Footer />
+      </section>
+      <div className="hidden xl:block">
+        <Sidebar user={user} />
+      </div>
+    </div>
   );
 }

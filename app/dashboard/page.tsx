@@ -2,11 +2,10 @@ import { User } from 'next-auth';
 
 import { auth } from '@/auth';
 import prisma from '@/lib/prisma';
+import Component from './component';
 import Header from '@/components/header';
-import Footer from '@/components/footer';
 import Session from '@/components/session';
 import Sidebar from '@/components/sidebar';
-import Component from '@/app/dashboard/component';
 import { ChartConfig } from '@/components/ui/chart';
 import { CARDS_DATA, CHARTS_DATA } from '@/lib/constants';
 
@@ -21,7 +20,7 @@ export default async function Page() {
   return (
     <Session expiresAt={session?.user?.expiresAt}>
       <Header />
-      <main className="row-start-2 mx-8 grid grid-cols-[auto_1fr] gap-4">
+      <main className="row-start-2 px-8 py-4 lg:grid lg:grid-cols-[auto_1fr] lg:gap-12">
         <Sidebar user={session?.user as User} />
         <Component
           key={users.length}
@@ -32,7 +31,6 @@ export default async function Page() {
           users={users.filter(user => user.email !== session?.user?.email)}
         />
       </main>
-      <Footer />
     </Session>
   );
 }

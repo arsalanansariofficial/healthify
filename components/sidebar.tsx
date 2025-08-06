@@ -3,38 +3,41 @@
 import Link from 'next/link';
 
 import { User } from 'next-auth';
-import * as CN from '@/components/ui/card';
-import { cn, hasPermission } from '@/lib/utils';
+import { hasPermission } from '@/lib/utils';
 import { SIDEBAR_ITEMS } from '@/lib/constants';
 import { ScrollArea } from '@/components/ui/scroll-area';
 
 export default function Sidebar({ user }: { user: User }) {
+  const sidebarEntries = Array.from(SIDEBAR_ITEMS.entries());
+
   return (
-    <aside className="sticky top-[7.35em] hidden h-[calc(100vh-12em)] min-w-[10em] scroll-mt-0 xl:block">
-      <CN.Card className="h-full">
-        <ScrollArea className="h-full">
-          <CN.CardContent>
-            <ul>
-              {SIDEBAR_ITEMS.map(
-                (item, index) =>
-                  hasPermission(user.permissions, item.permission) && (
-                    <li key={index}>
-                      <Link
-                        href={item.url}
-                        className={cn('block font-semibold', {
-                          'mt-3': index && item.isHeader,
-                          'text-muted-foreground text-xs': item.isHeader
-                        })}
-                      >
-                        {item.label}
-                      </Link>
-                    </li>
-                  )
-              )}
-            </ul>
-          </CN.CardContent>
-        </ScrollArea>
-      </CN.Card>
+    <aside className="sticky top-[5.25em] hidden h-[calc(100vh-10em)] backdrop-blur-xs lg:block">
+      <ScrollArea className="h-full pr-8">
+        <ul className="space-y-2">
+          {sidebarEntries.map(
+            ([header, items]) =>
+              hasPermission(user.permissions, header.permission) && (
+                <li key={header.label} className="space-y-2">
+                  <span className="text-muted-foreground text-xs font-semibold">
+                    {header.label}
+                  </span>
+                  <ul>
+                    {items.map(item => (
+                      <li key={item.label}>
+                        <Link
+                          href={item.url}
+                          className="text-primary/90 text-sm font-semibold underline underline-offset-2"
+                        >
+                          {item.label}
+                        </Link>
+                      </li>
+                    ))}
+                  </ul>
+                </li>
+              )
+          )}
+        </ul>
+      </ScrollArea>
     </aside>
   );
 }

@@ -1,10 +1,13 @@
 'use client';
 
+import { User } from 'next-auth';
 import { Role } from '@prisma/client';
+import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 
-import { useForm } from 'react-hook-form';
+import Footer from '@/components/footer';
+import Sidebar from '@/components/sidebar';
 import * as SCN from '@/components/ui/card';
 import * as RHF from '@/components/ui/form';
 import * as CN from '@/components/ui/select';
@@ -16,6 +19,7 @@ import { rolePermissionsSchema } from '@/lib/schemas';
 import MultiSelect from '@/components/ui/multi-select';
 
 type Props = {
+  user: User;
   roles: Role[];
   assigned: string[];
   role: string | undefined;
@@ -50,15 +54,8 @@ export default function Component(props: Props) {
   }
 
   return (
-    <section className="col-span-2 space-y-4 xl:col-span-1 xl:col-start-2">
-      <header>
-        <SCN.Card>
-          <SCN.CardContent>
-            <h1 className="font-semibold">Assign Permissions</h1>
-          </SCN.CardContent>
-        </SCN.Card>
-      </header>
-      <main>
+    <div className="grid h-full xl:grid-cols-[1fr_auto] xl:gap-12">
+      <section className="flex flex-col gap-8 lg:mx-auto lg:w-10/12">
         <SCN.Card>
           <SCN.CardHeader>
             <SCN.CardTitle>Add permissions for a given role</SCN.CardTitle>
@@ -137,7 +134,11 @@ export default function Component(props: Props) {
             </Button>
           </SCN.CardFooter>
         </SCN.Card>
-      </main>
-    </section>
+        <Footer />
+      </section>
+      <div className="hidden xl:block">
+        <Sidebar user={props.user} />
+      </div>
+    </div>
   );
 }

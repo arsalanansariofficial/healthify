@@ -16,7 +16,7 @@ const serif = Inter({ subsets: ['latin'], variable: '--font-sans' });
 const sans = Playfair_Display({ subsets: ['latin'], variable: '--font-serif' });
 
 export const metadata: Metadata = {
-  title: 'Next Auth',
+  title: 'Healthify',
   description: 'Created by Arsalan Ansari'
 };
 

@@ -4,7 +4,7 @@ import { faLinkedin } from '@fortawesome/free-brands-svg-icons/faLinkedin';
 import { faWhatsapp } from '@fortawesome/free-brands-svg-icons/faWhatsapp';
 import { faEnvelope } from '@fortawesome/free-regular-svg-icons/faEnvelope';
 
-import { CONTACT } from '@/lib/constants';
+import { GIT_HUB, LINKED_IN, MAIL_TO, WHATS_APP } from '@/lib/constants';
 
 export default function Footer() {
   return (
@@ -18,7 +18,7 @@ export default function Footer() {
           <a
             title="Email"
             target="_blank"
-            href={CONTACT.email}
+            href={MAIL_TO}
             className="text-muted-foreground hover:text-foreground grid"
           >
             <FontAwesomeIcon icon={faEnvelope} />
@@ -28,7 +28,7 @@ export default function Footer() {
           <a
             title="GitHub"
             target="_blank"
-            href={CONTACT.gitHub}
+            href={GIT_HUB}
             className="text-muted-foreground hover:text-foreground grid"
           >
             <FontAwesomeIcon icon={faGithub} />
@@ -38,7 +38,7 @@ export default function Footer() {
           <a
             title="LinkedIn"
             target="_blank"
-            href={CONTACT.linkedIn}
+            href={LINKED_IN}
             className="text-muted-foreground hover:text-foreground grid"
           >
             <FontAwesomeIcon icon={faLinkedin} />
@@ -48,7 +48,7 @@ export default function Footer() {
           <a
             target="_blank"
             title="WhatsApp"
-            href={CONTACT.whatApp}
+            href={WHATS_APP}
             className="text-muted-foreground hover:text-foreground grid"
           >
             <FontAwesomeIcon icon={faWhatsapp} />

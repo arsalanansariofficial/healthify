@@ -88,7 +88,9 @@ export default function Header({ user }: { user: User }) {
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Avatar>
-                  <AvatarImage src={`${HOST}/api/upload/${user.image}`} />
+                  <AvatarImage
+                    src={`${!user.hasOAuth ? `${HOST}/api/upload/` : ''}${user.image}`}
+                  />
                   <AvatarFallback className="bg-transparent">
                     <FontAwesomeIcon
                       size="lg"

@@ -7,13 +7,12 @@ import { z, ZodSchema } from 'zod';
 import { randomUUID } from 'crypto';
 import nodemailer from 'nodemailer';
 import * as P from '@prisma/client';
-import { AuthError } from 'next-auth';
 import { revalidatePath } from 'next/cache';
 
 import prisma from '@/lib/prisma';
 import * as CONST from '@/lib/constants';
 import * as schemas from '@/lib/schemas';
-import { removeDuplicateTimes } from '@/lib/utils';
+import { catchErrors, removeDuplicateTimes } from '@/lib/utils';
 import { auth, signIn, unstable_update as update } from '@/auth';
 
 type Schema<T extends ZodSchema> = z.infer<T>;
@@ -57,58 +56,44 @@ async function sendEmail(to: string, subject: string, html: string) {
   });
 }
 
-async function loginWithCredentials({
+export async function loginWithCredentials({
   email,
   password
 }: Schema<typeof schemas.loginSchema>) {
   try {
     const user = await prisma.user.findUnique({ where: { email } });
 
-    if (user && !user.emailVerified) {
+    if (!user) {
+      return { success: false, message: CONST.EMAIL_NOT_FOUND };
+    }
+
+    if (!user.emailVerified) {
       const token = await generateToken(user.id as string);
 
-      const subject = 'Verify Your Email';
-      const link = `${CONST.HOST}/verify?token=${token.id}`;
-      const html = `<p>Click <a href="${link}">here</a> to verify.</p>`;
-
-      const emailSent = await sendEmail(email as string, subject, html);
-
-      if (token && emailSent) {
-        return {
-          success: true,
-          message: CONST.CONFIRM_EMAIL
-        };
+      if (!token) {
+        return { success: false, message: CONST.TOKEN_NOT_GENERATED };
       }
 
-      return {
-        success: false,
-        message: CONST.SERVER_ERROR_MESSAGE
-      };
+      const emailSent = await sendEmail(
+        email,
+        `${CONST.HOST}/verify?token=${token.id}`,
+        `<p>Click <a href="${CONST.HOST}/verify?token=${token.id}">here</a> to verify your email.</p>`
+      );
+
+      if (!emailSent) {
+        return { success: false, message: CONST.EMAIL_FAILED };
+      }
+
+      return { success: true, message: CONST.CONFIRM_EMAIL };
     }
 
     await signIn('credentials', {
-      email: email,
-      redirectTo: CONST.DASHBOARD,
-      password: password
+      email,
+      password,
+      redirectTo: CONST.DASHBOARD
     });
   } catch (error) {
-    if (error instanceof AuthError) {
-      switch (error.type) {
-        case 'CredentialsSignin':
-          return {
-            success: false,
-            message: '⚠️ Invalid email or password!'
-          };
-
-        default:
-          return {
-            success: false,
-            message: CONST.SERVER_ERROR_MESSAGE
-          };
-      }
-    }
-
-    throw error;
+    return catchErrors(error as Error);
   }
 }
 
@@ -174,8 +159,8 @@ export async function assignRoles(
 
     await update({ user: { ...session?.user, roles: roles.map(r => r.role) } });
     return { success: true, message: CONST.ROLES_ASSIGNED };
-  } catch {
-    return { success: false, message: CONST.SERVER_ERROR_MESSAGE };
+  } catch (error) {
+    return catchErrors(error as Error);
   }
 }
 
@@ -200,8 +185,8 @@ export async function verifyEmail(email: string) {
 
     if (!user) return { success: false, message: CONST.USER_NOT_FOUND };
     revalidatePath(CONST.HOME);
-  } catch {
-    return { success: false, message: CONST.SERVER_ERROR_MESSAGE };
+  } catch (error) {
+    return catchErrors(error as Error);
   }
 }
 
@@ -271,8 +256,8 @@ export async function assignPermissions({
 
     revalidatePath(CONST.HOME);
     return { success: true, message: CONST.PERMISSIONS_ASSIGNED };
-  } catch {
-    return { success: false, message: CONST.SERVER_ERROR_MESSAGE };
+  } catch (error) {
+    return catchErrors(error as Error);
   }
 }
 
@@ -294,8 +279,8 @@ export async function updateSpeciality(
       success: true,
       message: CONST.SPECIALITY_UPDATED
     };
-  } catch {
-    return { success: false, message: CONST.SERVER_ERROR_MESSAGE };
+  } catch (error) {
+    return catchErrors(error as Error);
   }
 }
 
@@ -316,8 +301,8 @@ export async function addSpeciality({
       name: name.toUpperCase(),
       message: CONST.SPECIALITY_ADDED
     };
-  } catch {
-    return { name, success: false, message: CONST.SERVER_ERROR_MESSAGE };
+  } catch (error) {
+    return catchErrors(error as Error);
   }
 }
 
@@ -331,8 +316,8 @@ export async function addRole(data: Schema<typeof schemas.roleSchema>) {
     });
 
     return { ...data, success: true, message: CONST.ROLE_ADDED };
-  } catch {
-    return { ...data, success: false, message: CONST.SERVER_ERROR_MESSAGE };
+  } catch (error) {
+    return catchErrors(error as Error);
   }
 }
 
@@ -352,8 +337,8 @@ export async function addPermission(
       success: true,
       message: CONST.PERMISSION_ADDED
     };
-  } catch {
-    return { ...data, success: false, message: CONST.SERVER_ERROR_MESSAGE };
+  } catch (error) {
+    return catchErrors(error as Error);
   }
 }
 
@@ -397,8 +382,8 @@ export async function verifyToken(id: string) {
       email: result.user.email,
       message: CONST.EMAIL_VERIFIED
     };
-  } catch {
-    return { success: false, message: CONST.SERVER_ERROR_MESSAGE };
+  } catch (error) {
+    return { email: undefined, ...catchErrors(error as Error) };
   }
 }
 
@@ -440,8 +425,8 @@ export async function signup(data: Schema<typeof schemas.signupSchema>) {
         data: { userId: user.id, roleId: role?.id as string }
       });
     });
-  } catch {
-    return { success: false, message: CONST.SERVER_ERROR_MESSAGE };
+  } catch (error) {
+    return catchErrors(error as Error);
   }
 
   return loginWithCredentials(data);
@@ -478,8 +463,8 @@ export default async function seed() {
     });
 
     return { success: true, message: CONST.DATABASE_UPDATED };
-  } catch {
-    return { success: false, message: CONST.SERVER_ERROR_MESSAGE };
+  } catch (error) {
+    return catchErrors(error as Error);
   }
 }
 
@@ -493,10 +478,10 @@ export async function updatePassword({
   try {
     await prisma.user.update({
       where: { email },
-      data: { password: await bcrypt.hashSync(password, 10) }
+      data: { password: bcrypt.hashSync(password, 10) }
     });
-  } catch {
-    return { success: false, message: CONST.SERVER_ERROR_MESSAGE };
+  } catch (error) {
+    return catchErrors(error as Error);
   }
 
   return await loginWithCredentials({ email, password });
@@ -516,15 +501,16 @@ export async function forgetPassword({
     }
 
     const token = await generateToken(user.id as string);
+    const emailSent = await sendEmail(
+      email,
+      'Reset Your Password',
+      `<p>Click <a href="${CONST.HOST}/create-password?token=${token.id}">here</a> to reset your password`
+    );
 
-    const subject = 'Reset Your Password';
-    const link = `${CONST.HOST}/create-password?token=${token.id}`;
-    const html = `<p>Click <a href="${link}">here</a> to reset your password`;
-
-    await sendEmail(email, subject, html);
+    if (!emailSent) return { success: false, message: CONST.EMAIL_FAILED };
     return { email, success: true, message: CONST.CONFIRM_EMAIL };
-  } catch {
-    return { email, success: false, message: CONST.SERVER_ERROR_MESSAGE };
+  } catch (error) {
+    return { email, ...catchErrors(error as Error) };
   }
 }
 
@@ -565,8 +551,8 @@ export async function updateUser(
 
     revalidatePath(CONST.HOME);
     return { success: true, message: CONST.PROFILE_UPDATED };
-  } catch {
-    return { success: false, message: CONST.SERVER_ERROR_MESSAGE };
+  } catch (error) {
+    return catchErrors(error as Error);
   }
 }
 
@@ -628,8 +614,8 @@ export async function addDoctor(data: Schema<typeof schemas.doctorSchema>) {
     if (created && image?.size) {
       await saveFile(image, `${imageUUID}.${fileExtension}`);
     }
-  } catch {
-    return { success: false, message: CONST.SERVER_ERROR_MESSAGE };
+  } catch (error) {
+    return catchErrors(error as Error);
   }
 
   return loginWithCredentials({

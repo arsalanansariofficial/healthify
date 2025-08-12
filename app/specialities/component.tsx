@@ -14,7 +14,6 @@ import * as CONST from '@/lib/constants';
 import Footer from '@/components/footer';
 import { nameSchema } from '@/lib/schemas';
 import Sidebar from '@/components/sidebar';
-import { hasPermission } from '@/lib/utils';
 import * as RHF from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -26,6 +25,7 @@ import * as DT from '@/components/ui/data-table';
 import handler from '@/components/display-toast';
 import * as DM from '@/components/ui/dropdown-menu';
 import { Checkbox } from '@/components/ui/checkbox';
+import { catchErrors, hasPermission } from '@/lib/utils';
 
 type TableSchema = { id: number; name: string };
 type TCVProps<T extends z.ZodType> = { item: z.infer<T> };
@@ -69,11 +69,10 @@ function Menu({ id, ids, isHeader = false }: MenuProps) {
                 position: 'top-center',
                 loading: 'Deleting speciality',
                 success: CONST.SPECIALITY_DELETED,
-                error: (
-                  <span className="text-destructive">
-                    {CONST.SERVER_ERROR_MESSAGE}
-                  </span>
-                )
+                error(error) {
+                  const { message } = catchErrors(error as Error);
+                  return <span className="text-destructive">{message}</span>;
+                }
               });
             }
 
@@ -82,11 +81,10 @@ function Menu({ id, ids, isHeader = false }: MenuProps) {
                 position: 'top-center',
                 loading: 'Deleting specialities',
                 success: CONST.SPECIALITIES_DELETED,
-                error: (
-                  <span className="text-destructive">
-                    {CONST.SERVER_ERROR_MESSAGE}
-                  </span>
-                )
+                error(error) {
+                  const { message } = catchErrors(error as Error);
+                  return <span className="text-destructive">{message}</span>;
+                }
               });
             }
           }}

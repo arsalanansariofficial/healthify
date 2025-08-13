@@ -259,7 +259,7 @@ export default function Component(props: Props) {
                       <span className="block text-xs leading-none font-semibold capitalize">
                         {doctor.gender}
                       </span>
-                      <h2 className="text-xs leading-none font-bold capitalize">
+                      <h2 className="font-serif text-xs leading-none font-semibold capitalize">
                         {doctor.name}
                       </h2>
                       <ul className="flex flex-wrap gap-2">

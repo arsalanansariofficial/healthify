@@ -22,35 +22,35 @@ export default async function Page() {
           appointments={[
             {
               id: '1',
-              time: '10',
+              time: '10:00:00',
               status: 'PENDING',
               date: '2025-08-01',
               patientName: 'Patient 1'
             },
             {
               id: '2',
-              time: '11',
+              time: '11:00:00',
               date: '2025-08-03',
               status: 'COMPLETED',
               patientName: 'Patient 4'
             },
             {
               id: '3',
-              time: '11',
+              time: '11:00:00',
               date: '2025-08-02',
               status: 'CONFIRMED',
               patientName: 'Patient 2'
             },
             {
               id: '4',
-              time: '12',
+              time: '12:00:00',
               date: '2025-08-03',
               status: 'CANCELLED',
               patientName: 'Patient 3'
             },
             {
               id: '5',
-              time: '12',
+              time: '12:00:00',
               date: '2025-08-03',
               status: 'COMPLETED',
               patientName: 'Patient 5'

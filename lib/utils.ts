@@ -15,7 +15,8 @@ export function capitalize(text: string) {
   return startCase(toLower(text));
 }
 
-export function getDate(date?: string): string {
+export function getDate(date?: string, time = true): string {
+  if (!time) return format(date || new Date(), 'EEEE, MMMM dd, yyyy');
   return format(date || new Date(), 'EEEE, MMMM dd, yyyy h:mm a');
 }
 

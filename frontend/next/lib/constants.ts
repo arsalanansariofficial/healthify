@@ -204,6 +204,11 @@ export const PAGE_NOT_FOUND = process.env?.PAGE_NOT_FOUND || 'Page not found!';
 export const TOKEN_NOT_GENERATED = '⚠️ Failed to generate verification token!';
 export const RESUME = `${CDN}/${USER_NAME}/${RESOURCE}/documents/arsalan-ansari_resume.pdf`;
 
+export let DEFAULT_USER_PROFILE = `${HOST}/users/user.jpeg`;
+if (process.env?.DEFAULT_USER_PROFILE) {
+  DEFAULT_USER_PROFILE = process.env.DEFAULT_USER_PROFILE;
+}
+
 export let APPOINTMENT_EXISTS = '⚠️ Appointment already exists!';
 if (process.env?.APPOINTMENT_EXISTS) {
   APPOINTMENT_EXISTS = process.env.APPOINTMENT_EXISTS;

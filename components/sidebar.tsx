@@ -22,13 +22,16 @@ export default function Sidebar({ user }: { user: User }) {
                     {header.label}
                   </span>
                   <ul>
-                    {items.map(item => (
-                      <li key={item.label}>
-                        <Link href={item.url} className="text-sm">
-                          {item.label}
-                        </Link>
-                      </li>
-                    ))}
+                    {items.map(
+                      item =>
+                        hasPermission(user.permissions, item.permission) && (
+                          <li key={item.label}>
+                            <Link href={item.url} className="text-sm">
+                              {item.label}
+                            </Link>
+                          </li>
+                        )
+                    )}
                   </ul>
                 </li>
               )

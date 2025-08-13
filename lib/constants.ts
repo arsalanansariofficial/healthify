@@ -209,7 +209,7 @@ export const URLS = [
   { value: '/roles/assign', permission: 'assign:roles' },
   { value: '/permissions', permission: 'view:permissions' },
   { value: '/appointments', permission: 'view:appointments' },
-  { value: '/permissions/add', permission: 'add:permissions' },
+  { value: '/permissions/add', permission: 'add:permission' },
   { value: '/permissions/assign', permission: 'assign:permissions' },
   { value: '/doctors/specialities/add', permission: 'add:speciality' }
 ];

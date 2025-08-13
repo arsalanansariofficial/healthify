@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
 import { SessionProvider } from 'next-auth/react';
-import { Playfair_Display } from 'next/font/google';
+import { Inter, Playfair_Display } from 'next/font/google';
 
 import { Toaster } from '@/components/ui/sonner';
 import { ThemeProvider } from '@/components/theme-provider';
@@ -9,10 +9,8 @@ import '@/app/globals.css';
 
 type Props = Readonly<{ children: React.ReactNode }>;
 
-const playfair = Playfair_Display({
-  subsets: ['latin'],
-  variable: '--font-serif'
-});
+const serif = Inter({ subsets: ['latin'], variable: '--font-sans' });
+const sans = Playfair_Display({ subsets: ['latin'], variable: '--font-serif' });
 
 export const metadata: Metadata = {
   title: 'Next Auth',
@@ -23,7 +21,7 @@ export default async function RootLayout({ children }: Props) {
   return (
     <html lang="en" suppressHydrationWarning>
       <body
-        className={`${playfair.variable} grid min-h-screen grid-rows-[auto_1fr] antialiased`}
+        className={`${serif.variable} ${sans.variable} grid min-h-screen grid-rows-[auto_1fr] font-sans antialiased`}
       >
         <SessionProvider>
           <ThemeProvider enableSystem attribute="class" defaultTheme="system">

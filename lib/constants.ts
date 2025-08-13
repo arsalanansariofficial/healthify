@@ -201,15 +201,17 @@ export const DAYS = [
 export const URLS = [
   { value: '/roles', permission: 'view:roles' },
   { value: '/users', permission: 'view:users' },
+  { value: '/roles/add', permission: 'add:role' },
   { value: '/doctors', permission: 'view:doctors' },
   { value: '/receipt', permission: 'view:receipt' },
   { value: '/doctors/add', permission: 'add:doctor' },
   { value: '/dashboard', permission: 'view:dashboard' },
+  { value: '/roles/assign', permission: 'assign:roles' },
   { value: '/permissions', permission: 'view:permissions' },
   { value: '/appointments', permission: 'view:appointments' },
-  { value: '/roles/assign-roles', permission: 'view:assign-roles' },
-  { value: '/doctors/specialities/add', permission: 'add:speciality' },
-  { value: '/roles/assign-permissions', permission: 'view:assign-permissions' }
+  { value: '/permissions/add', permission: 'add:permissions' },
+  { value: '/permissions/assign', permission: 'assign:permissions' },
+  { value: '/doctors/specialities/add', permission: 'add:speciality' }
 ];
 
 export const CARDS_DATA = [
@@ -274,18 +276,18 @@ export const SIDEBAR_ITEMS = new Map([
     ]
   ],
   [
-    { label: 'Users', permission: 'view:dashboard' },
+    { label: 'Users', permission: 'view:users' },
     [{ url: '/users', label: 'View', permission: 'view:users' }]
   ],
   [
-    { label: 'Roles', permission: 'view:dashboard' },
+    { label: 'Roles', permission: 'view:roles' },
     [
       { label: 'Add', url: '/roles/add', permission: 'add:role' },
       { label: 'Assign', url: '/roles/assign', permission: 'assign:roles' }
     ]
   ],
   [
-    { permission: 'view:dashboard', label: 'Permissions' },
+    { permission: 'view:permissions', label: 'Permissions' },
     [
       { label: 'Add', url: '/permissions/add', permission: 'add:permission' },
       {
@@ -296,7 +298,7 @@ export const SIDEBAR_ITEMS = new Map([
     ]
   ],
   [
-    { label: 'Account', permission: 'view:dashboard' },
+    { label: 'Account', permission: 'view:account' },
     [{ url: '/account', label: 'Profile', permission: 'view:account' }]
   ]
 ]);

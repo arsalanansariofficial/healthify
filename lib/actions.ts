@@ -200,58 +200,29 @@ export async function assignPermissions({
   try {
     const session = await auth();
 
-    const { roles, permits } = await prisma.$transaction(
-      async function (transaction) {
-        const role = await transaction.role.findUnique({ where: { name } });
-        if (!role) return { roles: [], permits: [] };
+    await prisma.$transaction(async function (transaction) {
+      const role = await transaction.role.findUnique({ where: { name } });
+      if (!role) return { roles: [], permits: [] };
 
-        const deletePermissions = transaction.rolePermission.deleteMany({
-          where: { roleId: role.id }
-        });
+      const deletePermissions = transaction.rolePermission.deleteMany({
+        where: { roleId: role.id }
+      });
 
-        const addPermissions = transaction.rolePermission.createMany({
-          data: permissions.map(p => ({ roleId: role.id, permissionId: p }))
-        });
+      const addPermissions = transaction.rolePermission.createMany({
+        data: permissions.map(p => ({ roleId: role.id, permissionId: p }))
+      });
 
-        const getRoles = transaction.userRole.findMany({
-          select: { id: true, role: true },
-          where: { userId: session?.user?.id }
-        });
+      if (!permissions.length) return await deletePermissions;
+      await Promise.all([deletePermissions, addPermissions]);
+    });
 
-        const getPermissions = transaction.rolePermission.findMany({
-          where: { roleId: role.id },
-          select: { id: true, permission: true }
-        });
-
-        if (!permissions.length) {
-          const [, roles, permits] = await Promise.all([
-            deletePermissions,
-            getRoles,
-            getPermissions
-          ]);
-
-          return {
-            roles: roles.map(r => r.role),
-            permits: permits.map(p => p.permission)
-          };
-        }
-
-        const [, , roles, permits] = await Promise.all([
-          deletePermissions,
-          addPermissions,
-          getRoles,
-          getPermissions
-        ]);
-
-        return {
-          roles: roles.map(r => r.role),
-          permits: permits.map(p => p.permission)
-        };
-      }
-    );
+    const permits = await prisma.rolePermission.findMany({
+      select: { permission: true },
+      where: { roleId: { in: session?.user?.roles.map(r => r.id) } }
+    });
 
     await update({
-      user: { ...session?.user, roles: roles, permissions: permits }
+      user: { ...session?.user, permissions: permits.map(rp => rp.permission) }
     });
 
     revalidatePath(CONST.HOME);

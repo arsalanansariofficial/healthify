@@ -8,6 +8,7 @@ import { Day, TimeSlot, User } from '@prisma/client';
 import { zodResolver } from '@hookform/resolvers/zod';
 
 import Footer from '@/components/footer';
+import { formatTime } from '@/lib/utils';
 import * as CN from '@/components/ui/card';
 import Sidebar from '@/components/sidebar';
 import * as RHF from '@/components/ui/form';
@@ -31,12 +32,12 @@ export default function Component({ doctor, user }: Props) {
   const form = useForm({
     resolver: zodResolver(appointmentSchema),
     defaultValues: {
-      name: String(),
-      city: String(),
       time: String(),
-      email: String(),
-      phone: String(),
-      date: new Date()
+      date: new Date(),
+      city: user.city || String(),
+      name: user.name || String(),
+      phone: user.phone || String(),
+      email: user.email || String()
     }
   });
 
@@ -61,7 +62,7 @@ export default function Component({ doctor, user }: Props) {
                   <div className="space-y-2">
                     <Label htmlFor="doctor-name">Doctor</Label>
                     <Input
-                      disabled
+                      readOnly
                       type="text"
                       name="doctor-name"
                       placeholder="Gwen Tennyson"
@@ -195,7 +196,7 @@ export default function Component({ doctor, user }: Props) {
                                   value={time.time}
                                   className="capitalize"
                                 >
-                                  {time.time}
+                                  {formatTime(time.time)}
                                 </Select.SelectItem>
                               ))}
                             </Select.SelectContent>

@@ -13,21 +13,18 @@ export default function Sidebar({ user }: { user: User }) {
   return (
     <aside className="sticky top-[5.25em] hidden h-[calc(100vh-10em)] backdrop-blur-xs lg:block">
       <ScrollArea className="h-full pr-8">
-        <ul className="space-y-2">
+        <ul className="space-y-4 font-semibold">
           {sidebarEntries.map(
             ([header, items]) =>
               hasPermission(user.permissions, header.permission) && (
                 <li key={header.label} className="space-y-2">
-                  <span className="text-muted-foreground text-xs font-semibold">
+                  <span className="text-muted-foreground text-xs">
                     {header.label}
                   </span>
                   <ul>
                     {items.map(item => (
                       <li key={item.label}>
-                        <Link
-                          href={item.url}
-                          className="text-primary/90 text-sm font-semibold underline underline-offset-2"
-                        >
+                        <Link href={item.url} className="text-sm">
                           {item.label}
                         </Link>
                       </li>

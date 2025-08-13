@@ -7,6 +7,7 @@ import { User } from 'next-auth';
 import * as RT from '@tanstack/react-table';
 import * as Icons from '@tabler/icons-react';
 import { Check, Printer, X } from 'lucide-react';
+import { AppointmentStatus } from '@prisma/client';
 
 import * as actions from '@/lib/actions';
 import * as CONST from '@/lib/constants';
@@ -35,7 +36,7 @@ type Appointment = {
   date: string;
   time: string;
   patientName: string;
-  status: 'pending' | 'cancelled' | 'confirmed';
+  status: AppointmentStatus;
 };
 
 function findItem<T extends { id: string | string }>(
@@ -312,8 +313,9 @@ export default function Component(props: Props) {
         let variant: BadgeVariant = 'default';
         const status = findItem(props.appointments, row.original.id)?.status;
 
-        if (status === 'pending') variant = 'outline';
-        if (status === 'cancelled') variant = 'destructive';
+        if (status === 'PENDING') variant = 'outline';
+        if (status === 'CONFIRMED') variant = 'secondary';
+        if (status === 'CANCELLED') variant = 'destructive';
 
         return (
           <Badge className="capitalize" variant={variant}>
@@ -348,9 +350,9 @@ export default function Component(props: Props) {
             columns={columns}
             data={props.appointments}
             filterConfig={[
-              { id: 'patientName', placeholder: 'Patient Name' },
               { id: 'date', placeholder: 'Date' },
-              { id: 'time', placeholder: 'Time' }
+              { id: 'time', placeholder: 'Time' },
+              { id: 'patientName', placeholder: 'Patient Name' }
             ]}
           />
         )}

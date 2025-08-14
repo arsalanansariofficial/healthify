@@ -5,6 +5,8 @@ import { signIn } from 'next-auth/react';
 import { useForm } from 'react-hook-form';
 import { useSearchParams } from 'next/navigation';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { faGithub } from '@fortawesome/free-brands-svg-icons';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 import { login } from '@/lib/actions';
 import * as CN from '@/components/ui/card';
@@ -116,7 +118,7 @@ export default function Page() {
               className="cursor-pointer"
               onClick={() => signIn('github')}
             >
-              Login with GitHub
+              <FontAwesomeIcon icon={faGithub} size="5x" />
             </Button>
           </CN.CardFooter>
         </CN.Card>

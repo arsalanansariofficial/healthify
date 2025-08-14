@@ -17,7 +17,6 @@ import * as RHF from '@/components/ui/form';
 import { doctorSchema } from '@/lib/schemas';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import useHookForm from '@/hooks/use-hook-form';
 import * as Select from '@/components/ui/select';
@@ -53,6 +52,7 @@ export default function Component({ user, specialities }: Props) {
       phone: user.phone || String(),
       experience: user.experience || 0,
       city: user.city ? capitalize(user.city) : String(),
+      gender: (user.gender as 'male' | 'female') || String(),
       daysOfVisit: user.daysOfVisit.map(d => capitalize(d)) || [],
       specialities: user.UserSpecialities.map(us => us.speciality.id)
     }
@@ -600,105 +600,17 @@ export default function Component({ user, specialities }: Props) {
         </Tabs>
         <Footer />
       </section>
-      <aside className="sticky top-[5.25em] hidden h-[calc(100vh-10em)] xl:block">
-        <div>
-          {user.image && (
-            <div className="relative grid min-h-50 gap-3 overflow-clip rounded-md border-2 border-dashed">
-              <Image
-                fill
-                alt="Profile Picture"
-                className="aspect-sqaure object-cover"
-                src={user.image ? `/users/${user.image}` : '/users/user.png'}
-              />
-            </div>
-          )}
-          {user.name && (
-            <div className="grid gap-1">
-              <h2 className="font-serif">Name</h2>
-              <span className="font-semibold capitalize">{user.name}</span>
-            </div>
-          )}
-          {user.email && (
-            <div className="grid gap-1">
-              <h2 className="font-serif">Email</h2>
-              <span className="font-semibold">{user.email}</span>
-            </div>
-          )}
-          {user.phone && (
-            <div className="grid gap-1">
-              <h2 className="font-serif">Phone</h2>
-              <span className="font-semibold capitalize">{user.phone}</span>
-            </div>
-          )}
-          {user.gender && (
-            <div className="grid gap-1">
-              <h2 className="font-serif">Gender</h2>
-              <span className="font-semibold capitalize">{user.gender}</span>
-            </div>
-          )}
-          {user.experience && (
-            <div className="grid gap-1">
-              <h2 className="font-serif">Experience</h2>
-              <span className="font-semibold capitalize">
-                {user.experience} years
-              </span>
-            </div>
-          )}
-          {user.city && (
-            <div className="grid gap-1">
-              <h2 className="font-serif">City</h2>
-              <span className="font-semibold">{capitalize(user.city)}</span>
-            </div>
-          )}
-          {user.UserRoles.length > 0 && (
-            <div className="grid gap-1">
-              <h2 className="font-serif">Roles</h2>
-              <ul className="flex flex-wrap gap-2">
-                {user.UserRoles.map(ur => (
-                  <li key={ur.role.id} className="font-semibold">
-                    <Badge>{capitalize(ur.role.name)}</Badge>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          )}
-          {user.UserSpecialities.length > 0 && (
-            <div className="grid gap-1">
-              <h2 className="font-serif">Specialities</h2>
-              <ul className="flex flex-wrap gap-2">
-                {user.UserSpecialities.map(us => (
-                  <li key={us.speciality.id} className="font-semibold">
-                    <Badge>{capitalize(us.speciality.name)}</Badge>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          )}
-          {user.daysOfVisit.length > 0 && (
-            <div className="grid gap-1">
-              <h2 className="font-serif">Visiting Days</h2>
-              <ul className="flex flex-wrap gap-2">
-                {user.daysOfVisit.map(vd => (
-                  <li key={vd} className="font-semibold">
-                    <Badge>{capitalize(vd)}</Badge>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          )}
-          {user.timings.length > 0 && (
-            <div className="grid gap-1">
-              <h2 className="font-serif">Timings</h2>
-              <ul className="flex flex-wrap gap-2">
-                {user.timings.map(t => (
-                  <li key={t.id} className="font-semibold">
-                    <Badge>{utils.formatTime(t.time)}</Badge>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          )}
-        </div>
+      <aside className="sticky top-[5.25em] hidden h-[calc(100vh-10em)] space-y-4 xl:block">
+        {user.image && (
+          <div className="relative grid h-50 w-50 gap-3 overflow-clip rounded-full border-2 border-dashed">
+            <Image
+              fill
+              alt="Profile Picture"
+              className="aspect-sqaure object-cover"
+              src={user.image ? `/users/${user.image}` : '/users/user.png'}
+            />
+          </div>
+        )}
       </aside>
     </div>
   );

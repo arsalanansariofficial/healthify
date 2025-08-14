@@ -596,5 +596,35 @@ export async function addDoctor(data: Schema<typeof schemas.doctorSchema>) {
 }
 
 export async function getAppointment(
+  doctorId: string,
   data: Schema<typeof schemas.appointmentSchema>
-) {}
+) {
+  const result = schemas.appointmentSchema.safeParse(data);
+  if (!result.success) return { success: false, message: CONST.INVALID_INPUTS };
+
+  try {
+    const session = await auth();
+
+    if (!session?.user?.id) {
+      return { success: false, message: CONST.USER_NOT_FOUND };
+    }
+
+    await prisma.appointment.create({
+      data: {
+        doctorId,
+        name: result.data.name,
+        city: result.data.city,
+        date: result.data.date,
+        email: result.data.email,
+        phone: result.data.phone,
+        notes: result.data.notes,
+        patientId: session.user.id,
+        timeSlotId: result.data.time
+      }
+    });
+
+    return { success: true, message: CONST.APPOINTMENT_CREATED };
+  } catch (error) {
+    return catchErrors(error as Error);
+  }
+}

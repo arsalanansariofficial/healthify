@@ -131,18 +131,18 @@ export const EMAIL_FAILED = '⚠️ Failed to send email!';
 export const SPACE_FULL = '⚠️ No space left on device!';
 
 export const ADMIN_ROLE = process.env?.ADMIN_ROLE || 'ADMIN';
-export const WEBSITE = `${USER_NAME}.github.io/${USER_NAME}`;
 export const SMTP_TIME_OUT = '⚠️ SMTP connection timed out!';
-
 export const DEFAULT_ROLE = process.env?.DEFAULT_ROLE || 'USER';
+
 export const DOCTOR_ROLE = process.env?.DOCTOR_ROLE || 'DOCTOR';
 export const ADMIN_NAME = process.env?.ADMIN_NAME || 'Admin User';
-
 export const INVALID_CREDENTIALS = '⚠️ Invalid email or password!';
+
 export const IS_PRODUCTION = process.env?.NODE_ENV === 'production';
+export const DIRECTORY_NOT_FOUND = '⚠️ Upload directory not found!';
 export const PRISMA_INIT = '⚠️ Failed to initialize prisma client!';
 
-export const DIRECTORY_NOT_FOUND = '⚠️ Upload directory not found!';
+export const WEBSITE = `https://${USER_NAME}.github.io/${USER_NAME}`;
 export const LINKED_IN = `https://www.linkedin.com/in/${USER_NAME}/`;
 export const SMTP_PASSWORD = process.env?.SMTP_PASSWORD || 'password';
 

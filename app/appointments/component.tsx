@@ -26,16 +26,16 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Badge, BadgeVariant } from '@/components/ui/badge';
 import { catchErrors, formatTime, getDate, hasPermission } from '@/lib/utils';
 
-type Props = { user: User; appointments: Appointment[] };
 type TableSchema = { id: number } & Omit<Appointment, 'id'>;
 type MenuProps = { id?: string; ids?: string[]; isHeader: boolean };
 type TCVProps<T extends z.ZodType> = { user: User; item: z.infer<T> };
+type Props = { user: User; appointments: (Appointment & { doctor: string })[] };
 
 type Appointment = {
   id: string;
   date: string;
   time: string;
-  patientName: string;
+  patient: string;
   status: AppointmentStatus;
 };
 
@@ -135,7 +135,19 @@ export function TableCellViewer<T extends z.ZodType>(props: TCVProps<T>) {
                 id="patient-name"
                 name="patient-name"
                 placeholder="Gwen Tennyson"
-                defaultValue={props.item.patientName}
+                defaultValue={props.item.patient}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="doctor-name">Doctor</Label>
+              <Input
+                disabled
+                readOnly
+                type="text"
+                id="doctor-name"
+                name="doctor-name"
+                placeholder="Gwen Tennyson"
+                defaultValue={props.item.doctor}
               />
             </div>
             <div className="space-y-2">
@@ -144,9 +156,9 @@ export function TableCellViewer<T extends z.ZodType>(props: TCVProps<T>) {
                 disabled
                 id="date"
                 name="date"
-                type="date"
+                type="text"
                 placeholder="Aug 1 2025"
-                defaultValue={props.item.date}
+                defaultValue={getDate(props.item.date, false)}
               />
             </div>
             <div className="space-y-2">
@@ -157,7 +169,7 @@ export function TableCellViewer<T extends z.ZodType>(props: TCVProps<T>) {
                 name="time"
                 type="text"
                 placeholder="10:00:00"
-                defaultValue={props.item.time}
+                defaultValue={formatTime(props.item.time)}
               />
             </div>
             <div className="space-y-2">
@@ -176,7 +188,8 @@ export function TableCellViewer<T extends z.ZodType>(props: TCVProps<T>) {
         </div>
         <Drawer.DrawerFooter>
           <div className="grid grid-flow-col gap-2">
-            {(status === 'pending' || status === 'confirmed') &&
+            {(status === AppointmentStatus.PENDING ||
+              status === AppointmentStatus.CONFIRMED) &&
               hasPermission(props.user.permissions, 'cancel:appointment') && (
                 <Button
                   type="submit"
@@ -191,7 +204,7 @@ export function TableCellViewer<T extends z.ZodType>(props: TCVProps<T>) {
                   <X />
                 </Button>
               )}
-            {status === 'pending' &&
+            {status === AppointmentStatus.PENDING &&
               hasPermission(props.user.permissions, 'confirm:appointment') && (
                 <Button
                   type="submit"
@@ -205,7 +218,7 @@ export function TableCellViewer<T extends z.ZodType>(props: TCVProps<T>) {
                   <Check />
                 </Button>
               )}
-            {status === 'confirmed' &&
+            {status === AppointmentStatus.CONFIRMED &&
               hasPermission(props.user.permissions, 'view:receipt') && (
                 <Button
                   asChild
@@ -278,15 +291,24 @@ export default function Component(props: Props) {
       }
     },
     {
-      id: 'patientName',
+      id: 'doctor',
+      header: 'Doctor',
       enableHiding: false,
-      header: 'Patient Name',
-      accessorKey: 'patientName',
+      accessorKey: 'doctor',
       cell({ row }) {
         return (
-          <span>
-            {findItem(props.appointments, row.original.id)?.patientName}
-          </span>
+          <span>{findItem(props.appointments, row.original.id)?.doctor}</span>
+        );
+      }
+    },
+    {
+      id: 'patient',
+      header: 'Patient',
+      enableHiding: false,
+      accessorKey: 'patient',
+      cell({ row }) {
+        return (
+          <span>{findItem(props.appointments, row.original.id)?.patient}</span>
         );
       }
     },
@@ -361,7 +383,7 @@ export default function Component(props: Props) {
             filterConfig={[
               { id: 'date', placeholder: 'Date' },
               { id: 'time', placeholder: 'Time' },
-              { id: 'patientName', placeholder: 'Patient Name' }
+              { id: 'patient', placeholder: 'Patient' }
             ]}
           />
         )}

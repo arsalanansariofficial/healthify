@@ -55,7 +55,7 @@ export function removeDuplicateTimes(
 
 export function catchErrors(error: Error) {
   if (error instanceof P.Prisma.PrismaClientKnownRequestError) {
-    return { success: false, message: CONST.DB_INIT };
+    return { success: false, message: CONST.UNIQUE_ERR };
   }
 
   if (error instanceof P.Prisma.PrismaClientInitializationError) {

@@ -9,12 +9,12 @@ import * as CONST from '@/lib/constants';
 
 export default function Footer() {
   return (
-    <footer className="sticky mx-auto mt-auto max-w-fit space-y-2">
+    <footer className="sticky mx-auto mt-auto max-w-fit space-y-2 font-semibold">
       <p className="text-muted-foreground space-x-1 text-center text-xs leading-5 capitalize">
         <span>Created By</span>
         <Link
           href={CONST.WEBSITE}
-          className="text-muted-foreground hover:text-foreground font-serif font-semibold underline underline-offset-2"
+          className="text-muted-foreground hover:text-foreground"
         >
           Arsalan Ansari
         </Link>

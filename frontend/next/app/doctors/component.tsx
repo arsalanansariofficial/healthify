@@ -11,7 +11,6 @@ import { FormEvent, useCallback, useMemo, useState } from 'react';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Speciality, TimeSlot, User as Doctor } from '@prisma/client';
 
-import { HOST } from '@/lib/constants';
 import Footer from '@/components/footer';
 import { formatTime } from '@/lib/utils';
 import { nameSchema } from '@/lib/schemas';
@@ -24,6 +23,7 @@ import { useIsMobile } from '@/hooks/use-mobile';
 import handler from '@/components/display-toast';
 import { updateSpeciality } from '@/lib/actions';
 import { Card, CardContent } from '@/components/ui/card';
+import { DEFAULT_USER_PROFILE, HOST } from '@/lib/constants';
 
 import {
   Select,
@@ -349,7 +349,10 @@ export default function Component(props: Props) {
           <li key={doctor.id}>
             <Card className="rounded-md py-3">
               <CardContent className="space-y-3 px-3">
-                <div className="relative min-h-40 overflow-hidden rounded-md">
+                <Link
+                  href={`/doctors/${doctor.id}`}
+                  className="relative block min-h-40 overflow-hidden rounded-md"
+                >
                   <Image
                     fill
                     priority
@@ -358,10 +361,10 @@ export default function Component(props: Props) {
                     sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                     src={
                       `${!doctor.hasOAuth ? `${HOST}/api/upload/` : ''}${doctor.image}` ||
-                      `${HOST}/api/upload/user.png`
+                      DEFAULT_USER_PROFILE
                     }
                   />
-                </div>
+                </Link>
                 <ul className="flex flex-wrap gap-2">
                   {doctor.timings.map(t => (
                     <li key={t.id}>

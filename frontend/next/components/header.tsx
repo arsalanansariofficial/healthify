@@ -51,14 +51,14 @@ export default function Header({ user }: { user: User }) {
               <span className={cn('grid min-w-5 gap-1', { 'gap-0': hasMenu })}>
                 <span
                   className={cn(
-                    'bg-primary h-[2px] w-full origin-center rounded transition-all',
-                    { 'relative top-[1px] rotate-45': hasMenu }
+                    'bg-primary h-0.5 w-full origin-center rounded transition-all',
+                    { 'relative top-px rotate-45': hasMenu }
                   )}
                 ></span>
                 <span
                   className={cn(
-                    'bg-primary h-[2px] w-full origin-center rounded transition-all',
-                    { 'relative bottom-[1px] -rotate-45': hasMenu }
+                    'bg-primary h-0.5 w-full origin-center rounded transition-all',
+                    { 'relative bottom-px -rotate-45': hasMenu }
                   )}
                 ></span>
               </span>

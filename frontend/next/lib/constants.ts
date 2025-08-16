@@ -1,141 +1,3 @@
-export let ROLE_ADDED = '🎉 Role added successfully!';
-if (process.env?.ROLE_ADDED) ROLE_ADDED = process.env.ROLE_ADDED;
-
-export let ADMIN_EMAIL = 'admin.user@ansari.dashboard';
-if (process.env?.ADMIN_EMAIL) ADMIN_EMAIL = process.env.ADMIN_EMAIL;
-
-export let USER_DELETED = '🎉 User deleted successfully.';
-if (process.env?.USER_DELETED) USER_DELETED = process.env.USER_DELETED;
-
-export let FILE_REMOVED = '🎉 File removed successfully.';
-if (process.env?.FILE_REMOVED) FILE_REMOVED = process.env.FILE_REMOVED;
-
-export let USERS_DELETED = '🎉 Users deleted successfully.';
-if (process.env?.USERS_DELETED) USERS_DELETED = process.env.USERS_DELETED;
-
-export let TOKEN_EXPIRED = '⚠️ Token has expired!';
-if (process.env?.TOKEN_EXPIRED) TOKEN_EXPIRED = process.env.TOKEN_EXPIRED;
-
-export let CONFIRM_EMAIL = '🎉 Confirmation email sent.';
-if (process.env?.CONFIRM_EMAIL) CONFIRM_EMAIL = process.env.CONFIRM_EMAIL;
-
-export let FILE_UPLOADED = '🎉 File uploaded successfully.';
-if (process.env?.FILE_UPLOADED) FILE_UPLOADED = process.env.FILE_UPLOADED;
-
-export let UPLOAD_FAILED = '⚠️ Failed to upload file!';
-if (process.env?.UPLOAD_FAILED) UPLOAD_FAILED = process.env.UPLOAD_FAILED;
-
-export let DELETE_FAILED = '⚠️ Failed to delete file!';
-if (process.env?.DELETE_FAILED) DELETE_FAILED = process.env.DELETE_FAILED;
-
-export let EMAIL_BOUNCED = '⚠️ Email address not found!';
-if (process.env?.EMAIL_BOUNCED) EMAIL_BOUNCED = process.env.EMAIL_BOUNCED;
-
-export let EMAIL_VERIFIED = '🎉 Email verified successfully.';
-if (process.env?.EMAIL_VERIFIED) EMAIL_VERIFIED = process.env.EMAIL_VERIFIED;
-
-export let INVALID_INPUTS = '⚠️ Invalid inputs!';
-if (process.env?.INVALID_INPUTS) INVALID_INPUTS = process.env.INVALID_INPUTS;
-
-export let USER_NOT_FOUND = '⚠️ User does not exist!';
-if (process.env?.USER_NOT_FOUND) USER_NOT_FOUND = process.env.USER_NOT_FOUND;
-
-export let IMAGE_NOT_FOUND = '⚠️ Image does not exist!';
-if (process.env?.IMAGE_NOT_FOUND) IMAGE_NOT_FOUND = process.env.IMAGE_NOT_FOUND;
-
-export let ROLES_ASSIGNED = '🎉 Roles are assigned successfully.';
-if (process.env?.ROLES_ASSIGNED) ROLES_ASSIGNED = process.env.ROLES_ASSIGNED;
-
-export let PROFILE_UPDATED = '🎉 Profile updated successfully.';
-if (process.env?.PROFILE_UPDATED) PROFILE_UPDATED = process.env.PROFILE_UPDATED;
-
-export let EMAIL_NOT_FOUND = "⚠️ Email doesn't exist!";
-if (process.env?.EMAIL_NOT_FOUND) EMAIL_NOT_FOUND = process.env.EMAIL_NOT_FOUND;
-
-export let UN_AUTHORIZED = '⚠️ You are not authorized to perform this action!';
-if (process.env?.UN_AUTHORIZED) UN_AUTHORIZED = process.env.UN_AUTHORIZED;
-
-export let INVALID_TIME_SLOT = '⚠️ Invalid time slot!';
-if (process.env?.INVALID_TIME_SLOT) {
-  INVALID_TIME_SLOT = process.env.INVALID_TIME_SLOT;
-}
-
-export let TOKEN_NOT_FOUND = "⚠️ Token doesn't exist!";
-if (process.env?.TOKEN_NOT_FOUND) {
-  TOKEN_NOT_FOUND = process.env.TOKEN_NOT_FOUND;
-}
-
-export let EMAIL_REGISTERED = '⚠️ Email already registered!';
-if (process.env?.EMAIL_REGISTERED) {
-  EMAIL_REGISTERED = process.env.EMAIL_REGISTERED;
-}
-
-export let SPECIALITY_ADDED = '🎉 Speciality added successfully!';
-if (process.env?.SPECIALITY_ADDED) {
-  SPECIALITY_ADDED = process.env.SPECIALITY_ADDED;
-}
-
-export let DATABASE_UPDATED = '🎉 Database updated successfully.';
-if (process.env?.DATABASE_UPDATED) {
-  DATABASE_UPDATED = process.env.DATABASE_UPDATED;
-}
-
-export let PERMISSION_ADDED = '🎉 Permission added successfully.';
-if (process.env?.PERMISSION_ADDED) {
-  PERMISSION_ADDED = process.env.PERMISSION_ADDED;
-}
-
-export let GITHUB_CLIENT_ID = 'GITHUB_CLIENT_ID';
-if (process.env?.GITHUB_CLIENT_ID) {
-  GITHUB_CLIENT_ID = process.env.GITHUB_CLIENT_ID;
-}
-
-export let SPECIALITY_UPDATED = '🎉 Speciality updated successfully.';
-if (process.env?.SPECIALITY_UPDATED) {
-  SPECIALITY_UPDATED = process.env.SPECIALITY_UPDATED;
-}
-
-export let SPECIALITY_DELETED = '🎉 Speciality deleted successfully.';
-if (process.env?.SPECIALITY_DELETED) {
-  SPECIALITY_DELETED = process.env.SPECIALITY_DELETED;
-}
-
-export let DEFAULT_PERMISSION = 'VIEW:DASHBOARD';
-if (process.env?.DEFAULT_PERMISSION) {
-  DEFAULT_PERMISSION = process.env.DEFAULT_PERMISSION;
-}
-
-export let SPECIALITIES_DELETED = '🎉 Specialities deleted successfully.';
-if (process.env?.SPECIALITIES_DELETED) {
-  SPECIALITIES_DELETED = process.env.SPECIALITIES_DELETED;
-}
-
-export let PERMISSIONS_ASSIGNED =
-  '🎉 All permissions are assigned successfully.';
-if (process.env?.PERMISSIONS_ASSIGNED) {
-  PERMISSIONS_ASSIGNED = process.env.PERMISSIONS_ASSIGNED;
-}
-
-export let GITHUB_CLIENT_SECRET = 'GITHUB_CLIENT_SECRET';
-if (process.env?.GITHUB_CLIENT_SECRET) {
-  GITHUB_CLIENT_SECRET = process.env.GITHUB_CLIENT_SECRET;
-}
-
-export let SERVER_ERROR_MESSAGE = '⚠️ Something went wrong!';
-if (process.env?.SERVER_ERROR_MESSAGE) {
-  SERVER_ERROR_MESSAGE = process.env.SERVER_ERROR_MESSAGE;
-}
-
-export let SMTP_PORT_NUMBER = 465;
-if (!isNaN(Number(process.env?.SMTP_PORT_NUMBER))) {
-  SMTP_PORT_NUMBER = +process.env.SMTP_PORT_NUMBER!;
-}
-
-export let EXPIRES_AT = 3600;
-if (process.env?.EXPIRES_AT && !isNaN(Number(process.env.EXPIRES_AT))) {
-  EXPIRES_AT = +process.env.EXPIRES_AT;
-}
-
 export const HOME = '/';
 export const LOGIN = '/login';
 export const SIGNUP = '/signup';
@@ -194,8 +56,8 @@ export const ADMIN_PASSWORD = process.env?.ADMIN_PASSWORD || 'admin.user';
 export const E_AUTH_FAILED = '⚠️ Authentication failed with SMTP server!';
 
 export const PERMISSION_DENIED = '⚠️ Permission denied while saving file!';
+export const PUBLIC_DIR = (process.env?.PUBLIC_DIR as string) || '/public';
 export const HOST = (process.env?.HOST as string) || 'http://localhost:3000';
-export const USER_DIR = (process.env?.USER_DIR as string) || '/public/users';
 
 export const MAIL_TO = `mailto:${EMAIL}?subject=Mail%20To%20Arsalan%20Ansari`;
 export const SMTP_HOST_NAME = process.env?.SMTP_HOST_NAME || 'smtp.gmail.com';
@@ -203,45 +65,6 @@ export const PAGE_NOT_FOUND = process.env?.PAGE_NOT_FOUND || 'Page not found!';
 
 export const TOKEN_NOT_GENERATED = '⚠️ Failed to generate verification token!';
 export const RESUME = `${CDN}/${USER_NAME}/${RESOURCE}/documents/arsalan-ansari_resume.pdf`;
-
-export let DEFAULT_USER_PROFILE = `${HOST}/users/user.jpeg`;
-if (process.env?.DEFAULT_USER_PROFILE) {
-  DEFAULT_USER_PROFILE = process.env.DEFAULT_USER_PROFILE;
-}
-
-export let APPOINTMENT_EXISTS = '⚠️ Appointment already exists!';
-if (process.env?.APPOINTMENT_EXISTS) {
-  APPOINTMENT_EXISTS = process.env.APPOINTMENT_EXISTS;
-}
-
-export let APPOINTMENT_NOT_FOUND =
-  '⚠️ No details found for the current appointment!';
-if (process.env?.APPOINTMENT_NOT_FOUND) {
-  APPOINTMENT_NOT_FOUND = process.env.APPOINTMENT_NOT_FOUND;
-}
-
-export let APPOINTMENT_ACTION_RESTRICTED =
-  '⚠️ Appointment status can not be updated!';
-if (process.env?.APPOINTMENT_ACTION_RESTRICTED) {
-  APPOINTMENT_ACTION_RESTRICTED = process.env.APPOINTMENT_ACTION_RESTRICTED;
-}
-
-export let APPOINTMENT_CONFIRMED =
-  '🎉 Appointment confirmed, you can print appointment receipt now.';
-if (process.env?.APPOINTMENT_CONFIRMED) {
-  APPOINTMENT_CONFIRMED = process.env.APPOINTMENT_CONFIRMED;
-}
-
-export let APPOINTMENT_CANCELLED = '💬 Appointment cancelled.';
-if (process.env?.APPOINTMENT_CANCELLED) {
-  APPOINTMENT_CANCELLED = process.env.APPOINTMENT_CANCELLED;
-}
-
-export let APPOINTMENT_CREATED =
-  '💬 We have informed the doctor about the appointment, once he confirms your appointment you would be able to get the receipt.';
-if (process.env?.APPOINTMENT_CREATED) {
-  APPOINTMENT_CREATED = process.env.APPOINTMENT_CREATED;
-}
 
 export const PUBLIC_ROUTES = [
   '/',
@@ -379,3 +202,159 @@ export const SIDEBAR_ITEMS = new Map([
     ]
   ]
 ]);
+
+export let EXPIRES_AT = 3600;
+export let SMTP_PORT_NUMBER = 465;
+export let DEFAULT_USER_PROFILE = `/user.jpeg`;
+export let INVALID_INPUTS = '⚠️ Invalid inputs!';
+
+export let GITHUB_CLIENT_ID = 'GITHUB_CLIENT_ID';
+export let DEFAULT_PERMISSION = 'VIEW:DASHBOARD';
+export let TOKEN_EXPIRED = '⚠️ Token has expired!';
+
+export let ROLE_ADDED = '🎉 Role added successfully!';
+export let USER_NOT_FOUND = '⚠️ User does not exist!';
+export let ADMIN_EMAIL = 'admin.user@ansari.dashboard';
+
+export let UPLOAD_FAILED = '⚠️ Failed to upload file!';
+export let DELETE_FAILED = '⚠️ Failed to delete file!';
+export let EMAIL_NOT_FOUND = "⚠️ Email doesn't exist!";
+
+export let INVALID_TIME_SLOT = '⚠️ Invalid time slot!';
+export let TOKEN_NOT_FOUND = "⚠️ Token doesn't exist!";
+export let CONFIRM_EMAIL = '🎉 Confirmation email sent.';
+
+export let IMAGE_NOT_FOUND = '⚠️ Image does not exist!';
+export let USER_DELETED = '🎉 User deleted successfully.';
+export let FILE_REMOVED = '🎉 File removed successfully.';
+
+export let EMAIL_BOUNCED = '⚠️ Email address not found!';
+export let GITHUB_CLIENT_SECRET = 'GITHUB_CLIENT_SECRET';
+export let USERS_DELETED = '🎉 Users deleted successfully.';
+
+export let FILE_UPLOADED = '🎉 File uploaded successfully.';
+export let EMAIL_REGISTERED = '⚠️ Email already registered!';
+export let EMAIL_VERIFIED = '🎉 Email verified successfully.';
+
+export let SERVER_ERROR_MESSAGE = '⚠️ Something went wrong!';
+export let APPOINTMENT_CANCELLED = '💬 Appointment cancelled.';
+export let PROFILE_UPDATED = '🎉 Profile updated successfully.';
+
+export let ROLES_ASSIGNED = '🎉 Roles are assigned successfully.';
+export let SPECIALITY_ADDED = '🎉 Speciality added successfully!';
+export let DATABASE_UPDATED = '🎉 Database updated successfully.';
+
+export let PERMISSION_ADDED = '🎉 Permission added successfully.';
+export let APPOINTMENT_EXISTS = '⚠️ Appointment already exists!';
+export let SPECIALITY_UPDATED = '🎉 Speciality updated successfully.';
+
+export let SPECIALITY_DELETED = '🎉 Speciality deleted successfully.';
+export let SPECIALITIES_DELETED = '🎉 Specialities deleted successfully.';
+export let UN_AUTHORIZED = '⚠️ You are not authorized to perform this action!';
+
+export let PERMISSIONS_ASSIGNED =
+  '🎉 All permissions are assigned successfully.';
+
+export let APPOINTMENT_NOT_FOUND =
+  '⚠️ No details found for the current appointment!';
+
+export let APPOINTMENT_ACTION_RESTRICTED =
+  '⚠️ Appointment status can not be updated!';
+
+export let APPOINTMENT_CONFIRMED =
+  '🎉 Appointment confirmed, you can print appointment receipt now.';
+
+export let APPOINTMENT_CREATED =
+  '💬 We have informed the doctor about the appointment, once he confirms your appointment you would be able to get the receipt.';
+
+if (process.env?.ROLE_ADDED) ROLE_ADDED = process.env.ROLE_ADDED;
+if (process.env?.ADMIN_EMAIL) ADMIN_EMAIL = process.env.ADMIN_EMAIL;
+if (process.env?.USER_DELETED) USER_DELETED = process.env.USER_DELETED;
+
+if (process.env?.FILE_REMOVED) FILE_REMOVED = process.env.FILE_REMOVED;
+if (process.env?.USERS_DELETED) USERS_DELETED = process.env.USERS_DELETED;
+if (process.env?.TOKEN_EXPIRED) TOKEN_EXPIRED = process.env.TOKEN_EXPIRED;
+
+if (process.env?.CONFIRM_EMAIL) CONFIRM_EMAIL = process.env.CONFIRM_EMAIL;
+if (process.env?.FILE_UPLOADED) FILE_UPLOADED = process.env.FILE_UPLOADED;
+if (process.env?.UPLOAD_FAILED) UPLOAD_FAILED = process.env.UPLOAD_FAILED;
+
+if (process.env?.DELETE_FAILED) DELETE_FAILED = process.env.DELETE_FAILED;
+if (process.env?.EMAIL_BOUNCED) EMAIL_BOUNCED = process.env.EMAIL_BOUNCED;
+if (process.env?.EMAIL_VERIFIED) EMAIL_VERIFIED = process.env.EMAIL_VERIFIED;
+
+if (process.env?.INVALID_INPUTS) INVALID_INPUTS = process.env.INVALID_INPUTS;
+if (process.env?.USER_NOT_FOUND) USER_NOT_FOUND = process.env.USER_NOT_FOUND;
+if (process.env?.ROLES_ASSIGNED) ROLES_ASSIGNED = process.env.ROLES_ASSIGNED;
+
+if (process.env?.UN_AUTHORIZED) UN_AUTHORIZED = process.env.UN_AUTHORIZED;
+if (process.env?.IMAGE_NOT_FOUND) IMAGE_NOT_FOUND = process.env.IMAGE_NOT_FOUND;
+if (process.env?.PROFILE_UPDATED) PROFILE_UPDATED = process.env.PROFILE_UPDATED;
+
+if (process.env?.EMAIL_NOT_FOUND) EMAIL_NOT_FOUND = process.env.EMAIL_NOT_FOUND;
+if (process.env?.TOKEN_NOT_FOUND) TOKEN_NOT_FOUND = process.env.TOKEN_NOT_FOUND;
+if (process.env?.GITHUB_CLIENT_ID)
+  GITHUB_CLIENT_ID = process.env.GITHUB_CLIENT_ID;
+
+if (process.env?.EMAIL_REGISTERED)
+  EMAIL_REGISTERED = process.env.EMAIL_REGISTERED;
+
+if (process.env?.SPECIALITY_ADDED)
+  SPECIALITY_ADDED = process.env.SPECIALITY_ADDED;
+
+if (process.env?.DATABASE_UPDATED)
+  DATABASE_UPDATED = process.env.DATABASE_UPDATED;
+
+if (process.env?.DEFAULT_USER_PROFILE)
+  DEFAULT_USER_PROFILE = process.env.DEFAULT_USER_PROFILE;
+
+if (process.env?.PERMISSION_ADDED)
+  PERMISSION_ADDED = process.env.PERMISSION_ADDED;
+
+if (process.env?.INVALID_TIME_SLOT)
+  INVALID_TIME_SLOT = process.env.INVALID_TIME_SLOT;
+
+if (process.env?.SPECIALITY_UPDATED)
+  SPECIALITY_UPDATED = process.env.SPECIALITY_UPDATED;
+
+if (process.env?.SPECIALITY_DELETED)
+  SPECIALITY_DELETED = process.env.SPECIALITY_DELETED;
+
+if (process.env?.DEFAULT_PERMISSION)
+  DEFAULT_PERMISSION = process.env.DEFAULT_PERMISSION;
+
+if (process.env?.APPOINTMENT_EXISTS)
+  APPOINTMENT_EXISTS = process.env.APPOINTMENT_EXISTS;
+
+if (process.env?.APPOINTMENT_CREATED)
+  APPOINTMENT_CREATED = process.env.APPOINTMENT_CREATED;
+
+if (process.env?.SPECIALITIES_DELETED)
+  SPECIALITIES_DELETED = process.env.SPECIALITIES_DELETED;
+
+if (process.env?.PERMISSIONS_ASSIGNED)
+  PERMISSIONS_ASSIGNED = process.env.PERMISSIONS_ASSIGNED;
+
+if (process.env?.GITHUB_CLIENT_SECRET)
+  GITHUB_CLIENT_SECRET = process.env.GITHUB_CLIENT_SECRET;
+
+if (process.env?.SERVER_ERROR_MESSAGE)
+  SERVER_ERROR_MESSAGE = process.env.SERVER_ERROR_MESSAGE;
+
+if (process.env?.APPOINTMENT_NOT_FOUND)
+  APPOINTMENT_NOT_FOUND = process.env.APPOINTMENT_NOT_FOUND;
+
+if (process.env?.APPOINTMENT_CONFIRMED)
+  APPOINTMENT_CONFIRMED = process.env.APPOINTMENT_CONFIRMED;
+
+if (process.env?.APPOINTMENT_CANCELLED)
+  APPOINTMENT_CANCELLED = process.env.APPOINTMENT_CANCELLED;
+
+if (!isNaN(Number(process.env?.SMTP_PORT_NUMBER)))
+  SMTP_PORT_NUMBER = +process.env.SMTP_PORT_NUMBER!;
+
+if (process.env?.EXPIRES_AT && !isNaN(Number(process.env.EXPIRES_AT)))
+  EXPIRES_AT = +process.env.EXPIRES_AT;
+
+if (process.env?.APPOINTMENT_ACTION_RESTRICTED)
+  APPOINTMENT_ACTION_RESTRICTED = process.env.APPOINTMENT_ACTION_RESTRICTED;

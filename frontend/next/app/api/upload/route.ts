@@ -5,7 +5,7 @@ import { NextResponse } from 'next/server';
 
 import * as CONST from '@/lib/constants';
 
-const dir = path.join(process.cwd(), CONST.USER_DIR);
+const dir = path.join(process.cwd(), CONST.PUBLIC_DIR);
 
 export async function POST(request: Request) {
   try {

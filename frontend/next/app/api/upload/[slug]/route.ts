@@ -5,7 +5,7 @@ import fs, { readFile } from 'fs/promises';
 import * as CONST from '@/lib/constants';
 import { NextResponse } from 'next/server';
 
-const dir = path.join(process.cwd(), CONST.USER_DIR);
+const dir = path.join(process.cwd(), CONST.PUBLIC_DIR);
 
 type Params = RouteContext<'/api/upload/[slug]'>;
 

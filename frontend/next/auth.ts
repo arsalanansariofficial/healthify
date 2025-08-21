@@ -103,7 +103,7 @@ export const { auth, handlers, signIn, signOut, unstable_update } = NextAuth({
       session.user.expiresAt = token.expiresAt as number | undefined;
       return session;
     },
-    async jwt({ token, user, session, trigger }) {
+    async jwt({ token, user, session, trigger, account }) {
       if (user) {
         if (!user.roles || !user.permissions) {
           const roles = (
@@ -133,6 +133,16 @@ export const { auth, handlers, signIn, signOut, unstable_update } = NextAuth({
         token.hasOAuth = user.hasOAuth;
         token.permissions = user.permissions;
         token.expiresAt = Date.now() + EXPIRES_AT * 1000;
+
+        if (account?.provider !== 'credentials') {
+          token.hasOAuth =
+            (
+              await prisma.user.findUnique({
+                where: { id: user.id },
+                select: { hasOAuth: true }
+              })
+            )?.hasOAuth || false;
+        }
       }
 
       if (trigger === 'update' && session.user) {

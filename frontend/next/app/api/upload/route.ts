@@ -1,7 +1,7 @@
 import path from 'path';
-import fs from 'fs/promises';
 import { randomUUID } from 'crypto';
 import { NextResponse } from 'next/server';
+import { mkdir, writeFile } from 'fs/promises';
 
 import * as CONST from '@/lib/constants';
 
@@ -21,8 +21,8 @@ export async function POST(request: Request) {
 
     const file = `${randomUUID()}.${buffer.type.split('/').pop()}`;
 
-    await fs.mkdir(dir, { recursive: true });
-    await fs.writeFile(
+    await mkdir(dir, { recursive: true });
+    await writeFile(
       path.join(dir, file),
       Buffer.from(await buffer.arrayBuffer())
     );

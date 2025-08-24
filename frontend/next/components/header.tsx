@@ -13,8 +13,15 @@ import { cn } from '@/lib/utils';
 import Menu from '@/components/menu';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { ACCOUNT, DASHBOARD, HOST, SIDEBAR_ITEMS } from '@/lib/constants';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+
+import {
+  HOST,
+  ABOUT,
+  ACCOUNT,
+  DASHBOARD,
+  SIDEBAR_ITEMS
+} from '@/lib/constants';
 
 import {
   DropdownMenu,
@@ -54,13 +61,13 @@ export default function Header({ user }: { user: User }) {
                     'bg-primary h-0.5 w-full origin-center rounded transition-all',
                     { 'relative top-px rotate-45': hasMenu }
                   )}
-                ></span>
+                />
                 <span
                   className={cn(
                     'bg-primary h-0.5 w-full origin-center rounded transition-all',
                     { 'relative bottom-px -rotate-45': hasMenu }
                   )}
-                ></span>
+                />
               </span>
             </button>
             <nav className="hidden grid-flow-col gap-4 justify-self-start lg:grid">
@@ -106,7 +113,9 @@ export default function Header({ user }: { user: User }) {
                   <DropdownMenuItem>
                     <Link href={ACCOUNT}>Account</Link>
                   </DropdownMenuItem>
-                  <DropdownMenuItem>Settings</DropdownMenuItem>
+                  <DropdownMenuItem>
+                    <Link href={ABOUT}>About</Link>
+                  </DropdownMenuItem>
                 </DropdownMenuGroup>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem onClick={() => signOut()}>

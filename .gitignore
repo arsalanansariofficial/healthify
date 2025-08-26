@@ -43,6 +43,7 @@ db
 *.db
 
 # ide files
+.idea
 .vscode
 
 # public

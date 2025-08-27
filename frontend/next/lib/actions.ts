@@ -51,7 +51,8 @@ import {
   appointmentSchema,
   userProfileSchema,
   doctorProfileSchema,
-  rolePermissionsSchema
+  rolePermissionsSchema,
+  bioSchema
 } from '@/lib/schemas';
 
 import {
@@ -71,6 +72,7 @@ import {
   CONFIRM_EMAIL,
   SMTP_PASSWORD,
   TOKEN_EXPIRED,
+  UN_AUTHORIZED,
   USER_NOT_FOUND,
   ADMIN_PASSWORD,
   EMAIL_VERIFIED,
@@ -95,8 +97,7 @@ import {
   APPOINTMENT_CANCELLED,
   APPOINTMENT_CONFIRMED,
   APPOINTMENT_NOT_FOUND,
-  APPOINTMENT_ACTION_RESTRICTED,
-  UN_AUTHORIZED
+  APPOINTMENT_ACTION_RESTRICTED
 } from '@/lib/constants';
 
 type Schema<T extends ZodSchema> = z.infer<T>;
@@ -729,6 +730,44 @@ export async function getAppointment(
     });
 
     return { success: true, message: APPOINTMENT_CREATED };
+  } catch (error) {
+    return catchErrors(error as Error);
+  }
+}
+
+export async function updateBio(id: string, data: Schema<typeof bioSchema>) {
+  try {
+    const result = bioSchema.safeParse(data);
+
+    if (!result.success) {
+      return { success: false, message: INVALID_INPUTS };
+    }
+
+    const user = await prisma.user.findUnique({
+      where: { id },
+      select: { bio: true }
+    });
+
+    if (!user) {
+      return { success: false, message: UN_AUTHORIZED };
+    }
+
+    if (user.bio) await removeFile(user.bio);
+
+    await prisma.user.update({
+      where: { id },
+      data: {
+        bio: await saveFile(
+          new File(
+            [new Blob([result.data.bio], { type: 'text/md' })],
+            'about.md',
+            { type: 'text/md' }
+          )
+        )
+      }
+    });
+
+    return { success: true, message: PROFILE_UPDATED };
   } catch (error) {
     return catchErrors(error as Error);
   }

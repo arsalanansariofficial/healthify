@@ -1,7 +1,7 @@
 import { titleCase } from 'moderndash';
 import { twMerge } from 'tailwind-merge';
-import { AuthError, User } from 'next-auth';
 import { clsx, type ClassValue } from 'clsx';
+import { AuthError, NextAuthRequest, User } from 'next-auth';
 
 import {
   parse,
@@ -58,6 +58,16 @@ export function arrayBufferToBase64(buffer: ArrayBuffer): string {
   const bytes = new Uint8Array(buffer);
   return window.btoa(
     bytes.reduce((acc, byte) => acc + String.fromCharCode(byte), String())
+  );
+}
+
+export function withCallback(
+  request: NextAuthRequest,
+  redirectTo: string
+): string | URL {
+  return new URL(
+    `${redirectTo}?redirectTo=${request.nextUrl.pathname + request.nextUrl.search}`,
+    request.nextUrl
   );
 }
 

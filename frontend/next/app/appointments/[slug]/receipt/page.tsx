@@ -30,7 +30,7 @@ export default async function Page(props: Props) {
     }
   });
 
-  if (!appointment || appointment.status !== AppointmentStatus.CONFIRMED) {
+  if (!appointment || appointment.status !== AppointmentStatus.confirmed) {
     notFound();
   }
 

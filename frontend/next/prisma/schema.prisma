@@ -317,6 +317,7 @@ model Hospital {
   isAffiliated Boolean  @default(false)
   createdAt    DateTime @default(now())
 
+  users                User[]
   medicines            Medicine[]
   hospitalDepartments  HospitalDepartment[]
   hospitalMemberships  HospitalMembership[]
@@ -445,8 +446,11 @@ model User {
   createdAt     DateTime  @default(now())
   hasOAuth      Boolean   @default(false)
 
-  membershipId String?     @db.ObjectId
-  membership   Membership? @relation(fields: [membershipId], references: [id])
+  membershipId String? @db.ObjectId
+  hospitalId   String? @db.ObjectId
+
+  hospital   Hospital?   @relation(fields: [hospitalId], references: [id])
+  membership Membership? @relation(fields: [membershipId], references: [id])
 
   daysOfVisit      Day[]
   token            Token?

@@ -309,10 +309,10 @@ model MembershipTransaction {
 model Hospital {
   id           String   @id @default(auto()) @map("_id") @db.ObjectId
   name         String
-  email        String
-  phone        String
   city         String
   address      String?
+  email        String   @unique
+  phone        String   @unique
   updatedAt    DateTime @updatedAt
   isAffiliated Boolean  @default(false)
   createdAt    DateTime @default(now())

@@ -47,6 +47,7 @@ import {
   emailSchema,
   signupSchema,
   doctorSchema,
+  hospitalSchema,
   userRolesSchema,
   permissionSchema,
   appointmentSchema,
@@ -79,6 +80,7 @@ import {
   INVALID_INPUTS,
   ROLES_ASSIGNED,
   SMTP_HOST_NAME,
+  HOSPITAL_ADDED,
   EMAIL_NOT_FOUND,
   PROFILE_UPDATED,
   TOKEN_NOT_FOUND,
@@ -87,6 +89,7 @@ import {
   PERMISSION_ADDED,
   SMTP_PORT_NUMBER,
   SPECIALITY_ADDED,
+  HOSPITAL_UPDATED,
   INVALID_TIME_SLOT,
   APPOINTMENT_EXISTS,
   DEFAULT_PERMISSION,
@@ -1339,4 +1342,49 @@ export async function getUserDashboardCards(userId: string) {
         : '+0%'
     }
   ];
+}
+
+export async function deleteHospital(id: string) {
+  await prisma.hospital.delete({ where: { id } });
+  revalidatePath(HOME);
+}
+
+export async function deleteHospitals(ids: string[]) {
+  await prisma.hospital.deleteMany({ where: { id: { in: ids } } });
+  revalidatePath(HOME);
+}
+
+export async function addHospital(data: Schema<typeof hospitalSchema>) {
+  const result = hospitalSchema.safeParse(data);
+  if (!result.success) return { success: false, message: INVALID_INPUTS };
+
+  try {
+    await prisma.hospital.create({
+      data: { ...result.data, isAffiliated: result.data.isAffiliated === 'yes' }
+    });
+
+    return { success: true, message: HOSPITAL_ADDED };
+  } catch (error) {
+    return catchErrors(error as Error);
+  }
+}
+
+export async function updateHospital(
+  id: string,
+  data: Schema<typeof hospitalSchema>
+) {
+  const result = hospitalSchema.safeParse(data);
+  if (!result.success) return { success: false, message: INVALID_INPUTS };
+
+  try {
+    await prisma.hospital.update({
+      where: { id },
+      data: { ...result.data, isAffiliated: result.data.isAffiliated === 'yes' }
+    });
+
+    revalidatePath(HOME);
+    return { success: true, message: HOSPITAL_UPDATED };
+  } catch (error) {
+    return catchErrors(error as Error);
+  }
 }

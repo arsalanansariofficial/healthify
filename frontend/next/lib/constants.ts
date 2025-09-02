@@ -232,6 +232,8 @@ export let FILE_REMOVED = '🎉 File removed successfully.';
 export let EMAIL_BOUNCED = '⚠️ Email address not found!';
 export let GITHUB_CLIENT_SECRET = 'GITHUB_CLIENT_SECRET';
 export let USERS_DELETED = '🎉 Users deleted successfully.';
+export let HOSPITAL_ADDED = '🎉 Hospital added successfully';
+export let HOSPITAL_UPDATED = '🎉 Hospital updated successfully';
 
 export let FILE_UPLOADED = '🎉 File uploaded successfully.';
 export let EMAIL_REGISTERED = '⚠️ Email already registered!';
@@ -292,8 +294,13 @@ if (process.env?.UN_AUTHORIZED) UN_AUTHORIZED = process.env.UN_AUTHORIZED;
 if (process.env?.IMAGE_NOT_FOUND) IMAGE_NOT_FOUND = process.env.IMAGE_NOT_FOUND;
 if (process.env?.PROFILE_UPDATED) PROFILE_UPDATED = process.env.PROFILE_UPDATED;
 
+if (process.env?.HOSPITAL_ADDED) HOSPITAL_ADDED = process.env.HOSPITAL_ADDED;
 if (process.env?.EMAIL_NOT_FOUND) EMAIL_NOT_FOUND = process.env.EMAIL_NOT_FOUND;
 if (process.env?.TOKEN_NOT_FOUND) TOKEN_NOT_FOUND = process.env.TOKEN_NOT_FOUND;
+
+if (process.env?.HOSPITAL_UPDATED)
+  HOSPITAL_UPDATED = process.env.HOSPITAL_UPDATED;
+
 if (process.env?.GITHUB_CLIENT_ID)
   GITHUB_CLIENT_ID = process.env.GITHUB_CLIENT_ID;
 

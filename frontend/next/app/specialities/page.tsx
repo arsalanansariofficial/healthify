@@ -5,6 +5,7 @@ import prisma from '@/lib/prisma';
 import Header from '@/components/header';
 import Session from '@/components/session';
 import Sidebar from '@/components/sidebar';
+import { DOCTOR_ROLE } from '@/lib/constants';
 import Component from '@/app/specialities/component';
 
 export default async function Page() {
@@ -12,7 +13,7 @@ export default async function Page() {
     auth(),
     prisma.speciality.findMany(),
     prisma.userRole.findMany({
-      where: { role: { name: 'DOCTOR' } },
+      where: { role: { name: DOCTOR_ROLE } },
       select: {
         user: {
           include: {

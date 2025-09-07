@@ -30,11 +30,11 @@ export const OCTET_STREAM = 'application/octet-stream';
 
 export const SPACE_FULL = '⚠️ No space left on device!';
 export const BAD_REQUEST_MESSAGE = '⚠️ 400 Bad request!';
-export const ADMIN_ROLE = process.env?.ADMIN_ROLE || 'ADMIN';
+export const ADMIN_ROLE = process.env?.ADMIN_ROLE || 'admin';
 
 export const SMTP_TIME_OUT = '⚠️ SMTP connection timed out!';
-export const DEFAULT_ROLE = process.env?.DEFAULT_ROLE || 'USER';
-export const DOCTOR_ROLE = process.env?.DOCTOR_ROLE || 'DOCTOR';
+export const DEFAULT_ROLE = process.env?.DEFAULT_ROLE || 'user';
+export const DOCTOR_ROLE = process.env?.DOCTOR_ROLE || 'doctor';
 
 export const ADMIN_NAME = process.env?.ADMIN_NAME || 'Admin User';
 export const INVALID_CREDENTIALS = '⚠️ Invalid email or password!';

@@ -194,3 +194,5 @@ export const hospitalSchema = name
       address: z.union([z.literal(String()), name.shape.name])
     })
   );
+
+export const departmentSchema = name;

@@ -54,7 +54,8 @@ import {
   appointmentSchema,
   userProfileSchema,
   doctorProfileSchema,
-  rolePermissionsSchema
+  rolePermissionsSchema,
+  facilitySchema
 } from '@/lib/schemas';
 
 import {
@@ -103,7 +104,9 @@ import {
   APPOINTMENT_CANCELLED,
   APPOINTMENT_CONFIRMED,
   APPOINTMENT_NOT_FOUND,
-  APPOINTMENT_ACTION_RESTRICTED
+  APPOINTMENT_ACTION_RESTRICTED,
+  FACILITY_UPDATED,
+  FACILITY_ADDED
 } from '@/lib/constants';
 
 type Schema<T extends ZodSchema> = z.infer<T>;
@@ -1418,6 +1421,44 @@ export async function updateDepartment(
     await prisma.department.update({ where: { id }, data: { ...result.data } });
     revalidatePath(HOME);
     return { success: true, message: DEPARTMENT_UPDATED };
+  } catch (error) {
+    return catchErrors(error as Error);
+  }
+}
+
+export async function deleteFacility(id: string) {
+  await prisma.facility.delete({ where: { id } });
+  revalidatePath(HOME);
+}
+
+export async function deleteFacilities(ids: string[]) {
+  await prisma.facility.deleteMany({ where: { id: { in: ids } } });
+  revalidatePath(HOME);
+}
+
+export async function addFacility(data: Schema<typeof facilitySchema>) {
+  const result = facilitySchema.safeParse(data);
+  if (!result.success) return { success: false, message: INVALID_INPUTS };
+
+  try {
+    await prisma.facility.create({ data: { ...result.data } });
+    return { success: true, message: FACILITY_ADDED };
+  } catch (error) {
+    return catchErrors(error as Error);
+  }
+}
+
+export async function updateFacility(
+  id: string,
+  data: Schema<typeof facilitySchema>
+) {
+  const result = facilitySchema.safeParse(data);
+  if (!result.success) return { success: false, message: INVALID_INPUTS };
+
+  try {
+    await prisma.facility.update({ where: { id }, data: { ...result.data } });
+    revalidatePath(HOME);
+    return { success: true, message: FACILITY_UPDATED };
   } catch (error) {
     return catchErrors(error as Error);
   }

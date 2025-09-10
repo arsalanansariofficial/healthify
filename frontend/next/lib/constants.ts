@@ -184,6 +184,13 @@ export const SIDEBAR_ITEMS = new Map([
     ]
   ],
   [
+    { label: 'Facilities', permission: 'view:facilities' },
+    [
+      { label: 'View', url: '/facilities', permission: 'view:facilities' },
+      { label: 'Add', url: '/facilities/add', permission: 'add:facility' }
+    ]
+  ],
+  [
     { label: 'Appointments', permission: 'view:appointments' },
     [{ label: 'View', url: '/appointments', permission: 'view:appointments' }]
   ],
@@ -252,6 +259,10 @@ export let DEPARTMENT_ADDED = '🎉 Department added successfully';
 export let DEPARTMENT_UPDATED = '🎉 Department updated successfully';
 export let DEPARTMENT_DELETED = '🎉 Department deleted successfully.';
 export let DEPARTMENTS_DELETED = '🎉 Departments deleted successfully.';
+export let FACILITY_ADDED = '🎉 Facility added successfully';
+export let FACILITY_UPDATED = '🎉 Facility updated successfully';
+export let FACILITY_DELETED = '🎉 Facility deleted successfully.';
+export let FACILITIES_DELETED = '🎉 Facilities deleted successfully.';
 
 export let FILE_UPLOADED = '🎉 File uploaded successfully.';
 export let EMAIL_REGISTERED = '⚠️ Email already registered!';
@@ -327,6 +338,14 @@ if (process.env?.DEPARTMENT_DELETED)
   DEPARTMENT_DELETED = process.env.DEPARTMENT_DELETED;
 if (process.env?.DEPARTMENTS_DELETED)
   DEPARTMENTS_DELETED = process.env.DEPARTMENTS_DELETED;
+
+if (process.env?.FACILITY_ADDED) FACILITY_ADDED = process.env.FACILITY_ADDED;
+if (process.env?.FACILITY_UPDATED)
+  FACILITY_UPDATED = process.env.FACILITY_UPDATED;
+if (process.env?.FACILITY_DELETED)
+  FACILITY_DELETED = process.env.FACILITY_DELETED;
+if (process.env?.FACILITIES_DELETED)
+  FACILITIES_DELETED = process.env.FACILITIES_DELETED;
 
 if (process.env?.GITHUB_CLIENT_ID)
   GITHUB_CLIENT_ID = process.env.GITHUB_CLIENT_ID;

@@ -196,3 +196,4 @@ export const hospitalSchema = name
   );
 
 export const departmentSchema = name;
+export const facilitySchema = name;

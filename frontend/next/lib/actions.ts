@@ -55,7 +55,12 @@ import {
   userProfileSchema,
   doctorProfileSchema,
   rolePermissionsSchema,
-  facilitySchema
+  facilitySchema,
+  pharmaCodeSchema,
+  pharmaManufacturerSchema,
+  pharmaSaltSchema,
+  pharmaBrandSchema,
+  medicationFormSchema
 } from '@/lib/schemas';
 
 import {
@@ -106,7 +111,17 @@ import {
   APPOINTMENT_NOT_FOUND,
   APPOINTMENT_ACTION_RESTRICTED,
   FACILITY_UPDATED,
-  FACILITY_ADDED
+  FACILITY_ADDED,
+  MEDICATION_FORM_ADDED,
+  MEDICATION_FORM_UPDATED,
+  PHARMA_BRAND_ADDED,
+  PHARMA_BRAND_UPDATED,
+  PHARMA_CODE_ADDED,
+  PHARMA_CODE_UPDATED,
+  PHARMA_MANUFACTURER_ADDED,
+  PHARMA_MANUFACTURER_UPDATED,
+  PHARMA_SALT_ADDED,
+  PHARMA_SALT_UPDATED
 } from '@/lib/constants';
 
 type Schema<T extends ZodSchema> = z.infer<T>;
@@ -1459,6 +1474,209 @@ export async function updateFacility(
     await prisma.facility.update({ where: { id }, data: { ...result.data } });
     revalidatePath(HOME);
     return { success: true, message: FACILITY_UPDATED };
+  } catch (error) {
+    return catchErrors(error as Error);
+  }
+}
+
+export async function deletePharmaCode(id: string) {
+  await prisma.pharmaCode.delete({ where: { id } });
+  revalidatePath(HOME);
+}
+
+export async function deletePharmaCodes(ids: string[]) {
+  await prisma.pharmaCode.deleteMany({ where: { id: { in: ids } } });
+  revalidatePath(HOME);
+}
+
+export async function addPharmaCode(data: Schema<typeof pharmaCodeSchema>) {
+  const result = pharmaCodeSchema.safeParse(data);
+  if (!result.success) return { success: false, message: INVALID_INPUTS };
+
+  try {
+    await prisma.pharmaCode.create({ data: { ...result.data } });
+    return { success: true, message: PHARMA_CODE_ADDED };
+  } catch (error) {
+    return catchErrors(error as Error);
+  }
+}
+
+export async function updatePharmaCode(
+  id: string,
+  data: Schema<typeof pharmaCodeSchema>
+) {
+  const result = pharmaCodeSchema.safeParse(data);
+  if (!result.success) return { success: false, message: INVALID_INPUTS };
+
+  try {
+    await prisma.pharmaCode.update({ where: { id }, data: { ...result.data } });
+    revalidatePath(HOME);
+    return { success: true, message: PHARMA_CODE_UPDATED };
+  } catch (error) {
+    return catchErrors(error as Error);
+  }
+}
+
+export async function deletePharmaManufacturer(id: string) {
+  await prisma.pharmaManufacturer.delete({ where: { id } });
+  revalidatePath(HOME);
+}
+
+export async function deletePharmaManufacturers(ids: string[]) {
+  await prisma.pharmaManufacturer.deleteMany({ where: { id: { in: ids } } });
+  revalidatePath(HOME);
+}
+
+export async function addPharmaManufacturer(
+  data: Schema<typeof pharmaManufacturerSchema>
+) {
+  const result = pharmaManufacturerSchema.safeParse(data);
+  if (!result.success) return { success: false, message: INVALID_INPUTS };
+
+  try {
+    await prisma.pharmaManufacturer.create({ data: { ...result.data } });
+    return { success: true, message: PHARMA_MANUFACTURER_ADDED };
+  } catch (error) {
+    return catchErrors(error as Error);
+  }
+}
+
+export async function updatePharmaManufacturer(
+  id: string,
+  data: Schema<typeof pharmaManufacturerSchema>
+) {
+  const result = pharmaManufacturerSchema.safeParse(data);
+  if (!result.success) return { success: false, message: INVALID_INPUTS };
+
+  try {
+    await prisma.pharmaManufacturer.update({
+      where: { id },
+      data: { ...result.data }
+    });
+    revalidatePath(HOME);
+    return { success: true, message: PHARMA_MANUFACTURER_UPDATED };
+  } catch (error) {
+    return catchErrors(error as Error);
+  }
+}
+
+export async function deletePharmaSalt(id: string) {
+  await prisma.pharmaSalt.delete({ where: { id } });
+  revalidatePath(HOME);
+}
+
+export async function deletePharmaSalts(ids: string[]) {
+  await prisma.pharmaSalt.deleteMany({ where: { id: { in: ids } } });
+  revalidatePath(HOME);
+}
+
+export async function addPharmaSalt(data: Schema<typeof pharmaSaltSchema>) {
+  const result = pharmaSaltSchema.safeParse(data);
+  if (!result.success) return { success: false, message: INVALID_INPUTS };
+
+  try {
+    await prisma.pharmaSalt.create({ data: { ...result.data } });
+    return { success: true, message: PHARMA_SALT_ADDED };
+  } catch (error) {
+    return catchErrors(error as Error);
+  }
+}
+
+export async function updatePharmaSalt(
+  id: string,
+  data: Schema<typeof pharmaSaltSchema>
+) {
+  const result = pharmaSaltSchema.safeParse(data);
+  if (!result.success) return { success: false, message: INVALID_INPUTS };
+
+  try {
+    await prisma.pharmaSalt.update({ where: { id }, data: { ...result.data } });
+    revalidatePath(HOME);
+    return { success: true, message: PHARMA_SALT_UPDATED };
+  } catch (error) {
+    return catchErrors(error as Error);
+  }
+}
+
+export async function deletePharmaBrand(id: string) {
+  await prisma.pharmaBrand.delete({ where: { id } });
+  revalidatePath(HOME);
+}
+
+export async function deletePharmaBrands(ids: string[]) {
+  await prisma.pharmaBrand.deleteMany({ where: { id: { in: ids } } });
+  revalidatePath(HOME);
+}
+
+export async function addPharmaBrand(data: Schema<typeof pharmaBrandSchema>) {
+  const result = pharmaBrandSchema.safeParse(data);
+  if (!result.success) return { success: false, message: INVALID_INPUTS };
+
+  try {
+    await prisma.pharmaBrand.create({ data: { ...result.data } });
+    return { success: true, message: PHARMA_BRAND_ADDED };
+  } catch (error) {
+    return catchErrors(error as Error);
+  }
+}
+
+export async function updatePharmaBrand(
+  id: string,
+  data: Schema<typeof pharmaBrandSchema>
+) {
+  const result = pharmaBrandSchema.safeParse(data);
+  if (!result.success) return { success: false, message: INVALID_INPUTS };
+
+  try {
+    await prisma.pharmaBrand.update({
+      where: { id },
+      data: { ...result.data }
+    });
+    revalidatePath(HOME);
+    return { success: true, message: PHARMA_BRAND_UPDATED };
+  } catch (error) {
+    return catchErrors(error as Error);
+  }
+}
+
+export async function deleteMedicationForm(id: string) {
+  await prisma.medicationForm.delete({ where: { id } });
+  revalidatePath(HOME);
+}
+
+export async function deleteMedicationForms(ids: string[]) {
+  await prisma.medicationForm.deleteMany({ where: { id: { in: ids } } });
+  revalidatePath(HOME);
+}
+
+export async function addMedicationForm(
+  data: Schema<typeof medicationFormSchema>
+) {
+  const result = medicationFormSchema.safeParse(data);
+  if (!result.success) return { success: false, message: INVALID_INPUTS };
+
+  try {
+    await prisma.medicationForm.create({ data: { ...result.data } });
+    return { success: true, message: MEDICATION_FORM_ADDED };
+  } catch (error) {
+    return catchErrors(error as Error);
+  }
+}
+
+export async function updateMedicationForm(
+  id: string,
+  data: Schema<typeof medicationFormSchema>
+) {
+  const result = medicationFormSchema.safeParse(data);
+  if (!result.success) return { success: false, message: INVALID_INPUTS };
+
+  try {
+    await prisma.medicationForm.update({
+      where: { id },
+      data: { ...result.data }
+    });
+    revalidatePath(HOME);
+    return { success: true, message: MEDICATION_FORM_UPDATED };
   } catch (error) {
     return catchErrors(error as Error);
   }

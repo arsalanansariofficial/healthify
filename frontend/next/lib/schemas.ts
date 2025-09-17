@@ -1,5 +1,5 @@
 import z from 'zod';
-import { Gender } from '@prisma/client';
+import { Gender, RenewalType } from '@prisma/client';
 
 import { MAX_DATE, MIN_DATE } from '@/lib/constants';
 
@@ -220,3 +220,21 @@ export const pharmaManufacturerSchema = z.object({
 export const pharmaSaltSchema = pharmaManufacturerSchema;
 export const pharmaBrandSchema = pharmaManufacturerSchema;
 export const medicationFormSchema = pharmaManufacturerSchema;
+
+export const membershipSchema = z.object({
+  users: z.array(z.object({ id: z.string() })).optional(),
+  name: z.string().min(5, { message: 'Name should be atleast 5 characters.' }),
+  benefits: z
+    .array(z.string().min(10, 'Should be atleast 10 characters.'))
+    .optional(),
+  fees: z
+    .array(
+      z.object({
+        membershipId: z.string().optional(),
+        renewalType: z.nativeEnum(RenewalType),
+        amount: z.number().positive({ message: 'Should be a positive number.' })
+      })
+    )
+    .min(1),
+  hospitalMemberships: z.array(z.object({ hospitalId: z.string() }))
+});

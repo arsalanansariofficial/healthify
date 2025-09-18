@@ -263,7 +263,7 @@ model TimeSlot {
 }
 
 model Membership {
-  id       String  @id @default(auto()) @map("_id") @db.ObjectId
+  id       String   @id @default(auto()) @map("_id") @db.ObjectId
   name     String
   benefits String[]
 
@@ -440,10 +440,10 @@ model User {
   city          String?
   gender        Gender?
   bio           String?
+  phone         String?
   idCards       String[]
   emailVerified DateTime?
   email         String?   @unique
-  phone         String?   @unique
   updatedAt     DateTime  @updatedAt
   createdAt     DateTime  @default(now())
   hasOAuth      Boolean   @default(false)

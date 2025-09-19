@@ -111,7 +111,7 @@ export default function MultiSelect(props: MultiSelectProps) {
               props.selectedValues.map(val => (
                 <Badge
                   key={val}
-                  className="flex items-center gap-1 rounded-md bg-gray-200 px-2 py-1 text-black dark:bg-gray-700 dark:text-white"
+                  className="flex items-center gap-1 rounded-md bg-gray-200 px-2 py-1 text-black capitalize dark:bg-gray-700 dark:text-white"
                 >
                   {props.options.find(opt => opt.value === val)?.label}
                   <div
@@ -166,6 +166,7 @@ export default function MultiSelect(props: MultiSelectProps) {
                 return (
                   <CommandItem
                     key={option.value}
+                    className="capitalize"
                     onSelect={() => toggleSelection(option.value)}
                   >
                     <div className="flex items-center">

@@ -180,7 +180,7 @@ export default function Component({ user, specialities }: Props) {
       <Tabs defaultValue={role} onValueChange={setRole}>
         <Card>
           <CardHeader>
-            <CardTitle>{user.name}</CardTitle>
+            <CardTitle className="capitalize">{user.name}</CardTitle>
             <CardDescription>
               Add details for your profile here. Click save when you&apos;re
               done.
@@ -312,6 +312,7 @@ export default function Component({ user, specialities }: Props) {
                           <Input
                             {...field}
                             type="text"
+                            className="capitalize"
                             placeholder="Gwen Tennyson"
                           />
                         </FormControl>
@@ -404,6 +405,7 @@ export default function Component({ user, specialities }: Props) {
                           <Input
                             {...field}
                             type="text"
+                            className="capitalize"
                             placeholder="Moradabad"
                           />
                         </FormControl>
@@ -543,6 +545,7 @@ export default function Component({ user, specialities }: Props) {
                           <Input
                             {...field}
                             type="text"
+                            className="capitalize"
                             placeholder="Gwen Tennyson"
                           />
                         </FormControl>
@@ -652,6 +655,7 @@ export default function Component({ user, specialities }: Props) {
                           <Input
                             {...field}
                             type="text"
+                            className="capitalize"
                             placeholder="Moradabad"
                           />
                         </FormControl>
@@ -667,13 +671,10 @@ export default function Component({ user, specialities }: Props) {
                         <FormLabel>Specialities</FormLabel>
                         <FormControl>
                           <MultiSelect
+                            options={specialities}
+                            selectedValues={field.value}
                             setSelectedValues={field.onChange}
                             placeholder="Select specialities ..."
-                            selectedValues={field.value}
-                            options={specialities.map(s => ({
-                              ...s,
-                              label: capitalize(s.label)
-                            }))}
                           />
                         </FormControl>
                         <FormMessage />
@@ -688,13 +689,10 @@ export default function Component({ user, specialities }: Props) {
                         <FormLabel>Visiting Days</FormLabel>
                         <FormControl>
                           <MultiSelect
+                            options={DAYS}
                             selectedValues={field.value}
                             setSelectedValues={field.onChange}
                             placeholder="Select specialities ..."
-                            options={DAYS.map(d => ({
-                              label: capitalize(d.label),
-                              value: capitalize(d.value)
-                            }))}
                           />
                         </FormControl>
                         <FormMessage />
@@ -718,8 +716,8 @@ export default function Component({ user, specialities }: Props) {
                                     ...field.value,
                                     {
                                       duration: 1,
-                                      time: '10:00:00',
-                                      id: shortId(5)
+                                      id: shortId(5),
+                                      time: '10:00:00'
                                     }
                                   ]);
                                 }}

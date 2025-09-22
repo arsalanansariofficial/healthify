@@ -263,9 +263,9 @@ model TimeSlot {
 }
 
 model Membership {
-  id       String   @id @default(auto()) @map("_id") @db.ObjectId
-  name     String
-  benefits String[]
+  id    String   @id @default(auto()) @map("_id") @db.ObjectId
+  name  String
+  perks String[]
 
   updatedAt DateTime @updatedAt
   createdAt DateTime @default(now())

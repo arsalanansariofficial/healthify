@@ -48,20 +48,20 @@ import {
   signupSchema,
   doctorSchema,
   hospitalSchema,
+  facilitySchema,
   userRolesSchema,
   permissionSchema,
   departmentSchema,
+  pharmaCodeSchema,
+  pharmaSaltSchema,
+  membershipSchema,
   appointmentSchema,
   userProfileSchema,
-  doctorProfileSchema,
-  rolePermissionsSchema,
-  facilitySchema,
-  pharmaCodeSchema,
-  pharmaManufacturerSchema,
-  pharmaSaltSchema,
   pharmaBrandSchema,
+  doctorProfileSchema,
   medicationFormSchema,
-  membershipSchema
+  rolePermissionsSchema,
+  pharmaManufacturerSchema
 } from '@/lib/schemas';
 
 import {
@@ -89,6 +89,7 @@ import {
   ROLES_ASSIGNED,
   SMTP_HOST_NAME,
   HOSPITAL_ADDED,
+  FACILITY_ADDED,
   EMAIL_NOT_FOUND,
   PROFILE_UPDATED,
   TOKEN_NOT_FOUND,
@@ -99,30 +100,30 @@ import {
   SPECIALITY_ADDED,
   HOSPITAL_UPDATED,
   DEPARTMENT_ADDED,
+  FACILITY_UPDATED,
+  MEMBERSHIP_ADDED,
   INVALID_TIME_SLOT,
+  PHARMA_CODE_ADDED,
+  PHARMA_SALT_ADDED,
   DEPARTMENT_UPDATED,
   APPOINTMENT_EXISTS,
   DEFAULT_PERMISSION,
   SPECIALITY_UPDATED,
+  PHARMA_BRAND_ADDED,
   APPOINTMENT_CREATED,
   TOKEN_NOT_GENERATED,
+  PHARMA_CODE_UPDATED,
+  PHARMA_SALT_UPDATED,
   PERMISSIONS_ASSIGNED,
+  PHARMA_BRAND_UPDATED,
   APPOINTMENT_CANCELLED,
   APPOINTMENT_CONFIRMED,
   APPOINTMENT_NOT_FOUND,
-  APPOINTMENT_ACTION_RESTRICTED,
-  FACILITY_UPDATED,
-  FACILITY_ADDED,
   MEDICATION_FORM_ADDED,
   MEDICATION_FORM_UPDATED,
-  PHARMA_BRAND_ADDED,
-  PHARMA_BRAND_UPDATED,
-  PHARMA_CODE_ADDED,
-  PHARMA_CODE_UPDATED,
   PHARMA_MANUFACTURER_ADDED,
   PHARMA_MANUFACTURER_UPDATED,
-  PHARMA_SALT_ADDED,
-  PHARMA_SALT_UPDATED
+  APPOINTMENT_ACTION_RESTRICTED
 } from '@/lib/constants';
 
 type Schema<T extends ZodSchema> = z.infer<T>;
@@ -1687,7 +1688,7 @@ export async function updateMedicationForm(
   }
 }
 
-export async function createMembership(data: Schema<typeof membershipSchema>) {
+export async function addMembership(data: Schema<typeof membershipSchema>) {
   const result = membershipSchema.safeParse(data);
   if (!result.success) return { success: false, message: INVALID_INPUTS };
 
@@ -1696,13 +1697,22 @@ export async function createMembership(data: Schema<typeof membershipSchema>) {
       data: {
         ...result.data,
         fees: { create: result.data.fees },
-        users: { connect: result.data.users },
-        hospitalMemberships: { create: result.data.hospitalMemberships }
+        users: { connect: result.data.users.map(u => ({ id: u })) },
+        hospitalMemberships: {
+          create: result.data.hospitalMemberships.map(hm => ({
+            hospital: {
+              create: {
+                ...hm,
+                isAffiliated: hm.isAffiliated === 'yes' ? true : false
+              }
+            }
+          }))
+        }
       }
     });
 
     revalidatePath(HOME);
-    return { success: true, message: MEDICATION_FORM_UPDATED };
+    return { success: true, message: MEMBERSHIP_ADDED };
   } catch (error) {
     return catchErrors(error as Error);
   }

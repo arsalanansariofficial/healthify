@@ -1380,7 +1380,11 @@ export async function addHospital(data: Schema<typeof hospitalSchema>) {
 
   try {
     await prisma.hospital.create({
-      data: { ...result.data, isAffiliated: result.data.isAffiliated === 'yes' }
+      data: {
+        ...result.data,
+        isAffiliated: result.data.isAffiliated === 'yes',
+        users: { connect: result.data.users.map(u => ({ id: u })) }
+      }
     });
 
     return { success: true, message: HOSPITAL_ADDED };
@@ -1399,7 +1403,11 @@ export async function updateHospital(
   try {
     await prisma.hospital.update({
       where: { id },
-      data: { ...result.data, isAffiliated: result.data.isAffiliated === 'yes' }
+      data: {
+        ...result.data,
+        isAffiliated: result.data.isAffiliated === 'yes',
+        users: { set: [], connect: result.data.users.map(u => ({ id: u })) }
+      }
     });
 
     revalidatePath(HOME);
@@ -1703,6 +1711,7 @@ export async function addMembership(data: Schema<typeof membershipSchema>) {
             hospital: {
               create: {
                 ...hm,
+                users: { create: [] },
                 isAffiliated: hm.isAffiliated === 'yes' ? true : false
               }
             }

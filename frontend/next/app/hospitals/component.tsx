@@ -5,10 +5,10 @@ import { toast } from 'sonner';
 import { useMemo } from 'react';
 import { User } from 'next-auth';
 import { useForm } from 'react-hook-form';
-import { Hospital } from '@prisma/client';
 import { ColumnDef } from '@tanstack/react-table';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { IconDotsVertical } from '@tabler/icons-react';
+import { Hospital, User as PrismaUser } from '@prisma/client';
 
 import Footer from '@/components/footer';
 import { Input } from '@/components/ui/input';
@@ -21,8 +21,9 @@ import { useIsMobile } from '@/hooks/use-mobile';
 import handler from '@/components/display-toast';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Textarea } from '@/components/ui/textarea';
-import { USER_DELETED, USERS_DELETED } from '@/lib/constants';
+import MultiSelect from '@/components/ui/multi-select';
 import { DragHandle, DataTable } from '@/components/ui/data-table';
+import { HOSPITAL_DELETED, HOSPITALS_DELETED } from '@/lib/constants';
 import { capitalize, catchErrors, getDate, hasPermission } from '@/lib/utils';
 
 import {
@@ -69,7 +70,7 @@ import {
 
 type MenuProps = { id?: string; ids?: string[]; isHeader: boolean };
 
-type TCVProps<T extends z.ZodType> = { item: z.infer<T> };
+type TCVProps<T extends z.ZodType> = { item: z.infer<T>; users: PrismaUser[] };
 
 type TableSchema = {
   id: number;
@@ -78,10 +79,11 @@ type TableSchema = {
   header: string;
   createdAt: string;
   city: string | null;
+  users: PrismaUser[];
   isAffiliated: boolean;
 };
 
-type Props = { user: User; hospitals: Hospital[] };
+type Props = { user: User; users: PrismaUser[]; hospitals: Hospital[] };
 
 function Menu({ id, ids, isHeader = false }: MenuProps) {
   const menuTrigger = (
@@ -107,9 +109,9 @@ function Menu({ id, ids, isHeader = false }: MenuProps) {
           onClick={async () => {
             if (!isHeader) {
               toast.promise(deleteHospital(id as string), {
-                success: USER_DELETED,
                 position: 'top-center',
-                loading: 'Deleting user',
+                success: HOSPITAL_DELETED,
+                loading: 'Deleting hospital',
                 error(error) {
                   const { message } = catchErrors(error as Error);
                   return <span className="text-destructive">{message}</span>;
@@ -119,9 +121,9 @@ function Menu({ id, ids, isHeader = false }: MenuProps) {
 
             if (isHeader) {
               toast.promise(deleteHospitals(ids as string[]), {
-                success: USERS_DELETED,
                 position: 'top-center',
                 loading: 'Deleting users',
+                success: HOSPITALS_DELETED,
                 error(error) {
                   const { message } = catchErrors(error as Error);
                   return <span className="text-destructive">{message}</span>;
@@ -147,7 +149,8 @@ export function TableCellViewer<T extends z.ZodType>(props: TCVProps<T>) {
       email: props.item.email,
       phone: props.item.phone,
       address: props.item.address,
-      isAffiliated: props.item.isAffiliated ? 'yes' : 'no'
+      isAffiliated: props.item.isAffiliated ? 'yes' : 'no',
+      users: props.item.users.map((u: PrismaUser) => u.id)
     }
   });
 
@@ -293,6 +296,26 @@ export function TableCellViewer<T extends z.ZodType>(props: TCVProps<T>) {
                 </FormItem>
               )}
             />
+            <FormField
+              name="users"
+              control={form.control}
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Users</FormLabel>
+                  <FormControl>
+                    <MultiSelect
+                      selectedValues={field.value}
+                      setSelectedValues={field.onChange}
+                      options={props.users.map(u => ({
+                        value: u.id,
+                        label: u.name || String()
+                      }))}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
           </form>
         </Form>
         <DrawerFooter>
@@ -349,6 +372,7 @@ export default function Component(props: Props) {
         cell: ({ row }) => (
           <TableCellViewer
             key={Date.now()}
+            users={props.users}
             item={props.hospitals.find(h => h.email === row.original.email)}
           />
         )
@@ -370,8 +394,9 @@ export default function Component(props: Props) {
             disabled
             className="mx-auto block"
             checked={
-              props.hospitals.find(user => row.original.email === user.email)
-                ?.isAffiliated
+              props.hospitals.find(
+                hospital => row.original.isAffiliated === hospital.isAffiliated
+              )?.isAffiliated
                 ? true
                 : false
             }
@@ -416,7 +441,7 @@ export default function Component(props: Props) {
         }
       }
     ],
-    [props.hospitals]
+    [props.hospitals, props.users]
   );
 
   return (

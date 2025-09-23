@@ -180,20 +180,15 @@ export const userProfileSchema = name
     })
   );
 
-export const hospitalSchema = name
-  .merge(city)
-  .merge(email)
-  .merge(phone)
-  .merge(
-    z.object({
-      isAffiliated: emailVerified.shape.emailVerified
-    })
-  )
-  .merge(
-    z.object({
-      address: z.union([z.literal(String()), name.shape.name])
-    })
-  );
+export const hospitalSchema = z.object({
+  city: city.shape.city,
+  email: email.shape.email,
+  phone: phone.shape.phone,
+  users: z.array(z.string()),
+  isAffiliated: emailVerified.shape.emailVerified,
+  address: z.union([z.literal(String()), name.shape.name]),
+  name: z.string().min(5, { message: 'Name should be atleast 5 characters.' })
+});
 
 export const facilitySchema = name;
 export const departmentSchema = name;

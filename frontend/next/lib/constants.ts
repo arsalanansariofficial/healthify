@@ -334,17 +334,20 @@ export let FILE_REMOVED = '🎉 File removed successfully.';
 
 export let EMAIL_BOUNCED = '⚠️ Email address not found!';
 export let GITHUB_CLIENT_SECRET = 'GITHUB_CLIENT_SECRET';
+
 export let USERS_DELETED = '🎉 Users deleted successfully.';
+export let FACILITY_ADDED = '🎉 Facility added successfully';
 export let HOSPITAL_ADDED = '🎉 Hospital added successfully';
 export let HOSPITAL_UPDATED = '🎉 Hospital updated successfully';
+export let HOSPITAL_DELETED = '🎉 Hospital deleted successfully';
+export let FACILITY_UPDATED = '🎉 Facility updated successfully';
 export let DEPARTMENT_ADDED = '🎉 Department added successfully';
+export let FACILITY_DELETED = '🎉 Facility deleted successfully.';
+export let HOSPITALS_DELETED = '🎉 Hospitals deleted successfully';
 export let DEPARTMENT_UPDATED = '🎉 Department updated successfully';
 export let DEPARTMENT_DELETED = '🎉 Department deleted successfully.';
-export let DEPARTMENTS_DELETED = '🎉 Departments deleted successfully.';
-export let FACILITY_ADDED = '🎉 Facility added successfully';
-export let FACILITY_UPDATED = '🎉 Facility updated successfully';
-export let FACILITY_DELETED = '🎉 Facility deleted successfully.';
 export let FACILITIES_DELETED = '🎉 Facilities deleted successfully.';
+export let DEPARTMENTS_DELETED = '🎉 Departments deleted successfully.';
 
 export let PHARMA_CODE_ADDED = '🎉 Pharma code added successfully';
 export let PHARMA_CODE_UPDATED = '🎉 Pharma code updated successfully';
@@ -444,8 +447,13 @@ if (process.env?.HOSPITAL_ADDED) HOSPITAL_ADDED = process.env.HOSPITAL_ADDED;
 if (process.env?.EMAIL_NOT_FOUND) EMAIL_NOT_FOUND = process.env.EMAIL_NOT_FOUND;
 if (process.env?.TOKEN_NOT_FOUND) TOKEN_NOT_FOUND = process.env.TOKEN_NOT_FOUND;
 
+if (process.env?.HOSPITAL_ADDED) HOSPITAL_ADDED = process.env.HOSPITAL_ADDED;
 if (process.env?.HOSPITAL_UPDATED)
   HOSPITAL_UPDATED = process.env.HOSPITAL_UPDATED;
+if (process.env?.HOSPITAL_DELETED)
+  HOSPITAL_DELETED = process.env.HOSPITAL_DELETED;
+if (process.env?.HOSPITALS_DELETED)
+  HOSPITALS_DELETED = process.env.HOSPITALS_DELETED;
 
 if (process.env?.DEPARTMENT_ADDED)
   DEPARTMENT_ADDED = process.env.DEPARTMENT_ADDED;

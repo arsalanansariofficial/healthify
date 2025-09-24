@@ -237,6 +237,22 @@ model Facility {
   departmentFacilities DepartmentFacility[]
 }
 
+model MembershipSubscription {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  updatedAt DateTime @updatedAt
+  createdAt DateTime @default(now())
+
+  feeId        String @db.ObjectId
+  membershipId String @db.ObjectId
+  userId       String @unique @db.ObjectId
+
+  fee        Fee        @relation(fields: [feeId], references: [id], onDelete: Cascade)
+  user       User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  membership Membership @relation(fields: [membershipId], references: [id], onDelete: Cascade)
+
+  transactions MembershipTransaction[]
+}
+
 model Fee {
   id          String      @id @default(auto()) @map("_id") @db.ObjectId
   renewalType RenewalType
@@ -247,6 +263,8 @@ model Fee {
   membershipId String
 
   membership Membership @relation(fields: [membershipId], references: [id], onDelete: Cascade)
+
+  membershipSubscriptions MembershipSubscription[]
 }
 
 model TimeSlot {
@@ -270,11 +288,10 @@ model Membership {
   updatedAt DateTime @updatedAt
   createdAt DateTime @default(now())
 
-  fees         Fee[]
-  users        User[]
-  transactions MembershipTransaction[]
+  fees Fee[]
 
-  hospitalMemberships HospitalMembership[]
+  hospitalMemberships     HospitalMembership[]
+  membershipSubscriptions MembershipSubscription[]
 }
 
 model Prescription {
@@ -292,20 +309,17 @@ model Prescription {
 }
 
 model MembershipTransaction {
-  id          String         @id @default(auto()) @map("_id") @db.ObjectId
-  amount      Float
-  expiresAt   DateTime?
-  renewalType RenewalType
-  status      PaymentStatus
-  method      PaymentMethod?
-  updatedAt   DateTime       @updatedAt
-  createdAt   DateTime       @default(now())
+  id        String         @id @default(auto()) @map("_id") @db.ObjectId
+  amount    Float
+  expiresAt DateTime?
+  status    PaymentStatus
+  method    PaymentMethod?
+  updatedAt DateTime       @updatedAt
+  createdAt DateTime       @default(now())
 
-  userId       String @db.ObjectId
-  membershipId String @db.ObjectId
+  subscriptionId String @db.ObjectId
 
-  user       User       @relation(fields: [userId], references: [id], onDelete: Cascade)
-  membership Membership @relation(fields: [membershipId], references: [id], onDelete: Cascade)
+  membershipSubscription MembershipSubscription @relation(fields: [subscriptionId], references: [id], onDelete: Cascade)
 }
 
 model Hospital {
@@ -448,11 +462,11 @@ model User {
   createdAt     DateTime  @default(now())
   hasOAuth      Boolean   @default(false)
 
-  membershipId String? @db.ObjectId
-  hospitalId   String? @db.ObjectId
+  subscription   MembershipSubscription?
+  subscriptionId String?                 @db.ObjectId
 
-  hospital   Hospital?   @relation(fields: [hospitalId], references: [id])
-  membership Membership? @relation(fields: [membershipId], references: [id])
+  hospitalId String?   @db.ObjectId
+  hospital   Hospital? @relation(fields: [hospitalId], references: [id])
 
   daysOfVisit      Day[]
   token            Token?
@@ -461,7 +475,6 @@ model User {
   UserRoles        UserRole[]
   benificiaries    Benificiary[]
   UserSpecialities UserSpeciality[]
-  transactions     MembershipTransaction[]
 
   doctorAppointments  Appointment[] @relation("doctor")
   patientAppointments Appointment[] @relation("patient")

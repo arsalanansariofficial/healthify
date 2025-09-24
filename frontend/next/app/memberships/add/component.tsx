@@ -1,8 +1,8 @@
 'use client';
 
 import { useForm } from 'react-hook-form';
+import { RenewalType } from '@prisma/client';
 import { PlusIcon, TrashIcon } from 'lucide-react';
-import { RenewalType, User } from '@prisma/client';
 import { zodResolver } from '@hookform/resolvers/zod';
 
 import { cn } from '@/lib/utils';
@@ -15,7 +15,6 @@ import useHookForm from '@/hooks/use-hook-form';
 import handler from '@/components/display-toast';
 import { membershipSchema } from '@/lib/schemas';
 import { Textarea } from '@/components/ui/textarea';
-import MultiSelect from '@/components/ui/multi-select';
 
 import {
   Card,
@@ -44,7 +43,7 @@ import {
   SelectTrigger
 } from '@/components/ui/select';
 
-export default function Component({ users }: { users: User[] }) {
+export default function Component() {
   const { handleSubmit } = useHookForm(handler, addMembership);
   const form = useForm({
     resolver: zodResolver(membershipSchema),
@@ -82,26 +81,6 @@ export default function Component({ users }: { users: User[] }) {
                     <FormLabel>Name</FormLabel>
                     <FormControl>
                       <Input {...field} type="text" placeholder="Basic" />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                name="users"
-                control={form.control}
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Users</FormLabel>
-                    <FormControl>
-                      <MultiSelect
-                        options={users.map(u => ({
-                          value: u.id,
-                          label: u.name || String()
-                        }))}
-                        selectedValues={field.value}
-                        setSelectedValues={field.onChange}
-                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>

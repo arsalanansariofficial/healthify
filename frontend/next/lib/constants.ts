@@ -384,6 +384,15 @@ export let MEMBERSHIP_UPDATED = '🎉 Membership updated successfully';
 export let MEMBERSHIP_DELETED = '🎉 Membership deleted successfully.';
 export let MEMBERSHIPS_DELETED = '🎉 Membership deleted successfully.';
 
+export let MEMBERSHIP_SUBSCRIPTION_ADDED =
+  '🎉 Membership subscription added successfully';
+export let MEMBERSHIP_SUBSCRIPTION_UPDATED =
+  '🎉 Membership subscription updated successfully';
+export let MEMBERSHIP_SUBSCRIPTION_DELETED =
+  '🎉 Membership subscription deleted successfully.';
+export let MEMBERSHIP_SUBSCRIPTIONS_DELETED =
+  '🎉 Membership subscriptions deleted successfully.';
+
 export let FILE_UPLOADED = '🎉 File uploaded successfully.';
 export let EMAIL_REGISTERED = '⚠️ Email already registered!';
 export let EMAIL_VERIFIED = '🎉 Email verified successfully.';
@@ -525,6 +534,16 @@ if (process.env?.MEMBERSHIP_DELETED)
   MEMBERSHIP_DELETED = process.env.MEMBERSHIP_DELETED;
 if (process.env?.MEMBERSHIPS_DELETED)
   MEMBERSHIPS_DELETED = process.env.MEMBERSHIPS_DELETED;
+
+if (process.env?.MEMBERSHIP_SUBSCRIPTION_ADDED)
+  MEMBERSHIP_SUBSCRIPTION_ADDED = process.env.MEMBERSHIP_SUBSCRIPTION_ADDED;
+if (process.env?.MEMBERSHIP_SUBSCRIPTION_UPDATED)
+  MEMBERSHIP_SUBSCRIPTION_UPDATED = process.env.MEMBERSHIP_SUBSCRIPTION_UPDATED;
+if (process.env?.MEMBERSHIP_SUBSCRIPTION_DELETED)
+  MEMBERSHIP_SUBSCRIPTION_DELETED = process.env.MEMBERSHIP_SUBSCRIPTION_DELETED;
+if (process.env?.MEMBERSHIP_SUBSCRIPTIONS_DELETED)
+  MEMBERSHIP_SUBSCRIPTIONS_DELETED =
+    process.env.MEMBERSHIP_SUBSCRIPTIONS_DELETED;
 
 if (process.env?.GITHUB_CLIENT_ID)
   GITHUB_CLIENT_ID = process.env.GITHUB_CLIENT_ID;

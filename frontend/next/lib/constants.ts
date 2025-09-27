@@ -180,6 +180,21 @@ export const SIDEBAR_ITEMS = new Map([
     ]
   ],
   [
+    { label: 'Subscriptions', permission: 'view:subscriptions' },
+    [
+      {
+        label: 'View',
+        url: '/subscriptions',
+        permission: 'view:subscriptions'
+      },
+      {
+        label: 'Add',
+        url: '/subscriptions/add',
+        permission: 'add:subscription'
+      }
+    ]
+  ],
+  [
     { label: 'Hospitals', permission: 'view:hospitals' },
     [
       { label: 'View', url: '/hospitals', permission: 'view:hospitals' },

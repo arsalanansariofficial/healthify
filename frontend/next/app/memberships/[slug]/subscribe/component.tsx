@@ -1,7 +1,7 @@
 'use client';
 
 import { User } from 'next-auth';
-import { Prisma } from '@prisma/client';
+import { Prisma, SubscriptionStatus } from '@prisma/client';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 
@@ -55,7 +55,8 @@ export default function Component({ users, membership }: Props) {
     defaultValues: {
       users: [],
       feeId: String(),
-      membershipId: membership.id
+      membershipId: membership.id,
+      status: SubscriptionStatus.pending
     }
   });
 
@@ -63,10 +64,10 @@ export default function Component({ users, membership }: Props) {
     <div className="flex h-full flex-col gap-8 lg:mx-auto lg:w-10/12">
       <Card>
         <CardHeader>
-          <CardTitle>Add Membership</CardTitle>
+          <CardTitle>Subscribe Membership</CardTitle>
           <CardDescription>
-            Add details for the membership here. Click save when you&apos;re
-            done.
+            Choose subscription renewal type and user name here. Click save when
+            you&apos;re done.
           </CardDescription>
         </CardHeader>
         <CardContent>

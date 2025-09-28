@@ -1,7 +1,7 @@
 'use server';
 
+import { z } from 'zod';
 import bcrypt from 'bcrypt-mini';
-import { z, ZodSchema } from 'zod';
 import nodemailer from 'nodemailer';
 import { revalidatePath } from 'next/cache';
 
@@ -140,8 +140,6 @@ import {
   MEMBERSHIP_SUBSCRIPTION_ADDED
 } from '@/lib/constants';
 
-type Schema<T extends ZodSchema> = z.infer<T>;
-
 async function removeFile(slug: string) {
   const result = await fetch(`${HOST}/api/upload/${slug}`, {
     method: 'DELETE'
@@ -195,7 +193,7 @@ async function sendEmail(to: string, subject: string, html: string) {
 }
 
 export async function loginWithCredentials(
-  { email, password }: Schema<typeof loginSchema>,
+  { email, password }: z.infer<typeof loginSchema>,
   redirectTo?: string
 ) {
   try {
@@ -275,7 +273,7 @@ export async function deleteUsers(ids: string[]) {
 
 export async function assignRoles(
   id: string,
-  data: Schema<typeof userRolesSchema>
+  data: z.infer<typeof userRolesSchema>
 ) {
   const result = userRolesSchema.safeParse(data);
   if (!result.success) return { success: false, message: INVALID_INPUTS };
@@ -332,7 +330,7 @@ export async function verifyEmail(email: string) {
 export async function assignPermissions({
   name,
   permissions
-}: Schema<typeof rolePermissionsSchema>) {
+}: z.infer<typeof rolePermissionsSchema>) {
   const result = rolePermissionsSchema.safeParse({ name, permissions });
   if (!result.success) return { success: false, message: INVALID_INPUTS };
 
@@ -373,7 +371,7 @@ export async function assignPermissions({
 
 export async function updateSpeciality(
   id: string,
-  { name }: Schema<typeof nameSchema>
+  { name }: z.infer<typeof nameSchema>
 ) {
   const result = nameSchema.safeParse({ name });
   if (!result.success) return { success: false, message: INVALID_INPUTS };
@@ -391,7 +389,7 @@ export async function updateSpeciality(
   }
 }
 
-export async function addSpeciality({ name }: Schema<typeof nameSchema>) {
+export async function addSpeciality({ name }: z.infer<typeof nameSchema>) {
   const result = nameSchema.safeParse({ name });
   if (!result.success) return { success: false, message: INVALID_INPUTS };
 
@@ -407,7 +405,7 @@ export async function addSpeciality({ name }: Schema<typeof nameSchema>) {
   }
 }
 
-export async function addRole(data: Schema<typeof roleSchema>) {
+export async function addRole(data: z.infer<typeof roleSchema>) {
   const result = roleSchema.safeParse(data);
   if (!result.success) return { success: false, message: INVALID_INPUTS };
 
@@ -422,7 +420,7 @@ export async function addRole(data: Schema<typeof roleSchema>) {
   }
 }
 
-export async function addPermission(data: Schema<typeof permissionSchema>) {
+export async function addPermission(data: z.infer<typeof permissionSchema>) {
   const result = permissionSchema.safeParse(data);
   if (!result.success) return { success: false, message: INVALID_INPUTS };
 
@@ -487,7 +485,7 @@ export async function verifyToken(id: string) {
 }
 
 export async function login(
-  data: Schema<typeof loginSchema>,
+  data: z.infer<typeof loginSchema>,
   redirectTo?: string
 ) {
   const email = data.email as string;
@@ -500,7 +498,7 @@ export async function login(
 }
 
 export async function signup(
-  data: Schema<typeof signupSchema>,
+  data: z.infer<typeof signupSchema>,
   redirectTo?: string
 ) {
   const result = signupSchema.safeParse(data);
@@ -576,7 +574,7 @@ export async function seed() {
 export async function updatePassword({
   email,
   password
-}: Schema<typeof loginSchema>) {
+}: z.infer<typeof loginSchema>) {
   const result = loginSchema.safeParse({ email, password });
   if (!result.success) return { success: false, message: INVALID_INPUTS };
 
@@ -592,7 +590,7 @@ export async function updatePassword({
   return await loginWithCredentials({ email, password });
 }
 
-export async function forgetPassword({ email }: Schema<typeof emailSchema>) {
+export async function forgetPassword({ email }: z.infer<typeof emailSchema>) {
   const result = emailSchema.safeParse({ email });
   if (!result.success) return { success: false, message: INVALID_INPUTS };
 
@@ -617,7 +615,7 @@ export async function forgetPassword({ email }: Schema<typeof emailSchema>) {
   }
 }
 
-export async function updateUser(id: string, data: Schema<typeof userSchema>) {
+export async function updateUser(id: string, data: z.infer<typeof userSchema>) {
   const result = userSchema.safeParse(data);
   if (!result.success) return { success: false, message: INVALID_INPUTS };
 
@@ -656,7 +654,7 @@ export async function updateUser(id: string, data: Schema<typeof userSchema>) {
   }
 }
 
-export async function addDoctor(data: Schema<typeof doctorSchema>) {
+export async function addDoctor(data: z.infer<typeof doctorSchema>) {
   const result = doctorSchema.safeParse(data);
   if (!result.success) return { success: false, message: INVALID_INPUTS };
 
@@ -721,7 +719,7 @@ export async function addDoctor(data: Schema<typeof doctorSchema>) {
 
 export async function getAppointment(
   doctorId: string,
-  data: Schema<typeof appointmentSchema>
+  data: z.infer<typeof appointmentSchema>
 ) {
   const result = appointmentSchema.safeParse(data);
   if (!result.success) return { success: false, message: INVALID_INPUTS };
@@ -778,7 +776,7 @@ export async function getAppointment(
   }
 }
 
-export async function updateBio(id: string, data: Schema<typeof bioSchema>) {
+export async function updateBio(id: string, data: z.infer<typeof bioSchema>) {
   try {
     const result = bioSchema.safeParse(data);
 
@@ -818,7 +816,7 @@ export async function updateBio(id: string, data: Schema<typeof bioSchema>) {
 
 export async function updateUserProfile(
   userId: string,
-  data: Schema<typeof userProfileSchema>
+  data: z.infer<typeof userProfileSchema>
 ) {
   try {
     const session = await auth();
@@ -918,7 +916,7 @@ export async function updateUserProfile(
 
 export async function updateDoctorProfile(
   doctorId: string,
-  data: Schema<typeof doctorProfileSchema>
+  data: z.infer<typeof doctorProfileSchema>
 ) {
   try {
     const session = await auth();
@@ -1388,7 +1386,7 @@ export async function deleteHospitals(ids: string[]) {
   revalidatePath(HOME);
 }
 
-export async function addHospital(data: Schema<typeof hospitalSchema>) {
+export async function addHospital(data: z.infer<typeof hospitalSchema>) {
   const result = hospitalSchema.safeParse(data);
   if (!result.success) return { success: false, message: INVALID_INPUTS };
 
@@ -1409,7 +1407,7 @@ export async function addHospital(data: Schema<typeof hospitalSchema>) {
 
 export async function updateHospital(
   id: string,
-  data: Schema<typeof hospitalSchema>
+  data: z.infer<typeof hospitalSchema>
 ) {
   const result = hospitalSchema.safeParse(data);
   if (!result.success) return { success: false, message: INVALID_INPUTS };
@@ -1441,7 +1439,7 @@ export async function deleteDepartments(ids: string[]) {
   revalidatePath(HOME);
 }
 
-export async function addDepartment(data: Schema<typeof departmentSchema>) {
+export async function addDepartment(data: z.infer<typeof departmentSchema>) {
   const result = departmentSchema.safeParse(data);
   if (!result.success) return { success: false, message: INVALID_INPUTS };
 
@@ -1455,7 +1453,7 @@ export async function addDepartment(data: Schema<typeof departmentSchema>) {
 
 export async function updateDepartment(
   id: string,
-  data: Schema<typeof departmentSchema>
+  data: z.infer<typeof departmentSchema>
 ) {
   const result = departmentSchema.safeParse(data);
   if (!result.success) return { success: false, message: INVALID_INPUTS };
@@ -1479,7 +1477,7 @@ export async function deleteFacilities(ids: string[]) {
   revalidatePath(HOME);
 }
 
-export async function addFacility(data: Schema<typeof facilitySchema>) {
+export async function addFacility(data: z.infer<typeof facilitySchema>) {
   const result = facilitySchema.safeParse(data);
   if (!result.success) return { success: false, message: INVALID_INPUTS };
 
@@ -1493,7 +1491,7 @@ export async function addFacility(data: Schema<typeof facilitySchema>) {
 
 export async function updateFacility(
   id: string,
-  data: Schema<typeof facilitySchema>
+  data: z.infer<typeof facilitySchema>
 ) {
   const result = facilitySchema.safeParse(data);
   if (!result.success) return { success: false, message: INVALID_INPUTS };
@@ -1517,7 +1515,7 @@ export async function deletePharmaCodes(ids: string[]) {
   revalidatePath(HOME);
 }
 
-export async function addPharmaCode(data: Schema<typeof pharmaCodeSchema>) {
+export async function addPharmaCode(data: z.infer<typeof pharmaCodeSchema>) {
   const result = pharmaCodeSchema.safeParse(data);
   if (!result.success) return { success: false, message: INVALID_INPUTS };
 
@@ -1531,7 +1529,7 @@ export async function addPharmaCode(data: Schema<typeof pharmaCodeSchema>) {
 
 export async function updatePharmaCode(
   id: string,
-  data: Schema<typeof pharmaCodeSchema>
+  data: z.infer<typeof pharmaCodeSchema>
 ) {
   const result = pharmaCodeSchema.safeParse(data);
   if (!result.success) return { success: false, message: INVALID_INPUTS };
@@ -1556,7 +1554,7 @@ export async function deletePharmaManufacturers(ids: string[]) {
 }
 
 export async function addPharmaManufacturer(
-  data: Schema<typeof pharmaManufacturerSchema>
+  data: z.infer<typeof pharmaManufacturerSchema>
 ) {
   const result = pharmaManufacturerSchema.safeParse(data);
   if (!result.success) return { success: false, message: INVALID_INPUTS };
@@ -1571,7 +1569,7 @@ export async function addPharmaManufacturer(
 
 export async function updatePharmaManufacturer(
   id: string,
-  data: Schema<typeof pharmaManufacturerSchema>
+  data: z.infer<typeof pharmaManufacturerSchema>
 ) {
   const result = pharmaManufacturerSchema.safeParse(data);
   if (!result.success) return { success: false, message: INVALID_INPUTS };
@@ -1598,7 +1596,7 @@ export async function deletePharmaSalts(ids: string[]) {
   revalidatePath(HOME);
 }
 
-export async function addPharmaSalt(data: Schema<typeof pharmaSaltSchema>) {
+export async function addPharmaSalt(data: z.infer<typeof pharmaSaltSchema>) {
   const result = pharmaSaltSchema.safeParse(data);
   if (!result.success) return { success: false, message: INVALID_INPUTS };
 
@@ -1612,7 +1610,7 @@ export async function addPharmaSalt(data: Schema<typeof pharmaSaltSchema>) {
 
 export async function updatePharmaSalt(
   id: string,
-  data: Schema<typeof pharmaSaltSchema>
+  data: z.infer<typeof pharmaSaltSchema>
 ) {
   const result = pharmaSaltSchema.safeParse(data);
   if (!result.success) return { success: false, message: INVALID_INPUTS };
@@ -1636,7 +1634,7 @@ export async function deletePharmaBrands(ids: string[]) {
   revalidatePath(HOME);
 }
 
-export async function addPharmaBrand(data: Schema<typeof pharmaBrandSchema>) {
+export async function addPharmaBrand(data: z.infer<typeof pharmaBrandSchema>) {
   const result = pharmaBrandSchema.safeParse(data);
   if (!result.success) return { success: false, message: INVALID_INPUTS };
 
@@ -1650,7 +1648,7 @@ export async function addPharmaBrand(data: Schema<typeof pharmaBrandSchema>) {
 
 export async function updatePharmaBrand(
   id: string,
-  data: Schema<typeof pharmaBrandSchema>
+  data: z.infer<typeof pharmaBrandSchema>
 ) {
   const result = pharmaBrandSchema.safeParse(data);
   if (!result.success) return { success: false, message: INVALID_INPUTS };
@@ -1678,7 +1676,7 @@ export async function deleteMedicationForms(ids: string[]) {
 }
 
 export async function addMedicationForm(
-  data: Schema<typeof medicationFormSchema>
+  data: z.infer<typeof medicationFormSchema>
 ) {
   const result = medicationFormSchema.safeParse(data);
   if (!result.success) return { success: false, message: INVALID_INPUTS };
@@ -1693,7 +1691,7 @@ export async function addMedicationForm(
 
 export async function updateMedicationForm(
   id: string,
-  data: Schema<typeof medicationFormSchema>
+  data: z.infer<typeof medicationFormSchema>
 ) {
   const result = medicationFormSchema.safeParse(data);
   if (!result.success) return { success: false, message: INVALID_INPUTS };
@@ -1710,7 +1708,7 @@ export async function updateMedicationForm(
   }
 }
 
-export async function addMembership(data: Schema<typeof membershipSchema>) {
+export async function addMembership(data: z.infer<typeof membershipSchema>) {
   const result = membershipSchema.safeParse(data);
   if (!result.success) return { success: false, message: INVALID_INPUTS };
 
@@ -1741,7 +1739,7 @@ export async function addMembership(data: Schema<typeof membershipSchema>) {
 }
 
 export async function subscribeMembership(
-  data: Schema<typeof membershipSubscriptionSchema>
+  data: z.infer<typeof membershipSubscriptionSchema>
 ) {
   const result = membershipSubscriptionSchema.safeParse(data);
   if (!result.success) return { success: false, message: INVALID_INPUTS };

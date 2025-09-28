@@ -4,7 +4,7 @@ import Info from '@/components/info';
 
 export default function Page() {
   return (
-    <main className="row-start-2 mx-8 grid place-items-center">
+    <main className="grid min-h-screen place-items-center">
       <section className="space-y-4 text-center">
         <Info
           title="404 - Not Found"

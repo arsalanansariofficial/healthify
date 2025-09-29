@@ -7,12 +7,13 @@ import { User } from 'next-auth';
 import { useForm } from 'react-hook-form';
 import { getHours, parse } from 'date-fns';
 import { useDebounce } from 'use-debounce';
-import { FormEvent, useCallback, useMemo, useState } from 'react';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { FormEvent, useCallback, useMemo, useState } from 'react';
 import { Speciality, TimeSlot, User as Doctor } from '@prisma/client';
 
 import Footer from '@/components/footer';
 import { formatTime } from '@/lib/utils';
+import { DOMAIN, UI } from '@/lib/constants';
 import { nameSchema } from '@/lib/schemas';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -23,7 +24,6 @@ import { useIsMobile } from '@/hooks/use-mobile';
 import handler from '@/components/display-toast';
 import { updateSpeciality } from '@/lib/actions';
 import { Card, CardContent } from '@/components/ui/card';
-import { DEFAULT_USER_PROFILE, HOST } from '@/lib/constants';
 
 import {
   Select,
@@ -64,18 +64,9 @@ import {
   DrawerDescription
 } from '@/components/ui/drawer';
 
-type TCVProps<T extends z.ZodType> = { item: z.infer<T> };
-
-type Props = {
-  user: User;
-  specialities: Speciality[];
-  doctors: (Doctor & {
-    timings: TimeSlot[];
-    UserSpecialities: { speciality: { name: string } }[];
-  })[];
-};
-
-export function TableCellViewer<T extends z.ZodType>(props: TCVProps<T>) {
+export function TableCellViewer<T extends z.ZodType>(props: {
+  item: z.infer<T>;
+}) {
   const isMobile = useIsMobile();
 
   const { pending, handleSubmit } = useHookForm(
@@ -146,7 +137,14 @@ export function TableCellViewer<T extends z.ZodType>(props: TCVProps<T>) {
   );
 }
 
-export default function Component(props: Props) {
+export default function Component(props: {
+  user: User;
+  specialities: Speciality[];
+  doctors: (Doctor & {
+    timings: TimeSlot[];
+    UserSpecialities: { speciality: { name: string } }[];
+  })[];
+}) {
   const [query, setQuery] = useState(String());
   const [gender, setGender] = useState(String());
 
@@ -360,8 +358,8 @@ export default function Component(props: Props) {
                     alt={doctor.name as string}
                     sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                     src={
-                      `${!doctor.hasOAuth ? `${HOST}/api/upload/` : ''}${doctor.image}` ||
-                      DEFAULT_USER_PROFILE
+                      `${!doctor.hasOAuth ? `${DOMAIN.LOCAL}/api/upload/` : ''}${doctor.image}` ||
+                      (UI.DEFAULT_PROFILE_IMAGE as string)
                     }
                   />
                 </Link>

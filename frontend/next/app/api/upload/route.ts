@@ -2,10 +2,9 @@ import path from 'path';
 import { randomUUID } from 'crypto';
 import { NextResponse } from 'next/server';
 import { mkdir, writeFile } from 'fs/promises';
+import { DIRECTORIES, HTTP_STATUS, MESSAGES } from '@/lib/constants';
 
-import * as CONST from '@/lib/constants';
-
-const dir = path.join(process.cwd(), CONST.PUBLIC_DIR);
+const dir = path.join(process.cwd(), DIRECTORIES.PUBLIC as string);
 
 export async function POST(request: Request) {
   try {
@@ -14,8 +13,8 @@ export async function POST(request: Request) {
 
     if (!buffer || !(buffer instanceof File)) {
       return NextResponse.json(
-        { success: false, message: CONST.INVALID_IMAGE_FORMAT },
-        { status: CONST.BAD_REQUEST_CODE }
+        { success: false, message: MESSAGES.FILE.INVALID_FORMAT },
+        { status: HTTP_STATUS.BAD_REQUEST as number }
       );
     }
 
@@ -28,13 +27,13 @@ export async function POST(request: Request) {
     );
 
     return NextResponse.json(
-      { file, success: true, message: CONST.FILE_UPLOADED },
-      { status: CONST.RESPONSE_WRITTEN_CODE }
+      { file, success: true, message: MESSAGES.FILE.UPLOADED },
+      { status: HTTP_STATUS.CREATED as number }
     );
   } catch {
     return NextResponse.json(
-      { success: false, message: CONST.UPLOAD_FAILED },
-      { status: CONST.SERVER_ERROR_CODE }
+      { success: false, message: MESSAGES.FILE.UPLOAD_FAILED },
+      { status: HTTP_STATUS.SERVER_ERROR as number }
     );
   }
 }

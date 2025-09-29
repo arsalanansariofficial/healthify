@@ -9,7 +9,8 @@ import { FileIcon, PlusIcon, TrashIcon } from 'lucide-react';
 import { Role, Speciality, TimeSlot, User } from '@prisma/client';
 
 import Footer from '@/components/footer';
-import { DAYS, HOST } from '@/lib/constants';
+import { DATES } from '@/lib/constants';
+import { DOMAIN } from '@/lib/constants';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
@@ -231,7 +232,8 @@ export default function Component({ user, specialities }: Props) {
                                 alt="Profile Picture"
                                 className="aspect-video object-cover"
                                 src={
-                                  coverSrc || `${HOST}/api/upload/${user.cover}`
+                                  coverSrc ||
+                                  `${DOMAIN.LOCAL}/api/upload/${user.cover}`
                                 }
                               />
                             )}
@@ -279,7 +281,7 @@ export default function Component({ user, specialities }: Props) {
                                 className="aspect-video object-cover"
                                 src={
                                   imageSrc ||
-                                  `${!user.hasOAuth ? `${HOST}/api/upload/` : ''}${user.image}`
+                                  `${!user.hasOAuth ? `${DOMAIN.LOCAL}/api/upload/` : ''}${user.image}`
                                 }
                               />
                             )}
@@ -464,7 +466,7 @@ export default function Component({ user, specialities }: Props) {
                                 className="aspect-video object-cover"
                                 src={
                                   coverSrc ||
-                                  `${!user.hasOAuth ? `${HOST}/api/upload/` : ''}${user.cover}`
+                                  `${!user.hasOAuth ? `${DOMAIN.LOCAL}/api/upload/` : ''}${user.cover}`
                                 }
                               />
                             )}
@@ -512,7 +514,7 @@ export default function Component({ user, specialities }: Props) {
                                 className="object-image aspect-video"
                                 src={
                                   imageSrc ||
-                                  `${!user.hasOAuth ? `${HOST}/api/upload/` : ''}${user.image}`
+                                  `${!user.hasOAuth ? `${DOMAIN.LOCAL}/api/upload/` : ''}${user.image}`
                                 }
                               />
                             )}
@@ -689,7 +691,7 @@ export default function Component({ user, specialities }: Props) {
                         <FormLabel>Visiting Days</FormLabel>
                         <FormControl>
                           <MultiSelect
-                            options={DAYS}
+                            options={[...DATES.DAYS]}
                             selectedValues={field.value}
                             setSelectedValues={field.onChange}
                             placeholder="Select specialities ..."

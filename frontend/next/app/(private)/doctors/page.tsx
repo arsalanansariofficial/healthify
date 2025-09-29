@@ -3,9 +3,9 @@ import { User } from 'next-auth';
 import { auth } from '@/auth';
 import prisma from '@/lib/prisma';
 import { hasRole } from '@/lib/utils';
+import { ROLES } from '@/lib/constants';
 import { notFound } from 'next/navigation';
 import { SubscriptionStatus } from '@prisma/client';
-import { ADMIN_ROLE, DOCTOR_ROLE } from '@/lib/constants';
 import Component from '@/app/(private)/doctors/component';
 
 export default async function Page() {
@@ -17,7 +17,7 @@ export default async function Page() {
   if (!session?.user) notFound();
 
   let doctors = await prisma.userRole.findMany({
-    where: { role: { name: DOCTOR_ROLE } },
+    where: { role: { name: ROLES.DOCTOR as string } },
     select: {
       user: {
         include: {
@@ -30,7 +30,7 @@ export default async function Page() {
     }
   });
 
-  if (!hasRole(session.user.roles, ADMIN_ROLE)) {
+  if (!hasRole(session.user.roles, ROLES.ADMIN as string)) {
     const subscriptions = await prisma.user.findUnique({
       where: {
         id: session?.user?.id,
@@ -64,7 +64,7 @@ export default async function Page() {
     if (subscriptions) {
       doctors = await prisma.userRole.findMany({
         where: {
-          role: { name: DOCTOR_ROLE },
+          role: { name: ROLES.DOCTOR as string },
           user: {
             id: {
               in: subscriptions?.subscription?.membership.hospitalMemberships

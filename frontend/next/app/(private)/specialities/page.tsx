@@ -2,7 +2,7 @@ import { User } from 'next-auth';
 
 import { auth } from '@/auth';
 import prisma from '@/lib/prisma';
-import { DOCTOR_ROLE } from '@/lib/constants';
+import { ROLES } from '@/lib/constants';
 import Component from '@/app/(private)/specialities/component';
 
 export default async function Page() {
@@ -10,7 +10,7 @@ export default async function Page() {
     auth(),
     prisma.speciality.findMany(),
     prisma.userRole.findMany({
-      where: { role: { name: DOCTOR_ROLE } },
+      where: { role: { name: ROLES.DOCTOR as string } },
       select: {
         user: {
           include: {

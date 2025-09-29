@@ -11,18 +11,11 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 import { cn } from '@/lib/utils';
 import Menu from '@/components/menu';
+import { ROUTES, UI } from '@/lib/constants';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
+import { DOMAIN, SIDEBAR } from '@/lib/constants';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-
-import {
-  HOST,
-  ABOUT,
-  ACCOUNT,
-  DASHBOARD,
-  SIDEBAR_ITEMS,
-  DEFAULT_USER_PROFILE
-} from '@/lib/constants';
 
 import {
   DropdownMenu,
@@ -44,7 +37,7 @@ export default function Header({ user }: { user: User }) {
         <div className="grid grid-cols-[1fr_auto] gap-4">
           <div className="grid grid-flow-col grid-cols-[auto_1fr] items-center gap-4">
             <Link
-              href={DASHBOARD}
+              href={ROUTES.DASHBOARD}
               className="hover:bg-accent relative hidden aspect-square rounded-md p-4 lg:block"
             >
               <span className="absolute top-1/2 left-1/2 mt-0.5 ml-0.5 grid min-w-5 -translate-x-1/2 -translate-y-1/2 -rotate-45 gap-1">
@@ -97,7 +90,7 @@ export default function Header({ user }: { user: User }) {
               <DropdownMenuTrigger asChild>
                 <Avatar>
                   <AvatarImage
-                    src={`${!user.hasOAuth ? `${HOST}/api/upload/` : ''}${user.image || DEFAULT_USER_PROFILE}`}
+                    src={`${!user.hasOAuth ? `${DOMAIN.LOCAL}/api/upload/` : ''}${user.image || UI.DEFAULT_PROFILE_IMAGE}`}
                   />
                   <AvatarFallback className="bg-transparent">
                     <FontAwesomeIcon
@@ -112,10 +105,10 @@ export default function Header({ user }: { user: User }) {
                 <DropdownMenuLabel>My Account</DropdownMenuLabel>
                 <DropdownMenuGroup>
                   <DropdownMenuItem>
-                    <Link href={ACCOUNT}>Account</Link>
+                    <Link href={ROUTES.ACCOUNT}>Account</Link>
                   </DropdownMenuItem>
                   <DropdownMenuItem>
-                    <Link href={ABOUT}>About</Link>
+                    <Link href={ROUTES.ABOUT}>About</Link>
                   </DropdownMenuItem>
                 </DropdownMenuGroup>
                 <DropdownMenuSeparator />
@@ -145,7 +138,7 @@ export default function Header({ user }: { user: User }) {
         )}
       >
         <div className="h-full">
-          <Menu user={user} entries={Array.from(SIDEBAR_ITEMS.entries())} />
+          <Menu user={user} entries={Array.from(SIDEBAR.entries())} />
         </div>
       </nav>
     </>

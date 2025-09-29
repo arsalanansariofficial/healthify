@@ -3,14 +3,14 @@ import { redirect } from 'next/navigation';
 
 import { auth } from '@/auth';
 import prisma from '@/lib/prisma';
-
+import { ROLES } from '@/lib/constants';
+import { ROUTES } from '@/lib/constants';
 import { getDate, hasRole } from '@/lib/utils';
-import { ADMIN_ROLE, LOGIN } from '@/lib/constants';
 import Component from '@/app/(private)/appointments/component';
 
 export default async function Page() {
   const session = await auth();
-  if (!session?.user) redirect(LOGIN);
+  if (!session?.user) redirect(ROUTES.LOGIN);
 
   let appointments = await prisma.appointment.findMany({
     orderBy: { date: 'desc' },
@@ -20,7 +20,7 @@ export default async function Page() {
     }
   });
 
-  if (hasRole(session.user.roles, ADMIN_ROLE)) {
+  if (hasRole(session.user.roles, ROLES.ADMIN as string)) {
     appointments = await prisma.appointment.findMany({
       orderBy: { date: 'desc' },
       include: { timeSlot: true, patient: true, doctor: true }

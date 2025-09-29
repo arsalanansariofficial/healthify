@@ -11,6 +11,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { IconDotsVertical } from '@tabler/icons-react';
 
 import Footer from '@/components/footer';
+import { MESSAGES } from '@/lib/constants';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import useHookForm from '@/hooks/use-hook-form';
@@ -21,11 +22,6 @@ import { Textarea } from '@/components/ui/textarea';
 import { medicationFormSchema } from '@/lib/schemas';
 import { catchErrors, getDate, hasPermission } from '@/lib/utils';
 import { DragHandle, DataTable } from '@/components/ui/data-table';
-
-import {
-  MEDICATION_FORM_DELETED,
-  MEDICATION_FORMS_DELETED
-} from '@/lib/constants';
 
 import {
   deleteMedicationForm,
@@ -93,7 +89,7 @@ function Menu({
             if (!isHeader) {
               toast.promise(deleteMedicationForm(id as string), {
                 position: 'top-center',
-                success: MEDICATION_FORM_DELETED,
+                success: MESSAGES.MEDICATION_FROM.DELETED,
                 loading: 'Deleting medication form',
                 error(error) {
                   const { message } = catchErrors(error as Error);
@@ -105,8 +101,8 @@ function Menu({
             if (isHeader) {
               toast.promise(deleteMedicationForms(ids as string[]), {
                 position: 'top-center',
-                success: MEDICATION_FORMS_DELETED,
                 loading: 'Deleting medication forms',
+                success: MESSAGES.MEDICATION_FROM.BULK_DELETED,
                 error(error) {
                   const { message } = catchErrors(error as Error);
                   return <span className="text-destructive">{message}</span>;

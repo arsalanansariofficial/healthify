@@ -1,27 +1,34 @@
 import Link from 'next/link';
 import { Suspense } from 'react';
 
-import { HOME } from '@/lib/constants';
-import * as CN from '@/components/ui/card';
+import { ROUTES } from '@/lib/constants';
 import { verifyToken } from '@/lib/actions';
 import { Button } from '@/components/ui/button';
 import Component from '@/app/(public)/create-password/component';
 
+import {
+  Card,
+  CardTitle,
+  CardFooter,
+  CardHeader,
+  CardDescription
+} from '@/components/ui/card';
+
 function ErrorCard({ message }: { message: string }) {
   return (
-    <CN.Card className="min-w-sm">
-      <CN.CardHeader>
-        <CN.CardTitle>{message}</CN.CardTitle>
-        <CN.CardDescription>
+    <Card className="min-w-sm">
+      <CardHeader>
+        <CardTitle>{message}</CardTitle>
+        <CardDescription>
           Place your token in the url to verify your authenticity
-        </CN.CardDescription>
-      </CN.CardHeader>
-      <CN.CardFooter>
+        </CardDescription>
+      </CardHeader>
+      <CardFooter>
         <Button className="w-full">
-          <Link href={HOME}>Home</Link>
+          <Link href={ROUTES.HOME}>Home</Link>
         </Button>
-      </CN.CardFooter>
-    </CN.Card>
+      </CardFooter>
+    </Card>
   );
 }
 
@@ -30,8 +37,8 @@ async function Verify({ token }: { token: string }) {
 
   return (
     <section className="col-span-2 grid place-items-center place-self-center">
-      {!success && <ErrorCard message={message} />}
       {success && <Component email={email as string} />}
+      {!success && <ErrorCard message={message as string} />}
     </section>
   );
 }

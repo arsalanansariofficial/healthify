@@ -2,8 +2,8 @@ import Link from 'next/link';
 import { Suspense } from 'react';
 
 import { cn } from '@/lib/utils';
+import { ROUTES } from '@/lib/constants';
 import { verifyToken } from '@/lib/actions';
-import { HOME, LOGIN } from '@/lib/constants';
 import { Button } from '@/components/ui/button';
 
 async function Verify({ token }: { token: string }) {
@@ -24,7 +24,7 @@ async function Verify({ token }: { token: string }) {
           {message}
         </p>
         <Button>
-          <Link href={!success ? HOME : LOGIN}>
+          <Link href={!success ? ROUTES.HOME : ROUTES.LOGIN}>
             {!success ? 'Home' : 'Login'}
           </Link>
         </Button>
@@ -47,7 +47,7 @@ export default async function Page({
           Missing verification token!
         </p>
         <Button>
-          <Link href={HOME}>Home</Link>
+          <Link href={ROUTES.HOME}>Home</Link>
         </Button>
       </section>
     );

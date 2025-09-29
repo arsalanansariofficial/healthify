@@ -4,7 +4,7 @@ import { notFound } from 'next/navigation';
 
 import { auth } from '@/auth';
 import prisma from '@/lib/prisma';
-import { PUBLIC_DIR } from '@/lib/constants';
+import { DIRECTORIES } from '@/lib/constants';
 import Component from '@/app/(private)/about/component';
 
 export default async function Page() {
@@ -20,7 +20,13 @@ export default async function Page() {
 
   if (user.bio) {
     user.bio = (
-      await readFile(path.join(process.cwd(), PUBLIC_DIR, user.bio as string))
+      await readFile(
+        path.join(
+          process.cwd(),
+          DIRECTORIES.PUBLIC as string,
+          user.bio as string
+        )
+      )
     ).toString('utf-8');
   }
 

@@ -7,7 +7,7 @@ import { useCallback, useState } from 'react';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { FileIcon, PlusIcon, TrashIcon } from 'lucide-react';
 
-import { DAYS } from '@/lib/constants';
+import { DATES } from '@/lib/constants';
 import Footer from '@/components/footer';
 import { addDoctor } from '@/lib/actions';
 import { doctorSchema } from '@/lib/schemas';
@@ -295,7 +295,7 @@ export default function Component({ specialities }: Props) {
                     <FormLabel>Days Of Visit</FormLabel>
                     <FormControl>
                       <MultiSelect
-                        options={DAYS}
+                        options={[...DATES.DAYS]}
                         selectedValues={field.value}
                         setSelectedValues={field.onChange}
                         placeholder="Select specialities ..."

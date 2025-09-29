@@ -11,6 +11,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { IconDotsVertical } from '@tabler/icons-react';
 
 import Footer from '@/components/footer';
+import { MESSAGES } from '@/lib/constants';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
@@ -22,12 +23,6 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { catchErrors, hasPermission } from '@/lib/utils';
 import { Badge, BadgeVariant } from '@/components/ui/badge';
 import { DragHandle, DataTable } from '@/components/ui/data-table';
-
-import {
-  MEDICATION_FORM_DELETED,
-  MEDICATION_FORMS_DELETED,
-  PAYMENT_PROCESSED
-} from '@/lib/constants';
 
 import {
   Fee,
@@ -106,7 +101,7 @@ function Menu({
               if (!isHeader) {
                 toast.promise(payForMembership(id as string), {
                   position: 'top-center',
-                  success: PAYMENT_PROCESSED,
+                  success: MESSAGES.PAYMENT.PROCESSED,
                   loading: 'Processing payment...',
                   error(error) {
                     const { message } = catchErrors(error as Error);
@@ -125,8 +120,8 @@ function Menu({
             if (!isHeader) {
               toast.promise(deleteMedicationForm(id as string), {
                 position: 'top-center',
-                success: MEDICATION_FORM_DELETED,
-                loading: 'Deleting medication form',
+                loading: 'Deleting subscription',
+                success: MESSAGES.MEMBERSHIP_SUBSCRIPTION.DELETED,
                 error(error) {
                   const { message } = catchErrors(error as Error);
                   return <span className="text-destructive">{message}</span>;
@@ -137,8 +132,8 @@ function Menu({
             if (isHeader) {
               toast.promise(deleteMedicationForms(ids as string[]), {
                 position: 'top-center',
-                success: MEDICATION_FORMS_DELETED,
-                loading: 'Deleting medication forms',
+                loading: 'Deleting subscriptions',
+                success: MESSAGES.MEMBERSHIP_SUBSCRIPTION.BULK_DELETED,
                 error(error) {
                   const { message } = catchErrors(error as Error);
                   return <span className="text-destructive">{message}</span>;

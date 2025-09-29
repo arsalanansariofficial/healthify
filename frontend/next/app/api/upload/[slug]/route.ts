@@ -1,46 +1,55 @@
 import path from 'path';
 import mime from 'mime';
+import { NextResponse } from 'next/server';
 import { readFile, unlink } from 'fs/promises';
 
-import * as CONST from '@/lib/constants';
-import { NextResponse } from 'next/server';
+import {
+  MESSAGES,
+  HTTP_STATUS,
+  DIRECTORIES,
+  HTTP_MESSAGES
+} from '@/lib/constants';
 
-const dir = path.join(process.cwd(), CONST.PUBLIC_DIR);
+const dir = path.join(process.cwd(), DIRECTORIES.PUBLIC as string);
 
-type Params = RouteContext<'/api/upload/[slug]'>;
-
-export async function GET(_: Request, { params }: Params) {
+export async function GET(
+  _: Request,
+  { params }: RouteContext<'/api/upload/[slug]'>
+) {
   try {
     const { slug } = await params;
     const file = path.join(dir, slug);
     const buffer = await readFile(file);
 
     return new Response(new Uint8Array(buffer), {
-      status: CONST.RESPONSE_OK_CODE,
+      status: HTTP_STATUS.OK as number,
       headers: new Headers({
         'Content-Disposition': `inline; filename="${slug}"`,
-        'Content-Type': mime.getType(file) || CONST.OCTET_STREAM
+        'Content-Type': mime.getType(file) || 'application/octet-stream'
       })
     });
   } catch {
     return NextResponse.json(
-      { success: false, message: CONST.SERVER_ERROR_MESSAGE },
-      { status: CONST.SERVER_ERROR_CODE }
+      { success: false, message: HTTP_MESSAGES.SERVER_ERROR },
+      { status: HTTP_STATUS.SERVER_ERROR as number }
     );
   }
 }
 
-export async function DELETE(_: Request, { params }: Params) {
+export async function DELETE(
+  _: Request,
+  { params }: RouteContext<'/api/upload/[slug]'>
+) {
   try {
     await unlink(path.join(dir, (await params).slug));
     return NextResponse.json(
-      { success: true, message: CONST.FILE_REMOVED },
-      { status: CONST.RESPONSE_OK_CODE }
+      { success: true, message: MESSAGES.FILE.REMOVED },
+      { status: HTTP_STATUS.OK as number }
     );
   } catch {
     return NextResponse.json(
-      { success: false, message: CONST.DELETE_FAILED },
-      { status: CONST.SERVER_ERROR_CODE }
+      { success: false, message: MESSAGES.FILE.DELETE_FAILED },
+      { status: HTTP_STATUS.SERVER_ERROR as number }
     );
   }
 }

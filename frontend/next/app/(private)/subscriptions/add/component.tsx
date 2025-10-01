@@ -56,7 +56,7 @@ export default function Component() {
   });
 
   return (
-    <div className="flex h-full flex-col gap-8 lg:mx-auto lg:w-10/12">
+    <div className='flex h-full flex-col gap-8 lg:mx-auto lg:w-10/12'>
       <Card>
         <CardHeader>
           <CardTitle>Add Membership</CardTitle>
@@ -68,18 +68,18 @@ export default function Component() {
         <CardContent>
           <Form {...form}>
             <form
-              id="membership-form"
-              className="space-y-2"
+              id='membership-form'
+              className='space-y-2'
               onSubmit={form.handleSubmit(handleSubmit)}
             >
               <FormField
-                name="name"
+                name='name'
                 control={form.control}
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Name</FormLabel>
                     <FormControl>
-                      <Input {...field} type="text" placeholder="Basic" />
+                      <Input {...field} type='text' placeholder='Basic' />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -87,16 +87,16 @@ export default function Component() {
               />
               <FormField
                 control={form.control}
-                name="hospitalMemberships"
+                name='hospitalMemberships'
                 render={({ field }) => (
                   <FormItem>
                     <FormControl>
-                      <div className="grid gap-0.5">
-                        <div className="flex items-center justify-between">
+                      <div className='grid gap-0.5'>
+                        <div className='flex items-center justify-between'>
                           <Label>Hospitals</Label>
                           <Button
-                            type="button"
-                            variant="ghost"
+                            type='button'
+                            variant='ghost'
                             onClick={() => {
                               field.onChange([
                                 ...field.value,
@@ -111,10 +111,10 @@ export default function Component() {
                               ]);
                             }}
                           >
-                            <PlusIcon className="h-4 w-4" />
+                            <PlusIcon className='h-4 w-4' />
                           </Button>
                         </div>
-                        <ul className="space-y-2">
+                        <ul className='space-y-2'>
                           {field.value.map((hm, index) => {
                             const error =
                               form.formState.errors.hospitalMemberships?.[
@@ -132,27 +132,27 @@ export default function Component() {
                                     </CardDescription>
                                     <CardAction>
                                       <Button
-                                        type="button"
-                                        variant="outline"
-                                        className="cursor-pointer"
+                                        type='button'
+                                        variant='outline'
+                                        className='cursor-pointer'
                                         onClick={() => {
                                           const newPerks = field.value.slice();
                                           newPerks.splice(index, 1);
                                           field.onChange(newPerks);
                                         }}
                                       >
-                                        <TrashIcon className="h-4 w-4" />
+                                        <TrashIcon className='h-4 w-4' />
                                       </Button>
                                     </CardAction>
                                   </CardHeader>
                                   <CardContent>
-                                    <ul className="space-y-2">
-                                      <li className="space-y-2">
+                                    <ul className='space-y-2'>
+                                      <li className='space-y-2'>
                                         <Label>Name</Label>
                                         <Input
                                           {...field}
                                           value={hm.name}
-                                          placeholder="Riverside Hospital"
+                                          placeholder='Riverside Hospital'
                                           className={cn({
                                             'border-destructive focus-visible:ring-destructive':
                                               error
@@ -164,17 +164,17 @@ export default function Component() {
                                           }}
                                         />
                                         {error?.name && (
-                                          <span className="text-destructive text-sm">
+                                          <span className='text-destructive text-sm'>
                                             {error.name.message}
                                           </span>
                                         )}
                                       </li>
-                                      <li className="space-y-2">
+                                      <li className='space-y-2'>
                                         <Label>Email</Label>
                                         <Input
                                           {...field}
                                           value={hm.email}
-                                          placeholder="riverside@healthify.com"
+                                          placeholder='riverside@healthify.com'
                                           className={cn({
                                             'border-destructive focus-visible:ring-destructive':
                                               error
@@ -186,17 +186,17 @@ export default function Component() {
                                           }}
                                         />
                                         {error?.email && (
-                                          <span className="text-destructive text-sm">
+                                          <span className='text-destructive text-sm'>
                                             {error.email.message}
                                           </span>
                                         )}
                                       </li>
-                                      <li className="space-y-2">
+                                      <li className='space-y-2'>
                                         <Label>City</Label>
                                         <Input
                                           {...field}
                                           value={hm.city}
-                                          placeholder="Moradabad"
+                                          placeholder='Moradabad'
                                           className={cn({
                                             'border-destructive focus-visible:ring-destructive':
                                               error
@@ -208,18 +208,18 @@ export default function Component() {
                                           }}
                                         />
                                         {error?.city && (
-                                          <span className="text-destructive text-sm">
+                                          <span className='text-destructive text-sm'>
                                             {error.city.message}
                                           </span>
                                         )}
                                       </li>
-                                      <li className="space-y-2">
+                                      <li className='space-y-2'>
                                         <Label>Phone</Label>
                                         <Input
                                           {...field}
-                                          type="tel"
+                                          type='tel'
                                           value={hm.phone}
-                                          placeholder="+919876543210"
+                                          placeholder='+919876543210'
                                           className={cn({
                                             'border-destructive focus-visible:ring-destructive':
                                               error
@@ -231,12 +231,12 @@ export default function Component() {
                                           }}
                                         />
                                         {error?.phone && (
-                                          <span className="text-destructive text-sm">
+                                          <span className='text-destructive text-sm'>
                                             {error.phone.message}
                                           </span>
                                         )}
                                       </li>
-                                      <li className="space-y-2">
+                                      <li className='space-y-2'>
                                         <Label>Affiliated</Label>
                                         <Select
                                           defaultValue={hm.isAffiliated}
@@ -248,30 +248,30 @@ export default function Component() {
                                             field.onChange(value);
                                           }}
                                         >
-                                          <SelectTrigger className="w-full [&_span[data-slot]]:block [&_span[data-slot]]:truncate">
-                                            <SelectValue placeholder="Select a value" />
+                                          <SelectTrigger className='w-full [&_span[data-slot]]:block [&_span[data-slot]]:truncate'>
+                                            <SelectValue placeholder='Select a value' />
                                           </SelectTrigger>
                                           <SelectContent>
-                                            <SelectItem value="no">
+                                            <SelectItem value='no'>
                                               No
                                             </SelectItem>
-                                            <SelectItem value="yes">
+                                            <SelectItem value='yes'>
                                               Yes
                                             </SelectItem>
                                           </SelectContent>
                                         </Select>
                                         {error?.isAffiliated && (
-                                          <span className="text-destructive text-sm">
+                                          <span className='text-destructive text-sm'>
                                             {error.isAffiliated.message}
                                           </span>
                                         )}
                                       </li>
-                                      <li className="space-y-2">
+                                      <li className='space-y-2'>
                                         <Label>Address</Label>
                                         <Textarea
                                           {...field}
                                           value={hm.address}
-                                          placeholder="123 Main Street, Springfield, IL 62704"
+                                          placeholder='123 Main Street, Springfield, IL 62704'
                                           className={cn({
                                             'border-destructive focus-visible:ring-destructive':
                                               error
@@ -284,7 +284,7 @@ export default function Component() {
                                           }}
                                         />
                                         {error?.isAffiliated && (
-                                          <span className="text-destructive text-sm">
+                                          <span className='text-destructive text-sm'>
                                             {error.isAffiliated.message}
                                           </span>
                                         )}
@@ -303,38 +303,38 @@ export default function Component() {
                 )}
               />
               <FormField
-                name="perks"
+                name='perks'
                 control={form.control}
                 render={({ field }) => (
                   <FormItem>
                     <FormControl>
-                      <div className="grid gap-0.5">
-                        <div className="flex items-center justify-between">
+                      <div className='grid gap-0.5'>
+                        <div className='flex items-center justify-between'>
                           <Label>Perks</Label>
                           <Button
-                            type="button"
-                            variant="ghost"
+                            type='button'
+                            variant='ghost'
                             onClick={() => {
                               field.onChange([...field.value, String()]);
                             }}
                           >
-                            <PlusIcon className="h-4 w-4" />
+                            <PlusIcon className='h-4 w-4' />
                           </Button>
                         </div>
-                        <ul className="space-y-2">
+                        <ul className='space-y-2'>
                           {field.value.map((perk, index) => {
                             const error = form.formState.errors.perks?.[index];
 
                             return (
                               <li
                                 key={index}
-                                className="grid grid-cols-[1fr_auto] gap-2"
+                                className='grid grid-cols-[1fr_auto] gap-2'
                               >
-                                <div className="space-y-2">
+                                <div className='space-y-2'>
                                   <Input
                                     {...field}
                                     value={perk}
-                                    placeholder="Limited facilities with a basic plan."
+                                    placeholder='Limited facilities with a basic plan.'
                                     className={cn({
                                       'border-destructive focus-visible:ring-destructive':
                                         error
@@ -346,21 +346,21 @@ export default function Component() {
                                     }}
                                   />
                                   {error && (
-                                    <span className="text-destructive text-sm">
+                                    <span className='text-destructive text-sm'>
                                       {error.message}
                                     </span>
                                   )}
                                 </div>
                                 <Button
-                                  type="button"
-                                  variant="ghost"
+                                  type='button'
+                                  variant='ghost'
                                   onClick={() => {
                                     const newPerks = field.value.slice();
                                     newPerks.splice(index, 1);
                                     field.onChange(newPerks);
                                   }}
                                 >
-                                  <TrashIcon className="h-4 w-4" />
+                                  <TrashIcon className='h-4 w-4' />
                                 </Button>
                               </li>
                             );
@@ -373,17 +373,17 @@ export default function Component() {
                 )}
               />
               <FormField
-                name="fees"
+                name='fees'
                 control={form.control}
                 render={({ field }) => (
                   <FormItem>
                     <FormControl>
-                      <div className="grid gap-0.5">
-                        <div className="flex items-center justify-between">
+                      <div className='grid gap-0.5'>
+                        <div className='flex items-center justify-between'>
                           <Label>Fees</Label>
                           <Button
-                            type="button"
-                            variant="ghost"
+                            type='button'
+                            variant='ghost'
                             onClick={() => {
                               const usedTypes = field.value.map(
                                 f => f.renewalType
@@ -404,10 +404,10 @@ export default function Component() {
                               ]);
                             }}
                           >
-                            <PlusIcon className="h-4 w-4" />
+                            <PlusIcon className='h-4 w-4' />
                           </Button>
                         </div>
-                        <ul className="space-y-2">
+                        <ul className='space-y-2'>
                           {field.value.map((fee, index) => {
                             const error = form.formState.errors.fees?.[index];
 
@@ -422,13 +422,13 @@ export default function Component() {
                             return (
                               <li
                                 key={index}
-                                className="grid grid-cols-[1fr_1fr_auto] gap-2"
+                                className='grid grid-cols-[1fr_1fr_auto] gap-2'
                               >
-                                <div className="space-y-2">
+                                <div className='space-y-2'>
                                   <Input
                                     min={0}
                                     value={fee.amount}
-                                    placeholder="100 Rupees"
+                                    placeholder='100 Rupees'
                                     className={cn({
                                       'border-destructive focus-visible:ring-destructive':
                                         error
@@ -440,12 +440,12 @@ export default function Component() {
                                     }}
                                   />
                                   {error?.amount && (
-                                    <span className="text-destructive text-sm">
+                                    <span className='text-destructive text-sm'>
                                       {error.amount.message}
                                     </span>
                                   )}
                                 </div>
-                                <div className="space-y-2">
+                                <div className='space-y-2'>
                                   <Select
                                     value={fee.renewalType}
                                     onValueChange={(type: RenewalType) => {
@@ -454,15 +454,15 @@ export default function Component() {
                                       field.onChange(value);
                                     }}
                                   >
-                                    <SelectTrigger className="w-full [&_span[data-slot]]:block [&_span[data-slot]]:truncate">
-                                      <SelectValue placeholder="Select a renewal type" />
+                                    <SelectTrigger className='w-full [&_span[data-slot]]:block [&_span[data-slot]]:truncate'>
+                                      <SelectValue placeholder='Select a renewal type' />
                                     </SelectTrigger>
                                     <SelectContent>
                                       {availableTypes.map(type => (
                                         <SelectItem
                                           key={type}
                                           value={type}
-                                          className="capitalize"
+                                          className='capitalize'
                                         >
                                           {type}
                                         </SelectItem>
@@ -470,21 +470,21 @@ export default function Component() {
                                     </SelectContent>
                                   </Select>
                                   {error?.renewalType && (
-                                    <span className="text-destructive text-sm">
+                                    <span className='text-destructive text-sm'>
                                       {error.renewalType.message}
                                     </span>
                                   )}
                                 </div>
                                 <Button
-                                  type="button"
-                                  variant="ghost"
+                                  type='button'
+                                  variant='ghost'
                                   onClick={() => {
                                     const newFees = field.value.slice();
                                     newFees.splice(index, 1);
                                     field.onChange(newFees);
                                   }}
                                 >
-                                  <TrashIcon className="h-4 w-4" />
+                                  <TrashIcon className='h-4 w-4' />
                                 </Button>
                               </li>
                             );
@@ -502,9 +502,9 @@ export default function Component() {
         </CardContent>
         <CardFooter>
           <Button
-            type="submit"
-            form="membership-form"
-            className="cursor-pointer"
+            type='submit'
+            form='membership-form'
+            className='cursor-pointer'
             disabled={form.formState.isLoading}
           >
             {form.formState.isLoading ? 'Saving...' : 'Save'}

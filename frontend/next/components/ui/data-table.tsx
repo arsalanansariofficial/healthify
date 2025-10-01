@@ -108,14 +108,14 @@ export function DragHandle({ id }: { id: number }) {
 
   return (
     <Button
-      size="icon"
+      size='icon'
       {...listeners}
       {...attributes}
-      variant="ghost"
-      className="text-muted-foreground size-7 hover:bg-transparent"
+      variant='ghost'
+      className='text-muted-foreground size-7 hover:bg-transparent'
     >
-      <IconGripVertical className="text-muted-foreground size-3" />
-      <span className="sr-only">Drag to reorder</span>
+      <IconGripVertical className='text-muted-foreground size-3' />
+      <span className='sr-only'>Drag to reorder</span>
     </Button>
   );
 }
@@ -131,7 +131,7 @@ export function DraggableRow<T extends z.ZodType>(props: DraggableRowProps<T>) {
       data-state={row.getIsSelected() && 'selected'}
       data-dragging={isDragging}
       ref={setNodeRef}
-      className="relative z-0 data-[dragging=true]:z-10 data-[dragging=true]:opacity-80"
+      className='relative z-0 data-[dragging=true]:z-10 data-[dragging=true]:opacity-80'
       style={{
         transform: CSS.Transform.toString(transform),
         transition: transition
@@ -230,11 +230,11 @@ export function DataTable<T extends z.ZodType>(props: DataTableProps<T>) {
 
   return (
     <Tabs
-      defaultValue="outline"
-      className="w-full flex-col justify-start gap-6"
+      defaultValue='outline'
+      className='w-full flex-col justify-start gap-6'
     >
-      <div className="flex justify-between gap-2">
-        <div className="grid auto-cols-auto grid-flow-col gap-2">
+      <div className='flex justify-between gap-2'>
+        <div className='grid auto-cols-auto grid-flow-col gap-2'>
           {props.filterConfig.map(filter => {
             const value = filterValues[filter.id] ?? '';
 
@@ -258,18 +258,18 @@ export function DataTable<T extends z.ZodType>(props: DataTableProps<T>) {
                 <Popover key={filter.id}>
                   <PopoverTrigger asChild>
                     <Button
-                      variant="outline"
+                      variant='outline'
                       data-empty={!value}
-                      className="data-[empty=true]:text-muted-foreground flex justify-between text-left font-normal"
+                      className='data-[empty=true]:text-muted-foreground flex justify-between text-left font-normal'
                     >
                       {value && format(value, 'PPP')}
                       {!value && <span>Pick a date</span>}
                       <CalendarIcon />
                     </Button>
                   </PopoverTrigger>
-                  <PopoverContent className="w-auto p-0">
+                  <PopoverContent className='w-auto p-0'>
                     <Calendar
-                      mode="single"
+                      mode='single'
                       selected={value as Date}
                       onSelect={value =>
                         setFilterValues(prev => ({
@@ -279,9 +279,9 @@ export function DataTable<T extends z.ZodType>(props: DataTableProps<T>) {
                       }
                     />
                     <Button
-                      size="sm"
-                      variant="ghost"
-                      className="w-full text-red-500"
+                      size='sm'
+                      variant='ghost'
+                      className='w-full text-red-500'
                       onClick={() =>
                         setFilterValues(prev => ({
                           ...prev,
@@ -300,7 +300,7 @@ export function DataTable<T extends z.ZodType>(props: DataTableProps<T>) {
               <Input
                 key={filter.id}
                 name={filter.id}
-                className="max-w-sm"
+                className='max-w-sm'
                 placeholder={filter.placeholder}
                 value={(filterValues[filter.id] as string) ?? ''}
                 onChange={e =>
@@ -313,17 +313,17 @@ export function DataTable<T extends z.ZodType>(props: DataTableProps<T>) {
             );
           })}
         </div>
-        <div className="flex items-center gap-2">
+        <div className='flex items-center gap-2'>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="outline" size="sm" className="h-full">
+              <Button variant='outline' size='sm' className='h-full'>
                 <IconLayoutColumns />
-                <span className="hidden lg:inline">Customize Columns</span>
-                <span className="lg:hidden">Columns</span>
+                <span className='hidden lg:inline'>Customize Columns</span>
+                <span className='lg:hidden'>Columns</span>
                 <IconChevronDown />
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-56">
+            <DropdownMenuContent align='end' className='w-56'>
               {table
                 .getAllColumns()
                 .filter(
@@ -335,7 +335,7 @@ export function DataTable<T extends z.ZodType>(props: DataTableProps<T>) {
                   return (
                     <DropdownMenuCheckboxItem
                       key={column.id}
-                      className="capitalize"
+                      className='capitalize'
                       checked={column.getIsVisible()}
                       onCheckedChange={value =>
                         column.toggleVisibility(!!value)
@@ -350,10 +350,10 @@ export function DataTable<T extends z.ZodType>(props: DataTableProps<T>) {
         </div>
       </div>
       <TabsContent
-        value="outline"
-        className="relative flex flex-col gap-4 overflow-auto"
+        value='outline'
+        className='relative flex flex-col gap-4 overflow-auto'
       >
-        <div className="overflow-hidden rounded-lg border">
+        <div className='overflow-hidden rounded-lg border'>
           <DndContext
             id={sortableId}
             sensors={sensors}
@@ -362,7 +362,7 @@ export function DataTable<T extends z.ZodType>(props: DataTableProps<T>) {
             modifiers={[restrictToVerticalAxis]}
           >
             <Table>
-              <TableHeader className="bg-muted sticky top-0 z-10">
+              <TableHeader className='bg-muted sticky top-0 z-10'>
                 {table.getHeaderGroups().map(headerGroup => (
                   <TableRow key={headerGroup.id}>
                     {headerGroup.headers.map(header => {
@@ -379,11 +379,11 @@ export function DataTable<T extends z.ZodType>(props: DataTableProps<T>) {
                   </TableRow>
                 ))}
               </TableHeader>
-              <TableBody className="**:data-[slot=table-cell]:first:w-8">
+              <TableBody className='**:data-[slot=table-cell]:first:w-8'>
                 {table.getRowModel().rows?.length === 0 && (
                   <TableRow>
                     <TableCell
-                      className="text-center"
+                      className='text-center'
                       colSpan={props.columns.length}
                     >
                       No results.
@@ -404,14 +404,14 @@ export function DataTable<T extends z.ZodType>(props: DataTableProps<T>) {
             </Table>
           </DndContext>
         </div>
-        <div className="px-4- flex items-center justify-between">
-          <div className="text-muted-foreground hidden flex-1 text-sm lg:flex">
+        <div className='px-4- flex items-center justify-between'>
+          <div className='text-muted-foreground hidden flex-1 text-sm lg:flex'>
             {table.getFilteredSelectedRowModel().rows.length} of&nbsp;
             {table.getFilteredRowModel().rows.length} row(s) selected.
           </div>
-          <div className="flex w-full items-center gap-8 lg:w-fit">
-            <div className="hidden items-center gap-2 lg:flex">
-              <Label htmlFor="rows-per-page" className="text-sm font-medium">
+          <div className='flex w-full items-center gap-8 lg:w-fit'>
+            <div className='hidden items-center gap-2 lg:flex'>
+              <Label htmlFor='rows-per-page' className='text-sm font-medium'>
                 Rows per page
               </Label>
               <Select
@@ -420,12 +420,12 @@ export function DataTable<T extends z.ZodType>(props: DataTableProps<T>) {
                   table.setPageSize(Number(value));
                 }}
               >
-                <SelectTrigger size="sm" className="w-20" id="rows-per-page">
+                <SelectTrigger size='sm' className='w-20' id='rows-per-page'>
                   <SelectValue
                     placeholder={table.getState().pagination.pageSize}
                   />
                 </SelectTrigger>
-                <SelectContent side="top">
+                <SelectContent side='top'>
                   {[10, 20, 30, 40, 50].map(pageSize => (
                     <SelectItem key={pageSize} value={`${pageSize}`}>
                       {pageSize}
@@ -434,48 +434,48 @@ export function DataTable<T extends z.ZodType>(props: DataTableProps<T>) {
                 </SelectContent>
               </Select>
             </div>
-            <div className="flex w-fit items-center justify-center text-sm font-medium">
+            <div className='flex w-fit items-center justify-center text-sm font-medium'>
               Page {table.getState().pagination.pageIndex + 1} of&nbsp;
               {table.getPageCount()}
             </div>
-            <div className="ml-auto flex items-center gap-2 lg:ml-0">
+            <div className='ml-auto flex items-center gap-2 lg:ml-0'>
               <Button
-                variant="outline"
-                className="hidden h-8 w-8 p-0 lg:flex"
+                variant='outline'
+                className='hidden h-8 w-8 p-0 lg:flex'
                 disabled={!table.getCanPreviousPage()}
                 onClick={() => table.setPageIndex(0)}
               >
-                <span className="sr-only">Go to first page</span>
+                <span className='sr-only'>Go to first page</span>
                 <IconChevronsLeft />
               </Button>
               <Button
-                size="icon"
-                variant="outline"
-                className="size-8"
+                size='icon'
+                variant='outline'
+                className='size-8'
                 disabled={!table.getCanPreviousPage()}
                 onClick={() => table.previousPage()}
               >
-                <span className="sr-only">Go to previous page</span>
+                <span className='sr-only'>Go to previous page</span>
                 <IconChevronLeft />
               </Button>
               <Button
-                size="icon"
-                variant="outline"
-                className="size-8"
+                size='icon'
+                variant='outline'
+                className='size-8'
                 disabled={!table.getCanNextPage()}
                 onClick={() => table.nextPage()}
               >
-                <span className="sr-only">Go to next page</span>
+                <span className='sr-only'>Go to next page</span>
                 <IconChevronRight />
               </Button>
               <Button
-                size="icon"
-                variant="outline"
-                className="hidden size-8 lg:flex"
+                size='icon'
+                variant='outline'
+                className='hidden size-8 lg:flex'
                 disabled={!table.getCanNextPage()}
                 onClick={() => table.setPageIndex(table.getPageCount() - 1)}
               >
-                <span className="sr-only">Go to last page</span>
+                <span className='sr-only'>Go to last page</span>
                 <IconChevronsRight />
               </Button>
             </div>

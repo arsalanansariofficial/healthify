@@ -98,12 +98,12 @@ export default function MultiSelect(props: MultiSelectProps) {
       <PopoverTrigger asChild>
         <Button
           ref={triggerRef}
-          variant="outline"
-          className="flex h-full min-w-[200px] items-center justify-between px-2 pb-2"
+          variant='outline'
+          className='flex h-full min-w-[200px] items-center justify-between px-2 pb-2'
         >
-          <div className="flex flex-wrap gap-1">
+          <div className='flex flex-wrap gap-1'>
             {props.selectedValues.length === 0 && (
-              <span className="truncate font-normal text-gray-500">
+              <span className='truncate font-normal text-gray-500'>
                 {props.placeholder || 'Select options...'}
               </span>
             )}
@@ -111,7 +111,7 @@ export default function MultiSelect(props: MultiSelectProps) {
               props.selectedValues.map(val => (
                 <Badge
                   key={val}
-                  className="flex items-center gap-1 rounded-md bg-gray-200 px-2 py-1 text-black capitalize dark:bg-gray-700 dark:text-white"
+                  className='flex items-center gap-1 rounded-md bg-gray-200 px-2 py-1 text-black capitalize dark:bg-gray-700 dark:text-white'
                 >
                   {props.options.find(opt => opt.value === val)?.label}
                   <div
@@ -125,30 +125,30 @@ export default function MultiSelect(props: MultiSelectProps) {
                         removeSelected(val);
                       }
                     }}
-                    className="ml-1 cursor-pointer text-red-500 hover:text-red-700"
+                    className='ml-1 cursor-pointer text-red-500 hover:text-red-700'
                   >
-                    <X className="h-3 w-3" />
+                    <X className='h-3 w-3' />
                   </div>
                 </Badge>
               ))}
           </div>
-          <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+          <ChevronsUpDown className='ml-2 h-4 w-4 shrink-0 opacity-50' />
         </Button>
       </PopoverTrigger>
       <PopoverContent
-        align="start"
-        className="p-0"
+        align='start'
+        className='p-0'
         style={{ width: triggerWidth }}
       >
         <Command>
           <CommandInput
             value={inputValue}
-            placeholder="Search..."
+            placeholder='Search...'
             onValueChange={setInputValue}
           />
           <CommandList>
             <CommandItem onSelect={toggleSelectAll}>
-              <div className="flex items-center">
+              <div className='flex items-center'>
                 <Check
                   className={cn('mr-2 h-4 w-4 opacity-0', {
                     'opacity-100': allSelected
@@ -166,10 +166,10 @@ export default function MultiSelect(props: MultiSelectProps) {
                 return (
                   <CommandItem
                     key={option.value}
-                    className="capitalize"
+                    className='capitalize'
                     onSelect={() => toggleSelection(option.value)}
                   >
-                    <div className="flex items-center">
+                    <div className='flex items-center'>
                       <Check
                         className={cn('mr-2 h-4 w-4 opacity-0', {
                           'opacity-100': isSelected

@@ -9,7 +9,7 @@ export function Toaster(props: ToasterProps) {
   return (
     <Sonner
       {...props}
-      className="toaster group"
+      className='toaster group'
       theme={theme as ToasterProps['theme']}
       style={
         {

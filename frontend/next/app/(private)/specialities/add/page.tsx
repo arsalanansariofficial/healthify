@@ -38,7 +38,7 @@ export default function Page() {
   });
 
   return (
-    <div className="flex h-full flex-col gap-8 lg:mx-auto lg:w-10/12">
+    <div className='flex h-full flex-col gap-8 lg:mx-auto lg:w-10/12'>
       <Card>
         <CardHeader>
           <CardTitle>Add Speciality</CardTitle>
@@ -49,12 +49,12 @@ export default function Page() {
         <CardContent>
           <Form {...form}>
             <form
-              id="speciality-form"
-              className="space-y-2"
+              id='speciality-form'
+              className='space-y-2'
               onSubmit={form.handleSubmit(handleSubmit)}
             >
               <FormField
-                name="name"
+                name='name'
                 control={form.control}
                 render={({ field }) => (
                   <FormItem>
@@ -62,9 +62,9 @@ export default function Page() {
                     <FormControl>
                       <Input
                         {...field}
-                        type="text"
-                        className="capitalize"
-                        placeholder="Physician"
+                        type='text'
+                        className='capitalize'
+                        placeholder='Physician'
                       />
                     </FormControl>
                     <FormMessage />
@@ -75,7 +75,7 @@ export default function Page() {
           </Form>
         </CardContent>
         <CardFooter>
-          <Button type="submit" disabled={pending} form="speciality-form">
+          <Button type='submit' disabled={pending} form='speciality-form'>
             {pending ? 'Saving...' : 'Save'}
           </Button>
         </CardFooter>

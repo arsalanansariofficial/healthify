@@ -49,23 +49,23 @@ export default function Component({ error }: { error?: string }) {
     const result = await login(data);
 
     if (error) {
-      toast(<h2 className="text-destructive">{error}</h2>, {
+      toast(<h2 className='text-destructive'>{error}</h2>, {
         position: 'top-center',
-        description: <p className="text-destructive">{getDate()}</p>
+        description: <p className='text-destructive'>{getDate()}</p>
       });
     }
 
     if (result?.success) {
       toast(result.message, {
         position: 'top-center',
-        description: <span className="text-foreground">{getDate()}</span>
+        description: <span className='text-foreground'>{getDate()}</span>
       });
     }
 
     if (!result?.success && result?.message) {
-      toast(<h2 className="text-destructive">{result?.message}</h2>, {
+      toast(<h2 className='text-destructive'>{result?.message}</h2>, {
         position: 'top-center',
-        description: <p className="text-destructive">{getDate()}</p>
+        description: <p className='text-destructive'>{getDate()}</p>
       });
     }
 
@@ -74,14 +74,14 @@ export default function Component({ error }: { error?: string }) {
 
   return (
     <section>
-      <Card className="min-w-sm">
+      <Card className='min-w-sm'>
         <CardHeader>
           <CardTitle>Login to your account</CardTitle>
           <CardDescription>
             Enter your email below to login to your account
           </CardDescription>
           <CardAction>
-            <Button variant="link">
+            <Button variant='link'>
               <Link href={ROUTES.SIGNUP}>Signup</Link>
             </Button>
           </CardAction>
@@ -89,12 +89,12 @@ export default function Component({ error }: { error?: string }) {
         <CardContent>
           <Form {...form}>
             <form
-              id="login-form"
-              className="space-y-2"
+              id='login-form'
+              className='space-y-2'
               onSubmit={form.handleSubmit(handleSubmit)}
             >
               <FormField
-                name="email"
+                name='email'
                 control={form.control}
                 render={({ field }) => (
                   <FormItem>
@@ -102,8 +102,8 @@ export default function Component({ error }: { error?: string }) {
                     <FormControl>
                       <Input
                         {...field}
-                        type="email"
-                        placeholder="your.name@domain.com"
+                        type='email'
+                        placeholder='your.name@domain.com'
                       />
                     </FormControl>
                     <FormMessage />
@@ -111,15 +111,15 @@ export default function Component({ error }: { error?: string }) {
                 )}
               />
               <FormField
-                name="password"
+                name='password'
                 control={form.control}
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className="flex items-center justify-between">
+                    <FormLabel className='flex items-center justify-between'>
                       <span>Password</span>
                       <Link
                         href={ROUTES.FORGET}
-                        className="text-primary font-normal"
+                        className='text-primary font-normal'
                       >
                         Forget Password?
                       </Link>
@@ -127,8 +127,8 @@ export default function Component({ error }: { error?: string }) {
                     <FormControl>
                       <Input
                         {...field}
-                        type="password"
-                        placeholder="Secret@123"
+                        type='password'
+                        placeholder='Secret@123'
                       />
                     </FormControl>
                     <FormMessage />
@@ -138,21 +138,21 @@ export default function Component({ error }: { error?: string }) {
             </form>
           </Form>
         </CardContent>
-        <CardFooter className="grid gap-2">
+        <CardFooter className='grid gap-2'>
           <Button
-            type="submit"
-            form="login-form"
+            type='submit'
+            form='login-form'
             disabled={pending}
-            className="cursor-pointer"
+            className='cursor-pointer'
           >
             {pending ? 'Logging in...' : 'Login'}
           </Button>
           <Button
-            variant="outline"
-            className="cursor-pointer"
+            variant='outline'
+            className='cursor-pointer'
             onClick={() => signIn('github')}
           >
-            <FontAwesomeIcon icon={faGithub} size="5x" />
+            <FontAwesomeIcon icon={faGithub} size='5x' />
           </Button>
         </CardFooter>
       </Card>

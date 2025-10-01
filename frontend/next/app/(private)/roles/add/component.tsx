@@ -38,7 +38,7 @@ export default function Component() {
   });
 
   return (
-    <div className="flex h-full flex-col gap-8 lg:mx-auto lg:w-10/12">
+    <div className='flex h-full flex-col gap-8 lg:mx-auto lg:w-10/12'>
       <Card>
         <CardHeader>
           <CardTitle>Add roles</CardTitle>
@@ -49,18 +49,18 @@ export default function Component() {
         <CardContent>
           <Form {...form}>
             <form
-              id="role-form"
-              className="space-y-2"
+              id='role-form'
+              className='space-y-2'
               onSubmit={form.handleSubmit(handleSubmit)}
             >
               <FormField
-                name="name"
+                name='name'
                 control={form.control}
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Name</FormLabel>
                     <FormControl>
-                      <Input {...field} type="text" placeholder="USER" />
+                      <Input {...field} type='text' placeholder='USER' />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -71,10 +71,10 @@ export default function Component() {
         </CardContent>
         <CardFooter>
           <Button
-            type="submit"
-            form="role-form"
+            type='submit'
+            form='role-form'
             disabled={pending}
-            className="cursor-pointer"
+            className='cursor-pointer'
           >
             {pending ? 'Adding role...' : 'Add role'}
           </Button>

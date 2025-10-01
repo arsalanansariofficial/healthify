@@ -33,21 +33,21 @@ export default function Header({ user }: { user: User }) {
 
   return (
     <>
-      <header className="sticky top-0 z-30 px-8 py-4 backdrop-blur-xs">
-        <div className="grid grid-cols-[1fr_auto] gap-4">
-          <div className="grid grid-flow-col grid-cols-[auto_1fr] items-center gap-4">
+      <header className='sticky top-0 z-30 px-8 py-4 backdrop-blur-xs'>
+        <div className='grid grid-cols-[1fr_auto] gap-4'>
+          <div className='grid grid-flow-col grid-cols-[auto_1fr] items-center gap-4'>
             <Link
               href={ROUTES.DASHBOARD}
-              className="hover:bg-accent relative hidden aspect-square rounded-md p-4 lg:block"
+              className='hover:bg-accent relative hidden aspect-square rounded-md p-4 lg:block'
             >
-              <span className="absolute top-1/2 left-1/2 mt-0.5 ml-0.5 grid min-w-5 -translate-x-1/2 -translate-y-1/2 -rotate-45 gap-1">
-                <span className="bg-primary h-1 w-full rounded-md"></span>
-                <span className="bg-primary h-1 w-1/2 justify-self-center rounded-md"></span>
+              <span className='absolute top-1/2 left-1/2 mt-0.5 ml-0.5 grid min-w-5 -translate-x-1/2 -translate-y-1/2 -rotate-45 gap-1'>
+                <span className='bg-primary h-1 w-full rounded-md'></span>
+                <span className='bg-primary h-1 w-1/2 justify-self-center rounded-md'></span>
               </span>
             </Link>
             <button
               onClick={() => setHasMenu(hasMenu => !hasMenu)}
-              className="hover:bg-accent grid aspect-square place-items-center rounded-md p-2 lg:hidden"
+              className='hover:bg-accent grid aspect-square place-items-center rounded-md p-2 lg:hidden'
             >
               <span className={cn('grid min-w-5 gap-1', { 'gap-0': hasMenu })}>
                 <span
@@ -64,27 +64,27 @@ export default function Header({ user }: { user: User }) {
                 />
               </span>
             </button>
-            <nav className="hidden grid-flow-col gap-4 justify-self-start lg:grid">
+            <nav className='hidden grid-flow-col gap-4 justify-self-start lg:grid'>
               <Link
-                href="/docs"
-                className="hover:bg-accent rounded-md px-2 py-1 font-semibold"
+                href='/docs'
+                className='hover:bg-accent rounded-md px-2 py-1 font-semibold'
               >
                 Docs
               </Link>
               <Link
-                href="/components"
-                className="hover:bg-accent rounded-md px-2 py-1 font-semibold"
+                href='/components'
+                className='hover:bg-accent rounded-md px-2 py-1 font-semibold'
               >
                 Components
               </Link>
             </nav>
           </div>
-          <div className="grid grid-flow-col items-center gap-4">
+          <div className='grid grid-flow-col items-center gap-4'>
             <Input
-              type="text"
-              name="search"
-              placeholder="Search..."
-              className="placeholder:text-muted-foreground hidden placeholder:font-semibold md:block"
+              type='text'
+              name='search'
+              placeholder='Search...'
+              className='placeholder:text-muted-foreground hidden placeholder:font-semibold md:block'
             />
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
@@ -92,11 +92,11 @@ export default function Header({ user }: { user: User }) {
                   <AvatarImage
                     src={`${!user.hasOAuth ? `${DOMAIN.LOCAL}/api/upload/` : ''}${user.image || UI.DEFAULT_PROFILE_IMAGE}`}
                   />
-                  <AvatarFallback className="bg-transparent">
+                  <AvatarFallback className='bg-transparent'>
                     <FontAwesomeIcon
-                      size="lg"
+                      size='lg'
                       icon={faGithub}
-                      className="h-5 w-5"
+                      className='h-5 w-5'
                     />
                   </AvatarFallback>
                 </Avatar>
@@ -118,15 +118,15 @@ export default function Header({ user }: { user: User }) {
               </DropdownMenuContent>
             </DropdownMenu>
             <Button
-              size="icon"
-              variant="ghost"
+              size='icon'
+              variant='ghost'
               onClick={() => {
                 return theme === 'light' ? setTheme('dark') : setTheme('light');
               }}
             >
-              <Sun className="h-[1.2rem] w-[1.2rem] scale-0 -rotate-90 transition-all dark:scale-100 dark:rotate-0" />
-              <Moon className="absolute h-[1.2rem] w-[1.2rem] scale-100 rotate-0 transition-all dark:scale-0 dark:rotate-90" />
-              <span className="sr-only">Theme Toggle</span>
+              <Sun className='h-[1.2rem] w-[1.2rem] scale-0 -rotate-90 transition-all dark:scale-100 dark:rotate-0' />
+              <Moon className='absolute h-[1.2rem] w-[1.2rem] scale-100 rotate-0 transition-all dark:scale-0 dark:rotate-90' />
+              <span className='sr-only'>Theme Toggle</span>
             </Button>
           </div>
         </div>
@@ -137,7 +137,7 @@ export default function Header({ user }: { user: User }) {
           { block: hasMenu }
         )}
       >
-        <div className="h-full">
+        <div className='h-full'>
           <Menu user={user} entries={Array.from(SIDEBAR.entries())} />
         </div>
       </nav>

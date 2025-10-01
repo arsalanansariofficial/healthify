@@ -10,10 +10,10 @@ export default function Page({
   error: Error & { digest?: string };
 }) {
   return (
-    <main className="grid min-h-screen place-items-center">
-      <section className="space-y-4 text-center">
+    <main className='grid min-h-screen place-items-center'>
+      <section className='space-y-4 text-center'>
         <Info
-          title="500 - Internal Server Error"
+          title='500 - Internal Server Error'
           message={
             !ENVIRONMENT.IS_PRODUCTION
               ? error.message

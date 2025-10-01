@@ -56,7 +56,7 @@ export default function Component({ users }: { users: User[] }) {
   });
 
   return (
-    <div className="flex h-full flex-col gap-8 lg:mx-auto lg:w-10/12">
+    <div className='flex h-full flex-col gap-8 lg:mx-auto lg:w-10/12'>
       <Card>
         <CardHeader>
           <CardTitle>Add Hospital</CardTitle>
@@ -67,12 +67,12 @@ export default function Component({ users }: { users: User[] }) {
         <CardContent>
           <Form {...form}>
             <form
-              id="hospital-form"
-              className="space-y-2"
+              id='hospital-form'
+              className='space-y-2'
               onSubmit={form.handleSubmit(handleSubmit)}
             >
               <FormField
-                name="name"
+                name='name'
                 control={form.control}
                 render={({ field }) => (
                   <FormItem>
@@ -80,8 +80,8 @@ export default function Component({ users }: { users: User[] }) {
                     <FormControl>
                       <Input
                         {...field}
-                        type="text"
-                        placeholder="Riverdale General Hospital"
+                        type='text'
+                        placeholder='Riverdale General Hospital'
                       />
                     </FormControl>
                     <FormMessage />
@@ -89,7 +89,7 @@ export default function Component({ users }: { users: User[] }) {
                 )}
               />
               <FormField
-                name="email"
+                name='email'
                 control={form.control}
                 render={({ field }) => (
                   <FormItem>
@@ -97,8 +97,8 @@ export default function Component({ users }: { users: User[] }) {
                     <FormControl>
                       <Input
                         {...field}
-                        type="email"
-                        placeholder="your.name@domain.com"
+                        type='email'
+                        placeholder='your.name@domain.com'
                       />
                     </FormControl>
                     <FormMessage />
@@ -106,20 +106,20 @@ export default function Component({ users }: { users: User[] }) {
                 )}
               />
               <FormField
-                name="city"
+                name='city'
                 control={form.control}
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>City</FormLabel>
                     <FormControl>
-                      <Input {...field} type="text" placeholder="Moradabad" />
+                      <Input {...field} type='text' placeholder='Moradabad' />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
                 )}
               />
               <FormField
-                name="phone"
+                name='phone'
                 control={form.control}
                 render={({ field }) => (
                   <FormItem>
@@ -127,8 +127,8 @@ export default function Component({ users }: { users: User[] }) {
                     <FormControl>
                       <Input
                         {...field}
-                        type="tel"
-                        placeholder="+919876543210"
+                        type='tel'
+                        placeholder='+919876543210'
                       />
                     </FormControl>
                     <FormMessage />
@@ -136,7 +136,7 @@ export default function Component({ users }: { users: User[] }) {
                 )}
               />
               <FormField
-                name="isAffiliated"
+                name='isAffiliated'
                 control={form.control}
                 render={({ field }) => (
                   <FormItem>
@@ -146,12 +146,12 @@ export default function Component({ users }: { users: User[] }) {
                         defaultValue={field.value}
                         onValueChange={field.onChange}
                       >
-                        <SelectTrigger className="w-full [&_span[data-slot]]:block [&_span[data-slot]]:truncate">
-                          <SelectValue placeholder="Select a status" />
+                        <SelectTrigger className='w-full [&_span[data-slot]]:block [&_span[data-slot]]:truncate'>
+                          <SelectValue placeholder='Select a status' />
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="yes">Yes</SelectItem>
-                          <SelectItem value="no">No</SelectItem>
+                          <SelectItem value='yes'>Yes</SelectItem>
+                          <SelectItem value='no'>No</SelectItem>
                         </SelectContent>
                       </Select>
                     </FormControl>
@@ -160,7 +160,7 @@ export default function Component({ users }: { users: User[] }) {
                 )}
               />
               <FormField
-                name="address"
+                name='address'
                 control={form.control}
                 render={({ field }) => (
                   <FormItem>
@@ -168,7 +168,7 @@ export default function Component({ users }: { users: User[] }) {
                     <FormControl>
                       <Textarea
                         {...field}
-                        placeholder="123 Main Street, Springfield, IL 62704"
+                        placeholder='123 Main Street, Springfield, IL 62704'
                       />
                     </FormControl>
                     <FormMessage />
@@ -176,7 +176,7 @@ export default function Component({ users }: { users: User[] }) {
                 )}
               />
               <FormField
-                name="doctors"
+                name='doctors'
                 control={form.control}
                 render={({ field }) => (
                   <FormItem>
@@ -200,9 +200,9 @@ export default function Component({ users }: { users: User[] }) {
         </CardContent>
         <CardFooter>
           <Button
-            type="submit"
-            form="hospital-form"
-            className="cursor-pointer"
+            type='submit'
+            form='hospital-form'
+            className='cursor-pointer'
             disabled={form.formState.isLoading}
           >
             {form.formState.isLoading ? 'Saving...' : 'Save'}

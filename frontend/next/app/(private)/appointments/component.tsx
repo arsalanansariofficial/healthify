@@ -77,12 +77,12 @@ function Menu({ id, ids, isHeader = false }: MenuProps) {
   const menuTrigger = (
     <DropdownMenuTrigger asChild>
       <Button
-        size="icon"
-        variant="ghost"
-        className="data-[state=open]:bg-muted text-muted-foreground flex size-8"
+        size='icon'
+        variant='ghost'
+        className='data-[state=open]:bg-muted text-muted-foreground flex size-8'
       >
         <IconDotsVertical />
-        <span className="sr-only">Open menu</span>
+        <span className='sr-only'>Open menu</span>
       </Button>
     </DropdownMenuTrigger>
   );
@@ -91,9 +91,9 @@ function Menu({ id, ids, isHeader = false }: MenuProps) {
     <DropdownMenu>
       {!isHeader && menuTrigger}
       {ids && ids.length > 0 && isHeader && menuTrigger}
-      <DropdownMenuContent align="end" className="w-32">
+      <DropdownMenuContent align='end' className='w-32'>
         <DropdownMenuItem
-          variant="destructive"
+          variant='destructive'
           onClick={async () => {
             if (!isHeader) {
               toast.promise(deleteSpeciality(id as string), {
@@ -102,7 +102,7 @@ function Menu({ id, ids, isHeader = false }: MenuProps) {
                 loading: 'Deleting speciality',
                 error(error) {
                   const { message } = catchErrors(error as Error);
-                  return <span className="text-destructive">{message}</span>;
+                  return <span className='text-destructive'>{message}</span>;
                 }
               });
             }
@@ -114,7 +114,7 @@ function Menu({ id, ids, isHeader = false }: MenuProps) {
                 success: MESSAGES.SPECIALITY.BULK_DELETED,
                 error(error) {
                   const { message } = catchErrors(error as Error);
-                  return <span className="text-destructive">{message}</span>;
+                  return <span className='text-destructive'>{message}</span>;
                 }
               });
             }
@@ -157,90 +157,90 @@ export function TableCellViewer<T extends z.ZodType>(props: TCVProps<T>) {
   return (
     <Drawer direction={isMobile ? 'bottom' : 'right'}>
       <DrawerTrigger asChild onClick={e => e.currentTarget.blur()}>
-        <Button variant="link" className="text-foreground px-0">
+        <Button variant='link' className='text-foreground px-0'>
           {props.item.id.slice(-5)}
         </Button>
       </DrawerTrigger>
       <DrawerContent>
-        <DrawerHeader className="gap-1">
+        <DrawerHeader className='gap-1'>
           <DrawerTitle>Appointment</DrawerTitle>
           <DrawerDescription>
             Here are the details of the appointment.
           </DrawerDescription>
         </DrawerHeader>
-        <div className="flex flex-col gap-4 overflow-y-auto px-4 text-sm">
-          <form id="appointment-form" className="space-y-2">
-            <div className="space-y-2">
-              <Label htmlFor="patient-name">Patient</Label>
+        <div className='flex flex-col gap-4 overflow-y-auto px-4 text-sm'>
+          <form id='appointment-form' className='space-y-2'>
+            <div className='space-y-2'>
+              <Label htmlFor='patient-name'>Patient</Label>
               <Input
                 disabled
                 readOnly
-                type="text"
-                id="patient-name"
-                name="patient-name"
-                placeholder="Gwen Tennyson"
+                type='text'
+                id='patient-name'
+                name='patient-name'
+                placeholder='Gwen Tennyson'
                 defaultValue={props.item.patient}
               />
             </div>
-            <div className="space-y-2">
-              <Label htmlFor="doctor-name">Doctor</Label>
+            <div className='space-y-2'>
+              <Label htmlFor='doctor-name'>Doctor</Label>
               <Input
                 disabled
                 readOnly
-                type="text"
-                id="doctor-name"
-                name="doctor-name"
-                placeholder="Gwen Tennyson"
+                type='text'
+                id='doctor-name'
+                name='doctor-name'
+                placeholder='Gwen Tennyson'
                 defaultValue={props.item.doctor}
               />
             </div>
-            <div className="space-y-2">
-              <Label htmlFor="date">Date</Label>
+            <div className='space-y-2'>
+              <Label htmlFor='date'>Date</Label>
               <Input
                 disabled
-                id="date"
-                name="date"
-                type="text"
-                placeholder="Aug 1 2025"
+                id='date'
+                name='date'
+                type='text'
+                placeholder='Aug 1 2025'
                 defaultValue={getDate(props.item.date, false)}
               />
             </div>
-            <div className="space-y-2">
-              <Label htmlFor="time">Time</Label>
+            <div className='space-y-2'>
+              <Label htmlFor='time'>Time</Label>
               <Input
                 disabled
-                id="time"
-                name="time"
-                type="text"
-                placeholder="10:00:00"
+                id='time'
+                name='time'
+                type='text'
+                placeholder='10:00:00'
                 defaultValue={formatTime(props.item.time)}
               />
             </div>
-            <div className="space-y-2">
-              <Label htmlFor="status">Status</Label>
+            <div className='space-y-2'>
+              <Label htmlFor='status'>Status</Label>
               <Input
                 disabled
-                id="status"
-                type="text"
-                name="status"
-                className="capitalize"
-                placeholder="Confirmed"
+                id='status'
+                type='text'
+                name='status'
+                className='capitalize'
+                placeholder='Confirmed'
                 defaultValue={props.item.status}
               />
             </div>
           </form>
         </div>
         <DrawerFooter>
-          <div className="grid grid-flow-col gap-2">
+          <div className='grid grid-flow-col gap-2'>
             {isInFuture &&
               (status === AppointmentStatus.pending ||
                 status === AppointmentStatus.confirmed) &&
               hasPermission(props.user.permissions, 'cancel:appointment') && (
                 <Button
-                  type="submit"
-                  variant="outline"
-                  form="appointment-form"
-                  className="cursor-pointer"
+                  type='submit'
+                  variant='outline'
+                  form='appointment-form'
+                  className='cursor-pointer'
                   onClick={cancelAppointment}
                   disabled={validating || cancelling}
                 >
@@ -254,9 +254,9 @@ export function TableCellViewer<T extends z.ZodType>(props: TCVProps<T>) {
               status === AppointmentStatus.pending &&
               hasPermission(props.user.permissions, 'confirm:appointment') && (
                 <Button
-                  type="submit"
-                  form="appointment-form"
-                  className="cursor-pointer"
+                  type='submit'
+                  form='appointment-form'
+                  className='cursor-pointer'
                   onClick={confirmAppointment}
                   disabled={validating || cancelling}
                 >
@@ -270,9 +270,9 @@ export function TableCellViewer<T extends z.ZodType>(props: TCVProps<T>) {
               hasPermission(props.user.permissions, 'view:receipt') && (
                 <Button
                   asChild
-                  type="submit"
-                  form="appointment-form"
-                  className="cursor-pointer"
+                  type='submit'
+                  form='appointment-form'
+                  className='cursor-pointer'
                 >
                   <Link href={`/appointments/${props.item.id}/receipt`}>
                     {!isMobile && <span>View Receipt</span>}
@@ -282,7 +282,7 @@ export function TableCellViewer<T extends z.ZodType>(props: TCVProps<T>) {
               )}
           </div>
           <DrawerClose asChild>
-            <Button variant="outline">Done</Button>
+            <Button variant='outline'>Done</Button>
           </DrawerClose>
         </DrawerFooter>
       </DrawerContent>
@@ -305,7 +305,7 @@ export default function Component(props: Props) {
       header({ table }) {
         return (
           <Checkbox
-            aria-label="Select all"
+            aria-label='Select all'
             onCheckedChange={value => table.toggleAllPageRowsSelected(!!value)}
             checked={
               table.getIsAllPageRowsSelected() ||
@@ -316,7 +316,7 @@ export default function Component(props: Props) {
       },
       cell: ({ row }) => (
         <Checkbox
-          aria-label="Select row"
+          aria-label='Select row'
           checked={row.getIsSelected()}
           onCheckedChange={value => row.toggleSelected(!!value)}
         />
@@ -381,7 +381,7 @@ export default function Component(props: Props) {
         if (status === AppointmentStatus.cancelled) variant = 'destructive';
 
         return (
-          <Badge className="capitalize" variant={variant}>
+          <Badge className='capitalize' variant={variant}>
             {status}
           </Badge>
         );
@@ -421,7 +421,7 @@ export default function Component(props: Props) {
   ];
 
   return (
-    <div className="flex h-full flex-col gap-8 lg:mx-auto lg:w-10/12">
+    <div className='flex h-full flex-col gap-8 lg:mx-auto lg:w-10/12'>
       {hasPermission(props.user.permissions, 'view:appointments') && (
         <DataTable
           columns={columns}

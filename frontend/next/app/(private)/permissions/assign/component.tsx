@@ -82,7 +82,7 @@ export default function Component(props: {
   );
 
   return (
-    <div className="flex h-full flex-col lg:mx-auto lg:w-10/12">
+    <div className='flex h-full flex-col lg:mx-auto lg:w-10/12'>
       <Card>
         <CardHeader>
           <CardTitle>Add permissions for a given role</CardTitle>
@@ -94,27 +94,27 @@ export default function Component(props: {
         <CardContent>
           <Form {...form}>
             <form
-              className="space-y-2"
-              id="role-permissions-form"
+              className='space-y-2'
+              id='role-permissions-form'
               onSubmit={form.handleSubmit(handleSubmit)}
             >
               <FormField
-                name="name"
+                name='name'
                 control={form.control}
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Role</FormLabel>
                     <FormControl>
                       <Select
-                        name="role"
+                        name='role'
                         value={field.value}
                         onValueChange={role => {
                           field.onChange(role);
                           updateParam('role', role);
                         }}
                       >
-                        <SelectTrigger className="w-full">
-                          <SelectValue placeholder="Select a role" />
+                        <SelectTrigger className='w-full'>
+                          <SelectValue placeholder='Select a role' />
                         </SelectTrigger>
                         <SelectContent>
                           {props.roles.map(role => (
@@ -130,7 +130,7 @@ export default function Component(props: {
                 )}
               />
               <FormField
-                name="permissions"
+                name='permissions'
                 control={form.control}
                 render={({ field }) => (
                   <FormItem>
@@ -140,7 +140,7 @@ export default function Component(props: {
                         options={props.permissions}
                         selectedValues={field.value}
                         setSelectedValues={field.onChange}
-                        placeholder="Select permissions..."
+                        placeholder='Select permissions...'
                       />
                     </FormControl>
                     <FormMessage />
@@ -152,10 +152,10 @@ export default function Component(props: {
         </CardContent>
         <CardFooter>
           <Button
-            type="submit"
+            type='submit'
             disabled={pending}
-            className="cursor-pointer"
-            form="role-permissions-form"
+            className='cursor-pointer'
+            form='role-permissions-form'
           >
             {pending ? 'Assigning permissions...' : 'Assign permissions'}
           </Button>

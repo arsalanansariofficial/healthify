@@ -53,17 +53,17 @@ export function TimePicker({ value, onChange, label }: Props) {
   );
 
   return (
-    <div className="flex flex-col gap-2">
+    <div className='flex flex-col gap-2'>
       {label && (
-        <label className="text-sm leading-none font-medium">{label}</label>
+        <label className='text-sm leading-none font-medium'>{label}</label>
       )}
-      <div className="flex gap-2">
+      <div className='flex gap-2'>
         <Select
           value={hours12}
           onValueChange={value => update(value, undefined, undefined)}
         >
-          <SelectTrigger className="w-20">
-            <SelectValue placeholder="HH" />
+          <SelectTrigger className='w-20'>
+            <SelectValue placeholder='HH' />
           </SelectTrigger>
           <SelectContent>
             {hourOptions.map(h => (
@@ -77,10 +77,10 @@ export function TimePicker({ value, onChange, label }: Props) {
           value={minutes}
           onValueChange={value => update(undefined, value, undefined)}
         >
-          <SelectTrigger className="w-20">
-            <SelectValue placeholder="MM" />
+          <SelectTrigger className='w-20'>
+            <SelectValue placeholder='MM' />
           </SelectTrigger>
-          <SelectContent className="max-h-64">
+          <SelectContent className='max-h-64'>
             {minuteOptions.map(m => (
               <SelectItem key={m} value={m}>
                 {m}
@@ -94,12 +94,12 @@ export function TimePicker({ value, onChange, label }: Props) {
             update(undefined, undefined, value as 'AM' | 'PM')
           }
         >
-          <SelectTrigger className="w-24">
-            <SelectValue placeholder="AM/PM" />
+          <SelectTrigger className='w-24'>
+            <SelectValue placeholder='AM/PM' />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="AM">AM</SelectItem>
-            <SelectItem value="PM">PM</SelectItem>
+            <SelectItem value='AM'>AM</SelectItem>
+            <SelectItem value='PM'>PM</SelectItem>
           </SelectContent>
         </Select>
       </div>

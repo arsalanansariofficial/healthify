@@ -56,29 +56,29 @@ export default function CmdSelect(props: CmdProps) {
       <PopoverTrigger asChild>
         <Button
           ref={triggerRef}
-          variant="outline"
-          className="w-full items-center justify-between px-2 pb-2"
+          variant='outline'
+          className='w-full items-center justify-between px-2 pb-2'
         >
           {props.selected ? (
-            <span className="truncate font-normal">
+            <span className='truncate font-normal'>
               {props.options.find(opt => opt.value === props.selected)?.label}
             </span>
           ) : (
-            <span className="text-primary/50 truncate font-normal">
+            <span className='text-primary/50 truncate font-normal'>
               {props.placeholder || 'Select option...'}
             </span>
           )}
         </Button>
       </PopoverTrigger>
       <PopoverContent
-        className="p-0"
-        align="start"
+        className='p-0'
+        align='start'
         style={{ width: triggerWidth }}
       >
         <Command>
           <CommandInput
             value={inputValue}
-            placeholder="Search..."
+            placeholder='Search...'
             onValueChange={setInputValue}
           />
           <CommandList>
@@ -95,7 +95,7 @@ export default function CmdSelect(props: CmdProps) {
                     props.setSelected(option.value);
                   }}
                 >
-                  <div className="flex items-center">
+                  <div className='flex items-center'>
                     <Check
                       className={cn('mr-2 h-4 w-4 opacity-0', {
                         'opacity-100': isSelected

@@ -36,7 +36,7 @@ export default function Page() {
 
   return (
     <section>
-      <Empty className="min-w-sm">
+      <Empty className='min-w-sm'>
         <EmptyHeader>
           <EmptyTitle>Reset your password</EmptyTitle>
           <EmptyDescription>
@@ -46,20 +46,20 @@ export default function Page() {
         <EmptyContent>
           <Form {...form}>
             <form
-              id="reset-form"
-              className="space-y-2"
+              id='reset-form'
+              className='space-y-2'
               onSubmit={form.handleSubmit(handleSubmit)}
             >
               <FormField
-                name="email"
+                name='email'
                 control={form.control}
                 render={({ field }) => (
                   <FormItem>
                     <FormControl>
                       <Input
                         {...field}
-                        type="email"
-                        placeholder="your.name@domain.com"
+                        type='email'
+                        placeholder='your.name@domain.com'
                       />
                     </FormControl>
                     <FormMessage />
@@ -67,10 +67,10 @@ export default function Page() {
                 )}
               />
               <Button
-                type="submit"
-                form="reset-form"
+                type='submit'
+                form='reset-form'
                 disabled={pending}
-                className="cursor-pointer"
+                className='cursor-pointer'
               >
                 {pending ? 'Sending...' : 'Send token'}
               </Button>

@@ -61,7 +61,7 @@ export default function Component({
   });
 
   return (
-    <div className="flex h-full flex-col gap-8 lg:mx-auto lg:w-10/12">
+    <div className='flex h-full flex-col gap-8 lg:mx-auto lg:w-10/12'>
       <Card>
         <CardHeader>
           <CardTitle>Add Membership</CardTitle>
@@ -73,21 +73,21 @@ export default function Component({
         <CardContent>
           <Form {...form}>
             <form
-              id="membership-form"
-              className="space-y-2"
+              id='membership-form'
+              className='space-y-2'
               onSubmit={form.handleSubmit(handleSubmit)}
             >
-              <div className="space-y-2">
+              <div className='space-y-2'>
                 <Label>Membership</Label>
                 <Input
                   disabled
-                  type="text"
-                  placeholder="Basic"
+                  type='text'
+                  placeholder='Basic'
                   value={membership.name}
                 />
               </div>
               <FormField
-                name="feeId"
+                name='feeId'
                 control={form.control}
                 render={({ field }) => {
                   const fee = membership.fees.find(f => f.id === field.value);
@@ -97,20 +97,20 @@ export default function Component({
                     <FormItem>
                       <FormLabel>Payment Mode</FormLabel>
                       <FormControl>
-                        <div className="grid grid-cols-[1fr_auto] gap-2">
+                        <div className='grid grid-cols-[1fr_auto] gap-2'>
                           <Select
                             defaultValue={field.value}
                             onValueChange={field.onChange}
                           >
-                            <SelectTrigger className="w-full [&_span[data-slot]]:block [&_span[data-slot]]:truncate">
-                              <SelectValue placeholder="Select a payment mode" />
+                            <SelectTrigger className='w-full [&_span[data-slot]]:block [&_span[data-slot]]:truncate'>
+                              <SelectValue placeholder='Select a payment mode' />
                             </SelectTrigger>
                             <SelectContent>
                               {membership.fees.map(f => (
                                 <SelectItem
                                   key={f.id}
                                   value={f.id}
-                                  className="capitalize"
+                                  className='capitalize'
                                 >
                                   {capitalize(f.renewalType)}
                                 </SelectItem>
@@ -119,9 +119,9 @@ export default function Component({
                           </Select>
                           <Input
                             disabled
-                            type="text"
+                            type='text'
                             value={amount}
-                            placeholder="Rs. 100"
+                            placeholder='Rs. 100'
                           />
                         </div>
                       </FormControl>
@@ -131,7 +131,7 @@ export default function Component({
                 }}
               />
               <FormField
-                name="users"
+                name='users'
                 control={form.control}
                 render={({ field }) => (
                   <FormItem>
@@ -139,7 +139,7 @@ export default function Component({
                     <FormControl>
                       <MultiSelect
                         selectedValues={field.value}
-                        placeholder="Select users..."
+                        placeholder='Select users...'
                         setSelectedValues={field.onChange}
                         options={users.map(u => ({
                           value: u.id,
@@ -156,9 +156,9 @@ export default function Component({
         </CardContent>
         <CardFooter>
           <Button
-            type="submit"
-            form="membership-form"
-            className="cursor-pointer"
+            type='submit'
+            form='membership-form'
+            className='cursor-pointer'
             disabled={form.formState.isLoading}
           >
             {form.formState.isLoading ? 'Saving...' : 'Save'}

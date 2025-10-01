@@ -66,7 +66,7 @@ export function InputGroupInput({
   return (
     <Input
       {...props}
-      data-slot="input-group-control"
+      data-slot='input-group-control'
       className={cn(
         'flex-1 rounded-none border-0 bg-transparent shadow-none focus-visible:ring-0 dark:bg-transparent',
         className
@@ -82,7 +82,7 @@ export function InputGroupTextarea({
   return (
     <Textarea
       {...props}
-      data-slot="input-group-control"
+      data-slot='input-group-control'
       className={cn(
         'flex-1 resize-none rounded-none border-0 bg-transparent py-3 shadow-none focus-visible:ring-0 dark:bg-transparent',
         className
@@ -117,9 +117,9 @@ export function InputGroupAddon({
   return (
     <div
       {...props}
-      role="group"
+      role='group'
       data-align={align}
-      data-slot="input-group-addon"
+      data-slot='input-group-addon'
       className={cn(inputGroupAddonVariants({ align }), className)}
       onClick={e => {
         if ((e.target as HTMLElement).closest('button')) return;
@@ -136,8 +136,8 @@ export function InputGroup({
   return (
     <div
       {...props}
-      role="group"
-      data-slot="input-group"
+      role='group'
+      data-slot='input-group'
       className={cn(
         'group/input-group border-input dark:bg-input/30 relative flex w-full items-center rounded-md border shadow-xs transition-[color,box-shadow] outline-none',
         'h-9 min-w-0 has-[>textarea]:h-auto',

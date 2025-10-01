@@ -16,7 +16,7 @@ import {
 
 function ErrorCard({ message }: { message: string }) {
   return (
-    <Card className="min-w-sm">
+    <Card className='min-w-sm'>
       <CardHeader>
         <CardTitle>{message}</CardTitle>
         <CardDescription>
@@ -24,7 +24,7 @@ function ErrorCard({ message }: { message: string }) {
         </CardDescription>
       </CardHeader>
       <CardFooter>
-        <Button className="w-full">
+        <Button className='w-full'>
           <Link href={ROUTES.HOME}>Home</Link>
         </Button>
       </CardFooter>
@@ -36,7 +36,7 @@ async function Verify({ token }: { token: string }) {
   const { email, success, message } = await verifyToken(token);
 
   return (
-    <section className="col-span-2 grid place-items-center place-self-center">
+    <section className='col-span-2 grid place-items-center place-self-center'>
       {success && <Component email={email as string} />}
       {!success && <ErrorCard message={message as string} />}
     </section>
@@ -53,7 +53,7 @@ export default async function Page({
   if (!token) {
     return (
       <section>
-        <ErrorCard message="Missing verification token" />
+        <ErrorCard message='Missing verification token' />
       </section>
     );
   }
@@ -62,7 +62,7 @@ export default async function Page({
     <Suspense
       fallback={
         <section>
-          <p className="text-destructive animate-pulse font-semibold">
+          <p className='text-destructive animate-pulse font-semibold'>
             Verifying...
           </p>
         </section>

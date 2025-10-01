@@ -7,7 +7,7 @@ export function Avatar({ className, ...props }: ComponentProps<typeof Root>) {
   return (
     <Root
       {...props}
-      data-slot="avatar"
+      data-slot='avatar'
       className={cn(
         'relative flex size-8 shrink-0 overflow-hidden rounded-full',
         className
@@ -23,8 +23,8 @@ export function AvatarImage({
   return (
     <Image
       {...props}
-      alt="avatar-image"
-      data-slot="avatar-image"
+      alt='avatar-image'
+      data-slot='avatar-image'
       className={cn('aspect-square size-full', className)}
     />
   );
@@ -37,7 +37,7 @@ export function AvatarFallback({
   return (
     <Fallback
       {...props}
-      data-slot="avatar-fallback"
+      data-slot='avatar-fallback'
       className={cn(
         'bg-muted flex size-full items-center justify-center rounded-full',
         className

@@ -77,7 +77,7 @@ export default function Component({
   });
 
   return (
-    <div className="flex h-full flex-col gap-8 lg:mx-auto lg:w-10/12">
+    <div className='flex h-full flex-col gap-8 lg:mx-auto lg:w-10/12'>
       <Card>
         <CardHeader>
           <CardTitle>Get Appointment</CardTitle>
@@ -88,22 +88,22 @@ export default function Component({
         <CardContent>
           <Form {...form}>
             <form
-              id="appointment-form"
-              className="space-y-2"
+              id='appointment-form'
+              className='space-y-2'
               onSubmit={form.handleSubmit(handleSubmit)}
             >
-              <div className="space-y-2">
-                <Label htmlFor="doctor-name">Doctor</Label>
+              <div className='space-y-2'>
+                <Label htmlFor='doctor-name'>Doctor</Label>
                 <Input
                   readOnly
-                  type="text"
-                  name="doctor-name"
-                  placeholder="Gwen Tennyson"
+                  type='text'
+                  name='doctor-name'
+                  placeholder='Gwen Tennyson'
                   value={doctor.name as string}
                 />
               </div>
               <FormField
-                name="name"
+                name='name'
                 control={form.control}
                 render={({ field }) => (
                   <FormItem>
@@ -111,8 +111,8 @@ export default function Component({
                     <FormControl>
                       <Input
                         {...field}
-                        type="text"
-                        placeholder="Gwen Tennyson"
+                        type='text'
+                        placeholder='Gwen Tennyson'
                       />
                     </FormControl>
                     <FormMessage />
@@ -120,7 +120,7 @@ export default function Component({
                 )}
               />
               <FormField
-                name="email"
+                name='email'
                 control={form.control}
                 render={({ field }) => (
                   <FormItem>
@@ -128,8 +128,8 @@ export default function Component({
                     <FormControl>
                       <Input
                         {...field}
-                        type="email"
-                        placeholder="your.name@domain.com"
+                        type='email'
+                        placeholder='your.name@domain.com'
                       />
                     </FormControl>
                     <FormMessage />
@@ -137,7 +137,7 @@ export default function Component({
                 )}
               />
               <FormField
-                name="phone"
+                name='phone'
                 control={form.control}
                 render={({ field }) => (
                   <FormItem>
@@ -145,8 +145,8 @@ export default function Component({
                     <FormControl>
                       <Input
                         {...field}
-                        type="tel"
-                        placeholder="+919876543210"
+                        type='tel'
+                        placeholder='+919876543210'
                       />
                     </FormControl>
                     <FormMessage />
@@ -154,20 +154,20 @@ export default function Component({
                 )}
               />
               <FormField
-                name="city"
+                name='city'
                 control={form.control}
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>City</FormLabel>
                     <FormControl>
-                      <Input {...field} type="text" placeholder="Moradabad" />
+                      <Input {...field} type='text' placeholder='Moradabad' />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
                 )}
               />
               <FormField
-                name="date"
+                name='date'
                 control={form.control}
                 render={({ field }) => (
                   <FormItem>
@@ -176,18 +176,18 @@ export default function Component({
                       <Popover>
                         <PopoverTrigger asChild>
                           <Button
-                            variant="outline"
+                            variant='outline'
                             data-empty={!field.value}
-                            className="data-[empty=true]:text-muted-foreground flex justify-between text-left font-normal"
+                            className='data-[empty=true]:text-muted-foreground flex justify-between text-left font-normal'
                           >
                             {field.value && format(field.value, 'PPP')}
                             {!field.value && <span>Pick a date</span>}
                             <CalendarIcon />
                           </Button>
                         </PopoverTrigger>
-                        <PopoverContent className="w-auto p-0">
+                        <PopoverContent className='w-auto p-0'>
                           <Calendar
-                            mode="single"
+                            mode='single'
                             selected={field.value}
                             onSelect={field.onChange}
                             hidden={{
@@ -210,22 +210,22 @@ export default function Component({
                 )}
               />
               <FormField
-                name="time"
+                name='time'
                 control={form.control}
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Time</FormLabel>
                     <FormControl>
                       <Select onValueChange={field.onChange}>
-                        <SelectTrigger className="w-full [&_span[data-slot]]:block [&_span[data-slot]]:truncate">
-                          <SelectValue placeholder="Select a time" />
+                        <SelectTrigger className='w-full [&_span[data-slot]]:block [&_span[data-slot]]:truncate'>
+                          <SelectValue placeholder='Select a time' />
                         </SelectTrigger>
                         <SelectContent>
                           {doctor.timings.map(time => (
                             <SelectItem
                               key={time.id}
                               value={time.id}
-                              className="capitalize"
+                              className='capitalize'
                             >
                               {formatTime(time.time)}
                             </SelectItem>
@@ -238,7 +238,7 @@ export default function Component({
                 )}
               />
               <FormField
-                name="notes"
+                name='notes'
                 control={form.control}
                 render={({ field }) => (
                   <FormItem>
@@ -246,7 +246,7 @@ export default function Component({
                     <FormControl>
                       <Textarea
                         {...field}
-                        placeholder="Any prior medical history or symptoms..."
+                        placeholder='Any prior medical history or symptoms...'
                       />
                     </FormControl>
                     <FormMessage />
@@ -257,7 +257,7 @@ export default function Component({
           </Form>
         </CardContent>
         <CardFooter>
-          <Button type="submit" form="appointment-form" disabled={pending}>
+          <Button type='submit' form='appointment-form' disabled={pending}>
             {pending ? 'Saving...' : 'Save'}
           </Button>
         </CardFooter>

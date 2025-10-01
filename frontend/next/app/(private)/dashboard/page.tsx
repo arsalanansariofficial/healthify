@@ -52,25 +52,25 @@ export default async function Page() {
   return (
     <div
       key={users.length}
-      className="flex h-full flex-col gap-8 lg:mx-auto lg:w-10/12"
+      className='flex h-full flex-col gap-8 lg:mx-auto lg:w-10/12'
     >
       {hasPermission(user.permissions, 'view:stats-cards') && (
-        <section className="@container/main">
-          <div className="grid grid-cols-1 gap-4 *:data-[slot=card]:bg-gradient-to-t *:data-[slot=card]:shadow-xs @xl/main:grid-cols-2">
+        <section className='@container/main'>
+          <div className='grid grid-cols-1 gap-4 *:data-[slot=card]:bg-gradient-to-t *:data-[slot=card]:shadow-xs @xl/main:grid-cols-2'>
             {cardsData.map((card, index) => (
-              <Card key={index} className="@container/card">
+              <Card key={index} className='@container/card'>
                 <CardHeader>
                   <CardDescription>{card.description}</CardDescription>
-                  <CardTitle className="text-2xl font-semibold tabular-nums @[250px]/card:text-3xl">
+                  <CardTitle className='text-2xl font-semibold tabular-nums @[250px]/card:text-3xl'>
                     {card.title}
                   </CardTitle>
                   <CardAction>{card.action}</CardAction>
                 </CardHeader>
-                <CardFooter className="flex-col items-start gap-1.5 text-sm">
-                  <div className="line-clamp-1 max-w-11/12 gap-2 truncate font-medium">
+                <CardFooter className='flex-col items-start gap-1.5 text-sm'>
+                  <div className='line-clamp-1 max-w-11/12 gap-2 truncate font-medium'>
                     {card.subtitle}
                   </div>
-                  <div className="text-muted-foreground">{card.summary}</div>
+                  <div className='text-muted-foreground'>{card.summary}</div>
                 </CardFooter>
               </Card>
             ))}
@@ -81,37 +81,37 @@ export default async function Page() {
         <Card>
           <CardHeader>
             <CardDescription>Total Visitors</CardDescription>
-            <CardTitle className="text-2xl font-semibold tabular-nums @[250px]/card:text-3xl">
+            <CardTitle className='text-2xl font-semibold tabular-nums @[250px]/card:text-3xl'>
               Total visitors this year
             </CardTitle>
           </CardHeader>
           <CardContent>
             <Chart
-              dataKey="users"
+              dataKey='users'
               data={chartData}
-              className="max-h-80 w-full"
+              className='max-h-80 w-full'
               chartConfig={chartConfig}
             />
           </CardContent>
         </Card>
       )}
       {hasPermission(user.permissions, 'view:stats-cards:user') && (
-        <section className="@container/main">
-          <div className="grid grid-cols-1 gap-4 *:data-[slot=card]:bg-gradient-to-t *:data-[slot=card]:shadow-xs @xl/main:grid-cols-2">
+        <section className='@container/main'>
+          <div className='grid grid-cols-1 gap-4 *:data-[slot=card]:bg-gradient-to-t *:data-[slot=card]:shadow-xs @xl/main:grid-cols-2'>
             {userCardsData.map((card, index) => (
-              <Card key={index} className="@container/card">
+              <Card key={index} className='@container/card'>
                 <CardHeader>
                   <CardDescription>{card.description}</CardDescription>
-                  <CardTitle className="text-2xl font-semibold tabular-nums @[250px]/card:text-3xl">
+                  <CardTitle className='text-2xl font-semibold tabular-nums @[250px]/card:text-3xl'>
                     {card.title}
                   </CardTitle>
                   <CardAction>{card.action}</CardAction>
                 </CardHeader>
-                <CardFooter className="flex-col items-start gap-1.5 text-sm">
-                  <div className="line-clamp-1 flex gap-2 font-medium">
+                <CardFooter className='flex-col items-start gap-1.5 text-sm'>
+                  <div className='line-clamp-1 flex gap-2 font-medium'>
                     {card.subtitle}
                   </div>
-                  <div className="text-muted-foreground">{card.summary}</div>
+                  <div className='text-muted-foreground'>{card.summary}</div>
                 </CardFooter>
               </Card>
             ))}
@@ -122,15 +122,15 @@ export default async function Page() {
         <Card>
           <CardHeader>
             <CardDescription>Consultation</CardDescription>
-            <CardTitle className="text-2xl font-semibold tabular-nums @[250px]/card:text-3xl">
+            <CardTitle className='text-2xl font-semibold tabular-nums @[250px]/card:text-3xl'>
               Total appointments this year
             </CardTitle>
           </CardHeader>
           <CardContent>
             <Chart
-              dataKey="appointments"
+              dataKey='appointments'
               data={userChartData}
-              className="max-h-80 w-full"
+              className='max-h-80 w-full'
               chartConfig={userChartConfig}
             />
           </CardContent>

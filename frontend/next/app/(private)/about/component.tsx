@@ -46,9 +46,9 @@ export default function Component({ user }: NewType) {
   const onError = useCallback(
     (errors: typeof userForm.formState.errors): void => {
       if (errors.bio?.message) {
-        toast(<h2 className="text-destructive">{errors.bio.message}</h2>, {
+        toast(<h2 className='text-destructive'>{errors.bio.message}</h2>, {
           position: 'top-center',
-          description: <p className="text-destructive">{getDate()}</p>
+          description: <p className='text-destructive'>{getDate()}</p>
         });
       }
     },
@@ -56,7 +56,7 @@ export default function Component({ user }: NewType) {
   );
 
   return (
-    <Tabs defaultValue="write" className="h-full">
+    <Tabs defaultValue='write' className='h-full'>
       <Card>
         <CardHeader>
           <CardTitle>{user.name}</CardTitle>
@@ -65,14 +65,14 @@ export default function Component({ user }: NewType) {
             you&apos;re done.
           </CardDescription>
           <TabsList>
-            <TabsTrigger value="write">Write</TabsTrigger>
-            <TabsTrigger value="preview">Preview</TabsTrigger>
+            <TabsTrigger value='write'>Write</TabsTrigger>
+            <TabsTrigger value='preview'>Preview</TabsTrigger>
           </TabsList>
           <CardAction>
             <Button
-              type="submit"
-              form="bio-form"
-              className="cursor-pointer"
+              type='submit'
+              form='bio-form'
+              className='cursor-pointer'
               disabled={userForm.formState.isSubmitting}
             >
               {userForm.formState.isSubmitting ? 'Saving...' : 'Save'}
@@ -82,21 +82,21 @@ export default function Component({ user }: NewType) {
       </Card>
       <Form {...userForm}>
         <form
-          id="bio-form"
-          className="h-full space-y-2"
+          id='bio-form'
+          className='h-full space-y-2'
           onSubmit={userForm.handleSubmit(handleSubmit, onError)}
         >
-          <TabsContent value="write" className="h-full">
+          <TabsContent value='write' className='h-full'>
             <FormField
-              name="bio"
+              name='bio'
               control={userForm.control}
               render={({ field }) => (
-                <FormItem className="h-full">
-                  <FormControl className="h-full">
+                <FormItem className='h-full'>
+                  <FormControl className='h-full'>
                     <Textarea
                       {...field}
-                      placeholder="Add something about you..."
-                      className="h-full rounded-xl p-8 font-mono text-sm"
+                      placeholder='Add something about you...'
+                      className='h-full rounded-xl p-8 font-mono text-sm'
                     />
                   </FormControl>
                 </FormItem>
@@ -104,8 +104,8 @@ export default function Component({ user }: NewType) {
             />
           </TabsContent>
           <TabsContent
-            value="preview"
-            className="prose prose-neutral dark:prose-invert h-full max-w-none rounded-xl border p-8 shadow"
+            value='preview'
+            className='prose prose-neutral dark:prose-invert h-full max-w-none rounded-xl border p-8 shadow'
           >
             <ReactMarkdown
               remarkPlugins={[remarkGfm]}

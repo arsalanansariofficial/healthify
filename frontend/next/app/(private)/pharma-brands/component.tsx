@@ -76,12 +76,12 @@ function Menu({ id, ids, isHeader = false }: MenuProps) {
   const menuTrigger = (
     <DropdownMenuTrigger asChild>
       <Button
-        size="icon"
-        variant="ghost"
-        className="data-[state=open]:bg-muted text-muted-foreground flex size-8"
+        size='icon'
+        variant='ghost'
+        className='data-[state=open]:bg-muted text-muted-foreground flex size-8'
       >
         <IconDotsVertical />
-        <span className="sr-only">Open menu</span>
+        <span className='sr-only'>Open menu</span>
       </Button>
     </DropdownMenuTrigger>
   );
@@ -90,9 +90,9 @@ function Menu({ id, ids, isHeader = false }: MenuProps) {
     <DropdownMenu>
       {!isHeader && menuTrigger}
       {ids && ids.length > 0 && isHeader && menuTrigger}
-      <DropdownMenuContent align="end" className="w-32">
+      <DropdownMenuContent align='end' className='w-32'>
         <DropdownMenuItem
-          variant="destructive"
+          variant='destructive'
           onClick={async () => {
             if (!isHeader) {
               toast.promise(deletePharmaBrand(id as string), {
@@ -101,7 +101,7 @@ function Menu({ id, ids, isHeader = false }: MenuProps) {
                 loading: 'Deleting pharma brand',
                 error(error) {
                   const { message } = catchErrors(error as Error);
-                  return <span className="text-destructive">{message}</span>;
+                  return <span className='text-destructive'>{message}</span>;
                 }
               });
             }
@@ -113,7 +113,7 @@ function Menu({ id, ids, isHeader = false }: MenuProps) {
                 success: MESSAGES.PHARMA_BRAND.BULK_DELETED,
                 error(error) {
                   const { message } = catchErrors(error as Error);
-                  return <span className="text-destructive">{message}</span>;
+                  return <span className='text-destructive'>{message}</span>;
                 }
               });
             }
@@ -146,25 +146,25 @@ export function TableCellViewer<T extends z.ZodType>(props: TCVProps<T>) {
   return (
     <Drawer direction={isMobile ? 'bottom' : 'right'}>
       <DrawerTrigger asChild onClick={e => e.currentTarget.blur()}>
-        <Button variant="link" className="text-foreground px-0 capitalize">
+        <Button variant='link' className='text-foreground px-0 capitalize'>
           {props.item.name}
         </Button>
       </DrawerTrigger>
       <DrawerContent>
         <DrawerHeader>
-          <DrawerTitle className="capitalize">{props.item.name}</DrawerTitle>
+          <DrawerTitle className='capitalize'>{props.item.name}</DrawerTitle>
           <DrawerDescription>
             Change the details for the selected department
           </DrawerDescription>
         </DrawerHeader>
         <Form {...form}>
           <form
-            id="pharma-brand-form"
+            id='pharma-brand-form'
             onSubmit={form.handleSubmit(handleSubmit)}
-            className="space-y-2 overflow-y-auto p-4 text-sm"
+            className='space-y-2 overflow-y-auto p-4 text-sm'
           >
             <FormField
-              name="name"
+              name='name'
               control={form.control}
               render={({ field }) => (
                 <FormItem>
@@ -172,9 +172,9 @@ export function TableCellViewer<T extends z.ZodType>(props: TCVProps<T>) {
                   <FormControl>
                     <Input
                       {...field}
-                      type="text"
-                      placeholder="Lipitor"
-                      className="capitalize"
+                      type='text'
+                      placeholder='Lipitor'
+                      className='capitalize'
                     />
                   </FormControl>
                   <FormMessage />
@@ -182,7 +182,7 @@ export function TableCellViewer<T extends z.ZodType>(props: TCVProps<T>) {
               )}
             />
             <FormField
-              name="description"
+              name='description'
               control={form.control}
               render={({ field }) => (
                 <FormItem>
@@ -190,7 +190,7 @@ export function TableCellViewer<T extends z.ZodType>(props: TCVProps<T>) {
                   <FormControl>
                     <Textarea
                       {...field}
-                      placeholder="Just a simple antibiotic..."
+                      placeholder='Just a simple antibiotic...'
                     />
                   </FormControl>
                   <FormMessage />
@@ -201,15 +201,15 @@ export function TableCellViewer<T extends z.ZodType>(props: TCVProps<T>) {
         </Form>
         <DrawerFooter>
           <Button
-            type="submit"
-            form="pharma-brand-form"
-            className="cursor-pointer"
+            type='submit'
+            form='pharma-brand-form'
+            className='cursor-pointer'
             disabled={form.formState.isLoading}
           >
             {form.formState.isLoading ? 'Saving...' : 'Save'}
           </Button>
           <DrawerClose asChild>
-            <Button variant="outline">Done</Button>
+            <Button variant='outline'>Done</Button>
           </DrawerClose>
         </DrawerFooter>
       </DrawerContent>
@@ -230,7 +230,7 @@ export default function Component(props: Props) {
         enableSorting: false,
         header: ({ table }) => (
           <Checkbox
-            aria-label="Select all"
+            aria-label='Select all'
             onCheckedChange={value => table.toggleAllPageRowsSelected(!!value)}
             checked={
               table.getIsAllPageRowsSelected() ||
@@ -240,7 +240,7 @@ export default function Component(props: Props) {
         ),
         cell: ({ row }) => (
           <Checkbox
-            aria-label="Select row"
+            aria-label='Select row'
             checked={row.getIsSelected()}
             onCheckedChange={value => row.toggleSelected(!!value)}
           />
@@ -283,7 +283,7 @@ export default function Component(props: Props) {
   );
 
   return (
-    <div className="flex h-full flex-col gap-8 lg:mx-auto lg:w-10/12">
+    <div className='flex h-full flex-col gap-8 lg:mx-auto lg:w-10/12'>
       {hasPermission(props.user.permissions, 'view:users') && (
         <DataTable
           columns={columns}

@@ -10,7 +10,7 @@ export function Separator(props: props) {
   return (
     <Root
       {...props}
-      data-slot="separator"
+      data-slot='separator'
       decorative={decorative}
       orientation={orientation}
       className={cn(

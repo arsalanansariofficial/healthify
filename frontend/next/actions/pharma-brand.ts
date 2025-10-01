@@ -1,13 +1,13 @@
 'use server';
 
-import z from 'zod';
 import { revalidatePath } from 'next/cache';
+import z from 'zod';
 
-import prisma from '@/lib/prisma';
-import { catchErrors } from '@/lib/utils';
-import { ROUTES } from '@/constants/routes';
 import { MESSAGES } from '@/constants/messages';
+import { ROUTES } from '@/constants/routes';
+import prisma from '@/lib/prisma';
 import { pharmaBrandSchema } from '@/lib/schemas';
+import { catchErrors } from '@/lib/utils';
 
 export async function deletePharmaBrand(id: string) {
   await prisma.pharmaBrand.delete({ where: { id } });
@@ -22,11 +22,11 @@ export async function deletePharmaBrands(ids: string[]) {
 export async function addPharmaBrand(data: z.infer<typeof pharmaBrandSchema>) {
   const result = pharmaBrandSchema.safeParse(data);
   if (!result.success)
-    return { success: false, message: MESSAGES.SYSTEM.INVALID_INPUTS };
+    return { message: MESSAGES.SYSTEM.INVALID_INPUTS, success: false };
 
   try {
     await prisma.pharmaBrand.create({ data: { ...result.data } });
-    return { success: true, message: MESSAGES.PHARMA_BRAND.ADDED };
+    return { message: MESSAGES.PHARMA_BRAND.ADDED, success: true };
   } catch (error) {
     return catchErrors(error as Error);
   }
@@ -38,15 +38,15 @@ export async function updatePharmaBrand(
 ) {
   const result = pharmaBrandSchema.safeParse(data);
   if (!result.success)
-    return { success: false, message: MESSAGES.SYSTEM.INVALID_INPUTS };
+    return { message: MESSAGES.SYSTEM.INVALID_INPUTS, success: false };
 
   try {
     await prisma.pharmaBrand.update({
-      where: { id },
-      data: { ...result.data }
+      data: { ...result.data },
+      where: { id }
     });
     revalidatePath(ROUTES.HOME);
-    return { success: true, message: MESSAGES.PHARMA_BRAND.UPDATED };
+    return { message: MESSAGES.PHARMA_BRAND.UPDATED, success: true };
   } catch (error) {
     return catchErrors(error as Error);
   }

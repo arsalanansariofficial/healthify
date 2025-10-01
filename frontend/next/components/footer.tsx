@@ -1,9 +1,9 @@
-import Link from 'next/link';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faGithub } from '@fortawesome/free-brands-svg-icons/faGithub';
-import { faEnvelope } from '@fortawesome/free-solid-svg-icons/faEnvelope';
 import { faLinkedin } from '@fortawesome/free-brands-svg-icons/faLinkedin';
 import { faWhatsapp } from '@fortawesome/free-brands-svg-icons/faWhatsapp';
+import { faEnvelope } from '@fortawesome/free-solid-svg-icons/faEnvelope';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import Link from 'next/link';
 
 import { SOCIAL } from '@/lib/constants';
 

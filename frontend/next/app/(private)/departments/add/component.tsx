@@ -1,16 +1,11 @@
 'use client';
 
-import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { useForm } from 'react-hook-form';
 
-import Footer from '@/components/footer';
-import { addDepartment } from '@/lib/actions';
-import { Input } from '@/components/ui/input';
-import { Button } from '@/components/ui/button';
-import useHookForm from '@/hooks/use-hook-form';
-import { departmentSchema } from '@/lib/schemas';
 import handler from '@/components/display-toast';
-
+import Footer from '@/components/footer';
+import { Button } from '@/components/ui/button';
 import {
   Card,
   CardTitle,
@@ -19,7 +14,6 @@ import {
   CardContent,
   CardDescription
 } from '@/components/ui/card';
-
 import {
   Form,
   FormItem,
@@ -28,14 +22,18 @@ import {
   FormMessage,
   FormControl
 } from '@/components/ui/form';
+import { Input } from '@/components/ui/input';
+import useHookForm from '@/hooks/use-hook-form';
+import { addDepartment } from '@/lib/actions';
+import { departmentSchema } from '@/lib/schemas';
 
 export default function Component() {
   const { handleSubmit } = useHookForm(handler, addDepartment);
   const form = useForm({
-    resolver: zodResolver(departmentSchema),
     defaultValues: {
       name: String()
-    }
+    },
+    resolver: zodResolver(departmentSchema)
   });
 
   return (

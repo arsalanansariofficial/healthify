@@ -1,28 +1,13 @@
 'use client';
 
-import z from 'zod';
+import { zodResolver } from '@hookform/resolvers/zod';
 import { User } from 'next-auth';
 import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
+import z from 'zod';
 
-import Footer from '@/components/footer';
-import { assignRoles } from '@/lib/actions';
-import { Input } from '@/components/ui/input';
-import { userRolesSchema } from '@/lib/schemas';
-import { Button } from '@/components/ui/button';
-import useHookForm from '@/hooks/use-hook-form';
 import handler from '@/components/display-toast';
-import MultiSelect from '@/components/ui/multi-select';
-
-import {
-  Form,
-  FormItem,
-  FormField,
-  FormLabel,
-  FormControl,
-  FormMessage
-} from '@/components/ui/form';
-
+import Footer from '@/components/footer';
+import { Button } from '@/components/ui/button';
 import {
   Card,
   CardTitle,
@@ -31,15 +16,28 @@ import {
   CardContent,
   CardDescription
 } from '@/components/ui/card';
+import {
+  Form,
+  FormItem,
+  FormField,
+  FormLabel,
+  FormControl,
+  FormMessage
+} from '@/components/ui/form';
+import { Input } from '@/components/ui/input';
+import MultiSelect from '@/components/ui/multi-select';
+import useHookForm from '@/hooks/use-hook-form';
+import { assignRoles } from '@/lib/actions';
+import { userRolesSchema } from '@/lib/schemas';
 
 export default function Component({
-  user,
-  roles
+  roles,
+  user
 }: {
   user: User;
   roles: { label: string; value: string }[];
 }) {
-  const { pending, handleSubmit } = useHookForm(
+  const { handleSubmit, pending } = useHookForm(
     handler,
     assignRoles.bind(null, user.id as string) as (
       data: z.infer<typeof userRolesSchema>
@@ -48,12 +46,12 @@ export default function Component({
   );
 
   const form = useForm({
-    resolver: zodResolver(userRolesSchema),
     defaultValues: {
-      name: user.name as string,
       email: user.email as string,
+      name: user.name as string,
       roles: user.roles?.map(r => r.id) || []
-    }
+    },
+    resolver: zodResolver(userRolesSchema)
   });
 
   return (

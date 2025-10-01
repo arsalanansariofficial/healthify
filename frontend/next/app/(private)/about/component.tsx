@@ -1,24 +1,16 @@
 'use client';
 
-import { toast } from 'sonner';
-import remarkGfm from 'remark-gfm';
-import { useCallback } from 'react';
+import { zodResolver } from '@hookform/resolvers/zod';
 import { User } from '@prisma/client';
+import { useCallback } from 'react';
 import { useForm } from 'react-hook-form';
 import ReactMarkdown from 'react-markdown';
 import rehypeHighlight from 'rehype-highlight';
-import { zodResolver } from '@hookform/resolvers/zod';
+import remarkGfm from 'remark-gfm';
+import { toast } from 'sonner';
 
-import { getDate } from '@/lib/utils';
-import { updateBio } from '@/lib/actions';
-import { bioSchema } from '@/lib/schemas';
-import { Button } from '@/components/ui/button';
-import useHookForm from '@/hooks/use-hook-form';
 import handler from '@/components/display-toast';
-import { Textarea } from '@/components/ui/textarea';
-import { Form, FormItem, FormField, FormControl } from '@/components/ui/form';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-
+import { Button } from '@/components/ui/button';
 import {
   Card,
   CardTitle,
@@ -26,6 +18,13 @@ import {
   CardAction,
   CardDescription
 } from '@/components/ui/card';
+import { Form, FormItem, FormField, FormControl } from '@/components/ui/form';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Textarea } from '@/components/ui/textarea';
+import useHookForm from '@/hooks/use-hook-form';
+import { updateBio } from '@/lib/actions';
+import { bioSchema } from '@/lib/schemas';
+import { getDate } from '@/lib/utils';
 
 type NewType = { user: Pick<User, 'id' | 'bio' | 'name'> };
 
@@ -39,16 +38,16 @@ export default function Component({ user }: NewType) {
   );
 
   const userForm = useForm({
-    resolver: zodResolver(bioSchema),
-    defaultValues: { bio: user.bio || String() }
+    defaultValues: { bio: user.bio || String() },
+    resolver: zodResolver(bioSchema)
   });
 
   const onError = useCallback(
     (errors: typeof userForm.formState.errors): void => {
       if (errors.bio?.message) {
         toast(<h2 className='text-destructive'>{errors.bio.message}</h2>, {
-          position: 'top-center',
-          description: <p className='text-destructive'>{getDate()}</p>
+          description: <p className='text-destructive'>{getDate()}</p>,
+          position: 'top-center'
         });
       }
     },

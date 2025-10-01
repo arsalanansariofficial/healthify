@@ -1,7 +1,7 @@
 import Link from 'next/link';
 
-import { ROUTES } from '@/lib/constants';
 import { Button } from '@/components/ui/button';
+import { ROUTES } from '@/lib/constants';
 
 export default async function Page({
   searchParams

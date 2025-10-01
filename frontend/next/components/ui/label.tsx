@@ -1,7 +1,8 @@
 'use client';
 
-import { cn } from '@/lib/utils';
 import { Root } from '@radix-ui/react-label';
+
+import { cn } from '@/lib/utils';
 
 export function Label(props: React.ComponentProps<typeof Root>) {
   return (

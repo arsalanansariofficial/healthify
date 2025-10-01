@@ -1,8 +1,8 @@
 import { notFound } from 'next/navigation';
 
+import Component from '@/app/(private)/memberships/component';
 import { auth } from '@/auth';
 import prisma from '@/lib/prisma';
-import Component from '@/app/(private)/memberships/component';
 
 export default async function Page() {
   const session = await auth();

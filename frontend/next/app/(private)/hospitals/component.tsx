@@ -1,62 +1,21 @@
 'use client';
 
-import z from 'zod';
-import { toast } from 'sonner';
-import { useMemo } from 'react';
-import { User } from 'next-auth';
-import { useForm } from 'react-hook-form';
-import { ColumnDef } from '@tanstack/react-table';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { IconDotsVertical } from '@tabler/icons-react';
 import { Hospital, User as PrismaUser } from '@prisma/client';
+import { IconDotsVertical } from '@tabler/icons-react';
+import { ColumnDef } from '@tanstack/react-table';
+import { User } from 'next-auth';
+import { useMemo } from 'react';
+import { useForm } from 'react-hook-form';
+import { toast } from 'sonner';
+import z from 'zod';
 
-import Footer from '@/components/footer';
-import { MESSAGES } from '@/lib/constants';
-import { Input } from '@/components/ui/input';
-import { Badge } from '@/components/ui/badge';
-import { hospitalSchema } from '@/lib/schemas';
-import { Button } from '@/components/ui/button';
-import { Switch } from '@/components/ui/switch';
-import useHookForm from '@/hooks/use-hook-form';
-import { useIsMobile } from '@/hooks/use-mobile';
 import handler from '@/components/display-toast';
+import Footer from '@/components/footer';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
-import { Textarea } from '@/components/ui/textarea';
-import MultiSelect from '@/components/ui/multi-select';
 import { DragHandle, DataTable } from '@/components/ui/data-table';
-import { capitalize, catchErrors, getDate, hasPermission } from '@/lib/utils';
-
-import {
-  verifyEmail,
-  updateHospital,
-  deleteHospital,
-  deleteHospitals
-} from '@/lib/actions';
-
-import {
-  Form,
-  FormItem,
-  FormField,
-  FormLabel,
-  FormMessage,
-  FormControl
-} from '@/components/ui/form';
-
-import {
-  Select,
-  SelectItem,
-  SelectValue,
-  SelectContent,
-  SelectTrigger
-} from '@/components/ui/select';
-
-import {
-  DropdownMenu,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-  DropdownMenuContent
-} from '@/components/ui/dropdown-menu';
-
 import {
   Drawer,
   DrawerClose,
@@ -67,6 +26,42 @@ import {
   DrawerTrigger,
   DrawerDescription
 } from '@/components/ui/drawer';
+import {
+  DropdownMenu,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+  DropdownMenuContent
+} from '@/components/ui/dropdown-menu';
+import {
+  Form,
+  FormItem,
+  FormField,
+  FormLabel,
+  FormMessage,
+  FormControl
+} from '@/components/ui/form';
+import { Input } from '@/components/ui/input';
+import MultiSelect from '@/components/ui/multi-select';
+import {
+  Select,
+  SelectItem,
+  SelectValue,
+  SelectContent,
+  SelectTrigger
+} from '@/components/ui/select';
+import { Switch } from '@/components/ui/switch';
+import { Textarea } from '@/components/ui/textarea';
+import useHookForm from '@/hooks/use-hook-form';
+import { useIsMobile } from '@/hooks/use-mobile';
+import {
+  verifyEmail,
+  updateHospital,
+  deleteHospital,
+  deleteHospitals
+} from '@/lib/actions';
+import { MESSAGES } from '@/lib/constants';
+import { hospitalSchema } from '@/lib/schemas';
+import { capitalize, catchErrors, getDate, hasPermission } from '@/lib/utils';
 
 function Menu({
   id,
@@ -100,25 +95,25 @@ function Menu({
           onClick={async () => {
             if (!isHeader) {
               toast.promise(deleteHospital(id as string), {
-                position: 'top-center',
-                loading: 'Deleting hospital',
-                success: MESSAGES.HOSPITAL.DELETED,
                 error(error) {
                   const { message } = catchErrors(error as Error);
                   return <span className='text-destructive'>{message}</span>;
-                }
+                },
+                loading: 'Deleting hospital',
+                position: 'top-center',
+                success: MESSAGES.HOSPITAL.DELETED
               });
             }
 
             if (isHeader) {
               toast.promise(deleteHospitals(ids as string[]), {
-                position: 'top-center',
-                loading: 'Deleting users',
-                success: MESSAGES.HOSPITAL.BULK_DELETED,
                 error(error) {
                   const { message } = catchErrors(error as Error);
                   return <span className='text-destructive'>{message}</span>;
-                }
+                },
+                loading: 'Deleting users',
+                position: 'top-center',
+                success: MESSAGES.HOSPITAL.BULK_DELETED
               });
             }
           }}
@@ -136,16 +131,16 @@ export function TableCellViewer<T extends z.ZodType>(props: {
 }) {
   const isMobile = useIsMobile();
   const form = useForm({
-    resolver: zodResolver(hospitalSchema),
     defaultValues: {
-      name: props.item.name,
-      city: props.item.city,
-      email: props.item.email,
-      phone: props.item.phone,
       address: props.item.address,
+      city: props.item.city,
+      doctors: props.item.doctors.map((d: PrismaUser) => d.id),
+      email: props.item.email,
       isAffiliated: props.item.isAffiliated ? 'yes' : 'no',
-      doctors: props.item.doctors.map((d: PrismaUser) => d.id)
-    }
+      name: props.item.name,
+      phone: props.item.phone
+    },
+    resolver: zodResolver(hospitalSchema)
   });
 
   const { handleSubmit } = useHookForm(
@@ -301,8 +296,8 @@ export function TableCellViewer<T extends z.ZodType>(props: {
                       selectedValues={field.value}
                       setSelectedValues={field.onChange}
                       options={props.users.map(u => ({
-                        value: u.id,
-                        label: u.name || String()
+                        label: u.name || String(),
+                        value: u.id
                       }))}
                     />
                   </FormControl>
@@ -349,11 +344,17 @@ export default function Component(props: {
   >(
     () => [
       {
-        id: 'drag',
-        cell: ({ row }) => <DragHandle id={row.original.id} />
+        cell: ({ row }) => <DragHandle id={row.original.id} />,
+        id: 'drag'
       },
       {
-        id: 'select',
+        cell: ({ row }) => (
+          <Checkbox
+            aria-label='Select row'
+            checked={row.getIsSelected()}
+            onCheckedChange={value => row.toggleSelected(!!value)}
+          />
+        ),
         enableHiding: false,
         enableSorting: false,
         header: ({ table }) => (
@@ -366,17 +367,9 @@ export default function Component(props: {
             }
           />
         ),
-        cell: ({ row }) => (
-          <Checkbox
-            aria-label='Select row'
-            checked={row.getIsSelected()}
-            onCheckedChange={value => row.toggleSelected(!!value)}
-          />
-        )
+        id: 'select'
       },
       {
-        header: 'Name',
-        enableHiding: false,
         accessorKey: 'name',
         cell: ({ row }) => (
           <TableCellViewer
@@ -384,20 +377,21 @@ export default function Component(props: {
             users={props.users}
             item={props.hospitals.find(h => h.email === row.original.email)}
           />
-        )
+        ),
+        enableHiding: false,
+        header: 'Name'
       },
       {
-        header: 'Email',
         accessorKey: 'email',
         cell: ({ row }) => (
           <Badge variant='outline' className='text-muted-foreground'>
             {row.original.email}
           </Badge>
-        )
+        ),
+        header: 'Email'
       },
       {
         accessorKey: 'isAffiliated',
-        header: () => <div className='flex justify-center'>Affliated</div>,
         cell: ({ row }) => (
           <Switch
             disabled
@@ -411,30 +405,30 @@ export default function Component(props: {
             }
             onCheckedChange={async () =>
               toast.promise(verifyEmail(row.original.email), {
-                success: 'Done',
-                position: 'top-center',
-                loading: 'Verifying Email',
                 error(error) {
                   const { message } = catchErrors(error as Error);
                   return <span className='text-destructive'>{message}</span>;
-                }
+                },
+                loading: 'Verifying Email',
+                position: 'top-center',
+                success: 'Done'
               })
             }
           />
-        )
+        ),
+        header: () => <div className='flex justify-center'>Affliated</div>
       },
       {
         accessorKey: 'city',
-        header: () => <div>City</div>,
-        cell: ({ row }) => capitalize(row.original.city || String())
+        cell: ({ row }) => capitalize(row.original.city || String()),
+        header: () => <div>City</div>
       },
       {
         accessorKey: 'createdAt',
-        header: () => <div>Created At</div>,
-        cell: ({ row }) => getDate(row.original.createdAt)
+        cell: ({ row }) => getDate(row.original.createdAt),
+        header: () => <div>Created At</div>
       },
       {
-        id: 'actions',
         cell: ({ row }) => (
           <Menu isHeader={false} id={row.original.id.toString()} />
         ),
@@ -447,7 +441,8 @@ export default function Component(props: {
                 .rows.map(r => r.original.id.toString())}
             />
           );
-        }
+        },
+        id: 'actions'
       }
     ],
     [props.hospitals, props.users]

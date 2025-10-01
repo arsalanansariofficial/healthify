@@ -1,8 +1,4 @@
-import { titleCase } from 'moderndash';
-import { twMerge } from 'tailwind-merge';
-import { AuthError, User } from 'next-auth';
 import { clsx, type ClassValue } from 'clsx';
-
 import {
   parse,
   format,
@@ -11,6 +7,9 @@ import {
   setMinutes,
   setSeconds
 } from 'date-fns';
+import { titleCase } from 'moderndash';
+import { AuthError, User } from 'next-auth';
+import { twMerge } from 'tailwind-merge';
 
 import { MESSAGES, SMTP } from '@/lib/constants';
 
@@ -100,9 +99,9 @@ export function catchAuthError(error: Error) {
   if (error instanceof AuthError) {
     switch (error.type) {
       case 'CredentialsSignin':
-        return { success: false, message: MESSAGES.AUTH.INVALID_CREDENTIALS };
+        return { message: MESSAGES.AUTH.INVALID_CREDENTIALS, success: false };
       default:
-        return { success: false, message: MESSAGES.SYSTEM.SERVER_ERROR };
+        return { message: MESSAGES.SYSTEM.SERVER_ERROR, success: false };
     }
   }
 
@@ -111,33 +110,33 @@ export function catchAuthError(error: Error) {
 
 export function catchErrors(error: Error) {
   if (error.name === 'PrismaClientKnownRequestError') {
-    return { success: false, message: MESSAGES.SYSTEM.UNIQUE_ERROR };
+    return { message: MESSAGES.SYSTEM.UNIQUE_ERROR, success: false };
   }
 
   if (error.name === 'PrismaClientInitializationError') {
-    return { success: false, message: MESSAGES.SYSTEM.PRISMA_INIT_FAILED };
+    return { message: MESSAGES.SYSTEM.PRISMA_INIT_FAILED, success: false };
   }
 
   if (error instanceof Error && 'code' in error) {
     switch (error.code) {
       case 'ETIMEDOUT':
-        return { success: false, message: SMTP.ERRORS.TIMEOUT };
+        return { message: SMTP.ERRORS.TIMEOUT, success: false };
       case 'EAUTH':
-        return { success: false, message: SMTP.ERRORS.AUTH_FAILED };
+        return { message: SMTP.ERRORS.AUTH_FAILED, success: false };
       case 'ENOENT':
-        return { success: false, message: MESSAGES.FILE.NOT_FOUND };
+        return { message: MESSAGES.FILE.NOT_FOUND, success: false };
       case 'ENOSPC':
-        return { success: false, message: MESSAGES.FILE.SPACE_FULL };
+        return { message: MESSAGES.FILE.SPACE_FULL, success: false };
       case 'ECONNECTION':
-        return { success: false, message: SMTP.ERRORS.CONNECT_FAILED };
+        return { message: SMTP.ERRORS.CONNECT_FAILED, success: false };
       case 'EDNS':
-        return { success: false, message: MESSAGES.USER.EMAIL_BOUNCED };
+        return { message: MESSAGES.USER.EMAIL_BOUNCED, success: false };
       case 'EACCES':
-        return { success: false, message: MESSAGES.FILE.PERMISSION_DENIED };
+        return { message: MESSAGES.FILE.PERMISSION_DENIED, success: false };
     }
   }
 
-  return { success: false, message: error.message };
+  return { message: error.message, success: false };
 }
 
 export function hasFormChanged<T extends Record<string, unknown>>(

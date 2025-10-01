@@ -1,17 +1,11 @@
 'use client';
 
-import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { useForm } from 'react-hook-form';
 
-import Footer from '@/components/footer';
-import { addPharmaCode } from '@/lib/actions';
-import { Input } from '@/components/ui/input';
-import { Button } from '@/components/ui/button';
-import useHookForm from '@/hooks/use-hook-form';
-import { pharmaCodeSchema } from '@/lib/schemas';
 import handler from '@/components/display-toast';
-import { Textarea } from '@/components/ui/textarea';
-
+import Footer from '@/components/footer';
+import { Button } from '@/components/ui/button';
 import {
   Card,
   CardTitle,
@@ -20,7 +14,6 @@ import {
   CardContent,
   CardDescription
 } from '@/components/ui/card';
-
 import {
   Form,
   FormItem,
@@ -29,16 +22,21 @@ import {
   FormMessage,
   FormControl
 } from '@/components/ui/form';
+import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
+import useHookForm from '@/hooks/use-hook-form';
+import { addPharmaCode } from '@/lib/actions';
+import { pharmaCodeSchema } from '@/lib/schemas';
 
 export default function Component() {
   const { handleSubmit } = useHookForm(handler, addPharmaCode);
   const form = useForm({
-    resolver: zodResolver(pharmaCodeSchema),
     defaultValues: {
-      frequency: 1,
       code: String(),
-      description: String()
-    }
+      description: String(),
+      frequency: 1
+    },
+    resolver: zodResolver(pharmaCodeSchema)
   });
 
   return (

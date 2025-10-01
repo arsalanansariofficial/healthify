@@ -1,31 +1,16 @@
 'use client';
 
-import z from 'zod';
-import Link from 'next/link';
-import { toast } from 'sonner';
-import { useState } from 'react';
-import { signIn } from 'next-auth/react';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faGithub } from '@fortawesome/free-brands-svg-icons/faGithub';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { signIn } from 'next-auth/react';
+import Link from 'next/link';
+import { useState } from 'react';
+import { useForm } from 'react-hook-form';
+import { toast } from 'sonner';
+import z from 'zod';
 
-import { getDate } from '@/lib/utils';
-import { signup } from '@/lib/actions';
-import { ROUTES } from '@/lib/constants';
-import { signupSchema } from '@/lib/schemas';
-import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-
-import {
-  Form,
-  FormItem,
-  FormField,
-  FormLabel,
-  FormControl,
-  FormMessage
-} from '@/components/ui/form';
-
 import {
   Card,
   CardTitle,
@@ -35,13 +20,26 @@ import {
   CardContent,
   CardDescription
 } from '@/components/ui/card';
+import {
+  Form,
+  FormItem,
+  FormField,
+  FormLabel,
+  FormControl,
+  FormMessage
+} from '@/components/ui/form';
+import { Input } from '@/components/ui/input';
+import { signup } from '@/lib/actions';
+import { ROUTES } from '@/lib/constants';
+import { signupSchema } from '@/lib/schemas';
+import { getDate } from '@/lib/utils';
 
 export default function Component() {
   const [pending, setPending] = useState(false);
 
   const form = useForm({
-    resolver: zodResolver(signupSchema),
-    defaultValues: { name: String(), email: String(), password: String() }
+    defaultValues: { email: String(), name: String(), password: String() },
+    resolver: zodResolver(signupSchema)
   });
 
   async function handleSubmit(data: z.infer<typeof signupSchema>) {
@@ -50,15 +48,15 @@ export default function Component() {
 
     if (result?.success) {
       toast(result.message, {
-        position: 'top-center',
-        description: <span className='text-foreground'>{getDate()}</span>
+        description: <span className='text-foreground'>{getDate()}</span>,
+        position: 'top-center'
       });
     }
 
     if (!result?.success && result?.message) {
       toast(<h2 className='text-destructive'>{result?.message}</h2>, {
-        position: 'top-center',
-        description: <p className='text-destructive'>{getDate()}</p>
+        description: <p className='text-destructive'>{getDate()}</p>,
+        position: 'top-center'
       });
     }
 

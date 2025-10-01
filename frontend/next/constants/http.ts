@@ -6,8 +6,8 @@ export const HTTP_MESSAGES = {
 } as const;
 
 export const HTTP_STATUS = {
-  OK: env('OK', 200),
-  CREATED: env('CREATED', 201),
   BAD_REQUEST: env('BAD_REQUEST', 400),
+  CREATED: env('CREATED', 201),
+  OK: env('OK', 200),
   SERVER_ERROR: env('SERVER_ERROR', 500)
 } as const;

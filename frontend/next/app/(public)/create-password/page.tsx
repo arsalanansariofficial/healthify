@@ -1,11 +1,8 @@
 import Link from 'next/link';
 import { Suspense } from 'react';
 
-import { ROUTES } from '@/lib/constants';
-import { verifyToken } from '@/lib/actions';
-import { Button } from '@/components/ui/button';
 import Component from '@/app/(public)/create-password/component';
-
+import { Button } from '@/components/ui/button';
 import {
   Card,
   CardTitle,
@@ -13,6 +10,8 @@ import {
   CardHeader,
   CardDescription
 } from '@/components/ui/card';
+import { verifyToken } from '@/lib/actions';
+import { ROUTES } from '@/lib/constants';
 
 function ErrorCard({ message }: { message: string }) {
   return (
@@ -33,7 +32,7 @@ function ErrorCard({ message }: { message: string }) {
 }
 
 async function Verify({ token }: { token: string }) {
-  const { email, success, message } = await verifyToken(token);
+  const { email, message, success } = await verifyToken(token);
 
   return (
     <section className='col-span-2 grid place-items-center place-self-center'>

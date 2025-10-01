@@ -1,30 +1,5 @@
 'use client';
 
-import { z } from 'zod';
-import { format } from 'date-fns';
-import { CSS } from '@dnd-kit/utilities';
-import { useDebounce } from 'use-debounce';
-import { CalendarIcon } from 'lucide-react';
-import { restrictToVerticalAxis } from '@dnd-kit/modifiers';
-import React, { useId, useState, useMemo, useEffect } from 'react';
-
-import {
-  arrayMove,
-  useSortable,
-  SortableContext,
-  verticalListSortingStrategy
-} from '@dnd-kit/sortable';
-
-import {
-  IconChevronDown,
-  IconChevronLeft,
-  IconGripVertical,
-  IconChevronsLeft,
-  IconChevronRight,
-  IconLayoutColumns,
-  IconChevronsRight
-} from '@tabler/icons-react';
-
 import {
   useSensor,
   DndContext,
@@ -36,7 +11,23 @@ import {
   type DragEndEvent,
   type UniqueIdentifier
 } from '@dnd-kit/core';
-
+import { restrictToVerticalAxis } from '@dnd-kit/modifiers';
+import {
+  arrayMove,
+  useSortable,
+  SortableContext,
+  verticalListSortingStrategy
+} from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
+import {
+  IconChevronDown,
+  IconChevronLeft,
+  IconGripVertical,
+  IconChevronsLeft,
+  IconChevronRight,
+  IconLayoutColumns,
+  IconChevronsRight
+} from '@tabler/icons-react';
 import {
   type Row,
   flexRender,
@@ -52,21 +43,35 @@ import {
   getFacetedUniqueValues,
   type ColumnFiltersState
 } from '@tanstack/react-table';
+import { format } from 'date-fns';
+import { CalendarIcon } from 'lucide-react';
+import React, { useId, useState, useMemo, useEffect } from 'react';
+import { useDebounce } from 'use-debounce';
+import { z } from 'zod';
 
-import { getDate } from '@/lib/utils';
-import { Label } from '@/components/ui/label';
-import { Input } from '@/components/ui/input';
+import { TimePicker } from '@/components/time-picker';
 import { Button } from '@/components/ui/button';
 import { Calendar } from '@/components/ui/calendar';
-import { TimePicker } from '@/components/time-picker';
-import { Tabs, TabsContent } from '@/components/ui/tabs';
-
+import {
+  DropdownMenu,
+  DropdownMenuTrigger,
+  DropdownMenuContent,
+  DropdownMenuCheckboxItem
+} from '@/components/ui/dropdown-menu';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import {
   Popover,
   PopoverContent,
   PopoverTrigger
 } from '@/components/ui/popover';
-
+import {
+  Select,
+  SelectItem,
+  SelectValue,
+  SelectTrigger,
+  SelectContent
+} from '@/components/ui/select';
 import {
   Table,
   TableRow,
@@ -75,21 +80,8 @@ import {
   TableCell,
   TableHeader
 } from '@/components/ui/table';
-
-import {
-  Select,
-  SelectItem,
-  SelectValue,
-  SelectTrigger,
-  SelectContent
-} from '@/components/ui/select';
-
-import {
-  DropdownMenu,
-  DropdownMenuTrigger,
-  DropdownMenuContent,
-  DropdownMenuCheckboxItem
-} from '@/components/ui/dropdown-menu';
+import { Tabs, TabsContent } from '@/components/ui/tabs';
+import { getDate } from '@/lib/utils';
 
 type DraggableRowProps<T extends z.ZodType> = { row: Row<z.infer<T>> };
 
@@ -122,7 +114,7 @@ export function DragHandle({ id }: { id: number }) {
 
 export function DraggableRow<T extends z.ZodType>(props: DraggableRowProps<T>) {
   const { row } = props;
-  const { transform, transition, setNodeRef, isDragging } = useSortable({
+  const { isDragging, setNodeRef, transform, transition } = useSortable({
     id: row.original.id
   });
 
@@ -174,28 +166,28 @@ export function DataTable<T extends z.ZodType>(props: DataTableProps<T>) {
   );
 
   const table = useReactTable({
-    data,
     columns: props.columns,
-    state: {
-      sorting,
-      pagination,
-      rowSelection,
-      columnFilters,
-      columnVisibility
-    },
+    data,
     enableRowSelection: true,
-    onSortingChange: setSorting,
-    onPaginationChange: setPagination,
-    getRowId: row => row.id.toString(),
-    onRowSelectionChange: setRowSelection,
     getCoreRowModel: getCoreRowModel(),
-    onColumnFiltersChange: setColumnFilters,
-    getSortedRowModel: getSortedRowModel(),
     getFacetedRowModel: getFacetedRowModel(),
-    onColumnVisibilityChange: setColumnVisibility,
+    getFacetedUniqueValues: getFacetedUniqueValues(),
     getFilteredRowModel: getFilteredRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
-    getFacetedUniqueValues: getFacetedUniqueValues()
+    getRowId: row => row.id.toString(),
+    getSortedRowModel: getSortedRowModel(),
+    onColumnFiltersChange: setColumnFilters,
+    onColumnVisibilityChange: setColumnVisibility,
+    onPaginationChange: setPagination,
+    onRowSelectionChange: setRowSelection,
+    onSortingChange: setSorting,
+    state: {
+      columnFilters,
+      columnVisibility,
+      pagination,
+      rowSelection,
+      sorting
+    }
   });
 
   const [filterValues, setFilterValues] = useState(() =>

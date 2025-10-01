@@ -2,19 +2,8 @@ import { User } from 'next-auth';
 import { notFound } from 'next/navigation';
 
 import { auth } from '@/auth';
-import prisma from '@/lib/prisma';
 import Chart from '@/components/chart';
 import Footer from '@/components/footer';
-import { hasPermission } from '@/lib/utils';
-import { ChartConfig } from '@/components/ui/chart';
-
-import {
-  getDashboardCards,
-  getMonthlyUserData,
-  getUserDashboardCards,
-  getMonthlyAppointmentData
-} from '@/lib/actions';
-
 import {
   Card,
   CardTitle,
@@ -24,13 +13,22 @@ import {
   CardContent,
   CardDescription
 } from '@/components/ui/card';
+import { ChartConfig } from '@/components/ui/chart';
+import {
+  getDashboardCards,
+  getMonthlyUserData,
+  getUserDashboardCards,
+  getMonthlyAppointmentData
+} from '@/lib/actions';
+import prisma from '@/lib/prisma';
+import { hasPermission } from '@/lib/utils';
 
 const chartConfig = {
-  users: { label: 'Users', color: 'var(--primary)' }
+  users: { color: 'var(--primary)', label: 'Users' }
 } satisfies ChartConfig;
 
 const userChartConfig = {
-  appointments: { label: 'Appointments', color: 'var(--primary)' }
+  appointments: { color: 'var(--primary)', label: 'Appointments' }
 } satisfies ChartConfig;
 
 export default async function Page() {

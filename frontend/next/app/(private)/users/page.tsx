@@ -1,13 +1,13 @@
 import { User } from 'next-auth';
 
-import { auth } from '@/auth';
-import prisma from '@/lib/prisma';
-import { ChartConfig } from '@/components/ui/chart';
 import Component from '@/app/(private)/users/component';
+import { auth } from '@/auth';
+import { ChartConfig } from '@/components/ui/chart';
 import { getDashboardCards, getMonthlyUserData } from '@/lib/actions';
+import prisma from '@/lib/prisma';
 
 const chartConfig = {
-  users: { label: 'Users', color: 'var(--primary)' }
+  users: { color: 'var(--primary)', label: 'Users' }
 } satisfies ChartConfig;
 
 export default async function Page() {

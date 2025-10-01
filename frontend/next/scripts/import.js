@@ -1,7 +1,7 @@
+import { execSync } from 'child_process';
+import dotenv from 'dotenv';
 import fs from 'fs';
 import path from 'path';
-import dotenv from 'dotenv';
-import { execSync } from 'child_process';
 
 dotenv.config();
 

@@ -1,9 +1,9 @@
 import { notFound } from 'next/navigation';
 
-import { auth } from '@/auth';
-import prisma from '@/lib/prisma';
-import { ROLES } from '@/lib/constants';
 import Component from '@/app/(private)/memberships/[slug]/subscribe/component';
+import { auth } from '@/auth';
+import { ROLES } from '@/lib/constants';
+import prisma from '@/lib/prisma';
 
 export default async function Page({
   params
@@ -17,8 +17,8 @@ export default async function Page({
   if (!slug) notFound();
 
   const membership = await prisma.membership.findUnique({
-    where: { id: slug },
-    include: { fees: true }
+    include: { fees: true },
+    where: { id: slug }
   });
 
   if (!membership) notFound();

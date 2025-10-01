@@ -1,17 +1,17 @@
 'use server';
 
-import z from 'zod';
 import bcrypt from 'bcrypt-mini';
+import z from 'zod';
 
-import { signIn } from '@/auth';
-import prisma from '@/lib/prisma';
-import { ROLES } from '@/constants/roles';
 import { sendEmail } from '@/actions/email';
-import { MESSAGES } from '@/constants/messages';
-import { DATES, DOMAIN, ROUTES } from '@/lib/constants';
-import { catchAuthError, catchErrors } from '@/lib/utils';
-import { loginSchema, signupSchema } from '@/lib/schemas';
+import { signIn } from '@/auth';
 import { VerifyEmail } from '@/components/email/account/email';
+import { MESSAGES } from '@/constants/messages';
+import { ROLES } from '@/constants/roles';
+import { DATES, DOMAIN, ROUTES } from '@/lib/constants';
+import prisma from '@/lib/prisma';
+import { loginSchema, signupSchema } from '@/lib/schemas';
+import { catchAuthError, catchErrors } from '@/lib/utils';
 
 export async function generateToken(userId: string) {
   return await prisma.$transaction(async function (transaction) {
@@ -19,8 +19,8 @@ export async function generateToken(userId: string) {
     if (token) await transaction.token.delete({ where: { userId } });
     return await transaction.token.create({
       data: {
-        userId,
-        expires: new Date(Date.now() + (DATES.EXPIRES_AT as number) * 1000)
+        expires: new Date(Date.now() + (DATES.EXPIRES_AT as number) * 1000),
+        userId
       }
     });
   });
@@ -34,14 +34,14 @@ export async function loginWithCredentials(
     const user = await prisma.user.findUnique({ where: { email } });
 
     if (!user) {
-      return { success: false, message: MESSAGES.USER.EMAIL_NOT_FOUND };
+      return { message: MESSAGES.USER.EMAIL_NOT_FOUND, success: false };
     }
 
     if (!user.emailVerified) {
       const token = await generateToken(user.id as string);
 
       if (!token) {
-        return { success: false, message: MESSAGES.AUTH.TOKEN_NOT_GENERATED };
+        return { message: MESSAGES.AUTH.TOKEN_NOT_GENERATED, success: false };
       }
 
       const html = VerifyEmail({ data: { token: token.id } });
@@ -49,10 +49,10 @@ export async function loginWithCredentials(
       const emailSent = await sendEmail(email, subject, html);
 
       if (!emailSent) {
-        return { success: false, message: MESSAGES.USER.EMAIL_BOUNCED };
+        return { message: MESSAGES.USER.EMAIL_BOUNCED, success: false };
       }
 
-      return { success: true, message: MESSAGES.USER.CONFIRM_EMAIL };
+      return { message: MESSAGES.USER.CONFIRM_EMAIL, success: true };
     }
 
     await signIn('credentials', {
@@ -74,7 +74,7 @@ export async function login(
 
   const result = loginSchema.safeParse({ email, password });
   if (!result.success)
-    return { success: false, message: MESSAGES.SYSTEM.INVALID_INPUTS };
+    return { message: MESSAGES.SYSTEM.INVALID_INPUTS, success: false };
 
   return await loginWithCredentials({ email, password }, redirectTo);
 }
@@ -85,7 +85,7 @@ export async function signup(
 ) {
   const result = signupSchema.safeParse(data);
   if (!result.success)
-    return { success: false, message: MESSAGES.SYSTEM.INVALID_INPUTS };
+    return { message: MESSAGES.SYSTEM.INVALID_INPUTS, success: false };
 
   try {
     const user = await prisma.user.findUnique({
@@ -93,7 +93,7 @@ export async function signup(
     });
 
     if (user)
-      return { success: false, message: MESSAGES.USER.EMAIL_REGISTERED };
+      return { message: MESSAGES.USER.EMAIL_REGISTERED, success: false };
 
     await prisma.$transaction(async function (transaction) {
       const role = await transaction.role.findUnique({
@@ -102,14 +102,14 @@ export async function signup(
 
       const user = await transaction.user.create({
         data: {
-          name: result.data.name,
           email: result.data.email,
+          name: result.data.name,
           password: bcrypt.hashSync(result.data.password as string, 10)
         }
       });
 
       await transaction.userRole.create({
-        data: { userId: user.id, roleId: role?.id as string }
+        data: { roleId: role?.id as string, userId: user.id }
       });
     });
   } catch (error) {

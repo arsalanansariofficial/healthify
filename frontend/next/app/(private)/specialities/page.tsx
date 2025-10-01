@@ -1,16 +1,15 @@
 import { User } from 'next-auth';
 
-import { auth } from '@/auth';
-import prisma from '@/lib/prisma';
-import { ROLES } from '@/lib/constants';
 import Component from '@/app/(private)/specialities/component';
+import { auth } from '@/auth';
+import { ROLES } from '@/lib/constants';
+import prisma from '@/lib/prisma';
 
 export default async function Page() {
   const [session, specialities, doctors] = await Promise.all([
     auth(),
     prisma.speciality.findMany(),
     prisma.userRole.findMany({
-      where: { role: { name: ROLES.DOCTOR as string } },
       select: {
         user: {
           include: {
@@ -20,7 +19,8 @@ export default async function Page() {
             }
           }
         }
-      }
+      },
+      where: { role: { name: ROLES.DOCTOR as string } }
     })
   ]);
 

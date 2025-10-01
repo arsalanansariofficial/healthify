@@ -1,15 +1,6 @@
 import { SearchIcon } from 'lucide-react';
 
 import Router from '@/components/router';
-import { SOCIAL } from '@/lib/constants';
-import { Kbd } from '@/components/ui/kbd';
-
-import {
-  InputGroup,
-  InputGroupAddon,
-  InputGroupInput
-} from '@/components/ui/input-group';
-
 import {
   Empty,
   EmptyTitle,
@@ -17,6 +8,13 @@ import {
   EmptyContent,
   EmptyDescription
 } from '@/components/ui/empty';
+import {
+  InputGroup,
+  InputGroupAddon,
+  InputGroupInput
+} from '@/components/ui/input-group';
+import { Kbd } from '@/components/ui/kbd';
+import { SOCIAL } from '@/lib/constants';
 
 export default function Info(props: { title: string; message: string }) {
   return (

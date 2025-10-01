@@ -1,11 +1,11 @@
 export const ROUTES = {
+  ABOUT: '/about',
+  ACCOUNT: '/account',
+  APPOINTMENTS: '/appointments',
+  AUTH_ERROR: '/auth-error',
+  DASHBOARD: '/dashboard',
+  FORGET: '/forget',
   HOME: '/',
   LOGIN: '/login',
-  ABOUT: '/about',
-  SIGNUP: '/signup',
-  FORGET: '/forget',
-  ACCOUNT: '/account',
-  DASHBOARD: '/dashboard',
-  AUTH_ERROR: '/auth-error',
-  APPOINTMENTS: '/appointments'
+  SIGNUP: '/signup'
 } as const;

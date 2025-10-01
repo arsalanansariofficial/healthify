@@ -1,13 +1,13 @@
 'use server';
 
-import z from 'zod';
 import { revalidatePath } from 'next/cache';
+import z from 'zod';
 
-import prisma from '@/lib/prisma';
-import { catchErrors } from '@/lib/utils';
-import { nameSchema } from '@/lib/schemas';
-import { ROUTES } from '@/constants/routes';
 import { MESSAGES } from '@/constants/messages';
+import { ROUTES } from '@/constants/routes';
+import prisma from '@/lib/prisma';
+import { nameSchema } from '@/lib/schemas';
+import { catchErrors } from '@/lib/utils';
 
 export async function deleteSpeciality(id: string) {
   await prisma.speciality.delete({ where: { id } });
@@ -25,15 +25,15 @@ export async function updateSpeciality(
 ) {
   const result = nameSchema.safeParse({ name });
   if (!result.success)
-    return { success: false, message: MESSAGES.SYSTEM.INVALID_INPUTS };
+    return { message: MESSAGES.SYSTEM.INVALID_INPUTS, success: false };
 
   try {
-    await prisma.speciality.update({ where: { id }, data: { name } });
+    await prisma.speciality.update({ data: { name }, where: { id } });
 
     revalidatePath(ROUTES.HOME);
     return {
-      success: true,
-      message: MESSAGES.SPECIALITY.ADDED
+      message: MESSAGES.SPECIALITY.ADDED,
+      success: true
     };
   } catch (error) {
     return catchErrors(error as Error);
@@ -43,7 +43,7 @@ export async function updateSpeciality(
 export async function addSpeciality({ name }: z.infer<typeof nameSchema>) {
   const result = nameSchema.safeParse({ name });
   if (!result.success)
-    return { success: false, message: MESSAGES.SYSTEM.INVALID_INPUTS };
+    return { message: MESSAGES.SYSTEM.INVALID_INPUTS, success: false };
 
   try {
     await prisma.speciality.create({
@@ -51,7 +51,7 @@ export async function addSpeciality({ name }: z.infer<typeof nameSchema>) {
     });
 
     revalidatePath(ROUTES.HOME);
-    return { success: true, message: MESSAGES.SPECIALITY.ADDED };
+    return { message: MESSAGES.SPECIALITY.ADDED, success: true };
   } catch (error) {
     return catchErrors(error as Error);
   }

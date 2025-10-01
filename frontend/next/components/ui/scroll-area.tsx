@@ -1,7 +1,5 @@
 'use client';
 
-import { useMemo } from 'react';
-
 import {
   Root,
   Corner,
@@ -9,6 +7,7 @@ import {
   ScrollAreaThumb,
   ScrollAreaScrollbar
 } from '@radix-ui/react-scroll-area';
+import { useMemo } from 'react';
 
 import { cn } from '@/lib/utils';
 

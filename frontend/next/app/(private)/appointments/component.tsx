@@ -1,47 +1,20 @@
 'use client';
 
-import z from 'zod';
-import Link from 'next/link';
-import { toast } from 'sonner';
-import { User } from 'next-auth';
-import { Check, Printer, X } from 'lucide-react';
-import { ColumnDef } from '@tanstack/react-table';
 import { AppointmentStatus } from '@prisma/client';
 import { IconDotsVertical } from '@tabler/icons-react';
+import { ColumnDef } from '@tanstack/react-table';
+import { Check, Printer, X } from 'lucide-react';
+import { User } from 'next-auth';
+import Link from 'next/link';
+import { toast } from 'sonner';
+import z from 'zod';
 
-import Footer from '@/components/footer';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Button } from '@/components/ui/button';
-import useHookForm from '@/hooks/use-hook-form';
-import { useIsMobile } from '@/hooks/use-mobile';
 import handler from '@/components/display-toast';
-import { DATES, MESSAGES } from '@/lib/constants';
-import { Checkbox } from '@/components/ui/checkbox';
+import Footer from '@/components/footer';
 import { Badge, BadgeVariant } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Checkbox } from '@/components/ui/checkbox';
 import { DataTable, DragHandle } from '@/components/ui/data-table';
-
-import {
-  getDate,
-  formatTime,
-  catchErrors,
-  isPastByTime,
-  hasPermission
-} from '@/lib/utils';
-
-import {
-  deleteSpeciality,
-  deleteSpecialities,
-  updateAppointmentStatus
-} from '@/lib/actions';
-
-import {
-  DropdownMenu,
-  DropdownMenuItem,
-  DropdownMenuContent,
-  DropdownMenuTrigger
-} from '@/components/ui/dropdown-menu';
-
 import {
   Drawer,
   DrawerClose,
@@ -52,6 +25,29 @@ import {
   DrawerTrigger,
   DrawerDescription
 } from '@/components/ui/drawer';
+import {
+  DropdownMenu,
+  DropdownMenuItem,
+  DropdownMenuContent,
+  DropdownMenuTrigger
+} from '@/components/ui/dropdown-menu';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import useHookForm from '@/hooks/use-hook-form';
+import { useIsMobile } from '@/hooks/use-mobile';
+import {
+  deleteSpeciality,
+  deleteSpecialities,
+  updateAppointmentStatus
+} from '@/lib/actions';
+import { DATES, MESSAGES } from '@/lib/constants';
+import {
+  getDate,
+  formatTime,
+  catchErrors,
+  isPastByTime,
+  hasPermission
+} from '@/lib/utils';
 
 type TableSchema = { id: number } & Omit<Appointment, 'id'>;
 type MenuProps = { id?: string; ids?: string[]; isHeader: boolean };
@@ -97,25 +93,25 @@ function Menu({ id, ids, isHeader = false }: MenuProps) {
           onClick={async () => {
             if (!isHeader) {
               toast.promise(deleteSpeciality(id as string), {
-                position: 'top-center',
-                success: MESSAGES.SPECIALITY.DELETED,
-                loading: 'Deleting speciality',
                 error(error) {
                   const { message } = catchErrors(error as Error);
                   return <span className='text-destructive'>{message}</span>;
-                }
+                },
+                loading: 'Deleting speciality',
+                position: 'top-center',
+                success: MESSAGES.SPECIALITY.DELETED
               });
             }
 
             if (isHeader) {
               toast.promise(deleteSpecialities(ids as string[]), {
-                position: 'top-center',
-                loading: 'Deleting specialities',
-                success: MESSAGES.SPECIALITY.BULK_DELETED,
                 error(error) {
                   const { message } = catchErrors(error as Error);
                   return <span className='text-destructive'>{message}</span>;
-                }
+                },
+                loading: 'Deleting specialities',
+                position: 'top-center',
+                success: MESSAGES.SPECIALITY.BULK_DELETED
               });
             }
           }}
@@ -129,14 +125,14 @@ function Menu({ id, ids, isHeader = false }: MenuProps) {
 
 export function TableCellViewer<T extends z.ZodType>(props: TCVProps<T>) {
   const isMobile = useIsMobile();
-  const { status, date, time } = props.item;
+  const { date, status, time } = props.item;
   const isInFuture = isPastByTime(
     date,
     time,
     (DATES.EXPIRES_AT as number) * 1000
   );
 
-  const { pending: validating, handleSubmit: confirmAppointment } = useHookForm(
+  const { handleSubmit: confirmAppointment, pending: validating } = useHookForm(
     handler,
     updateAppointmentStatus.bind(
       null,
@@ -145,7 +141,7 @@ export function TableCellViewer<T extends z.ZodType>(props: TCVProps<T>) {
     ) as (data: unknown) => Promise<unknown>
   );
 
-  const { pending: cancelling, handleSubmit: cancelAppointment } = useHookForm(
+  const { handleSubmit: cancelAppointment, pending: cancelling } = useHookForm(
     handler,
     updateAppointmentStatus.bind(
       null,
@@ -293,13 +289,19 @@ export function TableCellViewer<T extends z.ZodType>(props: TCVProps<T>) {
 export default function Component(props: Props) {
   const columns: ColumnDef<TableSchema>[] = [
     {
-      id: 'drag',
       cell({ row }) {
         return <DragHandle id={row.original.id} />;
-      }
+      },
+      id: 'drag'
     },
     {
-      id: 'select',
+      cell: ({ row }) => (
+        <Checkbox
+          aria-label='Select row'
+          checked={row.getIsSelected()}
+          onCheckedChange={value => row.toggleSelected(!!value)}
+        />
+      ),
       enableHiding: false,
       enableSorting: false,
       header({ table }) {
@@ -314,19 +316,10 @@ export default function Component(props: Props) {
           />
         );
       },
-      cell: ({ row }) => (
-        <Checkbox
-          aria-label='Select row'
-          checked={row.getIsSelected()}
-          onCheckedChange={value => row.toggleSelected(!!value)}
-        />
-      )
+      id: 'select'
     },
     {
-      id: 'id',
-      header: 'Id',
       accessorKey: 'id',
-      enableHiding: false,
       cell({ row }) {
         return (
           <TableCellViewer
@@ -335,42 +328,43 @@ export default function Component(props: Props) {
             item={findItem(props.appointments, row.original.id)}
           />
         );
-      }
+      },
+      enableHiding: false,
+      header: 'Id',
+      id: 'id'
     },
     {
-      id: 'doctor',
-      header: 'Doctor',
-      enableHiding: false,
       accessorKey: 'doctor',
       cell({ row }) {
         return (
           <span>{findItem(props.appointments, row.original.id)?.doctor}</span>
         );
-      }
+      },
+      enableHiding: false,
+      header: 'Doctor',
+      id: 'doctor'
     },
     {
-      id: 'patient',
-      header: 'Patient',
-      enableHiding: false,
       accessorKey: 'patient',
       cell({ row }) {
         return (
           <span>{findItem(props.appointments, row.original.id)?.patient}</span>
         );
-      }
+      },
+      enableHiding: false,
+      header: 'Patient',
+      id: 'patient'
     },
     {
-      id: 'time',
-      header: 'Time',
       accessorKey: 'time',
       cell({ row }) {
         const time = findItem(props.appointments, row.original.id)?.time;
         return <span>{formatTime(time as string)}</span>;
-      }
+      },
+      header: 'Time',
+      id: 'time'
     },
     {
-      id: 'status',
-      header: 'Status',
       accessorKey: 'status',
       cell({ row }) {
         let variant: BadgeVariant = 'default';
@@ -385,11 +379,11 @@ export default function Component(props: Props) {
             {status}
           </Badge>
         );
-      }
+      },
+      header: 'Status',
+      id: 'status'
     },
     {
-      id: 'date',
-      header: 'Date',
       accessorKey: 'date',
       cell({ row }) {
         return (
@@ -400,10 +394,11 @@ export default function Component(props: Props) {
             )}
           </span>
         );
-      }
+      },
+      header: 'Date',
+      id: 'date'
     },
     {
-      id: 'actions',
       cell({ row }) {
         return <Menu isHeader={false} id={row.original.id.toString()} />;
       },
@@ -416,7 +411,8 @@ export default function Component(props: Props) {
               .rows.map(r => r.original.id.toString())}
           />
         );
-      }
+      },
+      id: 'actions'
     }
   ];
 

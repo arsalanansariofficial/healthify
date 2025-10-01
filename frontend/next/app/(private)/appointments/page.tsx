@@ -1,20 +1,20 @@
 import { User } from 'next-auth';
 import { redirect } from 'next/navigation';
 
+import Component from '@/app/(private)/appointments/component';
 import { auth } from '@/auth';
-import prisma from '@/lib/prisma';
 import { ROLES } from '@/lib/constants';
 import { ROUTES } from '@/lib/constants';
+import prisma from '@/lib/prisma';
 import { getDate, hasRole } from '@/lib/utils';
-import Component from '@/app/(private)/appointments/component';
 
 export default async function Page() {
   const session = await auth();
   if (!session?.user) redirect(ROUTES.LOGIN);
 
   let appointments = await prisma.appointment.findMany({
+    include: { doctor: true, patient: true, timeSlot: true },
     orderBy: { date: 'desc' },
-    include: { timeSlot: true, patient: true, doctor: true },
     where: {
       OR: [{ patientId: session.user.id }, { doctorId: session.user.id }]
     }
@@ -22,8 +22,8 @@ export default async function Page() {
 
   if (hasRole(session.user.roles, ROLES.ADMIN as string)) {
     appointments = await prisma.appointment.findMany({
-      orderBy: { date: 'desc' },
-      include: { timeSlot: true, patient: true, doctor: true }
+      include: { doctor: true, patient: true, timeSlot: true },
+      orderBy: { date: 'desc' }
     });
   }
 
@@ -33,10 +33,10 @@ export default async function Page() {
       key={appointments.map(s => s.updatedAt).toString()}
       appointments={appointments.map(apt => ({
         ...apt,
-        patient: apt.name,
-        time: apt.timeSlot.time,
+        date: getDate(apt.date.toString()),
         doctor: apt.doctor.name as string,
-        date: getDate(apt.date.toString())
+        patient: apt.name,
+        time: apt.timeSlot.time
       }))}
     />
   );

@@ -1,5 +1,5 @@
-import { ComponentProps } from 'react';
 import { Root, Image, Fallback } from '@radix-ui/react-avatar';
+import { ComponentProps } from 'react';
 
 import { cn } from '@/lib/utils';
 

@@ -1,9 +1,9 @@
 import { User } from 'next-auth';
 
-import { auth } from '@/auth';
-import prisma from '@/lib/prisma';
-import { ROLES } from '@/lib/constants';
 import Component from '@/app/(private)/permissions/assign/component';
+import { auth } from '@/auth';
+import { ROLES } from '@/lib/constants';
+import prisma from '@/lib/prisma';
 
 export default async function Page({
   searchParams
@@ -13,7 +13,7 @@ export default async function Page({
   const session = await auth();
   const { role } = await searchParams;
 
-  const { roles, permissions, rolePermissions } = await prisma.$transaction(
+  const { permissions, rolePermissions, roles } = await prisma.$transaction(
     async function (transaction) {
       const [roles, defaultRole, permissions] = await Promise.all([
         transaction.role.findMany(),
@@ -31,7 +31,7 @@ export default async function Page({
         where: { roleId: existingRole?.id }
       });
 
-      return { roles, permissions, existingRole, rolePermissions };
+      return { existingRole, permissions, rolePermissions, roles };
     }
   );
 

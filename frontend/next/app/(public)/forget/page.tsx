@@ -1,23 +1,10 @@
 'use client';
 
-import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { useForm } from 'react-hook-form';
 
-import { emailSchema } from '@/lib/schemas';
-import { Input } from '@/components/ui/input';
-import { forgetPassword } from '@/lib/actions';
-import { Button } from '@/components/ui/button';
-import useHookForm from '@/hooks/use-hook-form';
 import handler from '@/components/display-toast';
-
-import {
-  Form,
-  FormItem,
-  FormField,
-  FormMessage,
-  FormControl
-} from '@/components/ui/form';
-
+import { Button } from '@/components/ui/button';
 import {
   Empty,
   EmptyTitle,
@@ -25,13 +12,24 @@ import {
   EmptyContent,
   EmptyDescription
 } from '@/components/ui/empty';
+import {
+  Form,
+  FormItem,
+  FormField,
+  FormMessage,
+  FormControl
+} from '@/components/ui/form';
+import { Input } from '@/components/ui/input';
+import useHookForm from '@/hooks/use-hook-form';
+import { forgetPassword } from '@/lib/actions';
+import { emailSchema } from '@/lib/schemas';
 
 export default function Page() {
-  const { pending, handleSubmit } = useHookForm(handler, forgetPassword);
+  const { handleSubmit, pending } = useHookForm(handler, forgetPassword);
 
   const form = useForm({
-    resolver: zodResolver(emailSchema),
-    defaultValues: { email: String() }
+    defaultValues: { email: String() },
+    resolver: zodResolver(emailSchema)
   });
 
   return (

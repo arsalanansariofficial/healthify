@@ -1,19 +1,12 @@
 'use client';
 
-import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-
 import { User } from '@prisma/client';
-import Footer from '@/components/footer';
-import { addHospital } from '@/lib/actions';
-import { Input } from '@/components/ui/input';
-import { hospitalSchema } from '@/lib/schemas';
-import { Button } from '@/components/ui/button';
-import useHookForm from '@/hooks/use-hook-form';
-import handler from '@/components/display-toast';
-import { Textarea } from '@/components/ui/textarea';
-import MultiSelect from '@/components/ui/multi-select';
+import { useForm } from 'react-hook-form';
 
+import handler from '@/components/display-toast';
+import Footer from '@/components/footer';
+import { Button } from '@/components/ui/button';
 import {
   Card,
   CardTitle,
@@ -22,7 +15,6 @@ import {
   CardContent,
   CardDescription
 } from '@/components/ui/card';
-
 import {
   Form,
   FormItem,
@@ -31,7 +23,8 @@ import {
   FormMessage,
   FormControl
 } from '@/components/ui/form';
-
+import { Input } from '@/components/ui/input';
+import MultiSelect from '@/components/ui/multi-select';
 import {
   Select,
   SelectItem,
@@ -39,20 +32,24 @@ import {
   SelectContent,
   SelectTrigger
 } from '@/components/ui/select';
+import { Textarea } from '@/components/ui/textarea';
+import useHookForm from '@/hooks/use-hook-form';
+import { addHospital } from '@/lib/actions';
+import { hospitalSchema } from '@/lib/schemas';
 
 export default function Component({ users }: { users: User[] }) {
   const { handleSubmit } = useHookForm(handler, addHospital);
   const form = useForm({
-    resolver: zodResolver(hospitalSchema),
     defaultValues: {
-      doctors: [],
-      name: String(),
-      city: String(),
-      email: String(),
-      phone: String(),
       address: String(),
-      isAffiliated: 'no'
-    }
+      city: String(),
+      doctors: [],
+      email: String(),
+      isAffiliated: 'no',
+      name: String(),
+      phone: String()
+    },
+    resolver: zodResolver(hospitalSchema)
   });
 
   return (
@@ -186,8 +183,8 @@ export default function Component({ users }: { users: User[] }) {
                         selectedValues={field.value}
                         setSelectedValues={field.onChange}
                         options={users.map(u => ({
-                          value: u.id,
-                          label: u.name || String()
+                          label: u.name || String(),
+                          value: u.id
                         }))}
                       />
                     </FormControl>

@@ -1,13 +1,13 @@
 'use server';
 
-import z from 'zod';
 import { revalidatePath } from 'next/cache';
+import z from 'zod';
 
-import prisma from '@/lib/prisma';
-import { catchErrors } from '@/lib/utils';
-import { ROUTES } from '@/constants/routes';
 import { MESSAGES } from '@/constants/messages';
+import { ROUTES } from '@/constants/routes';
+import prisma from '@/lib/prisma';
 import { pharmaSaltSchema } from '@/lib/schemas';
+import { catchErrors } from '@/lib/utils';
 
 export async function deletePharmaSalt(id: string) {
   await prisma.pharmaSalt.delete({ where: { id } });
@@ -22,11 +22,11 @@ export async function deletePharmaSalts(ids: string[]) {
 export async function addPharmaSalt(data: z.infer<typeof pharmaSaltSchema>) {
   const result = pharmaSaltSchema.safeParse(data);
   if (!result.success)
-    return { success: false, message: MESSAGES.SYSTEM.INVALID_INPUTS };
+    return { message: MESSAGES.SYSTEM.INVALID_INPUTS, success: false };
 
   try {
     await prisma.pharmaSalt.create({ data: { ...result.data } });
-    return { success: true, message: MESSAGES.PHARMA_SALT.ADDED };
+    return { message: MESSAGES.PHARMA_SALT.ADDED, success: true };
   } catch (error) {
     return catchErrors(error as Error);
   }
@@ -38,12 +38,12 @@ export async function updatePharmaSalt(
 ) {
   const result = pharmaSaltSchema.safeParse(data);
   if (!result.success)
-    return { success: false, message: MESSAGES.SYSTEM.INVALID_INPUTS };
+    return { message: MESSAGES.SYSTEM.INVALID_INPUTS, success: false };
 
   try {
-    await prisma.pharmaSalt.update({ where: { id }, data: { ...result.data } });
+    await prisma.pharmaSalt.update({ data: { ...result.data }, where: { id } });
     revalidatePath(ROUTES.HOME);
-    return { success: true, message: MESSAGES.PHARMA_SALT.UPDATED };
+    return { message: MESSAGES.PHARMA_SALT.UPDATED, success: true };
   } catch (error) {
     return catchErrors(error as Error);
   }

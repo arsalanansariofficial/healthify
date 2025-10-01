@@ -1,9 +1,8 @@
 'use client';
 
-import { Slot } from '@radix-ui/react-slot';
 import * as LabelPrimitive from '@radix-ui/react-label';
+import { Slot } from '@radix-ui/react-slot';
 import { ComponentProps, createContext, useContext, useId } from 'react';
-
 import {
   Controller,
   FormProvider,
@@ -14,8 +13,8 @@ import {
   type ControllerProps
 } from 'react-hook-form';
 
-import { cn } from '@/lib/utils';
 import { Label } from '@/components/ui/label';
+import { cn } from '@/lib/utils';
 
 type FormItemContextValue = { id: string };
 
@@ -104,7 +103,7 @@ export function FormMessage({ className, ...props }: ComponentProps<'p'>) {
 }
 
 export function FormControl({ ...props }: ComponentProps<typeof Slot>) {
-  const { error, formItemId, formDescriptionId, formMessageId } =
+  const { error, formDescriptionId, formItemId, formMessageId } =
     useFormField();
 
   return (
@@ -138,9 +137,9 @@ export function useFormField() {
   return {
     id,
     ...fieldState,
-    name: fieldContext.name,
+    formDescriptionId: `${id}-form-item-description`,
     formItemId: `${id}-form-item`,
     formMessageId: `${id}-form-item-message`,
-    formDescriptionId: `${id}-form-item-description`
+    name: fieldContext.name
   };
 }

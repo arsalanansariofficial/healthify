@@ -1,8 +1,5 @@
 'use client';
 
-import { ComponentProps } from 'react';
-import { CheckIcon, ChevronRightIcon, CircleIcon } from 'lucide-react';
-
 import {
   Sub,
   Item,
@@ -20,6 +17,8 @@ import {
   CheckboxItem,
   ItemIndicator
 } from '@radix-ui/react-dropdown-menu';
+import { CheckIcon, ChevronRightIcon, CircleIcon } from 'lucide-react';
+import { ComponentProps } from 'react';
 
 import { cn } from '@/lib/utils';
 

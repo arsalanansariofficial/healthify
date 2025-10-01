@@ -1,21 +1,13 @@
 'use client';
 
-import { User } from 'next-auth';
-import { Prisma, SubscriptionStatus } from '@prisma/client';
-import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { Prisma, SubscriptionStatus } from '@prisma/client';
+import { User } from 'next-auth';
+import { useForm } from 'react-hook-form';
 
-import Footer from '@/components/footer';
-import { capitalize } from '@/lib/utils';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Button } from '@/components/ui/button';
-import useHookForm from '@/hooks/use-hook-form';
 import handler from '@/components/display-toast';
-import { subscribeMembership } from '@/lib/actions';
-import MultiSelect from '@/components/ui/multi-select';
-import { membershipSubscriptionSchema } from '@/lib/schemas';
-
+import Footer from '@/components/footer';
+import { Button } from '@/components/ui/button';
 import {
   Card,
   CardTitle,
@@ -24,7 +16,6 @@ import {
   CardContent,
   CardDescription
 } from '@/components/ui/card';
-
 import {
   Form,
   FormItem,
@@ -33,7 +24,9 @@ import {
   FormMessage,
   FormControl
 } from '@/components/ui/form';
-
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import MultiSelect from '@/components/ui/multi-select';
 import {
   Select,
   SelectItem,
@@ -41,10 +34,14 @@ import {
   SelectContent,
   SelectTrigger
 } from '@/components/ui/select';
+import useHookForm from '@/hooks/use-hook-form';
+import { subscribeMembership } from '@/lib/actions';
+import { membershipSubscriptionSchema } from '@/lib/schemas';
+import { capitalize } from '@/lib/utils';
 
 export default function Component({
-  users,
-  membership
+  membership,
+  users
 }: {
   user: User;
   membership: Prisma.MembershipGetPayload<{ include: { fees: true } }>;
@@ -52,13 +49,13 @@ export default function Component({
 }) {
   const { handleSubmit } = useHookForm(handler, subscribeMembership);
   const form = useForm({
-    resolver: zodResolver(membershipSubscriptionSchema),
     defaultValues: {
-      users: [],
       feeId: String(),
       membershipId: membership.id,
-      status: SubscriptionStatus.pending
-    }
+      status: SubscriptionStatus.pending,
+      users: []
+    },
+    resolver: zodResolver(membershipSubscriptionSchema)
   });
 
   return (
@@ -143,8 +140,8 @@ export default function Component({
                         placeholder='Select users...'
                         setSelectedValues={field.onChange}
                         options={users.map(u => ({
-                          value: u.id,
-                          label: u.name || String()
+                          label: u.name || String(),
+                          value: u.id
                         }))}
                       />
                     </FormControl>

@@ -1,7 +1,7 @@
-import path from 'path';
+import { readFile, unlink } from 'fs/promises';
 import mime from 'mime';
 import { NextResponse } from 'next/server';
-import { readFile, unlink } from 'fs/promises';
+import path from 'path';
 
 import {
   MESSAGES,
@@ -22,15 +22,15 @@ export async function GET(
     const buffer = await readFile(file);
 
     return new Response(new Uint8Array(buffer), {
-      status: HTTP_STATUS.OK as number,
       headers: new Headers({
         'Content-Disposition': `inline; filename="${slug}"`,
         'Content-Type': mime.getType(file) || 'application/octet-stream'
-      })
+      }),
+      status: HTTP_STATUS.OK as number
     });
   } catch {
     return NextResponse.json(
-      { success: false, message: HTTP_MESSAGES.SERVER_ERROR },
+      { message: HTTP_MESSAGES.SERVER_ERROR, success: false },
       { status: HTTP_STATUS.SERVER_ERROR as number }
     );
   }
@@ -43,12 +43,12 @@ export async function DELETE(
   try {
     await unlink(path.join(dir, (await params).slug));
     return NextResponse.json(
-      { success: true, message: MESSAGES.FILE.REMOVED },
+      { message: MESSAGES.FILE.REMOVED, success: true },
       { status: HTTP_STATUS.OK as number }
     );
   } catch {
     return NextResponse.json(
-      { success: false, message: MESSAGES.FILE.DELETE_FAILED },
+      { message: MESSAGES.FILE.DELETE_FAILED, success: false },
       { status: HTTP_STATUS.SERVER_ERROR as number }
     );
   }

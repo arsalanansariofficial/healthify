@@ -1,49 +1,20 @@
 'use client';
 
-import z from 'zod';
-import { toast } from 'sonner';
-import { useMemo } from 'react';
-import { User } from 'next-auth';
-import { useForm } from 'react-hook-form';
-import { Department } from '@prisma/client';
-import { ColumnDef } from '@tanstack/react-table';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { Department } from '@prisma/client';
 import { IconDotsVertical } from '@tabler/icons-react';
+import { ColumnDef } from '@tanstack/react-table';
+import { User } from 'next-auth';
+import { useMemo } from 'react';
+import { useForm } from 'react-hook-form';
+import { toast } from 'sonner';
+import z from 'zod';
 
-import Footer from '@/components/footer';
-import { Input } from '@/components/ui/input';
-import { Button } from '@/components/ui/button';
-import useHookForm from '@/hooks/use-hook-form';
-import { departmentSchema } from '@/lib/schemas';
-import { useIsMobile } from '@/hooks/use-mobile';
 import handler from '@/components/display-toast';
+import Footer from '@/components/footer';
+import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
-import { catchErrors, getDate, hasPermission } from '@/lib/utils';
 import { DragHandle, DataTable } from '@/components/ui/data-table';
-import { MESSAGES } from '@/lib/constants';
-
-import {
-  deleteDepartment,
-  deleteDepartments,
-  updateDepartment
-} from '@/lib/actions';
-
-import {
-  Form,
-  FormItem,
-  FormField,
-  FormLabel,
-  FormMessage,
-  FormControl
-} from '@/components/ui/form';
-
-import {
-  DropdownMenu,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-  DropdownMenuContent
-} from '@/components/ui/dropdown-menu';
-
 import {
   Drawer,
   DrawerClose,
@@ -54,6 +25,31 @@ import {
   DrawerTrigger,
   DrawerDescription
 } from '@/components/ui/drawer';
+import {
+  DropdownMenu,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+  DropdownMenuContent
+} from '@/components/ui/dropdown-menu';
+import {
+  Form,
+  FormItem,
+  FormField,
+  FormLabel,
+  FormMessage,
+  FormControl
+} from '@/components/ui/form';
+import { Input } from '@/components/ui/input';
+import useHookForm from '@/hooks/use-hook-form';
+import { useIsMobile } from '@/hooks/use-mobile';
+import {
+  deleteDepartment,
+  deleteDepartments,
+  updateDepartment
+} from '@/lib/actions';
+import { MESSAGES } from '@/lib/constants';
+import { departmentSchema } from '@/lib/schemas';
+import { catchErrors, getDate, hasPermission } from '@/lib/utils';
 
 type MenuProps = { id?: string; ids?: string[]; isHeader: boolean };
 
@@ -95,25 +91,25 @@ function Menu({ id, ids, isHeader = false }: MenuProps) {
           onClick={async () => {
             if (!isHeader) {
               toast.promise(deleteDepartment(id as string), {
-                position: 'top-center',
-                success: MESSAGES.DEPARTMENT.DELETED,
-                loading: 'Deleting department',
                 error(error) {
                   const { message } = catchErrors(error as Error);
                   return <span className='text-destructive'>{message}</span>;
-                }
+                },
+                loading: 'Deleting department',
+                position: 'top-center',
+                success: MESSAGES.DEPARTMENT.DELETED
               });
             }
 
             if (isHeader) {
               toast.promise(deleteDepartments(ids as string[]), {
-                position: 'top-center',
-                loading: 'Deleting departments',
-                success: MESSAGES.DEPARTMENT.BULK_DELETED,
                 error(error) {
                   const { message } = catchErrors(error as Error);
                   return <span className='text-destructive'>{message}</span>;
-                }
+                },
+                loading: 'Deleting departments',
+                position: 'top-center',
+                success: MESSAGES.DEPARTMENT.BULK_DELETED
               });
             }
           }}
@@ -128,10 +124,10 @@ function Menu({ id, ids, isHeader = false }: MenuProps) {
 export function TableCellViewer<T extends z.ZodType>(props: TCVProps<T>) {
   const isMobile = useIsMobile();
   const form = useForm({
-    resolver: zodResolver(departmentSchema),
     defaultValues: {
       name: props.item.name
-    }
+    },
+    resolver: zodResolver(departmentSchema)
   });
 
   const { handleSubmit } = useHookForm(
@@ -207,11 +203,17 @@ export default function Component(props: Props) {
   const columns = useMemo<ColumnDef<TableSchema>[]>(
     () => [
       {
-        id: 'drag',
-        cell: ({ row }) => <DragHandle id={row.original.id} />
+        cell: ({ row }) => <DragHandle id={row.original.id} />,
+        id: 'drag'
       },
       {
-        id: 'select',
+        cell: ({ row }) => (
+          <Checkbox
+            aria-label='Select row'
+            checked={row.getIsSelected()}
+            onCheckedChange={value => row.toggleSelected(!!value)}
+          />
+        ),
         enableHiding: false,
         enableSorting: false,
         header: ({ table }) => (
@@ -224,32 +226,25 @@ export default function Component(props: Props) {
             }
           />
         ),
-        cell: ({ row }) => (
-          <Checkbox
-            aria-label='Select row'
-            checked={row.getIsSelected()}
-            onCheckedChange={value => row.toggleSelected(!!value)}
-          />
-        )
+        id: 'select'
       },
       {
-        header: 'Name',
-        enableHiding: false,
         accessorKey: 'name',
         cell: ({ row }) => (
           <TableCellViewer
             key={Date.now()}
             item={props.departments.find(h => h.id === String(row.original.id))}
           />
-        )
+        ),
+        enableHiding: false,
+        header: 'Name'
       },
       {
         accessorKey: 'createdAt',
-        header: () => <div>Created At</div>,
-        cell: ({ row }) => getDate(row.original.createdAt)
+        cell: ({ row }) => getDate(row.original.createdAt),
+        header: () => <div>Created At</div>
       },
       {
-        id: 'actions',
         cell: ({ row }) => (
           <Menu isHeader={false} id={row.original.id.toString()} />
         ),
@@ -262,7 +257,8 @@ export default function Component(props: Props) {
                 .rows.map(r => r.original.id.toString())}
             />
           );
-        }
+        },
+        id: 'actions'
       }
     ],
     [props.departments]

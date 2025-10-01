@@ -1,10 +1,10 @@
 import Link from 'next/link';
 import { Suspense } from 'react';
 
-import { cn } from '@/lib/utils';
-import { ROUTES } from '@/lib/constants';
-import { verifyToken } from '@/lib/actions';
 import { Button } from '@/components/ui/button';
+import { verifyToken } from '@/lib/actions';
+import { ROUTES } from '@/lib/constants';
+import { cn } from '@/lib/utils';
 
 async function Verify({ token }: { token: string }) {
   const { message, success } = await verifyToken(token);

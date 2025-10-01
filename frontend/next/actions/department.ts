@@ -1,13 +1,13 @@
 'use server';
 
-import z from 'zod';
 import { revalidatePath } from 'next/cache';
+import z from 'zod';
 
-import prisma from '@/lib/prisma';
-import { catchErrors } from '@/lib/utils';
-import { ROUTES } from '@/constants/routes';
 import { MESSAGES } from '@/constants/messages';
+import { ROUTES } from '@/constants/routes';
+import prisma from '@/lib/prisma';
 import { departmentSchema } from '@/lib/schemas';
+import { catchErrors } from '@/lib/utils';
 
 export async function deleteDepartment(id: string) {
   await prisma.department.delete({ where: { id } });
@@ -22,11 +22,11 @@ export async function deleteDepartments(ids: string[]) {
 export async function addDepartment(data: z.infer<typeof departmentSchema>) {
   const result = departmentSchema.safeParse(data);
   if (!result.success)
-    return { success: false, message: MESSAGES.SYSTEM.INVALID_INPUTS };
+    return { message: MESSAGES.SYSTEM.INVALID_INPUTS, success: false };
 
   try {
     await prisma.department.create({ data: { ...result.data } });
-    return { success: true, message: MESSAGES.DEPARTMENT.ADDED };
+    return { message: MESSAGES.DEPARTMENT.ADDED, success: true };
   } catch (error) {
     return catchErrors(error as Error);
   }
@@ -38,12 +38,12 @@ export async function updateDepartment(
 ) {
   const result = departmentSchema.safeParse(data);
   if (!result.success)
-    return { success: false, message: MESSAGES.SYSTEM.INVALID_INPUTS };
+    return { message: MESSAGES.SYSTEM.INVALID_INPUTS, success: false };
 
   try {
-    await prisma.department.update({ where: { id }, data: { ...result.data } });
+    await prisma.department.update({ data: { ...result.data }, where: { id } });
     revalidatePath(ROUTES.HOME);
-    return { success: true, message: MESSAGES.DEPARTMENT.UPDATED };
+    return { message: MESSAGES.DEPARTMENT.UPDATED, success: true };
   } catch (error) {
     return catchErrors(error as Error);
   }

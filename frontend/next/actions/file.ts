@@ -16,8 +16,8 @@ export async function saveFile(file: File) {
   formData.append('file', file);
 
   const result = await fetch(`${DOMAIN.LOCAL}/api/upload`, {
-    method: 'POST',
-    body: formData
+    body: formData,
+    method: 'POST'
   });
 
   const response = await result.json();

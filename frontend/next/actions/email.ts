@@ -6,19 +6,19 @@ import { SMTP } from '@/lib/constants';
 
 export async function sendEmail(to: string, subject: string, html: string) {
   const transporter = nodemailer.createTransport({
-    secure: true,
+    auth: {
+      pass: SMTP.PASSWORD as string,
+      user: SMTP.EMAIL as string
+    },
     host: SMTP.HOST as string,
     port: SMTP.PORT as number,
-    auth: {
-      user: SMTP.EMAIL as string,
-      pass: SMTP.PASSWORD as string
-    }
+    secure: true
   });
 
   return await transporter.sendMail({
-    to,
+    from: SMTP.EMAIL as string,
     html,
     subject,
-    from: SMTP.EMAIL as string
+    to
   });
 }

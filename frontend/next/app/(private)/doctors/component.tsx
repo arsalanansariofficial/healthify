@@ -1,47 +1,21 @@
 'use client';
 
-import z from 'zod';
-import Link from 'next/link';
-import Image from 'next/image';
-import { User } from 'next-auth';
-import { useForm } from 'react-hook-form';
-import { getHours, parse } from 'date-fns';
-import { useDebounce } from 'use-debounce';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { FormEvent, useCallback, useMemo, useState } from 'react';
 import { Speciality, TimeSlot, User as Doctor } from '@prisma/client';
+import { getHours, parse } from 'date-fns';
+import { User } from 'next-auth';
+import Image from 'next/image';
+import Link from 'next/link';
+import { FormEvent, useCallback, useMemo, useState } from 'react';
+import { useForm } from 'react-hook-form';
+import { useDebounce } from 'use-debounce';
+import z from 'zod';
 
+import handler from '@/components/display-toast';
 import Footer from '@/components/footer';
-import { formatTime } from '@/lib/utils';
-import { DOMAIN, UI } from '@/lib/constants';
-import { nameSchema } from '@/lib/schemas';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import useHookForm from '@/hooks/use-hook-form';
-import { useIsMobile } from '@/hooks/use-mobile';
-import handler from '@/components/display-toast';
-import { updateSpeciality } from '@/lib/actions';
 import { Card, CardContent } from '@/components/ui/card';
-
-import {
-  Select,
-  SelectItem,
-  SelectValue,
-  SelectContent,
-  SelectTrigger
-} from '@/components/ui/select';
-
-import {
-  Form,
-  FormItem,
-  FormField,
-  FormLabel,
-  FormMessage,
-  FormControl
-} from '@/components/ui/form';
-
 import {
   Dialog,
   DialogClose,
@@ -52,7 +26,6 @@ import {
   DialogContent,
   DialogDescription
 } from '@/components/ui/dialog';
-
 import {
   Drawer,
   DrawerClose,
@@ -63,13 +36,36 @@ import {
   DrawerContent,
   DrawerDescription
 } from '@/components/ui/drawer';
+import {
+  Form,
+  FormItem,
+  FormField,
+  FormLabel,
+  FormMessage,
+  FormControl
+} from '@/components/ui/form';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import {
+  Select,
+  SelectItem,
+  SelectValue,
+  SelectContent,
+  SelectTrigger
+} from '@/components/ui/select';
+import useHookForm from '@/hooks/use-hook-form';
+import { useIsMobile } from '@/hooks/use-mobile';
+import { updateSpeciality } from '@/lib/actions';
+import { DOMAIN, UI } from '@/lib/constants';
+import { nameSchema } from '@/lib/schemas';
+import { formatTime } from '@/lib/utils';
 
 export function TableCellViewer<T extends z.ZodType>(props: {
   item: z.infer<T>;
 }) {
   const isMobile = useIsMobile();
 
-  const { pending, handleSubmit } = useHookForm(
+  const { handleSubmit, pending } = useHookForm(
     handler,
     updateSpeciality.bind(null, props.item.id) as (
       data: unknown
@@ -78,8 +74,8 @@ export function TableCellViewer<T extends z.ZodType>(props: {
   );
 
   const form = useForm({
-    resolver: zodResolver(nameSchema),
-    defaultValues: { name: String() }
+    defaultValues: { name: String() },
+    resolver: zodResolver(nameSchema)
   });
 
   return (

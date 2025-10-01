@@ -1,14 +1,14 @@
 'use server';
 
-import z from 'zod';
 import { revalidatePath } from 'next/cache';
+import z from 'zod';
 
-import prisma from '@/lib/prisma';
-import { catchErrors } from '@/lib/utils';
-import { ROUTES } from '@/constants/routes';
-import { MESSAGES } from '@/constants/messages';
 import { auth, unstable_update as update } from '@/auth';
+import { MESSAGES } from '@/constants/messages';
+import { ROUTES } from '@/constants/routes';
+import prisma from '@/lib/prisma';
 import { rolePermissionsSchema, permissionSchema } from '@/lib/schemas';
+import { catchErrors } from '@/lib/utils';
 
 export async function assignPermissions({
   name,
@@ -16,21 +16,21 @@ export async function assignPermissions({
 }: z.infer<typeof rolePermissionsSchema>) {
   const result = rolePermissionsSchema.safeParse({ name, permissions });
   if (!result.success)
-    return { success: false, message: MESSAGES.SYSTEM.INVALID_INPUTS };
+    return { message: MESSAGES.SYSTEM.INVALID_INPUTS, success: false };
 
   try {
     const session = await auth();
 
     await prisma.$transaction(async function (transaction) {
       const role = await transaction.role.findUnique({ where: { name } });
-      if (!role) return { roles: [], permits: [] };
+      if (!role) return { permits: [], roles: [] };
 
       const deletePermissions = transaction.rolePermission.deleteMany({
         where: { roleId: role.id }
       });
 
       const addPermissions = transaction.rolePermission.createMany({
-        data: permissions.map(p => ({ roleId: role.id, permissionId: p }))
+        data: permissions.map(p => ({ permissionId: p, roleId: role.id }))
       });
 
       if (!permissions.length) return await deletePermissions;
@@ -47,7 +47,7 @@ export async function assignPermissions({
     });
 
     revalidatePath(ROUTES.HOME);
-    return { success: true, message: MESSAGES.PERMISSION.ASSIGNED };
+    return { message: MESSAGES.PERMISSION.ASSIGNED, success: true };
   } catch (error) {
     return catchErrors(error as Error);
   }
@@ -56,7 +56,7 @@ export async function assignPermissions({
 export async function addPermission(data: z.infer<typeof permissionSchema>) {
   const result = permissionSchema.safeParse(data);
   if (!result.success)
-    return { success: false, message: MESSAGES.SYSTEM.INVALID_INPUTS };
+    return { message: MESSAGES.SYSTEM.INVALID_INPUTS, success: false };
 
   try {
     await prisma.permission.create({
@@ -65,8 +65,8 @@ export async function addPermission(data: z.infer<typeof permissionSchema>) {
 
     return {
       ...data,
-      success: true,
-      message: MESSAGES.PERMISSION.ADDED
+      message: MESSAGES.PERMISSION.ADDED,
+      success: true
     };
   } catch (error) {
     return catchErrors(error as Error);

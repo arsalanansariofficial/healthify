@@ -1,12 +1,12 @@
+import { SubscriptionStatus } from '@prisma/client';
 import { User } from 'next-auth';
+import { notFound } from 'next/navigation';
 
+import Component from '@/app/(private)/doctors/component';
 import { auth } from '@/auth';
+import { ROLES } from '@/lib/constants';
 import prisma from '@/lib/prisma';
 import { hasRole } from '@/lib/utils';
-import { ROLES } from '@/lib/constants';
-import { notFound } from 'next/navigation';
-import { SubscriptionStatus } from '@prisma/client';
-import Component from '@/app/(private)/doctors/component';
 
 export default async function Page() {
   const [session, specialities] = await Promise.all([
@@ -17,7 +17,6 @@ export default async function Page() {
   if (!session?.user) notFound();
 
   let doctors = await prisma.userRole.findMany({
-    where: { role: { name: ROLES.DOCTOR as string } },
     select: {
       user: {
         include: {
@@ -27,15 +26,12 @@ export default async function Page() {
           }
         }
       }
-    }
+    },
+    where: { role: { name: ROLES.DOCTOR as string } }
   });
 
   if (!hasRole(session.user.roles, ROLES.ADMIN as string)) {
     const subscriptions = await prisma.user.findUnique({
-      where: {
-        id: session?.user?.id,
-        subscription: { status: SubscriptionStatus.active }
-      },
       select: {
         subscription: {
           select: {
@@ -56,6 +52,10 @@ export default async function Page() {
             }
           }
         }
+      },
+      where: {
+        id: session?.user?.id,
+        subscription: { status: SubscriptionStatus.active }
       }
     });
 
@@ -63,6 +63,16 @@ export default async function Page() {
 
     if (subscriptions) {
       doctors = await prisma.userRole.findMany({
+        select: {
+          user: {
+            include: {
+              timings: true,
+              UserSpecialities: {
+                select: { speciality: { select: { name: true } } }
+              }
+            }
+          }
+        },
         where: {
           role: { name: ROLES.DOCTOR as string },
           user: {
@@ -71,16 +81,6 @@ export default async function Page() {
                 .map(hm => hm.hospital.doctors)
                 .flatMap(d => d)
                 .map(d => d.id)
-            }
-          }
-        },
-        select: {
-          user: {
-            include: {
-              timings: true,
-              UserSpecialities: {
-                select: { speciality: { select: { name: true } } }
-              }
             }
           }
         }

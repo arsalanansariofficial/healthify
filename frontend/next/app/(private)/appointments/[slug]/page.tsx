@@ -5,9 +5,11 @@ import Component from '@/app/(private)/appointments/[slug]/component';
 import { auth } from '@/auth';
 import prisma from '@/lib/prisma';
 
-type Props = { params: Promise<{ slug: string }> };
-
-export default async function Page({ params }: Props) {
+export default async function Page({
+  params
+}: {
+  params: Promise<{ slug: string }>;
+}) {
   const session = await auth();
   const { slug } = await params;
 

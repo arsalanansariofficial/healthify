@@ -37,12 +37,12 @@ export default async function Page({
 
   return (
     <Component
+      assigned={rolePermissions.map(p => p.permissionId) || []}
       key={role}
+      permissions={permissions.map(p => ({ label: p.name, value: p.id }))}
       role={role}
       roles={roles}
       user={session?.user as User}
-      assigned={rolePermissions.map(p => p.permissionId) || []}
-      permissions={permissions.map(p => ({ label: p.name, value: p.id }))}
     />
   );
 }

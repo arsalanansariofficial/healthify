@@ -71,22 +71,22 @@ export default function Component({
         <CardContent>
           <Form {...form}>
             <form
-              id='membership-form'
               className='space-y-2'
+              id='membership-form'
               onSubmit={form.handleSubmit(handleSubmit)}
             >
               <div className='space-y-2'>
                 <Label>Membership</Label>
                 <Input
                   disabled
-                  type='text'
                   placeholder='Basic'
+                  type='text'
                   value={membership.name}
                 />
               </div>
               <FormField
-                name='feeId'
                 control={form.control}
+                name='feeId'
                 render={({ field }) => {
                   const fee = membership.fees.find(f => f.id === field.value);
                   const amount = fee ? `Rs. ${fee.amount}` : String();
@@ -106,9 +106,9 @@ export default function Component({
                             <SelectContent>
                               {membership.fees.map(f => (
                                 <SelectItem
+                                  className='capitalize'
                                   key={f.id}
                                   value={f.id}
-                                  className='capitalize'
                                 >
                                   {capitalize(f.renewalType)}
                                 </SelectItem>
@@ -117,9 +117,9 @@ export default function Component({
                           </Select>
                           <Input
                             disabled
+                            placeholder='Rs. 100'
                             type='text'
                             value={amount}
-                            placeholder='Rs. 100'
                           />
                         </div>
                       </FormControl>
@@ -129,20 +129,20 @@ export default function Component({
                 }}
               />
               <FormField
-                name='users'
                 control={form.control}
+                name='users'
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Users</FormLabel>
                     <FormControl>
                       <MultiSelect
-                        selectedValues={field.value}
-                        placeholder='Select users...'
-                        setSelectedValues={field.onChange}
                         options={users.map(u => ({
                           label: u.name || String(),
                           value: u.id
                         }))}
+                        placeholder='Select users...'
+                        selectedValues={field.value}
+                        setSelectedValues={field.onChange}
                       />
                     </FormControl>
                     <FormMessage />
@@ -154,10 +154,10 @@ export default function Component({
         </CardContent>
         <CardFooter>
           <Button
-            type='submit'
-            form='membership-form'
             className='cursor-pointer'
             disabled={form.formState.isLoading}
+            form='membership-form'
+            type='submit'
           >
             {form.formState.isLoading ? 'Saving...' : 'Save'}
           </Button>

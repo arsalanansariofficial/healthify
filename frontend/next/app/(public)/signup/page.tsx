@@ -80,21 +80,21 @@ export default function Component() {
         <CardContent>
           <Form {...form}>
             <form
-              id='signup-form'
               className='space-y-2'
+              id='signup-form'
               onSubmit={form.handleSubmit(handleSubmit)}
             >
               <FormField
-                name='name'
                 control={form.control}
+                name='name'
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Name</FormLabel>
                     <FormControl>
                       <Input
                         {...field}
-                        type='text'
                         placeholder='Gwen Tennyson'
+                        type='text'
                       />
                     </FormControl>
                     <FormMessage />
@@ -102,16 +102,16 @@ export default function Component() {
                 )}
               />
               <FormField
-                name='email'
                 control={form.control}
+                name='email'
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Email</FormLabel>
                     <FormControl>
                       <Input
                         {...field}
-                        type='email'
                         placeholder='your.name@domain.com'
+                        type='email'
                       />
                     </FormControl>
                     <FormMessage />
@@ -119,16 +119,16 @@ export default function Component() {
                 )}
               />
               <FormField
-                name='password'
                 control={form.control}
+                name='password'
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Password</FormLabel>
                     <FormControl>
                       <Input
                         {...field}
-                        type='password'
                         placeholder='Secret@123'
+                        type='password'
                       />
                     </FormControl>
                     <FormMessage />
@@ -140,17 +140,17 @@ export default function Component() {
         </CardContent>
         <CardFooter className='grid gap-2'>
           <Button
-            type='submit'
-            form='signup-form'
-            disabled={pending}
             className='cursor-pointer'
+            disabled={pending}
+            form='signup-form'
+            type='submit'
           >
             {pending ? 'Signing up...' : 'Signup'}
           </Button>
           <Button
-            variant='outline'
             className='cursor-pointer'
             onClick={() => signIn('github')}
+            variant='outline'
           >
             <FontAwesomeIcon icon={faGithub} size='5x' />
           </Button>

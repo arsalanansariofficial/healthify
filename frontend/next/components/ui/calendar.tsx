@@ -29,23 +29,23 @@ export function CalendarDayButton(props: CalendarDayButtonProps) {
     <Button
       ref={ref}
       {...props}
-      size='icon'
-      variant='ghost'
-      data-range-end={props.modifiers.range_end}
+      className={cn(
+        'data-[selected-single=true]:bg-primary data-[selected-single=true]:text-primary-foreground data-[range-middle=true]:bg-accent data-[range-middle=true]:text-accent-foreground data-[range-start=true]:bg-primary data-[range-start=true]:text-primary-foreground data-[range-end=true]:bg-primary data-[range-end=true]:text-primary-foreground group-data-[focused=true]/day:border-ring group-data-[focused=true]/day:ring-ring/50 dark:hover:text-accent-foreground flex aspect-square size-auto w-full min-w-(--cell-size) flex-col gap-1 leading-none font-normal group-data-[focused=true]/day:relative group-data-[focused=true]/day:z-10 group-data-[focused=true]/day:ring-[3px] data-[range-end=true]:rounded-md data-[range-end=true]:rounded-r-md data-[range-middle=true]:rounded-none data-[range-start=true]:rounded-md data-[range-start=true]:rounded-l-md [&>span]:text-xs [&>span]:opacity-70',
+        defaultClassNames.day,
+        props.className
+      )}
       data-day={props.day.date.toLocaleDateString()}
-      data-range-start={props.modifiers.range_start}
+      data-range-end={props.modifiers.range_end}
       data-range-middle={props.modifiers.range_middle}
+      data-range-start={props.modifiers.range_start}
       data-selected-single={
         props.modifiers.selected &&
         !props.modifiers.range_start &&
         !props.modifiers.range_end &&
         !props.modifiers.range_middle
       }
-      className={cn(
-        'data-[selected-single=true]:bg-primary data-[selected-single=true]:text-primary-foreground data-[range-middle=true]:bg-accent data-[range-middle=true]:text-accent-foreground data-[range-start=true]:bg-primary data-[range-start=true]:text-primary-foreground data-[range-end=true]:bg-primary data-[range-end=true]:text-primary-foreground group-data-[focused=true]/day:border-ring group-data-[focused=true]/day:ring-ring/50 dark:hover:text-accent-foreground flex aspect-square size-auto w-full min-w-(--cell-size) flex-col gap-1 leading-none font-normal group-data-[focused=true]/day:relative group-data-[focused=true]/day:z-10 group-data-[focused=true]/day:ring-[3px] data-[range-end=true]:rounded-md data-[range-end=true]:rounded-r-md data-[range-middle=true]:rounded-none data-[range-start=true]:rounded-md data-[range-start=true]:rounded-l-md [&>span]:text-xs [&>span]:opacity-70',
-        defaultClassNames.day,
-        props.className
-      )}
+      size='icon'
+      variant='ghost'
     />
   );
 }
@@ -62,12 +62,6 @@ export function Calendar(props: Props) {
   return (
     <DayPicker
       captionLayout={captionLayout}
-      showOutsideDays={showOutsideDays}
-      formatters={{
-        formatMonthDropdown: date =>
-          date.toLocaleString('default', { month: 'short' }),
-        ...props.formatters
-      }}
       className={cn(
         'bg-background group/calendar p-3 [--cell-size:--spacing(8)] [[data-slot=card-content]_&]:bg-transparent [[data-slot=popover-content]_&]:bg-transparent',
         String.raw`rtl:**:[.rdp-button\_next>svg]:rotate-180`,
@@ -183,9 +177,9 @@ export function Calendar(props: Props) {
         Root: ({ className, rootRef, ...props }) => (
           <div
             {...props}
-            ref={rootRef}
-            data-slot='calendar'
             className={cn(className)}
+            data-slot='calendar'
+            ref={rootRef}
           />
         ),
         WeekNumber: ({ children, ...props }) => (
@@ -197,6 +191,12 @@ export function Calendar(props: Props) {
         ),
         ...props.components
       }}
+      formatters={{
+        formatMonthDropdown: date =>
+          date.toLocaleString('default', { month: 'short' }),
+        ...props.formatters
+      }}
+      showOutsideDays={showOutsideDays}
       {...props}
     />
   );

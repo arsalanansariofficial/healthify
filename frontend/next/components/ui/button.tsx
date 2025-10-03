@@ -46,7 +46,6 @@ export function Button({ asChild = false, ...props }: Props) {
   return (
     <Comp
       {...props}
-      data-slot='button'
       className={cn(
         buttonVariants({
           className: props.className,
@@ -54,6 +53,7 @@ export function Button({ asChild = false, ...props }: Props) {
           variant: props.variant
         })
       )}
+      data-slot='button'
     />
   );
 }

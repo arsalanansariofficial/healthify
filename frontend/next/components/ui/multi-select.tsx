@@ -92,12 +92,12 @@ export default function MultiSelect(props: MultiSelectProps) {
   );
 
   return (
-    <Popover open={open} onOpenChange={setOpen}>
+    <Popover onOpenChange={setOpen} open={open}>
       <PopoverTrigger asChild>
         <Button
+          className='flex h-full min-w-[200px] items-center justify-between px-2 pb-2'
           ref={triggerRef}
           variant='outline'
-          className='flex h-full min-w-[200px] items-center justify-between px-2 pb-2'
         >
           <div className='flex flex-wrap gap-1'>
             {props.selectedValues.length === 0 && (
@@ -108,11 +108,12 @@ export default function MultiSelect(props: MultiSelectProps) {
             {props.selectedValues.length > 0 &&
               props.selectedValues.map(val => (
                 <Badge
-                  key={val}
                   className='flex items-center gap-1 rounded-md bg-gray-200 px-2 py-1 text-black capitalize dark:bg-gray-700 dark:text-white'
+                  key={val}
                 >
                   {props.options.find(opt => opt.value === val)?.label}
                   <div
+                    className='ml-1 cursor-pointer text-red-500 hover:text-red-700'
                     onClick={e => {
                       e.stopPropagation();
                       removeSelected(val);
@@ -123,7 +124,6 @@ export default function MultiSelect(props: MultiSelectProps) {
                         removeSelected(val);
                       }
                     }}
-                    className='ml-1 cursor-pointer text-red-500 hover:text-red-700'
                   >
                     <X className='h-3 w-3' />
                   </div>
@@ -140,9 +140,9 @@ export default function MultiSelect(props: MultiSelectProps) {
       >
         <Command>
           <CommandInput
-            value={inputValue}
-            placeholder='Search...'
             onValueChange={setInputValue}
+            placeholder='Search...'
+            value={inputValue}
           />
           <CommandList>
             <CommandItem onSelect={toggleSelectAll}>
@@ -163,8 +163,8 @@ export default function MultiSelect(props: MultiSelectProps) {
                 const isSelected = props.selectedValues.includes(option.value);
                 return (
                   <CommandItem
-                    key={option.value}
                     className='capitalize'
+                    key={option.value}
                     onSelect={() => toggleSelection(option.value)}
                   >
                     <div className='flex items-center'>

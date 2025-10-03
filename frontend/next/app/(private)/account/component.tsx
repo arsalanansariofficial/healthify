@@ -52,7 +52,10 @@ import {
   arrayBufferToBase64
 } from '@/lib/utils';
 
-type Props = {
+export default function Component({
+  specialities,
+  user
+}: {
   specialities: { value: string; label: string }[];
   user: Pick<
     User,
@@ -72,9 +75,7 @@ type Props = {
     timings: Pick<TimeSlot, 'id' | 'time' | 'duration'>[];
     UserSpecialities: { speciality: Pick<Speciality, 'id' | 'name'> }[];
   };
-};
-
-export default function Component({ specialities, user }: Props) {
+}) {
   const isDoctor = useMemo(
     () =>
       hasRole(
@@ -197,8 +198,8 @@ export default function Component({ specialities, user }: Props) {
                   onSubmit={userForm.handleSubmit(submitUser)}
                 >
                   <FormField
-                    name='cover'
                     control={userForm.control}
+                    name='cover'
                     render={({ field }) => (
                       <FormItem>
                         <FormControl>
@@ -212,32 +213,31 @@ export default function Component({ specialities, user }: Props) {
                             )}
                           >
                             <Label
-                              htmlFor='cover'
                               className={cn(
                                 'absolute inset-0 z-10 grid place-items-center opacity-0 hover:opacity-100',
                                 { 'opacity-100': !user.cover }
                               )}
+                              htmlFor='cover'
                             >
                               <FileIcon />
                             </Label>
                             {(coverSrc || user.cover) && (
                               <Image
-                                fill
-                                priority
-                                unoptimized
                                 alt='Profile Picture'
                                 className='aspect-video object-cover'
+                                fill
+                                priority
                                 src={
                                   coverSrc ||
                                   `${DOMAIN.LOCAL}/api/upload/${user.cover}`
                                 }
+                                unoptimized
                               />
                             )}
                             <Input
-                              id='cover'
-                              type='file'
-                              name='cover'
                               className='hidden'
+                              id='cover'
+                              name='cover'
                               onChange={e => {
                                 const files = e.target.files;
                                 if (files?.length) {
@@ -245,6 +245,7 @@ export default function Component({ specialities, user }: Props) {
                                   handleFileChange(e, 'cover');
                                 }
                               }}
+                              type='file'
                             />
                           </div>
                         </FormControl>
@@ -253,39 +254,38 @@ export default function Component({ specialities, user }: Props) {
                     )}
                   />
                   <FormField
-                    name='image'
                     control={userForm.control}
+                    name='image'
                     render={({ field }) => (
                       <FormItem>
                         <FormControl>
                           <div className='absolute z-10 grid h-20 w-20 translate-x-2 -translate-y-[calc(100%+theme(spacing.4))] gap-3 overflow-clip rounded-md border-2'>
                             <Label
-                              htmlFor='image'
                               className={cn(
                                 'absolute inset-0 z-10 grid place-items-center opacity-0 hover:opacity-100',
                                 { 'opacity-100': !user.image }
                               )}
+                              htmlFor='image'
                             >
                               <FileIcon />
                             </Label>
                             {(imageSrc || user.image) && (
                               <Image
-                                fill
-                                priority
-                                unoptimized
                                 alt='Profile Picture'
                                 className='aspect-video object-cover'
+                                fill
+                                priority
                                 src={
                                   imageSrc ||
                                   `${!user.hasOAuth ? `${DOMAIN.LOCAL}/api/upload/` : ''}${user.image}`
                                 }
+                                unoptimized
                               />
                             )}
                             <Input
-                              id='image'
-                              type='file'
-                              name='image'
                               className='hidden'
+                              id='image'
+                              name='image'
                               onChange={e => {
                                 const files = e.target.files;
                                 if (files?.length) {
@@ -293,6 +293,7 @@ export default function Component({ specialities, user }: Props) {
                                   handleFileChange(e, 'image');
                                 }
                               }}
+                              type='file'
                             />
                           </div>
                         </FormControl>
@@ -301,17 +302,17 @@ export default function Component({ specialities, user }: Props) {
                     )}
                   />
                   <FormField
-                    name='name'
                     control={userForm.control}
+                    name='name'
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>Name</FormLabel>
                         <FormControl>
                           <Input
                             {...field}
-                            type='text'
                             className='capitalize'
                             placeholder='Gwen Tennyson'
+                            type='text'
                           />
                         </FormControl>
                         <FormMessage />
@@ -319,16 +320,16 @@ export default function Component({ specialities, user }: Props) {
                     )}
                   />
                   <FormField
-                    name='email'
                     control={userForm.control}
+                    name='email'
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>Email</FormLabel>
                         <FormControl>
                           <Input
                             {...field}
-                            type='email'
                             placeholder='your.name@domain.com'
+                            type='email'
                           />
                         </FormControl>
                         <FormMessage />
@@ -336,16 +337,16 @@ export default function Component({ specialities, user }: Props) {
                     )}
                   />
                   <FormField
-                    name='password'
                     control={userForm.control}
+                    name='password'
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>Password</FormLabel>
                         <FormControl>
                           <Input
                             {...field}
-                            type='password'
                             placeholder='Secret@123'
+                            type='password'
                           />
                         </FormControl>
                         <FormMessage />
@@ -353,16 +354,16 @@ export default function Component({ specialities, user }: Props) {
                     )}
                   />
                   <FormField
-                    name='phone'
                     control={userForm.control}
+                    name='phone'
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>Phone</FormLabel>
                         <FormControl>
                           <Input
                             {...field}
-                            type='tel'
                             placeholder='+919876543210'
+                            type='tel'
                           />
                         </FormControl>
                         <FormMessage />
@@ -370,8 +371,8 @@ export default function Component({ specialities, user }: Props) {
                     )}
                   />
                   <FormField
-                    name='gender'
                     control={userForm.control}
+                    name='gender'
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>Gender</FormLabel>
@@ -394,17 +395,17 @@ export default function Component({ specialities, user }: Props) {
                     )}
                   />
                   <FormField
-                    name='city'
                     control={userForm.control}
+                    name='city'
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>City</FormLabel>
                         <FormControl>
                           <Input
                             {...field}
-                            type='text'
                             className='capitalize'
                             placeholder='Moradabad'
+                            type='text'
                           />
                         </FormControl>
                         <FormMessage />
@@ -412,11 +413,11 @@ export default function Component({ specialities, user }: Props) {
                     )}
                   />
                   <Button
-                    type='submit'
                     disabled={
                       !hasFormChanged(defaultUserValues, userForm.watch()) ||
                       userForm.formState.isSubmitting
                     }
+                    type='submit'
                   >
                     {userForm.formState.isSubmitting ? 'Saving...' : 'Save'}
                   </Button>
@@ -430,8 +431,8 @@ export default function Component({ specialities, user }: Props) {
                   onSubmit={doctorForm.handleSubmit(submitDoctor)}
                 >
                   <FormField
-                    name='cover'
                     control={doctorForm.control}
+                    name='cover'
                     render={({ field }) => (
                       <FormItem>
                         <FormControl>
@@ -445,32 +446,31 @@ export default function Component({ specialities, user }: Props) {
                             )}
                           >
                             <Label
-                              htmlFor='cover'
                               className={cn(
                                 'absolute inset-0 z-10 grid place-items-center opacity-0 hover:opacity-100',
                                 { 'opacity-100': !user.cover }
                               )}
+                              htmlFor='cover'
                             >
                               <FileIcon />
                             </Label>
                             {(coverSrc || user.cover) && (
                               <Image
-                                fill
-                                priority
-                                unoptimized
                                 alt='Profile Picture'
                                 className='aspect-video object-cover'
+                                fill
+                                priority
                                 src={
                                   coverSrc ||
                                   `${!user.hasOAuth ? `${DOMAIN.LOCAL}/api/upload/` : ''}${user.cover}`
                                 }
+                                unoptimized
                               />
                             )}
                             <Input
-                              id='cover'
-                              type='file'
-                              name='cover'
                               className='hidden'
+                              id='cover'
+                              name='cover'
                               onChange={e => {
                                 const files = e.target.files;
                                 if (files?.length) {
@@ -478,6 +478,7 @@ export default function Component({ specialities, user }: Props) {
                                   handleFileChange(e, 'cover');
                                 }
                               }}
+                              type='file'
                             />
                           </div>
                         </FormControl>
@@ -486,39 +487,38 @@ export default function Component({ specialities, user }: Props) {
                     )}
                   />
                   <FormField
-                    name='image'
                     control={doctorForm.control}
+                    name='image'
                     render={({ field }) => (
                       <FormItem>
                         <FormControl>
                           <div className='absolute z-10 grid h-20 w-20 translate-x-2 -translate-y-[calc(100%+theme(spacing.4))] gap-3 overflow-clip rounded-md border-2'>
                             <Label
-                              htmlFor='image'
                               className={cn(
                                 'absolute inset-0 z-10 grid place-items-center opacity-0 hover:opacity-100',
                                 { 'opacity-100': !user.image }
                               )}
+                              htmlFor='image'
                             >
                               <FileIcon />
                             </Label>
                             {(imageSrc || user.image) && (
                               <Image
-                                fill
-                                priority
-                                unoptimized
                                 alt='Profile Picture'
                                 className='object-image aspect-video'
+                                fill
+                                priority
                                 src={
                                   imageSrc ||
                                   `${!user.hasOAuth ? `${DOMAIN.LOCAL}/api/upload/` : ''}${user.image}`
                                 }
+                                unoptimized
                               />
                             )}
                             <Input
-                              id='image'
-                              type='file'
-                              name='image'
                               className='hidden'
+                              id='image'
+                              name='image'
                               onChange={e => {
                                 const files = e.target.files;
                                 if (files?.length) {
@@ -526,6 +526,7 @@ export default function Component({ specialities, user }: Props) {
                                   handleFileChange(e, 'image');
                                 }
                               }}
+                              type='file'
                             />
                           </div>
                         </FormControl>
@@ -534,17 +535,17 @@ export default function Component({ specialities, user }: Props) {
                     )}
                   />
                   <FormField
-                    name='name'
                     control={doctorForm.control}
+                    name='name'
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>Name</FormLabel>
                         <FormControl>
                           <Input
                             {...field}
-                            type='text'
                             className='capitalize'
                             placeholder='Gwen Tennyson'
+                            type='text'
                           />
                         </FormControl>
                         <FormMessage />
@@ -552,16 +553,16 @@ export default function Component({ specialities, user }: Props) {
                     )}
                   />
                   <FormField
-                    name='email'
                     control={doctorForm.control}
+                    name='email'
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>Email</FormLabel>
                         <FormControl>
                           <Input
                             {...field}
-                            type='email'
                             placeholder='your.name@domain.com'
+                            type='email'
                           />
                         </FormControl>
                         <FormMessage />
@@ -569,16 +570,16 @@ export default function Component({ specialities, user }: Props) {
                     )}
                   />
                   <FormField
-                    name='password'
                     control={doctorForm.control}
+                    name='password'
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>Password</FormLabel>
                         <FormControl>
                           <Input
                             {...field}
-                            type='password'
                             placeholder='Secret@123'
+                            type='password'
                           />
                         </FormControl>
                         <FormMessage />
@@ -586,16 +587,16 @@ export default function Component({ specialities, user }: Props) {
                     )}
                   />
                   <FormField
-                    name='phone'
                     control={doctorForm.control}
+                    name='phone'
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>Phone</FormLabel>
                         <FormControl>
                           <Input
                             {...field}
-                            type='tel'
                             placeholder='+919876543210'
+                            type='tel'
                           />
                         </FormControl>
                         <FormMessage />
@@ -603,8 +604,8 @@ export default function Component({ specialities, user }: Props) {
                     )}
                   />
                   <FormField
-                    name='gender'
                     control={doctorForm.control}
+                    name='gender'
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>Gender</FormLabel>
@@ -627,16 +628,16 @@ export default function Component({ specialities, user }: Props) {
                     )}
                   />
                   <FormField
-                    name='experience'
                     control={doctorForm.control}
+                    name='experience'
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>Experience</FormLabel>
                         <FormControl>
                           <Input
                             {...field}
-                            type='number'
                             placeholder='1 Year'
+                            type='number'
                           />
                         </FormControl>
                         <FormMessage />
@@ -644,17 +645,17 @@ export default function Component({ specialities, user }: Props) {
                     )}
                   />
                   <FormField
-                    name='city'
                     control={doctorForm.control}
+                    name='city'
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>City</FormLabel>
                         <FormControl>
                           <Input
                             {...field}
-                            type='text'
                             className='capitalize'
                             placeholder='Moradabad'
+                            type='text'
                           />
                         </FormControl>
                         <FormMessage />
@@ -662,17 +663,17 @@ export default function Component({ specialities, user }: Props) {
                     )}
                   />
                   <FormField
-                    name='specialities'
                     control={doctorForm.control}
+                    name='specialities'
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>Specialities</FormLabel>
                         <FormControl>
                           <MultiSelect
                             options={specialities}
+                            placeholder='Select specialities ...'
                             selectedValues={field.value}
                             setSelectedValues={field.onChange}
-                            placeholder='Select specialities ...'
                           />
                         </FormControl>
                         <FormMessage />
@@ -680,17 +681,17 @@ export default function Component({ specialities, user }: Props) {
                     )}
                   />
                   <FormField
-                    name='daysOfVisit'
                     control={doctorForm.control}
+                    name='daysOfVisit'
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>Visiting Days</FormLabel>
                         <FormControl>
                           <MultiSelect
                             options={[...DATES.DAYS]}
+                            placeholder='Select specialities ...'
                             selectedValues={field.value}
                             setSelectedValues={field.onChange}
-                            placeholder='Select specialities ...'
                           />
                         </FormControl>
                         <FormMessage />
@@ -698,8 +699,8 @@ export default function Component({ specialities, user }: Props) {
                     )}
                   />
                   <FormField
-                    name='timings'
                     control={doctorForm.control}
+                    name='timings'
                     render={({ field }) => (
                       <FormItem>
                         <FormControl>
@@ -707,8 +708,6 @@ export default function Component({ specialities, user }: Props) {
                             <div className='flex items-center justify-between'>
                               <Label>Timings</Label>
                               <Button
-                                type='button'
-                                variant='ghost'
                                 onClick={() => {
                                   field.onChange([
                                     ...field.value,
@@ -719,6 +718,8 @@ export default function Component({ specialities, user }: Props) {
                                     }
                                   ]);
                                 }}
+                                type='button'
+                                variant='ghost'
                               >
                                 <PlusIcon className='h-4 w-4' />
                               </Button>
@@ -727,34 +728,32 @@ export default function Component({ specialities, user }: Props) {
                               <ul className='space-y-2'>
                                 {field.value.map((time, index) => (
                                   <li
-                                    key={time.id}
                                     className='grid grid-cols-[1fr_auto_auto] gap-2'
+                                    key={time.id}
                                   >
                                     <Input
-                                      step='1'
-                                      type='time'
-                                      defaultValue={time.time}
                                       className='bg-background appearance-none [&::-webkit-calendar-picker-indicator]:hidden [&::-webkit-calendar-picker-indicator]:appearance-none'
+                                      defaultValue={time.time}
                                       onChange={e => {
                                         const time = field.value.slice();
                                         time[index].time = e.target.value;
                                         field.onChange(time);
                                       }}
+                                      step='1'
+                                      type='time'
                                     />
                                     <Input
                                       min={1}
                                       {...field}
-                                      type='number'
-                                      value={time.duration}
                                       onChange={e => {
                                         const time = field.value.slice();
                                         time[index].duration = +e.target.value;
                                         field.onChange(time);
                                       }}
+                                      type='number'
+                                      value={time.duration}
                                     />
                                     <Button
-                                      type='button'
-                                      variant='ghost'
                                       disabled={!index}
                                       onClick={() => {
                                         if (index) {
@@ -764,6 +763,8 @@ export default function Component({ specialities, user }: Props) {
                                           field.onChange(newTimings);
                                         }
                                       }}
+                                      type='button'
+                                      variant='ghost'
                                     >
                                       <TrashIcon className='h-4 w-4' />
                                     </Button>
@@ -779,13 +780,13 @@ export default function Component({ specialities, user }: Props) {
                     )}
                   />
                   <Button
-                    type='submit'
                     disabled={
                       !hasFormChanged(
                         defaultDoctorValues,
                         doctorForm.watch()
                       ) || doctorForm.formState.isSubmitting
                     }
+                    type='submit'
                   >
                     {doctorForm.formState.isSubmitting ? 'Saving...' : 'Save'}
                   </Button>

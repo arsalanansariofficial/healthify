@@ -10,8 +10,8 @@ export default async function Page() {
 
   return (
     <Component
-      user={session?.user as User}
       roles={roles.map(r => ({ label: r.name, value: r.id }))}
+      user={session?.user as User}
     />
   );
 }

@@ -6,7 +6,7 @@ import { ROUTES } from '@/lib/constants';
 export default async function Page({
   searchParams
 }: {
-  searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
+  searchParams: Promise<{ error?: string }>;
 }) {
   const { error } = await searchParams;
 

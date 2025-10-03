@@ -87,21 +87,21 @@ export default function Component({ error }: { error?: string }) {
         <CardContent>
           <Form {...form}>
             <form
-              id='login-form'
               className='space-y-2'
+              id='login-form'
               onSubmit={form.handleSubmit(handleSubmit)}
             >
               <FormField
-                name='email'
                 control={form.control}
+                name='email'
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Email</FormLabel>
                     <FormControl>
                       <Input
                         {...field}
-                        type='email'
                         placeholder='your.name@domain.com'
+                        type='email'
                       />
                     </FormControl>
                     <FormMessage />
@@ -109,15 +109,15 @@ export default function Component({ error }: { error?: string }) {
                 )}
               />
               <FormField
-                name='password'
                 control={form.control}
+                name='password'
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel className='flex items-center justify-between'>
                       <span>Password</span>
                       <Link
-                        href={ROUTES.FORGET}
                         className='text-primary font-normal'
+                        href={ROUTES.FORGET}
                       >
                         Forget Password?
                       </Link>
@@ -125,8 +125,8 @@ export default function Component({ error }: { error?: string }) {
                     <FormControl>
                       <Input
                         {...field}
-                        type='password'
                         placeholder='Secret@123'
+                        type='password'
                       />
                     </FormControl>
                     <FormMessage />
@@ -138,17 +138,17 @@ export default function Component({ error }: { error?: string }) {
         </CardContent>
         <CardFooter className='grid gap-2'>
           <Button
-            type='submit'
-            form='login-form'
-            disabled={pending}
             className='cursor-pointer'
+            disabled={pending}
+            form='login-form'
+            type='submit'
           >
             {pending ? 'Logging in...' : 'Login'}
           </Button>
           <Button
-            variant='outline'
             className='cursor-pointer'
             onClick={() => signIn('github')}
+            variant='outline'
           >
             <FontAwesomeIcon icon={faGithub} size='5x' />
           </Button>

@@ -48,18 +48,18 @@ export default function Component() {
         <CardContent>
           <Form {...form}>
             <form
-              id='department-form'
               className='space-y-2'
+              id='department-form'
               onSubmit={form.handleSubmit(handleSubmit)}
             >
               <FormField
-                name='name'
                 control={form.control}
+                name='name'
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Name</FormLabel>
                     <FormControl>
-                      <Input {...field} type='text' placeholder='ECG' />
+                      <Input {...field} placeholder='ECG' type='text' />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -70,10 +70,10 @@ export default function Component() {
         </CardContent>
         <CardFooter>
           <Button
-            type='submit'
-            form='department-form'
             className='cursor-pointer'
             disabled={form.formState.isLoading}
+            form='department-form'
+            type='submit'
           >
             {form.formState.isLoading ? 'Saving...' : 'Save'}
           </Button>

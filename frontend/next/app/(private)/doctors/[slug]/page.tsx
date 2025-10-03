@@ -8,9 +8,11 @@ import { DOMAIN } from '@/lib/constants';
 import prisma from '@/lib/prisma';
 import { getDate } from '@/lib/utils';
 
-type Props = { params: Promise<{ slug: string }> };
-
-export default async function Page({ params }: Props) {
+export default async function Page({
+  params
+}: {
+  params: Promise<{ slug: string }>;
+}) {
   const [session, doctor] = await Promise.all([
     auth(),
     prisma.user.findUnique({
@@ -27,12 +29,12 @@ export default async function Page({ params }: Props) {
     <section className='grid h-full grid-rows-[auto_auto_1fr] space-y-8 lg:mx-auto lg:w-10/12'>
       <header className='relative h-80 space-y-2'>
         <Image
-          fill
-          priority
-          unoptimized
           alt='Post Image'
           className='aspect-video rounded-lg object-cover'
+          fill
+          priority
           src={`${!doctor.hasOAuth ? `${DOMAIN.LOCAL}/api/upload/` : ''}${doctor.image}`}
+          unoptimized
         />
       </header>
       <main className='space-y-4'>

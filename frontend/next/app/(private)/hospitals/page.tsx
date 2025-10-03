@@ -15,9 +15,9 @@ export default async function Page() {
 
   return (
     <Component
-      user={session.user}
       hospitals={hospitals}
       key={hospitals.map(h => h.updatedAt).toString()}
+      user={session.user}
       users={await prisma.user.findMany({
         where: {
           UserRoles: { some: { role: { name: ROLES.DOCTOR as string } } }

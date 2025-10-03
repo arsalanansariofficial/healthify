@@ -75,9 +75,9 @@ function Menu({
   const menuTrigger = (
     <DropdownMenuTrigger asChild>
       <Button
+        className='data-[state=open]:bg-muted text-muted-foreground flex size-8'
         size='icon'
         variant='ghost'
-        className='data-[state=open]:bg-muted text-muted-foreground flex size-8'
       >
         <IconDotsVertical />
         <span className='sr-only'>Open menu</span>
@@ -91,7 +91,6 @@ function Menu({
       {ids && ids.length > 0 && isHeader && menuTrigger}
       <DropdownMenuContent align='end' className='w-32'>
         <DropdownMenuItem
-          variant='destructive'
           onClick={async () => {
             if (!isHeader) {
               toast.promise(deleteUser(id as string), {
@@ -117,6 +116,7 @@ function Menu({
               });
             }
           }}
+          variant='destructive'
         >
           Delete
         </DropdownMenuItem>
@@ -141,7 +141,7 @@ export function TableCellViewer<T extends z.ZodType>(props: {
   return (
     <Drawer direction={isMobile ? 'bottom' : 'right'}>
       <DrawerTrigger asChild onClick={e => e.currentTarget.blur()}>
-        <Button variant='link' className='text-foreground px-0'>
+        <Button className='text-foreground px-0' variant='link'>
           {props.item.name}
         </Button>
       </DrawerTrigger>
@@ -155,32 +155,32 @@ export function TableCellViewer<T extends z.ZodType>(props: {
         <div className='flex flex-col gap-4 overflow-y-auto px-4 text-sm'>
           {!isMobile && (
             <Chart
-              dataKey='users'
-              data={props.chartData}
               chartConfig={props.chartConfig}
+              data={props.chartData}
+              dataKey='users'
             />
           )}
           <Form {...form}>
             <form
-              id='user-form'
               className='space-y-2'
+              id='user-form'
               onSubmit={form.handleSubmit(handleSubmit)}
             >
               <FormField
-                name='name'
                 control={form.control}
+                name='name'
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Name</FormLabel>
                     <FormControl>
                       <Input
                         {...field}
-                        type='text'
-                        placeholder='Gwen Tennyson'
-                        value={field.value ?? String()}
                         onChange={({ target: { value } }) =>
                           field.onChange(value || undefined)
                         }
+                        placeholder='Gwen Tennyson'
+                        type='text'
+                        value={field.value ?? String()}
                       />
                     </FormControl>
                     <FormMessage />
@@ -188,20 +188,20 @@ export function TableCellViewer<T extends z.ZodType>(props: {
                 )}
               />
               <FormField
-                name='email'
                 control={form.control}
+                name='email'
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Email</FormLabel>
                     <FormControl>
                       <Input
                         {...field}
-                        type='email'
-                        value={field.value ?? String()}
-                        placeholder='your.name@domain.com'
                         onChange={({ target: { value } }) =>
                           field.onChange(value || undefined)
                         }
+                        placeholder='your.name@domain.com'
+                        type='email'
+                        value={field.value ?? String()}
                       />
                     </FormControl>
                     <FormMessage />
@@ -209,20 +209,20 @@ export function TableCellViewer<T extends z.ZodType>(props: {
                 )}
               />
               <FormField
-                name='password'
                 control={form.control}
+                name='password'
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Password</FormLabel>
                     <FormControl>
                       <Input
                         {...field}
-                        type='password'
-                        placeholder='Secret@123'
-                        value={field.value ?? String()}
                         onChange={({ target: { value } }) =>
                           field.onChange(value || undefined)
                         }
+                        placeholder='Secret@123'
+                        type='password'
+                        value={field.value ?? String()}
                       />
                     </FormControl>
                     <FormMessage />
@@ -230,16 +230,16 @@ export function TableCellViewer<T extends z.ZodType>(props: {
                 )}
               />
               <FormField
-                name='emailVerified'
                 control={form.control}
                 defaultValue={props.item.emailVerified ? 'yes' : 'no'}
+                name='emailVerified'
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Email Verified</FormLabel>
                     <FormControl>
                       <Select
-                        value={field.value}
                         onValueChange={field.onChange}
+                        value={field.value}
                       >
                         <SelectTrigger className='w-full'>
                           <SelectValue placeholder='Select a status' />
@@ -259,10 +259,10 @@ export function TableCellViewer<T extends z.ZodType>(props: {
         </div>
         <DrawerFooter>
           <Button
-            type='submit'
-            form='user-form'
-            disabled={pending}
             className='cursor-pointer'
+            disabled={pending}
+            form='user-form'
+            type='submit'
           >
             {pending ? 'Saving...' : 'Save'}
           </Button>
@@ -316,11 +316,11 @@ export default function Component(props: {
         header: ({ table }) => (
           <Checkbox
             aria-label='Select all'
-            onCheckedChange={value => table.toggleAllPageRowsSelected(!!value)}
             checked={
               table.getIsAllPageRowsSelected() ||
               (table.getIsSomePageRowsSelected() && 'indeterminate')
             }
+            onCheckedChange={value => table.toggleAllPageRowsSelected(!!value)}
           />
         ),
         id: 'select'
@@ -329,10 +329,10 @@ export default function Component(props: {
         accessorKey: 'name',
         cell: ({ row }) => (
           <TableCellViewer
-            key={Date.now()}
-            chartData={props.chartData}
             chartConfig={props.chartConfig}
+            chartData={props.chartData}
             item={props.users.find(u => u.email === row.original.email)}
+            key={Date.now()}
           />
         ),
         enableHiding: false,
@@ -341,7 +341,7 @@ export default function Component(props: {
       {
         accessorKey: 'email',
         cell: ({ row }) => (
-          <Badge variant='outline' className='text-muted-foreground'>
+          <Badge className='text-muted-foreground' variant='outline'>
             {row.original.email}
           </Badge>
         ),
@@ -351,14 +351,14 @@ export default function Component(props: {
         accessorKey: 'emailVerified',
         cell: ({ row }) => (
           <Switch
-            id='verify-email'
-            className='mx-auto block'
             checked={
               props.users.find(user => row.original.email === user.email)
                 ?.emailVerified
                 ? true
                 : false
             }
+            className='mx-auto block'
+            id='verify-email'
             onCheckedChange={async () =>
               toast.promise(verifyEmail(row.original.email), {
                 error(error) {
@@ -381,15 +381,15 @@ export default function Component(props: {
       },
       {
         cell: ({ row }) => (
-          <Menu isHeader={false} id={row.original.id.toString()} />
+          <Menu id={row.original.id.toString()} isHeader={false} />
         ),
         header: ({ table }) => {
           return (
             <Menu
-              isHeader={true}
               ids={table
                 .getSelectedRowModel()
                 .rows.map(r => r.original.id.toString())}
+              isHeader={true}
             />
           );
         },
@@ -403,8 +403,8 @@ export default function Component(props: {
     <div className='flex h-full flex-col gap-8 lg:mx-auto lg:w-10/12'>
       {hasPermission(props.user.permissions, 'view:users') && (
         <DataTable
-          data={props.users}
           columns={columns}
+          data={props.users}
           filterConfig={[
             { id: 'name', placeholder: 'Name...' },
             { id: 'email', placeholder: 'Email...' }

@@ -22,9 +22,9 @@ export default async function Page() {
 
   return (
     <Component
-      user={session.user}
-      subscriptions={subscriptions}
       key={subscriptions.map(s => s.updatedAt).toString()}
+      subscriptions={subscriptions}
+      user={session.user}
     />
   );
 }

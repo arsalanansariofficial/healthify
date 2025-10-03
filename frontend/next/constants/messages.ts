@@ -162,10 +162,7 @@ export const MESSAGES = {
       'PHARMA_BRAND_DELETED',
       '🎉 Pharma brand deleted successfully.'
     ),
-    UPDATED: env(
-      'PHARMA_BRAND_UPDATED',
-      '🎉 Pharma brand updated successfully'
-    )
+    UPDATED: env('PHARMA_BRAND_UPDATED', '🎉 Pharma brand updated successfully')
   },
 
   PHARMA_CODE: {

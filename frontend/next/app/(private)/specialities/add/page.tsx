@@ -47,22 +47,22 @@ export default function Page() {
         <CardContent>
           <Form {...form}>
             <form
-              id='speciality-form'
               className='space-y-2'
+              id='speciality-form'
               onSubmit={form.handleSubmit(handleSubmit)}
             >
               <FormField
-                name='name'
                 control={form.control}
+                name='name'
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Name</FormLabel>
                     <FormControl>
                       <Input
                         {...field}
-                        type='text'
                         className='capitalize'
                         placeholder='Physician'
+                        type='text'
                       />
                     </FormControl>
                     <FormMessage />
@@ -73,7 +73,7 @@ export default function Page() {
           </Form>
         </CardContent>
         <CardFooter>
-          <Button type='submit' disabled={pending} form='speciality-form'>
+          <Button disabled={pending} form='speciality-form' type='submit'>
             {pending ? 'Saving...' : 'Save'}
           </Button>
         </CardFooter>

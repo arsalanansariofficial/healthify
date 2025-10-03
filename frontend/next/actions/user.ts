@@ -204,7 +204,8 @@ export async function updateUser(id: string, data: z.infer<typeof userSchema>) {
       return await prisma.user.update({
         data: {
           email: result.data.email,
-          emailVerified: result.data.emailVerified === 'yes' ? new Date() : null,
+          emailVerified:
+            result.data.emailVerified === 'yes' ? new Date() : null,
           name: result.data.name,
           password: password ? bcrypt.hashSync(password, 10) : undefined
         },

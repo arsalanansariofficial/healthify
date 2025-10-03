@@ -11,9 +11,9 @@ export default async function Page() {
 
   return (
     <Component
-      user={session.user}
-      manufacturers={manufacturers}
       key={manufacturers.map(c => c.updatedAt).toString()}
+      manufacturers={manufacturers}
+      user={session.user}
     />
   );
 }

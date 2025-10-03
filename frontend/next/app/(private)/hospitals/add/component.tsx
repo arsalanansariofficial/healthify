@@ -64,21 +64,21 @@ export default function Component({ users }: { users: User[] }) {
         <CardContent>
           <Form {...form}>
             <form
-              id='hospital-form'
               className='space-y-2'
+              id='hospital-form'
               onSubmit={form.handleSubmit(handleSubmit)}
             >
               <FormField
-                name='name'
                 control={form.control}
+                name='name'
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Name</FormLabel>
                     <FormControl>
                       <Input
                         {...field}
-                        type='text'
                         placeholder='Riverdale General Hospital'
+                        type='text'
                       />
                     </FormControl>
                     <FormMessage />
@@ -86,16 +86,16 @@ export default function Component({ users }: { users: User[] }) {
                 )}
               />
               <FormField
-                name='email'
                 control={form.control}
+                name='email'
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Email</FormLabel>
                     <FormControl>
                       <Input
                         {...field}
-                        type='email'
                         placeholder='your.name@domain.com'
+                        type='email'
                       />
                     </FormControl>
                     <FormMessage />
@@ -103,29 +103,29 @@ export default function Component({ users }: { users: User[] }) {
                 )}
               />
               <FormField
-                name='city'
                 control={form.control}
+                name='city'
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>City</FormLabel>
                     <FormControl>
-                      <Input {...field} type='text' placeholder='Moradabad' />
+                      <Input {...field} placeholder='Moradabad' type='text' />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
                 )}
               />
               <FormField
-                name='phone'
                 control={form.control}
+                name='phone'
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Phone</FormLabel>
                     <FormControl>
                       <Input
                         {...field}
-                        type='tel'
                         placeholder='+919876543210'
+                        type='tel'
                       />
                     </FormControl>
                     <FormMessage />
@@ -133,8 +133,8 @@ export default function Component({ users }: { users: User[] }) {
                 )}
               />
               <FormField
-                name='isAffiliated'
                 control={form.control}
+                name='isAffiliated'
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Affliated</FormLabel>
@@ -157,8 +157,8 @@ export default function Component({ users }: { users: User[] }) {
                 )}
               />
               <FormField
-                name='address'
                 control={form.control}
+                name='address'
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Address</FormLabel>
@@ -173,19 +173,19 @@ export default function Component({ users }: { users: User[] }) {
                 )}
               />
               <FormField
-                name='doctors'
                 control={form.control}
+                name='doctors'
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Users</FormLabel>
                     <FormControl>
                       <MultiSelect
-                        selectedValues={field.value}
-                        setSelectedValues={field.onChange}
                         options={users.map(u => ({
                           label: u.name || String(),
                           value: u.id
                         }))}
+                        selectedValues={field.value}
+                        setSelectedValues={field.onChange}
                       />
                     </FormControl>
                     <FormMessage />
@@ -197,10 +197,10 @@ export default function Component({ users }: { users: User[] }) {
         </CardContent>
         <CardFooter>
           <Button
-            type='submit'
-            form='hospital-form'
             className='cursor-pointer'
             disabled={form.formState.isLoading}
+            form='hospital-form'
+            type='submit'
           >
             {form.formState.isLoading ? 'Saving...' : 'Save'}
           </Button>

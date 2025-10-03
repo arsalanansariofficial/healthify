@@ -82,14 +82,14 @@ export function ChartContainer(props: ChartContainerProps) {
     <ChartContext.Provider value={{ config: props.config }}>
       <div
         {...props}
-        data-slot='chart'
-        data-chart={chartId}
         className={cn(
           "[&_.recharts-cartesian-axis-tick_text]:fill-muted-foreground [&_.recharts-cartesian-grid_line[stroke='#ccc']]:stroke-border/50 [&_.recharts-curve.recharts-tooltip-cursor]:stroke-border [&_.recharts-polar-grid_[stroke='#ccc']]:stroke-border [&_.recharts-radial-bar-background-sector]:fill-muted [&_.recharts-rectangle.recharts-tooltip-cursor]:fill-muted [&_.recharts-reference-line_[stroke='#ccc']]:stroke-border flex aspect-video justify-center text-xs [&_.recharts-dot[stroke='#fff']]:stroke-transparent [&_.recharts-layer]:outline-hidden [&_.recharts-sector]:outline-hidden [&_.recharts-sector[stroke='#fff']]:stroke-transparent [&_.recharts-surface]:outline-hidden",
           props.className
         )}
+        data-chart={chartId}
+        data-slot='chart'
       >
-        <ChartStyle id={chartId} config={props.config} />
+        <ChartStyle config={props.config} id={chartId} />
         <ResponsiveContainer>{props.children}</ResponsiveContainer>
       </div>
     </ChartContext.Provider>
@@ -184,10 +184,10 @@ export function ChartLegendContent(props: CharLegendContentProps) {
 
         return (
           <div
-            key={item.value}
             className={cn(
               '[&>svg]:text-muted-foreground flex items-center gap-1.5 [&>svg]:h-3 [&>svg]:w-3'
             )}
+            key={item.value}
           >
             {itemConfig?.icon && !hideIcon ? (
               <itemConfig.icon />
@@ -261,11 +261,11 @@ export function ChartTooltipContent(props: ChartTooltipContentProps) {
 
           return (
             <div
-              key={item.dataKey as string}
               className={cn(
                 '[&>svg]:text-muted-foreground flex w-full flex-wrap items-stretch gap-2 [&>svg]:h-2.5 [&>svg]:w-2.5',
                 indicator === 'dot' && 'items-center'
               )}
+              key={item.dataKey as string}
             >
               {props.formatter && item?.value && item.name ? (
                 props.formatter(

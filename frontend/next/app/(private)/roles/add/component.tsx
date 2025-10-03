@@ -47,18 +47,18 @@ export default function Component() {
         <CardContent>
           <Form {...form}>
             <form
-              id='role-form'
               className='space-y-2'
+              id='role-form'
               onSubmit={form.handleSubmit(handleSubmit)}
             >
               <FormField
-                name='name'
                 control={form.control}
+                name='name'
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Name</FormLabel>
                     <FormControl>
-                      <Input {...field} type='text' placeholder='USER' />
+                      <Input {...field} placeholder='USER' type='text' />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -69,10 +69,10 @@ export default function Component() {
         </CardContent>
         <CardFooter>
           <Button
-            type='submit'
-            form='role-form'
-            disabled={pending}
             className='cursor-pointer'
+            disabled={pending}
+            form='role-form'
+            type='submit'
           >
             {pending ? 'Adding role...' : 'Add role'}
           </Button>

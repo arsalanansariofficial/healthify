@@ -90,10 +90,10 @@ export default async function Page() {
 
   return (
     <Component
-      specialities={specialities}
-      user={session?.user as User}
       doctors={doctors.map(d => d.user)}
       key={specialities.map(s => s.updatedAt).toString()}
+      specialities={specialities}
+      user={session?.user as User}
     />
   );
 }

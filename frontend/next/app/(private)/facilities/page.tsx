@@ -11,9 +11,9 @@ export default async function Page() {
 
   return (
     <Component
-      user={session.user}
       facilities={facilities}
       key={facilities.map(f => f.updatedAt).toString()}
+      user={session.user}
     />
   );
 }

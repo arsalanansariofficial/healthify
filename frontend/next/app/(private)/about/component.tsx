@@ -26,9 +26,11 @@ import { updateBio } from '@/lib/actions';
 import { bioSchema } from '@/lib/schemas';
 import { getDate } from '@/lib/utils';
 
-type NewType = { user: Pick<User, 'id' | 'bio' | 'name'> };
-
-export default function Component({ user }: NewType) {
+export default function Component({
+  user
+}: {
+  user: Pick<User, 'id' | 'bio' | 'name'>;
+}) {
   const { handleSubmit } = useHookForm(
     handler,
     updateBio.bind(null, user.id as string) as (
@@ -55,7 +57,7 @@ export default function Component({ user }: NewType) {
   );
 
   return (
-    <Tabs defaultValue='write' className='h-full'>
+    <Tabs className='h-full' defaultValue='write'>
       <Card>
         <CardHeader>
           <CardTitle>{user.name}</CardTitle>
@@ -69,10 +71,10 @@ export default function Component({ user }: NewType) {
           </TabsList>
           <CardAction>
             <Button
-              type='submit'
-              form='bio-form'
               className='cursor-pointer'
               disabled={userForm.formState.isSubmitting}
+              form='bio-form'
+              type='submit'
             >
               {userForm.formState.isSubmitting ? 'Saving...' : 'Save'}
             </Button>
@@ -81,21 +83,21 @@ export default function Component({ user }: NewType) {
       </Card>
       <Form {...userForm}>
         <form
-          id='bio-form'
           className='h-full space-y-2'
+          id='bio-form'
           onSubmit={userForm.handleSubmit(handleSubmit, onError)}
         >
-          <TabsContent value='write' className='h-full'>
+          <TabsContent className='h-full' value='write'>
             <FormField
-              name='bio'
               control={userForm.control}
+              name='bio'
               render={({ field }) => (
                 <FormItem className='h-full'>
                   <FormControl className='h-full'>
                     <Textarea
                       {...field}
-                      placeholder='Add something about you...'
                       className='h-full rounded-xl p-8 font-mono text-sm'
+                      placeholder='Add something about you...'
                     />
                   </FormControl>
                 </FormItem>
@@ -103,12 +105,12 @@ export default function Component({ user }: NewType) {
             />
           </TabsContent>
           <TabsContent
-            value='preview'
             className='prose prose-neutral dark:prose-invert h-full max-w-none rounded-xl border p-8 shadow'
+            value='preview'
           >
             <ReactMarkdown
-              remarkPlugins={[remarkGfm]}
               rehypePlugins={[rehypeHighlight]}
+              remarkPlugins={[remarkGfm]}
             >
               {userForm.watch().bio}
             </ReactMarkdown>

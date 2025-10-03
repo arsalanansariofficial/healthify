@@ -67,18 +67,18 @@ export default function Component({ doctors }: { doctors: User[] }) {
         <CardContent>
           <Form {...form}>
             <form
-              id='membership-form'
               className='space-y-2'
+              id='membership-form'
               onSubmit={form.handleSubmit(handleSubmit)}
             >
               <FormField
-                name='name'
                 control={form.control}
+                name='name'
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Name</FormLabel>
                     <FormControl>
-                      <Input {...field} type='text' placeholder='Basic' />
+                      <Input {...field} placeholder='Basic' type='text' />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -94,8 +94,6 @@ export default function Component({ doctors }: { doctors: User[] }) {
                         <div className='flex items-center justify-between'>
                           <Label>Hospitals</Label>
                           <Button
-                            type='button'
-                            variant='ghost'
                             onClick={() => {
                               field.onChange([
                                 ...field.value,
@@ -110,6 +108,8 @@ export default function Component({ doctors }: { doctors: User[] }) {
                                 }
                               ]);
                             }}
+                            type='button'
+                            variant='ghost'
                           >
                             <PlusIcon className='h-4 w-4' />
                           </Button>
@@ -132,8 +132,6 @@ export default function Component({ doctors }: { doctors: User[] }) {
                                     </CardDescription>
                                     <CardAction>
                                       <Button
-                                        type='button'
-                                        variant='outline'
                                         className='cursor-pointer'
                                         onClick={() => {
                                           const newHospitals =
@@ -141,6 +139,8 @@ export default function Component({ doctors }: { doctors: User[] }) {
                                           newHospitals.splice(index, 1);
                                           field.onChange(newHospitals);
                                         }}
+                                        type='button'
+                                        variant='outline'
                                       >
                                         <TrashIcon className='h-4 w-4' />
                                       </Button>
@@ -152,8 +152,6 @@ export default function Component({ doctors }: { doctors: User[] }) {
                                         <Label>Name</Label>
                                         <Input
                                           {...field}
-                                          value={hm.name}
-                                          placeholder='Riverside Hospital'
                                           className={cn({
                                             'border-destructive focus-visible:ring-destructive':
                                               error
@@ -163,6 +161,8 @@ export default function Component({ doctors }: { doctors: User[] }) {
                                             value[index].name = e.target.value;
                                             field.onChange(value);
                                           }}
+                                          placeholder='Riverside Hospital'
+                                          value={hm.name}
                                         />
                                         {error?.name && (
                                           <span className='text-destructive text-sm'>
@@ -174,8 +174,6 @@ export default function Component({ doctors }: { doctors: User[] }) {
                                         <Label>Email</Label>
                                         <Input
                                           {...field}
-                                          value={hm.email}
-                                          placeholder='riverside@healthify.com'
                                           className={cn({
                                             'border-destructive focus-visible:ring-destructive':
                                               error
@@ -185,6 +183,8 @@ export default function Component({ doctors }: { doctors: User[] }) {
                                             value[index].email = e.target.value;
                                             field.onChange(value);
                                           }}
+                                          placeholder='riverside@healthify.com'
+                                          value={hm.email}
                                         />
                                         {error?.email && (
                                           <span className='text-destructive text-sm'>
@@ -196,8 +196,6 @@ export default function Component({ doctors }: { doctors: User[] }) {
                                         <Label>City</Label>
                                         <Input
                                           {...field}
-                                          value={hm.city}
-                                          placeholder='Moradabad'
                                           className={cn({
                                             'border-destructive focus-visible:ring-destructive':
                                               error
@@ -207,6 +205,8 @@ export default function Component({ doctors }: { doctors: User[] }) {
                                             value[index].city = e.target.value;
                                             field.onChange(value);
                                           }}
+                                          placeholder='Moradabad'
+                                          value={hm.city}
                                         />
                                         {error?.city && (
                                           <span className='text-destructive text-sm'>
@@ -218,9 +218,6 @@ export default function Component({ doctors }: { doctors: User[] }) {
                                         <Label>Phone</Label>
                                         <Input
                                           {...field}
-                                          type='tel'
-                                          value={hm.phone}
-                                          placeholder='+919876543210'
                                           className={cn({
                                             'border-destructive focus-visible:ring-destructive':
                                               error
@@ -230,6 +227,9 @@ export default function Component({ doctors }: { doctors: User[] }) {
                                             value[index].phone = e.target.value;
                                             field.onChange(value);
                                           }}
+                                          placeholder='+919876543210'
+                                          type='tel'
+                                          value={hm.phone}
                                         />
                                         {error?.phone && (
                                           <span className='text-destructive text-sm'>
@@ -271,8 +271,6 @@ export default function Component({ doctors }: { doctors: User[] }) {
                                         <Label>Address</Label>
                                         <Textarea
                                           {...field}
-                                          value={hm.address}
-                                          placeholder='123 Main Street, Springfield, IL 62704'
                                           className={cn({
                                             'border-destructive focus-visible:ring-destructive':
                                               error
@@ -283,6 +281,8 @@ export default function Component({ doctors }: { doctors: User[] }) {
                                               e.target.value;
                                             field.onChange(value);
                                           }}
+                                          placeholder='123 Main Street, Springfield, IL 62704'
+                                          value={hm.address}
                                         />
                                         {error?.isAffiliated && (
                                           <span className='text-destructive text-sm'>
@@ -293,7 +293,14 @@ export default function Component({ doctors }: { doctors: User[] }) {
                                       <li className='grid gap-2'>
                                         <Label>Doctors</Label>
                                         <MultiSelect
+                                          options={doctors.map(d => ({
+                                            label: d.name || String(),
+                                            value: d.id
+                                          }))}
                                           placeholder='Select doctors...'
+                                          selectedValues={
+                                            field.value[index].doctors
+                                          }
                                           setSelectedValues={doctors => {
                                             const newHospitals =
                                               field.value.slice();
@@ -301,13 +308,6 @@ export default function Component({ doctors }: { doctors: User[] }) {
                                               doctors;
                                             field.onChange(newHospitals);
                                           }}
-                                          selectedValues={
-                                            field.value[index].doctors
-                                          }
-                                          options={doctors.map(d => ({
-                                            label: d.name || String(),
-                                            value: d.id
-                                          }))}
                                         />
                                         {error?.isAffiliated && (
                                           <span className='text-destructive text-sm'>
@@ -329,8 +329,8 @@ export default function Component({ doctors }: { doctors: User[] }) {
                 )}
               />
               <FormField
-                name='perks'
                 control={form.control}
+                name='perks'
                 render={({ field }) => (
                   <FormItem>
                     <FormControl>
@@ -338,11 +338,11 @@ export default function Component({ doctors }: { doctors: User[] }) {
                         <div className='flex items-center justify-between'>
                           <Label>Perks</Label>
                           <Button
-                            type='button'
-                            variant='ghost'
                             onClick={() => {
                               field.onChange([...field.value, String()]);
                             }}
+                            type='button'
+                            variant='ghost'
                           >
                             <PlusIcon className='h-4 w-4' />
                           </Button>
@@ -353,14 +353,12 @@ export default function Component({ doctors }: { doctors: User[] }) {
 
                             return (
                               <li
-                                key={index}
                                 className='grid grid-cols-[1fr_auto] gap-2'
+                                key={index}
                               >
                                 <div className='space-y-2'>
                                   <Input
                                     {...field}
-                                    value={perk}
-                                    placeholder='Limited facilities with a basic plan.'
                                     className={cn({
                                       'border-destructive focus-visible:ring-destructive':
                                         error
@@ -370,6 +368,8 @@ export default function Component({ doctors }: { doctors: User[] }) {
                                       value[index] = e.target.value;
                                       field.onChange(value);
                                     }}
+                                    placeholder='Limited facilities with a basic plan.'
+                                    value={perk}
                                   />
                                   {error && (
                                     <span className='text-destructive text-sm'>
@@ -378,13 +378,13 @@ export default function Component({ doctors }: { doctors: User[] }) {
                                   )}
                                 </div>
                                 <Button
-                                  type='button'
-                                  variant='ghost'
                                   onClick={() => {
                                     const newPerks = field.value.slice();
                                     newPerks.splice(index, 1);
                                     field.onChange(newPerks);
                                   }}
+                                  type='button'
+                                  variant='ghost'
                                 >
                                   <TrashIcon className='h-4 w-4' />
                                 </Button>
@@ -399,8 +399,8 @@ export default function Component({ doctors }: { doctors: User[] }) {
                 )}
               />
               <FormField
-                name='fees'
                 control={form.control}
+                name='fees'
                 render={({ field }) => (
                   <FormItem>
                     <FormControl>
@@ -408,8 +408,6 @@ export default function Component({ doctors }: { doctors: User[] }) {
                         <div className='flex items-center justify-between'>
                           <Label>Fees</Label>
                           <Button
-                            type='button'
-                            variant='ghost'
                             onClick={() => {
                               const usedTypes = field.value.map(
                                 f => f.renewalType
@@ -429,6 +427,8 @@ export default function Component({ doctors }: { doctors: User[] }) {
                                 }
                               ]);
                             }}
+                            type='button'
+                            variant='ghost'
                           >
                             <PlusIcon className='h-4 w-4' />
                           </Button>
@@ -447,23 +447,23 @@ export default function Component({ doctors }: { doctors: User[] }) {
 
                             return (
                               <li
-                                key={index}
                                 className='grid grid-cols-[1fr_1fr_auto] gap-2'
+                                key={index}
                               >
                                 <div className='space-y-2'>
                                   <Input
-                                    min={0}
-                                    value={fee.amount}
-                                    placeholder='100 Rupees'
                                     className={cn({
                                       'border-destructive focus-visible:ring-destructive':
                                         error
                                     })}
+                                    min={0}
                                     onChange={e => {
                                       const value = field.value.slice();
                                       value[index].amount = +e.target.value;
                                       field.onChange(value);
                                     }}
+                                    placeholder='100 Rupees'
+                                    value={fee.amount}
                                   />
                                   {error?.amount && (
                                     <span className='text-destructive text-sm'>
@@ -473,12 +473,12 @@ export default function Component({ doctors }: { doctors: User[] }) {
                                 </div>
                                 <div className='space-y-2'>
                                   <Select
-                                    value={fee.renewalType}
                                     onValueChange={(type: RenewalType) => {
                                       const value = field.value.slice();
                                       value[index].renewalType = type;
                                       field.onChange(value);
                                     }}
+                                    value={fee.renewalType}
                                   >
                                     <SelectTrigger className='w-full [&_span[data-slot]]:block [&_span[data-slot]]:truncate'>
                                       <SelectValue placeholder='Select a renewal type' />
@@ -486,9 +486,9 @@ export default function Component({ doctors }: { doctors: User[] }) {
                                     <SelectContent>
                                       {availableTypes.map(type => (
                                         <SelectItem
+                                          className='capitalize'
                                           key={type}
                                           value={type}
-                                          className='capitalize'
                                         >
                                           {capitalize(type)}
                                         </SelectItem>
@@ -502,13 +502,13 @@ export default function Component({ doctors }: { doctors: User[] }) {
                                   )}
                                 </div>
                                 <Button
-                                  type='button'
-                                  variant='ghost'
                                   onClick={() => {
                                     const newFees = field.value.slice();
                                     newFees.splice(index, 1);
                                     field.onChange(newFees);
                                   }}
+                                  type='button'
+                                  variant='ghost'
                                 >
                                   <TrashIcon className='h-4 w-4' />
                                 </Button>
@@ -528,10 +528,10 @@ export default function Component({ doctors }: { doctors: User[] }) {
         </CardContent>
         <CardFooter>
           <Button
-            type='submit'
-            form='membership-form'
             className='cursor-pointer'
             disabled={form.formState.isLoading}
+            form='membership-form'
+            type='submit'
           >
             {form.formState.isLoading ? 'Saving...' : 'Save'}
           </Button>

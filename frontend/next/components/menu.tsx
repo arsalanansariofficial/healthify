@@ -17,7 +17,7 @@ export default function Menu({ entries, user }: Props) {
       {entries.map(
         ([header, items]) =>
           hasPermission(user.permissions, header.permission) && (
-            <li key={header.label} className='space-y-2'>
+            <li className='space-y-2' key={header.label}>
               <span className='text-muted-foreground text-xs'>
                 {header.label}
               </span>
@@ -27,8 +27,8 @@ export default function Menu({ entries, user }: Props) {
                     hasPermission(user.permissions, item.permission) && (
                       <li key={item.label}>
                         <Link
-                          href={item.url}
                           className='block max-w-fit rounded-md text-sm hover:underline hover:underline-offset-4'
+                          href={item.url}
                         >
                           {item.label}
                         </Link>

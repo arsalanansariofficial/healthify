@@ -5,12 +5,10 @@ import { SessionProvider } from 'next-auth/react';
 import { Inter, Playfair_Display } from 'next/font/google';
 
 import { ThemeProvider } from '@/components/theme-provider';
-import { Toaster } from '@/components/ui/sonner';
 import '@fortawesome/fontawesome-svg-core/styles.css';
 
+import { Toaster } from '@/components/ui/sonner';
 import '@/app/globals.css';
-
-type Props = Readonly<{ children: React.ReactNode }>;
 
 config.autoAddCss = false;
 const serif = Inter({ subsets: ['latin'], variable: '--font-sans' });
@@ -21,14 +19,16 @@ export const metadata: Metadata = {
   title: 'Healthify'
 };
 
-export default async function RootLayout({ children }: Props) {
+export default async function RootLayout({
+  children
+}: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang='en' suppressHydrationWarning>
       <body
         className={`${serif.variable} ${sans.variable} grid min-h-screen grid-rows-[auto_1fr] font-sans antialiased`}
       >
         <SessionProvider>
-          <ThemeProvider enableSystem attribute='class' defaultTheme='system'>
+          <ThemeProvider attribute='class' defaultTheme='system' enableSystem>
             {children}
             <Toaster />
           </ThemeProvider>

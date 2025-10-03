@@ -1,7 +1,9 @@
 import Component from '@/app/(public)/login/component';
 
-type Props = { params: Promise<{ error?: string }> };
-
-export default async function Page({ params }: Props) {
+export default async function Page({
+  params
+}: {
+  params: Promise<{ error?: string }>;
+}) {
   return <Component error={(await params).error} />;
 }

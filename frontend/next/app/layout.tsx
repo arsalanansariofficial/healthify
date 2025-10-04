@@ -7,7 +7,6 @@ import { Inter, Playfair_Display } from 'next/font/google';
 import { ThemeProvider } from '@/components/theme-provider';
 import '@fortawesome/fontawesome-svg-core/styles.css';
 
-import { Toaster } from '@/components/ui/sonner';
 import '@/app/globals.css';
 
 config.autoAddCss = false;
@@ -25,12 +24,11 @@ export default async function RootLayout({
   return (
     <html lang='en' suppressHydrationWarning>
       <body
-        className={`${serif.variable} ${sans.variable} grid min-h-screen grid-rows-[auto_1fr] font-sans antialiased`}
+        className={`${serif.variable} ${sans.variable} font-sans antialiased`}
       >
         <SessionProvider>
           <ThemeProvider attribute='class' defaultTheme='system' enableSystem>
             {children}
-            <Toaster />
           </ThemeProvider>
         </SessionProvider>
       </body>

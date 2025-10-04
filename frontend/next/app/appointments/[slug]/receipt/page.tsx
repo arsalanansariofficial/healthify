@@ -1,7 +1,7 @@
 import { AppointmentStatus } from '@prisma/client';
 import { notFound } from 'next/navigation';
 
-import Component from '@/app/(private)/appointments/[slug]/receipt/component';
+import Component from '@/app/appointments/[slug]/receipt/component';
 import prisma from '@/lib/prisma';
 
 export default async function Page(props: {

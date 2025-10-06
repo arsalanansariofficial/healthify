@@ -82,7 +82,7 @@ export function shortId(length = 5) {
   return Array.from(array, x => chars[x % chars.length]).join('');
 }
 
-export function isPastByTime(date: Date, time: string, diff: number) {
+export function isPastByTime(date: Date | string, time: string, diff: number) {
   const [hours, minutes, seconds] = time.split(':').map(Number);
   return isBefore(
     new Date(),

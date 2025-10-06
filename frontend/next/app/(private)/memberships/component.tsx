@@ -1,15 +1,13 @@
 'use client';
 
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Fee, Membership, Prisma } from '@prisma/client';
+import { Fee, Prisma } from '@prisma/client';
 import { IconDotsVertical } from '@tabler/icons-react';
 import { ColumnDef } from '@tanstack/react-table';
 import { User } from 'next-auth';
 import Link from 'next/link';
-import { useMemo } from 'react';
 import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
-import z from 'zod';
 
 import handler from '@/components/display-toast';
 import Footer from '@/components/footer';
@@ -52,6 +50,10 @@ import {
 import { MESSAGES } from '@/lib/constants';
 import { membershipSchema } from '@/lib/schemas';
 import { catchErrors, getDate, hasPermission } from '@/lib/utils';
+
+type Row = Prisma.MembershipGetPayload<{
+  include: { fees: true; hospitalMemberships: true };
+}>;
 
 function Menu({
   id,
@@ -115,14 +117,12 @@ function Menu({
   );
 }
 
-export function TableCellViewer<T extends z.ZodType>(props: {
-  item: z.infer<T>;
-}) {
+export function TableCellViewer(props: { item: Row }) {
   const isMobile = useIsMobile();
   const form = useForm({
     defaultValues: {
-      fees: props.item.fees,
-      hospitalMemberships: props.item.hospitalMemberships,
+      fees: [],
+      hospitalMemberships: [],
       name: props.item.name,
       perks: props.item.perks
     },
@@ -199,138 +199,127 @@ export function TableCellViewer<T extends z.ZodType>(props: {
   );
 }
 
-export default function Component(props: {
-  user: User;
-  memberships: Membership[];
-}) {
-  const columns = useMemo<
-    ColumnDef<{
-      id: number;
-      fees: Fee[];
-      name: string;
-      header: string;
-      perks: string[];
-      createdAt: string;
-      hospitalMemberships: Prisma.HospitalMembershipGetPayload<{
-        include: { hospital: true };
-      }>[];
-    }>[]
-  >(
-    () => [
-      {
-        cell: ({ row }) => <DragHandle id={row.original.id} />,
-        id: 'drag'
-      },
-      {
-        cell: ({ row }) => (
-          <Checkbox
-            aria-label='Select row'
-            checked={row.getIsSelected()}
-            onCheckedChange={value => row.toggleSelected(!!value)}
-          />
-        ),
-        enableHiding: false,
-        enableSorting: false,
-        header: ({ table }) => (
-          <Checkbox
-            aria-label='Select all'
-            checked={
-              table.getIsAllPageRowsSelected() ||
-              (table.getIsSomePageRowsSelected() && 'indeterminate')
-            }
-            onCheckedChange={value => table.toggleAllPageRowsSelected(!!value)}
-          />
-        ),
-        id: 'select'
-      },
-      {
-        accessorKey: 'name',
-        cell: ({ row }) => (
-          <TableCellViewer
-            item={props.memberships.find(m => m.id === String(row.original.id))}
-            key={Date.now()}
-          />
-        ),
-        enableHiding: false,
-        header: 'Name'
-      },
-      {
-        accessorKey: 'perks',
-        cell: ({ row }) => (
-          <ul className='space-y-2'>
-            {row.original.perks.map((p, i) => (
-              <li key={i}>
-                <Badge variant='outline'>{p}</Badge>
-              </li>
-            ))}
-          </ul>
-        ),
-        enableHiding: false,
-        header: 'Perks'
-      },
-      {
-        accessorKey: 'hospitals',
-        cell: ({ row }) => (
-          <ul className='space-y-2'>
-            {row.original.hospitalMemberships.map((hm, i) => (
-              <li key={i}>
-                <Badge className='capitalize'>{hm.hospital.name}</Badge>
-              </li>
-            ))}
-          </ul>
-        ),
-        enableHiding: false,
-        header: 'Hospitals'
-      },
-      {
-        accessorKey: 'fee',
-        cell: ({ row }) => (
-          <ul className='space-y-2'>
-            {row.original.fees.map((f, i) => (
-              <li className='flex items-center gap-2' key={i}>
-                <Badge className='capitalize' variant='secondary'>
-                  {f.renewalType}
-                </Badge>
-                <Badge className='capitalize' variant='secondary'>
-                  Rs. {f.amount}
-                </Badge>
-              </li>
-            ))}
-          </ul>
-        ),
-        enableHiding: false,
-        header: 'Fee'
-      },
-      {
-        accessorKey: 'createdAt',
-        cell: ({ row }) => getDate(row.original.createdAt),
-        header: () => <div>Created At</div>
-      },
-      {
-        cell: ({ row }) => (
-          <Menu id={row.original.id.toString()} isHeader={false} />
-        ),
-        header: ({ table }) => {
-          return (
-            <Menu
-              ids={table
-                .getSelectedRowModel()
-                .rows.map(r => r.original.id.toString())}
-              isHeader={true}
-            />
-          );
-        },
-        id: 'actions'
-      }
-    ],
-    [props.memberships]
-  );
-
+export default function Component(props: { user: User; memberships: Row[] }) {
   return (
     <div className='flex h-full flex-col gap-8 lg:mx-auto lg:w-10/12'>
       {hasPermission(props.user.permissions, 'view:users') && (
         <DataTable
-          columns={columns}
+          columns={
+            [
+              {
+                cell: ({ row }) => <DragHandle id={row.original.id} />,
+                id: 'drag'
+              },
+              {
+                cell: ({ row }) => (
+                  <Checkbox
+                    aria-label='Select row'
+                    checked={row.getIsSelected()}
+                    onCheckedChange={value => row.toggleSelected(!!value)}
+                  />
+                ),
+                enableHiding: false,
+                enableSorting: false,
+                header: ({ table }) => (
+                  <Checkbox
+                    aria-label='Select all'
+                    checked={
+                      table.getIsAllPageRowsSelected() ||
+                      (table.getIsSomePageRowsSelected() && 'indeterminate')
+                    }
+                    onCheckedChange={value =>
+                      table.toggleAllPageRowsSelected(!!value)
+                    }
+                  />
+                ),
+                id: 'select'
+              },
+              {
+                accessorKey: 'name',
+                cell: ({ row }) => (
+                  <TableCellViewer item={row.original} key={Date.now()} />
+                ),
+                enableHiding: false,
+                header: 'Name'
+              },
+              {
+                accessorKey: 'perks',
+                cell: ({ row }: { row: { original: { perks: string[] } } }) => (
+                  <ul className='space-y-2'>
+                    {row.original.perks.map((p, i) => (
+                      <li key={i}>
+                        <Badge variant='outline'>{p}</Badge>
+                      </li>
+                    ))}
+                  </ul>
+                ),
+                enableHiding: false,
+                header: 'Perks'
+              },
+              {
+                accessorKey: 'hospitals',
+                cell: ({
+                  row
+                }: {
+                  row: {
+                    original: {
+                      hospitalMemberships: { hospital: { name: string } }[];
+                    };
+                  };
+                }) => (
+                  <ul className='space-y-2'>
+                    {row.original.hospitalMemberships.map((hm, i) => (
+                      <li key={i}>
+                        <Badge className='capitalize'>{hm.hospital.name}</Badge>
+                      </li>
+                    ))}
+                  </ul>
+                ),
+                enableHiding: false,
+                header: 'Hospitals'
+              },
+              {
+                accessorKey: 'fee',
+                cell: ({ row }: { row: { original: { fees: Fee[] } } }) => (
+                  <ul className='space-y-2'>
+                    {row.original.fees.map((f, i) => (
+                      <li className='flex items-center gap-2' key={i}>
+                        <Badge className='capitalize' variant='secondary'>
+                          {f.renewalType}
+                        </Badge>
+                        <Badge className='capitalize' variant='secondary'>
+                          Rs. {f.amount}
+                        </Badge>
+                      </li>
+                    ))}
+                  </ul>
+                ),
+                enableHiding: false,
+                header: 'Fee'
+              },
+              {
+                accessorKey: 'createdAt',
+                cell: ({ row }) => getDate(row.original.createdAt.toString()),
+                header: () => <div>Created At</div>
+              },
+              {
+                cell: ({ row }) => (
+                  <Menu id={row.original.id.toString()} isHeader={false} />
+                ),
+                header: ({ table }) => {
+                  return (
+                    <Menu
+                      ids={table
+                        .getSelectedRowModel()
+                        .rows.map(r => r.original.id.toString())}
+                      isHeader={true}
+                    />
+                  );
+                },
+                id: 'actions'
+              }
+            ] as ColumnDef<Row>[]
+          }
           data={props.memberships}
           filterConfig={[{ id: 'name', placeholder: 'Name...' }]}
         />

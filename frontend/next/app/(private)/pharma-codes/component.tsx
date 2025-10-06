@@ -5,10 +5,8 @@ import { PharmaCode } from '@prisma/client';
 import { IconDotsVertical } from '@tabler/icons-react';
 import { ColumnDef } from '@tanstack/react-table';
 import { User } from 'next-auth';
-import { useMemo } from 'react';
 import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
-import z from 'zod';
 
 import handler from '@/components/display-toast';
 import Footer from '@/components/footer';
@@ -115,14 +113,12 @@ function Menu({
   );
 }
 
-export function TableCellViewer<T extends z.ZodType>(props: {
-  item: z.infer<T>;
-}) {
+export function TableCellViewer(props: { item: PharmaCode }) {
   const isMobile = useIsMobile();
   const form = useForm({
     defaultValues: {
       code: props.item.code,
-      description: props.item.description,
+      description: props.item.description || String(),
       frequency: props.item.frequency
     },
     resolver: zodResolver(pharmaCodeSchema)
@@ -144,7 +140,7 @@ export function TableCellViewer<T extends z.ZodType>(props: {
       </DrawerTrigger>
       <DrawerContent>
         <DrawerHeader>
-          <DrawerTitle className='capitalize'>{props.item.name}</DrawerTitle>
+          <DrawerTitle className='capitalize'>{props.item.code}</DrawerTitle>
           <DrawerDescription>
             Change the details for the selected department
           </DrawerDescription>
@@ -228,97 +224,84 @@ export function TableCellViewer<T extends z.ZodType>(props: {
 }
 
 export default function Component(props: { user: User; codes: PharmaCode[] }) {
-  const columns = useMemo<
-    ColumnDef<{
-      id: number;
-      code: string;
-      header: string;
-      frequency: string;
-      createdAt: string;
-      description: string;
-    }>[]
-  >(
-    () => [
-      {
-        cell: ({ row }) => <DragHandle id={row.original.id} />,
-        id: 'drag'
-      },
-      {
-        cell: ({ row }) => (
-          <Checkbox
-            aria-label='Select row'
-            checked={row.getIsSelected()}
-            onCheckedChange={value => row.toggleSelected(!!value)}
-          />
-        ),
-        enableHiding: false,
-        enableSorting: false,
-        header: ({ table }) => (
-          <Checkbox
-            aria-label='Select all'
-            checked={
-              table.getIsAllPageRowsSelected() ||
-              (table.getIsSomePageRowsSelected() && 'indeterminate')
-            }
-            onCheckedChange={value => table.toggleAllPageRowsSelected(!!value)}
-          />
-        ),
-        id: 'select'
-      },
-      {
-        accessorKey: 'code',
-        cell: ({ row }) => (
-          <TableCellViewer
-            item={props.codes.find(h => h.id === String(row.original.id))}
-            key={Date.now()}
-          />
-        ),
-        enableHiding: false,
-        header: 'Code'
-      },
-      {
-        accessorKey: 'frequency',
-        cell: ({ row }) => (
-          <Badge className='mx-auto'>{row.original.frequency}</Badge>
-        ),
-        header: 'Frequency'
-      },
-      {
-        accessorKey: 'description',
-        cell: ({ row }) => row.original.description,
-        enableHiding: false,
-        header: 'Description'
-      },
-      {
-        accessorKey: 'createdAt',
-        cell: ({ row }) => getDate(row.original.createdAt),
-        header: () => <div>Created At</div>
-      },
-      {
-        cell: ({ row }) => (
-          <Menu id={row.original.id.toString()} isHeader={false} />
-        ),
-        header: ({ table }) => {
-          return (
-            <Menu
-              ids={table
-                .getSelectedRowModel()
-                .rows.map(r => r.original.id.toString())}
-              isHeader={true}
-            />
-          );
-        },
-        id: 'actions'
-      }
-    ],
-    [props.codes]
-  );
-
   return (
     <div className='flex h-full flex-col gap-8 lg:mx-auto lg:w-10/12'>
       {hasPermission(props.user.permissions, 'view:users') && (
         <DataTable
-          columns={columns}
+          columns={
+            [
+              {
+                cell: ({ row }) => <DragHandle id={row.original.id} />,
+                id: 'drag'
+              },
+              {
+                cell: ({ row }) => (
+                  <Checkbox
+                    aria-label='Select row'
+                    checked={row.getIsSelected()}
+                    onCheckedChange={value => row.toggleSelected(!!value)}
+                  />
+                ),
+                enableHiding: false,
+                enableSorting: false,
+                header: ({ table }) => (
+                  <Checkbox
+                    aria-label='Select all'
+                    checked={
+                      table.getIsAllPageRowsSelected() ||
+                      (table.getIsSomePageRowsSelected() && 'indeterminate')
+                    }
+                    onCheckedChange={value =>
+                      table.toggleAllPageRowsSelected(!!value)
+                    }
+                  />
+                ),
+                id: 'select'
+              },
+              {
+                accessorKey: 'code',
+                cell: ({ row }) => (
+                  <TableCellViewer item={row.original} key={Date.now()} />
+                ),
+                enableHiding: false,
+                header: 'Code'
+              },
+              {
+                accessorKey: 'frequency',
+                cell: ({ row }) => (
+                  <Badge className='mx-auto'>{row.original.frequency}</Badge>
+                ),
+                header: 'Frequency'
+              },
+              {
+                accessorKey: 'description',
+                cell: ({ row }) => row.original.description,
+                enableHiding: false,
+                header: 'Description'
+              },
+              {
+                accessorKey: 'createdAt',
+                cell: ({ row }) => getDate(row.original.createdAt.toString()),
+                header: () => <div>Created At</div>
+              },
+              {
+                cell: ({ row }) => (
+                  <Menu id={row.original.id.toString()} isHeader={false} />
+                ),
+                header: ({ table }) => {
+                  return (
+                    <Menu
+                      ids={table
+                        .getSelectedRowModel()
+                        .rows.map(r => r.original.id.toString())}
+                      isHeader={true}
+                    />
+                  );
+                },
+                id: 'actions'
+              }
+            ] as ColumnDef<PharmaCode>[]
+          }
           data={props.codes}
           filterConfig={[{ id: 'code', placeholder: 'Code...' }]}
         />

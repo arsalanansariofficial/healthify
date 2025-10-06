@@ -9,7 +9,6 @@ import Link from 'next/link';
 import { FormEvent, useCallback, useMemo, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { useDebounce } from 'use-debounce';
-import z from 'zod';
 
 import handler from '@/components/display-toast';
 import Footer from '@/components/footer';
@@ -60,9 +59,7 @@ import { DOMAIN, UI } from '@/lib/constants';
 import { nameSchema } from '@/lib/schemas';
 import { formatTime } from '@/lib/utils';
 
-export function TableCellViewer<T extends z.ZodType>(props: {
-  item: z.infer<T>;
-}) {
+export function TableCellViewer(props: { item: Doctor }) {
   const isMobile = useIsMobile();
 
   const { handleSubmit, pending } = useHookForm(
@@ -106,7 +103,12 @@ export function TableCellViewer<T extends z.ZodType>(props: {
                   <FormItem>
                     <FormLabel>Speciality</FormLabel>
                     <FormControl>
-                      <Input {...field} placeholder='Physician' type='name' />
+                      <Input
+                        {...field}
+                        className='capitalize'
+                        placeholder='Physician'
+                        type='name'
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -230,7 +232,7 @@ export default function Component(props: {
     <div className='flex h-full flex-col gap-8 lg:mx-auto lg:w-10/12'>
       <form className='grid grid-cols-[1fr_auto_auto] gap-2'>
         <Input
-          className='w-full'
+          className='w-full capitalize'
           id='doctor-name'
           name='name'
           onChange={e => setQuery(e.target.value.toLowerCase())}
@@ -353,7 +355,7 @@ export default function Component(props: {
                     priority
                     sizes='(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw'
                     src={
-                      `${!doctor.hasOAuth ? `${DOMAIN.LOCAL}/api/upload/` : ''}${doctor.image}` ||
+                      `${!doctor.hasOAuth ? `${DOMAIN.LOCAL}/api/upload/` : String()}${doctor.image}` ||
                       (UI.DEFAULT_PROFILE_IMAGE as string)
                     }
                     unoptimized

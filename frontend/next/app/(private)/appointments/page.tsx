@@ -6,7 +6,7 @@ import { auth } from '@/auth';
 import { ROLES } from '@/lib/constants';
 import { ROUTES } from '@/lib/constants';
 import prisma from '@/lib/prisma';
-import { getDate, hasRole } from '@/lib/utils';
+import { hasRole } from '@/lib/utils';
 
 export default async function Page() {
   const session = await auth();
@@ -31,7 +31,7 @@ export default async function Page() {
     <Component
       appointments={appointments.map(apt => ({
         ...apt,
-        date: getDate(apt.date.toString()),
+        date: apt.date,
         doctor: apt.doctor.name as string,
         patient: apt.name,
         time: apt.timeSlot.time

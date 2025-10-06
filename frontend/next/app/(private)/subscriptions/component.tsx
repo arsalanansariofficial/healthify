@@ -51,7 +51,7 @@ import {
   deleteMedicationForms
 } from '@/lib/actions';
 import { MESSAGES } from '@/lib/constants';
-import { membershipSchema } from '@/lib/schemas';
+import { membershipSchema, yesNo } from '@/lib/schemas';
 import { catchErrors, hasPermission } from '@/lib/utils';
 
 type Row = Prisma.MembershipSubscriptionGetPayload<{
@@ -148,14 +148,23 @@ function Menu({
   );
 }
 
-export function TableCellViewer<T extends z.ZodType>(props: {
-  item: z.infer<T>;
-}) {
+export function TableCellViewer(props: { item: Row }) {
   const isMobile = useIsMobile();
   const form = useForm({
     defaultValues: {
       fees: [props.item.fee],
-      hospitalMemberships: props.item.membership.hospitalMemberships,
+      hospitalMemberships: props.item.membership.hospitalMemberships.map(
+        hm => ({
+          ...hm,
+          hospital: {
+            ...hm.hospital,
+            address: hm.hospital.address as string,
+            isAffiliated: (hm.hospital.isAffiliated ? 'yes' : 'no') as z.infer<
+              typeof yesNo
+            >
+          }
+        })
+      ),
       perks: props.item.membership.perks
     },
     resolver: zodResolver(membershipSchema)
@@ -177,7 +186,9 @@ export function TableCellViewer<T extends z.ZodType>(props: {
       </DrawerTrigger>
       <DrawerContent>
         <DrawerHeader>
-          <DrawerTitle className='capitalize'>{props.item.name}</DrawerTitle>
+          <DrawerTitle className='capitalize'>
+            {props.item.membership.name}
+          </DrawerTitle>
           <DrawerDescription>
             Change the details for the selected membership
           </DrawerDescription>
@@ -200,7 +211,6 @@ export function TableCellViewer<T extends z.ZodType>(props: {
                       className='capitalize'
                       placeholder='Tablet'
                       type='text'
-                      value={field.value}
                     />
                   </FormControl>
                   <FormMessage />
@@ -247,7 +257,7 @@ export function TableCellViewer<T extends z.ZodType>(props: {
                             className='capitalize'
                             disabled
                             placeholder='Riverside General Hospital'
-                            value={hm.name}
+                            value={hm.hospital.name}
                           />
                         </li>
                       ))}
@@ -263,7 +273,7 @@ export function TableCellViewer<T extends z.ZodType>(props: {
                 className='capitalize'
                 disabled
                 placeholder='Rs. 100'
-                value={props.item.fee.amount}
+                value={props.item.fee.amount || 0}
               />
             </div>
           </form>
@@ -329,9 +339,11 @@ export default function Component(props: { user: User; subscriptions: Row[] }) {
                 accessorKey: 'name',
                 cell: ({ row }) => (
                   <TableCellViewer
-                    item={props.subscriptions.find(
-                      m => m.id === String(row.original.id)
-                    )}
+                    item={
+                      props.subscriptions.find(
+                        m => m.id === String(row.original.id)
+                      )!
+                    }
                     key={Date.now()}
                   />
                 ),

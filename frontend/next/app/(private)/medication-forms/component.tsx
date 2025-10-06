@@ -161,7 +161,6 @@ export function TableCellViewer(props: { item: MedicationForm }) {
                       className='capitalize'
                       placeholder='Tablet'
                       type='text'
-                      value={field.value}
                     />
                   </FormControl>
                   <FormMessage />
@@ -176,9 +175,8 @@ export function TableCellViewer(props: { item: MedicationForm }) {
                   <FormLabel>Description</FormLabel>
                   <FormControl>
                     <Textarea
-                      {...field}
+                      {...{ ...field, value: field.value as string }}
                       placeholder='Compressed or molded solid preparation containing active ingredients.'
-                      value={field.value}
                     />
                   </FormControl>
                   <FormMessage />

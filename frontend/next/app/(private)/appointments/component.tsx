@@ -50,7 +50,7 @@ import {
 
 type Row = {
   id: string;
-  date: string;
+  date: Date;
   time: string;
   doctor: string;
   patient: string;
@@ -192,7 +192,7 @@ function TableCellViewer(props: { user: User; item: Row }) {
               <Label htmlFor='date'>Date</Label>
               <Input
                 className='capitalize'
-                defaultValue={getDate(props.item.date, false)}
+                defaultValue={getDate(props.item.date.toString(), false)}
                 disabled
                 id='date'
                 name='date'
@@ -394,7 +394,9 @@ export default function Component(props: {
               {
                 accessorKey: 'date',
                 cell({ row }) {
-                  return <span>{getDate(row.original.date, false)}</span>;
+                  return (
+                    <span>{getDate(row.original.date.toString(), false)}</span>
+                  );
                 },
                 header: 'Date',
                 id: 'date'

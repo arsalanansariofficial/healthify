@@ -63,7 +63,11 @@ export default function Component() {
                   <FormItem>
                     <FormLabel>Frequency</FormLabel>
                     <FormControl>
-                      <Input {...field} placeholder='1 tablet' type='number' />
+                      <Input
+                        {...{ ...field, value: field.value as number }}
+                        placeholder='1 tablet'
+                        type='number'
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -90,7 +94,7 @@ export default function Component() {
                     <FormLabel>Description</FormLabel>
                     <FormControl>
                       <Textarea
-                        {...field}
+                        {...{ ...field, value: field.value as string }}
                         placeholder='Single dose every 4 hours'
                       />
                     </FormControl>

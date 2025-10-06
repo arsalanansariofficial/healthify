@@ -159,7 +159,7 @@ export function TableCellViewer(props: { item: PharmaCode }) {
                   <FormLabel>Frequency</FormLabel>
                   <FormControl>
                     <Input
-                      {...field}
+                      {...{ ...field, value: field.value as number }}
                       min={1}
                       placeholder='1 tablet'
                       type='number'
@@ -195,7 +195,7 @@ export function TableCellViewer(props: { item: PharmaCode }) {
                   <FormLabel>Description</FormLabel>
                   <FormControl>
                     <Textarea
-                      {...field}
+                      {...{ ...field, value: field.value as string }}
                       placeholder='Single dose every 4 hours.'
                     />
                   </FormControl>

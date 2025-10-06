@@ -7,6 +7,7 @@ import { ColumnDef } from '@tanstack/react-table';
 import { User } from 'next-auth';
 import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
+import z from 'zod';
 
 import Chart from '@/components/chart';
 import handler from '@/components/display-toast';
@@ -58,7 +59,7 @@ import {
   verifyEmail
 } from '@/lib/actions';
 import { MESSAGES } from '@/lib/constants';
-import { userSchema } from '@/lib/schemas';
+import { userSchema, yesNo } from '@/lib/schemas';
 import { catchErrors, getDate, hasPermission } from '@/lib/utils';
 
 function Menu({
@@ -173,12 +174,8 @@ export function TableCellViewer(props: {
                     <FormControl>
                       <Input
                         {...field}
-                        onChange={({ target: { value } }) =>
-                          field.onChange(value || undefined)
-                        }
                         placeholder='Gwen Tennyson'
                         type='text'
-                        value={field.value ?? String()}
                       />
                     </FormControl>
                     <FormMessage />
@@ -194,12 +191,8 @@ export function TableCellViewer(props: {
                     <FormControl>
                       <Input
                         {...field}
-                        onChange={({ target: { value } }) =>
-                          field.onChange(value || undefined)
-                        }
                         placeholder='your.name@domain.com'
                         type='email'
-                        value={field.value ?? String()}
                       />
                     </FormControl>
                     <FormMessage />
@@ -215,12 +208,8 @@ export function TableCellViewer(props: {
                     <FormControl>
                       <Input
                         {...field}
-                        onChange={({ target: { value } }) =>
-                          field.onChange(value || undefined)
-                        }
                         placeholder='Secret@123'
                         type='password'
-                        value={field.value ?? String()}
                       />
                     </FormControl>
                     <FormMessage />
@@ -237,7 +226,7 @@ export function TableCellViewer(props: {
                     <FormControl>
                       <Select
                         onValueChange={field.onChange}
-                        value={field.value}
+                        value={field.value as z.infer<typeof yesNo>}
                       >
                         <SelectTrigger className='w-full'>
                           <SelectValue placeholder='Select a status' />

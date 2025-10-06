@@ -3,6 +3,7 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { User } from '@prisma/client';
 import { useForm } from 'react-hook-form';
+import z from 'zod';
 
 import handler from '@/components/display-toast';
 import Footer from '@/components/footer';
@@ -35,7 +36,7 @@ import {
 import { Textarea } from '@/components/ui/textarea';
 import useHookForm from '@/hooks/use-hook-form';
 import { addHospital } from '@/lib/actions';
-import { hospitalSchema } from '@/lib/schemas';
+import { hospitalSchema, yesNo } from '@/lib/schemas';
 
 export default function Component({ users }: { users: User[] }) {
   const { handleSubmit } = useHookForm(handler, addHospital);
@@ -140,7 +141,7 @@ export default function Component({ users }: { users: User[] }) {
                     <FormLabel>Affliated</FormLabel>
                     <FormControl>
                       <Select
-                        defaultValue={field.value}
+                        defaultValue={field.value as z.infer<typeof yesNo>}
                         onValueChange={field.onChange}
                       >
                         <SelectTrigger className='w-full [&_span[data-slot]]:block [&_span[data-slot]]:truncate'>

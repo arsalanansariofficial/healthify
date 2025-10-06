@@ -244,7 +244,7 @@ export default function Component({
                       <Input
                         max={100}
                         min={1}
-                        {...field}
+                        {...{ ...field, value: field.value as number }}
                         placeholder='Moradabad'
                         type='number'
                       />
@@ -260,7 +260,11 @@ export default function Component({
                   <FormItem>
                     <FormLabel>City</FormLabel>
                     <FormControl>
-                      <Input {...field} placeholder='Moradabad' type='text' />
+                      <Input
+                        {...{ ...field, value: field.value as string }}
+                        placeholder='Moradabad'
+                        type='text'
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>

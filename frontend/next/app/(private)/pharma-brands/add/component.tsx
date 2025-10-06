@@ -76,7 +76,7 @@ export default function Component() {
                     <FormLabel>Description</FormLabel>
                     <FormControl>
                       <Textarea
-                        {...field}
+                        {...{ ...field, value: field.value as string }}
                         placeholder='Just a simple antibiotic...'
                       />
                     </FormControl>

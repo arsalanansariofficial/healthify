@@ -157,12 +157,8 @@ export function TableCellViewer(props: { item: Facility }) {
                     <Input
                       {...field}
                       className='capitalize'
-                      onChange={({ target: { value } }) =>
-                        field.onChange(value || undefined)
-                      }
                       placeholder='Gwen Tennyson'
                       type='text'
-                      value={field.value}
                     />
                   </FormControl>
                   <FormMessage />

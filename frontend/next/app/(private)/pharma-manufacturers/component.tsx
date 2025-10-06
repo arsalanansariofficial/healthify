@@ -175,7 +175,7 @@ export function TableCellViewer(props: { item: PharmaManufacturer }) {
                   <FormLabel>Description</FormLabel>
                   <FormControl>
                     <Textarea
-                      {...field}
+                      {...{ ...field, value: field.value as string }}
                       placeholder='Manufactures medicines worldwide...'
                     />
                   </FormControl>

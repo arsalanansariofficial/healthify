@@ -168,7 +168,6 @@ export function TableCellViewer(props: { item: Row }) {
                       className='capitalize'
                       placeholder='Tablet'
                       type='text'
-                      value={field.value}
                     />
                   </FormControl>
                   <FormMessage />

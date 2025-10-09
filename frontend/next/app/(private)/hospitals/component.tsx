@@ -407,7 +407,8 @@ export default function Component(props: {
               },
               {
                 accessorKey: 'createdAt',
-                cell: ({ row }) => getDate(row.original.createdAt.toString()),
+                cell: ({ row }) =>
+                  getDate(row.original.createdAt.toString(), false, false),
                 header: () => <div>Created At</div>
               },
               {

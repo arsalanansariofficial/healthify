@@ -5,7 +5,7 @@ import { DATES } from '@/lib/constants';
 
 export const yesNo = z.enum(['yes', 'no']);
 const email = z.email().trim().toLowerCase();
-const password = (min = 8) => z.string().trim().min(min);
+const password = (min = 1) => z.string().trim().min(min);
 const text = (min = 1) => z.string().trim().min(min).toLowerCase();
 
 const phone = z

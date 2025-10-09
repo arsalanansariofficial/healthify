@@ -404,7 +404,7 @@ export default function Component(props: {
                 <Button asChild className='mt-4 block w-full cursor-pointer'>
                   <Link
                     className='text-center'
-                    href={`/appointments/${doctor.id}`}
+                    href={`/doctors/appointments/${doctor.id}`}
                   >
                     Get Appointment
                   </Link>

@@ -3,8 +3,8 @@
     "strict": true,
     "noEmit": true,
     "allowJs": true,
-    "jsx": "preserve",
-    "target": "ES2017",
+    "jsx": "react-jsx",
+    "target": "esnext",
     "module": "esnext",
     "incremental": true,
     "skipLibCheck": true,
@@ -17,5 +17,11 @@
     "lib": ["dom", "dom.iterable", "esnext"]
   },
   "exclude": ["node_modules"],
-  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"]
+  "include": [
+    "**/*.ts",
+    "**/*.tsx",
+    "next-env.d.ts",
+    ".next/types/**/*.ts",
+    ".next/dev/types/**/*.ts"
+  ]
 }

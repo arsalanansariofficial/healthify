@@ -1,13 +1,15 @@
 'use client';
 
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Role, Speciality, TimeSlot, User } from '@prisma/client';
+import { Prisma, Role } from '@prisma/client';
 import { FileIcon, PlusIcon, TrashIcon } from 'lucide-react';
 import Image from 'next/image';
 import { useCallback, useMemo, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import z from 'zod';
 
+import AvatarUpload from '@/components/avatar-upload';
+import CoverUpload from '@/components/cover-upload';
 import handler from '@/components/display-toast';
 import Footer from '@/components/footer';
 import { Button } from '@/components/ui/button';
@@ -57,24 +59,13 @@ export default function Component({
   user
 }: {
   specialities: { value: string; label: string }[];
-  user: Pick<
-    User,
-    | 'id'
-    | 'name'
-    | 'city'
-    | 'email'
-    | 'phone'
-    | 'image'
-    | 'cover'
-    | 'gender'
-    | 'hasOAuth'
-    | 'experience'
-    | 'daysOfVisit'
-  > & {
-    UserRoles: { role: Pick<Role, 'id' | 'name'> }[];
-    timings: Pick<TimeSlot, 'id' | 'time' | 'duration'>[];
-    UserSpecialities: { speciality: Pick<Speciality, 'id' | 'name'> }[];
-  };
+  user: Prisma.UserGetPayload<{
+    include: {
+      timings: true;
+      UserRoles: { include: { role: true } };
+      UserSpecialities: { include: { speciality: true } };
+    };
+  }>;
 }) {
   const isDoctor = useMemo(
     () =>
@@ -174,7 +165,7 @@ export default function Component({
   );
 
   return (
-    <div className='flex h-full flex-col gap-8 lg:mx-auto lg:w-10/12'>
+    <div className='h-full space-y-8 lg:mx-auto lg:w-10/12'>
       <Tabs defaultValue={role} onValueChange={setRole}>
         <Card>
           <CardHeader>
@@ -194,111 +185,27 @@ export default function Component({
             <TabsContent value='user'>
               <Form {...userForm}>
                 <form
-                  className='space-y-2'
+                  className='relative space-y-2'
                   onSubmit={userForm.handleSubmit(submitUser)}
                 >
                   <FormField
                     control={userForm.control}
                     name='cover'
                     render={({ field }) => (
-                      <FormItem>
-                        <FormControl>
-                          <div
-                            className={cn(
-                              'relative grid min-h-80 gap-3 overflow-clip rounded-md',
-                              {
-                                'border-2': !user.cover,
-                                'border-dashed': !user.cover
-                              }
-                            )}
-                          >
-                            <Label
-                              className={cn(
-                                'absolute inset-0 z-10 grid place-items-center opacity-0 hover:opacity-100',
-                                { 'opacity-100': !user.cover }
-                              )}
-                              htmlFor='cover'
-                            >
-                              <FileIcon />
-                            </Label>
-                            {(coverSrc || user.cover) && (
-                              <Image
-                                alt='Profile Picture'
-                                className='aspect-video object-cover'
-                                fill
-                                priority
-                                src={
-                                  coverSrc ||
-                                  `${DOMAIN.LOCAL}/api/upload/${user.cover}`
-                                }
-                                unoptimized
-                              />
-                            )}
-                            <Input
-                              className='hidden'
-                              id='cover'
-                              name='cover'
-                              onChange={e => {
-                                const files = e.target.files;
-                                if (files?.length) {
-                                  field.onChange(files);
-                                  handleFileChange(e, 'cover');
-                                }
-                              }}
-                              type='file'
-                            />
-                          </div>
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
+                      <CoverUpload
+                        className='h-80'
+                        onImageChange={field.onChange}
+                      />
                     )}
                   />
                   <FormField
                     control={userForm.control}
                     name='image'
                     render={({ field }) => (
-                      <FormItem>
-                        <FormControl>
-                          <div className='absolute z-10 grid h-20 w-20 translate-x-2 -translate-y-[calc(100%+theme(spacing.4))] gap-3 overflow-clip rounded-md border-2'>
-                            <Label
-                              className={cn(
-                                'absolute inset-0 z-10 grid place-items-center opacity-0 hover:opacity-100',
-                                { 'opacity-100': !user.image }
-                              )}
-                              htmlFor='image'
-                            >
-                              <FileIcon />
-                            </Label>
-                            {(imageSrc || user.image) && (
-                              <Image
-                                alt='Profile Picture'
-                                className='aspect-video object-cover'
-                                fill
-                                priority
-                                src={
-                                  imageSrc ||
-                                  `${!user.hasOAuth ? `${DOMAIN.LOCAL}/api/upload/` : ''}${user.image}`
-                                }
-                                unoptimized
-                              />
-                            )}
-                            <Input
-                              className='hidden'
-                              id='image'
-                              name='image'
-                              onChange={e => {
-                                const files = e.target.files;
-                                if (files?.length) {
-                                  field.onChange(files);
-                                  handleFileChange(e, 'image');
-                                }
-                              }}
-                              type='file'
-                            />
-                          </div>
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
+                      <AvatarUpload
+                        className='absolute top-[calc(theme(spacing.80)-7rem)] left-4 size-24'
+                        onFileChange={field.onChange}
+                      />
                     )}
                   />
                   <FormField

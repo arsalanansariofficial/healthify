@@ -2,10 +2,9 @@
 
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Prisma, Role } from '@prisma/client';
-import { FileIcon, PlusIcon, TrashIcon } from 'lucide-react';
-import Image from 'next/image';
-import { useCallback, useMemo, useState } from 'react';
-import { useForm } from 'react-hook-form';
+import { PlusIcon, TrashIcon } from 'lucide-react';
+import { useMemo, useState } from 'react';
+import { useForm, useWatch } from 'react-hook-form';
 import z from 'zod';
 
 import AvatarUpload from '@/components/avatar-upload';
@@ -43,16 +42,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import useHookForm from '@/hooks/use-hook-form';
 import { updateDoctorProfile, updateUserProfile } from '@/lib/actions';
 import { DATES } from '@/lib/constants';
-import { DOMAIN } from '@/lib/constants';
 import { doctorProfileSchema, userProfileSchema } from '@/lib/schemas';
-import {
-  cn,
-  hasRole,
-  shortId,
-  capitalize,
-  hasFormChanged,
-  arrayBufferToBase64
-} from '@/lib/utils';
+import { hasRole, shortId, capitalize, hasFormChanged } from '@/lib/utils';
 
 export default function Component({
   specialities,
@@ -67,13 +58,13 @@ export default function Component({
     };
   }>;
 }) {
-  const isDoctor = useMemo(
-    () =>
-      hasRole(
-        user.UserRoles.map(ur => ur.role as Role),
-        'doctor'
-      ),
-    [user.UserRoles]
+  const [role, setRole] = useState(
+    hasRole(
+      user.UserRoles.map(ur => ur.role as Role),
+      'doctor'
+    )
+      ? 'doctor'
+      : 'user'
   );
 
   const defaultUserValues = useMemo<z.infer<typeof userProfileSchema>>(
@@ -119,9 +110,51 @@ export default function Component({
     ]
   );
 
-  const [imageSrc, setImageSrc] = useState<string | null>(null);
-  const [coverSrc, setCoverSrc] = useState<string | null>(null);
-  const [role, setRole] = useState(isDoctor ? 'doctor' : 'user');
+  const userForm = useForm({
+    defaultValues: defaultUserValues,
+    resolver: zodResolver(userProfileSchema)
+  });
+
+  const doctorForm = useForm({
+    defaultValues: defaultDoctorValues,
+    resolver: zodResolver(doctorProfileSchema)
+  });
+
+  const watchedUserValues = {
+    city: useWatch({ control: userForm.control, name: 'city' }),
+    cover: useWatch({ control: userForm.control, name: 'cover' }),
+    email: useWatch({ control: userForm.control, name: 'email' }),
+    gender: useWatch({ control: userForm.control, name: 'gender' }),
+    image: useWatch({ control: userForm.control, name: 'image' }),
+    name: useWatch({ control: userForm.control, name: 'name' }),
+    password: useWatch({ control: userForm.control, name: 'password' }),
+    phone: useWatch({ control: userForm.control, name: 'phone' })
+  };
+
+  const watchedDoctorValues = {
+    city: useWatch({ control: doctorForm.control, name: 'city' }),
+    cover: useWatch({ control: doctorForm.control, name: 'cover' }),
+    daysOfVisit: useWatch({ control: doctorForm.control, name: 'daysOfVisit' }),
+    email: useWatch({ control: doctorForm.control, name: 'email' }),
+    emailVerified: useWatch({
+      control: doctorForm.control,
+      name: 'emailVerified'
+    }),
+    experience: useWatch({
+      control: doctorForm.control,
+      name: 'experience'
+    }) as number,
+    gender: useWatch({ control: doctorForm.control, name: 'gender' }),
+    image: useWatch({ control: doctorForm.control, name: 'image' }),
+    name: useWatch({ control: doctorForm.control, name: 'name' }),
+    password: useWatch({ control: doctorForm.control, name: 'password' }),
+    phone: useWatch({ control: doctorForm.control, name: 'phone' }),
+    specialities: useWatch({
+      control: doctorForm.control,
+      name: 'specialities'
+    }),
+    timings: useWatch({ control: doctorForm.control, name: 'timings' })
+  };
 
   const { handleSubmit: submitUser } = useHookForm(
     handler,
@@ -137,31 +170,6 @@ export default function Component({
       data: unknown
     ) => Promise<unknown>,
     true
-  );
-
-  const userForm = useForm({
-    defaultValues: defaultUserValues,
-    resolver: zodResolver(userProfileSchema)
-  });
-
-  const doctorForm = useForm({
-    defaultValues: defaultDoctorValues,
-    resolver: zodResolver(doctorProfileSchema)
-  });
-
-  const handleFileChange = useCallback(
-    async (e: React.ChangeEvent<HTMLInputElement>, type: 'image' | 'cover') => {
-      const file = e.target.files && e.target.files[0];
-      if (!file) return;
-
-      const arrayBuffer = await file.arrayBuffer();
-      const base64 = arrayBufferToBase64(arrayBuffer);
-      const dataUrl = `data:${file.type};base64,${base64}`;
-
-      if (type === 'image') setImageSrc(dataUrl);
-      if (type === 'cover') setCoverSrc(dataUrl);
-    },
-    []
   );
 
   return (
@@ -251,7 +259,7 @@ export default function Component({
                         <FormLabel>Password</FormLabel>
                         <FormControl>
                           <Input
-                            {...field}
+                            {...{ ...field, value: field.value as string }}
                             placeholder='Secret@123'
                             type='password'
                           />
@@ -268,7 +276,7 @@ export default function Component({
                         <FormLabel>Phone</FormLabel>
                         <FormControl>
                           <Input
-                            {...field}
+                            {...{ ...field, value: field.value as string }}
                             placeholder='+919876543210'
                             type='tel'
                           />
@@ -285,7 +293,7 @@ export default function Component({
                         <FormLabel>Gender</FormLabel>
                         <FormControl>
                           <Select
-                            defaultValue={field.value}
+                            defaultValue={field.value as string}
                             onValueChange={field.onChange}
                           >
                             <SelectTrigger className='w-full [&_span[data-slot]]:block [&_span[data-slot]]:truncate'>
@@ -321,7 +329,7 @@ export default function Component({
                   />
                   <Button
                     disabled={
-                      !hasFormChanged(defaultUserValues, userForm.watch()) ||
+                      !hasFormChanged(defaultUserValues, watchedUserValues) ||
                       userForm.formState.isSubmitting
                     }
                     type='submit'
@@ -334,129 +342,27 @@ export default function Component({
             <TabsContent value='doctor'>
               <Form {...doctorForm}>
                 <form
-                  className='space-y-2'
+                  className='relative space-y-2'
                   onSubmit={doctorForm.handleSubmit(submitDoctor)}
                 >
                   <FormField
                     control={doctorForm.control}
                     name='cover'
                     render={({ field }) => (
-                      <FormItem>
-                        <FormControl>
-                          <div
-                            className={cn(
-                              'relative grid min-h-80 gap-3 overflow-clip rounded-md',
-                              {
-                                'border-2': !user.cover,
-                                'border-dashed': !user.cover
-                              }
-                            )}
-                          >
-                            <Label
-                              className={cn(
-                                'absolute inset-0 z-10 grid place-items-center opacity-0 hover:opacity-100',
-                                { 'opacity-100': !user.cover }
-                              )}
-                              htmlFor='cover'
-                            >
-                              <FileIcon />
-                            </Label>
-                            {(coverSrc || user.cover) && (
-                              <Image
-                                alt='Profile Picture'
-                                className='aspect-video object-cover'
-                                fill
-                                priority
-                                src={
-                                  coverSrc ||
-                                  `${!user.hasOAuth ? `${DOMAIN.LOCAL}/api/upload/` : ''}${user.cover}`
-                                }
-                                unoptimized
-                              />
-                            )}
-                            <Input
-                              className='hidden'
-                              id='cover'
-                              name='cover'
-                              onChange={e => {
-                                const files = e.target.files;
-                                if (files?.length) {
-                                  field.onChange(files);
-                                  handleFileChange(e, 'cover');
-                                }
-                              }}
-                              type='file'
-                            />
-                          </div>
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
+                      <CoverUpload
+                        className='h-80'
+                        onImageChange={field.onChange}
+                      />
                     )}
                   />
                   <FormField
                     control={doctorForm.control}
                     name='image'
                     render={({ field }) => (
-                      <FormItem>
-                        <FormControl>
-                          <div className='absolute z-10 grid h-20 w-20 translate-x-2 -translate-y-[calc(100%+theme(spacing.4))] gap-3 overflow-clip rounded-md border-2'>
-                            <Label
-                              className={cn(
-                                'absolute inset-0 z-10 grid place-items-center opacity-0 hover:opacity-100',
-                                { 'opacity-100': !user.image }
-                              )}
-                              htmlFor='image'
-                            >
-                              <FileIcon />
-                            </Label>
-                            {(imageSrc || user.image) && (
-                              <Image
-                                alt='Profile Picture'
-                                className='object-image aspect-video'
-                                fill
-                                priority
-                                src={
-                                  imageSrc ||
-                                  `${!user.hasOAuth ? `${DOMAIN.LOCAL}/api/upload/` : ''}${user.image}`
-                                }
-                                unoptimized
-                              />
-                            )}
-                            <Input
-                              className='hidden'
-                              id='image'
-                              name='image'
-                              onChange={e => {
-                                const files = e.target.files;
-                                if (files?.length) {
-                                  field.onChange(files);
-                                  handleFileChange(e, 'image');
-                                }
-                              }}
-                              type='file'
-                            />
-                          </div>
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <FormField
-                    control={doctorForm.control}
-                    name='name'
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Name</FormLabel>
-                        <FormControl>
-                          <Input
-                            {...field}
-                            className='capitalize'
-                            placeholder='Gwen Tennyson'
-                            type='text'
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
+                      <AvatarUpload
+                        className='absolute top-[calc(theme(spacing.80)-7rem)] left-4 size-24'
+                        onFileChange={field.onChange}
+                      />
                     )}
                   />
                   <FormField
@@ -501,7 +407,7 @@ export default function Component({
                         <FormLabel>Phone</FormLabel>
                         <FormControl>
                           <Input
-                            {...field}
+                            {...{ ...field, value: field.value as string }}
                             placeholder='+919876543210'
                             type='tel'
                           />
@@ -518,7 +424,7 @@ export default function Component({
                         <FormLabel>Gender</FormLabel>
                         <FormControl>
                           <Select
-                            defaultValue={field.value}
+                            defaultValue={field.value as string}
                             onValueChange={field.onChange}
                           >
                             <SelectTrigger className='w-full [&_span[data-slot]]:block [&_span[data-slot]]:truncate'>
@@ -691,7 +597,7 @@ export default function Component({
                     disabled={
                       !hasFormChanged(
                         defaultDoctorValues,
-                        doctorForm.watch()
+                        watchedDoctorValues
                       ) || doctorForm.formState.isSubmitting
                     }
                     type='submit'

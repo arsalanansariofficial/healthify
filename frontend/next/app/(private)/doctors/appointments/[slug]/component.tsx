@@ -91,8 +91,8 @@ export default function Component({
               <div className='space-y-2'>
                 <Label htmlFor='doctor-name'>Doctor</Label>
                 <Input
-                  name='doctor-name'
                   className='capitalize'
+                  name='doctor-name'
                   placeholder='Gwen Tennyson'
                   readOnly
                   type='text'

@@ -25,23 +25,10 @@ export default function CoverUpload({
   maxSize = 5 * 1024 * 1024,
   onImageChange
 }: CoverUploadProps) {
-  const defaultCoverImage: FileMetadata = {
-    id: 'default-cover',
-    name: 'cover-image.jpg',
-    size: 2048000,
-    type: 'image/jpeg',
-    url: ''
-  };
-
   const [imageLoading, setImageLoading] = useState(true);
   const [uploadProgress, setUploadProgress] = useState(0);
   const [isUploading, setIsUploading] = useState(false);
-  const [coverImage, setCoverImage] = useState<FileWithPreview | null>({
-    file: defaultCoverImage,
-    id: defaultCoverImage.id,
-    preview: defaultCoverImage.url
-  });
-
+  const [coverImage, setCoverImage] = useState<FileWithPreview | null>();
   const hasImage = coverImage && coverImage.preview;
 
   const [

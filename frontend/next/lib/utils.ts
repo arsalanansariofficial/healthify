@@ -10,8 +10,9 @@ import {
 import { titleCase } from 'moderndash';
 import { AuthError, User } from 'next-auth';
 import { twMerge } from 'tailwind-merge';
+import z, { ZodType } from 'zod';
 
-import { MESSAGES, SMTP } from '@/lib/constants';
+import { DOMAIN, MESSAGES, SMTP, UI } from '@/lib/constants';
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -27,6 +28,10 @@ export function formatTime(time: string) {
 
 export function hasRole(roles: User['roles'], name: string) {
   return roles?.map(r => r.name.toLowerCase()).includes(name.toLowerCase());
+}
+
+export function getImageUrl(hasOAuth: boolean, image?: string | null) {
+  return `${!hasOAuth ? `${DOMAIN.LOCAL}/api/upload/` : ''}${image || UI.DEFAULT_PROFILE_IMAGE}`;
 }
 
 export function hasPermission(permissions: User['permissions'], name: string) {
@@ -56,6 +61,16 @@ export function formatChange(current: number, previous: number) {
   const sign = diff > 0 ? '+' : String();
 
   return `${sign}${diff.toFixed(1)}%`;
+}
+
+export function env<T>(key: string, fallback: T) {
+  const value = process.env[key];
+
+  if (!value) return fallback;
+  if (typeof fallback === 'number') return Number(value);
+  if (typeof fallback === 'boolean') return value === 'true';
+
+  return value;
 }
 
 export function removeDuplicateTimes(
@@ -178,12 +193,37 @@ export function hasFormChanged<T extends Record<string, unknown>>(
   });
 }
 
-export function env<T>(key: string, fallback: T) {
-  const value = process.env[key];
+export function schema<T extends ZodType>(
+  base: T,
+  {
+    empty = false,
+    lowerCase = true,
+    max = Infinity,
+    min = 0,
+    regex,
+    trim = true
+  }: {
+    min?: number;
+    max?: number;
+    trim?: boolean;
+    regex?: RegExp;
+    empty?: boolean;
+    lowerCase?: boolean;
+  } = {}
+) {
+  let s = base;
 
-  if (!value) return fallback;
-  if (typeof fallback === 'number') return Number(value);
-  if (typeof fallback === 'boolean') return value === 'true';
+  if (base instanceof z.ZodString) {
+    let copy = base;
 
-  return value;
+    if (trim) copy = copy.trim();
+    if (min > 0) copy = copy.min(min);
+    if (regex) copy = copy.regex(regex);
+    if (max < Infinity) copy = copy.max(max);
+    if (lowerCase) copy = copy.toLowerCase();
+
+    s = copy;
+  }
+
+  return empty ? z.union([z.literal(String()), s]) : s;
 }

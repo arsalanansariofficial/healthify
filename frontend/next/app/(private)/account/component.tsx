@@ -43,7 +43,13 @@ import useHookForm from '@/hooks/use-hook-form';
 import { updateDoctorProfile, updateUserProfile } from '@/lib/actions';
 import { DATES } from '@/lib/constants';
 import { doctorProfileSchema, userProfileSchema } from '@/lib/schemas';
-import { hasRole, shortId, capitalize, hasFormChanged } from '@/lib/utils';
+import {
+  hasRole,
+  shortId,
+  capitalize,
+  hasFormChanged,
+  getImageUrl
+} from '@/lib/utils';
 
 export default function Component({
   specialities,
@@ -202,6 +208,7 @@ export default function Component({
                     render={({ field }) => (
                       <CoverUpload
                         className='h-80'
+                        imageUrl={getImageUrl(user.hasOAuth, user.cover)}
                         onImageChange={field.onChange}
                       />
                     )}
@@ -212,6 +219,7 @@ export default function Component({
                     render={({ field }) => (
                       <AvatarUpload
                         className='absolute top-[calc(theme(spacing.80)-7rem)] left-4 size-24'
+                        defaultAvatar={getImageUrl(user.hasOAuth, user.image)}
                         onFileChange={field.onChange}
                       />
                     )}
@@ -259,7 +267,7 @@ export default function Component({
                         <FormLabel>Password</FormLabel>
                         <FormControl>
                           <Input
-                            {...{ ...field, value: field.value as string }}
+                            {...field}
                             placeholder='Secret@123'
                             type='password'
                           />
@@ -276,7 +284,7 @@ export default function Component({
                         <FormLabel>Phone</FormLabel>
                         <FormControl>
                           <Input
-                            {...{ ...field, value: field.value as string }}
+                            {...field}
                             placeholder='+919876543210'
                             type='tel'
                           />
@@ -293,7 +301,7 @@ export default function Component({
                         <FormLabel>Gender</FormLabel>
                         <FormControl>
                           <Select
-                            defaultValue={field.value as string}
+                            defaultValue={field.value}
                             onValueChange={field.onChange}
                           >
                             <SelectTrigger className='w-full [&_span[data-slot]]:block [&_span[data-slot]]:truncate'>
@@ -317,7 +325,7 @@ export default function Component({
                         <FormLabel>City</FormLabel>
                         <FormControl>
                           <Input
-                            {...{ ...field, value: field.value as string }}
+                            {...field}
                             className='capitalize'
                             placeholder='Moradabad'
                             type='text'
@@ -351,6 +359,7 @@ export default function Component({
                     render={({ field }) => (
                       <CoverUpload
                         className='h-80'
+                        imageUrl={getImageUrl(user.hasOAuth, user.cover)}
                         onImageChange={field.onChange}
                       />
                     )}
@@ -361,6 +370,7 @@ export default function Component({
                     render={({ field }) => (
                       <AvatarUpload
                         className='absolute top-[calc(theme(spacing.80)-7rem)] left-4 size-24'
+                        defaultAvatar={getImageUrl(user.hasOAuth, user.image)}
                         onFileChange={field.onChange}
                       />
                     )}
@@ -390,7 +400,7 @@ export default function Component({
                         <FormLabel>Password</FormLabel>
                         <FormControl>
                           <Input
-                            {...{ ...field, value: field.value as string }}
+                            {...field}
                             placeholder='Secret@123'
                             type='password'
                           />
@@ -407,7 +417,7 @@ export default function Component({
                         <FormLabel>Phone</FormLabel>
                         <FormControl>
                           <Input
-                            {...{ ...field, value: field.value as string }}
+                            {...field}
                             placeholder='+919876543210'
                             type='tel'
                           />
@@ -424,7 +434,7 @@ export default function Component({
                         <FormLabel>Gender</FormLabel>
                         <FormControl>
                           <Select
-                            defaultValue={field.value as string}
+                            defaultValue={field.value}
                             onValueChange={field.onChange}
                           >
                             <SelectTrigger className='w-full [&_span[data-slot]]:block [&_span[data-slot]]:truncate'>
@@ -449,7 +459,6 @@ export default function Component({
                         <FormControl>
                           <Input
                             {...{ ...field, value: field.value as number }}
-                            onChange={e => field.onChange(e.target.value)}
                             placeholder='1 Year'
                             type='number'
                           />
@@ -466,7 +475,7 @@ export default function Component({
                         <FormLabel>City</FormLabel>
                         <FormControl>
                           <Input
-                            {...{ ...field, value: field.value as string }}
+                            {...field}
                             className='capitalize'
                             placeholder='Moradabad'
                             type='text'

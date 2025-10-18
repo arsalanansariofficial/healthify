@@ -1,12 +1,12 @@
 'use client';
 
 import { zodResolver } from '@hookform/resolvers/zod';
-import { FileIcon, PlusIcon, TrashIcon } from 'lucide-react';
+import { PlusIcon, TrashIcon } from 'lucide-react';
 import { User } from 'next-auth';
-import Image from 'next/image';
-import { useCallback, useState } from 'react';
 import { useForm } from 'react-hook-form';
 
+import AvatarUpload from '@/components/avatar-upload';
+import CoverUpload from '@/components/cover-upload';
 import handler from '@/components/display-toast';
 import Footer from '@/components/footer';
 import { Button } from '@/components/ui/button';
@@ -40,7 +40,6 @@ import useHookForm from '@/hooks/use-hook-form';
 import { addDoctor } from '@/lib/actions';
 import { DATES } from '@/lib/constants';
 import { doctorSchema } from '@/lib/schemas';
-import { arrayBufferToBase64, cn } from '@/lib/utils';
 
 export default function Component({
   specialities
@@ -48,8 +47,6 @@ export default function Component({
   user: User;
   specialities: { value: string; label: string }[];
 }) {
-  const [image, setImage] = useState<File>();
-  const [imageSrc, setImageSrc] = useState<string | null>(null);
   const { handleSubmit, pending } = useHookForm(handler, addDoctor);
 
   const form = useForm({
@@ -67,22 +64,6 @@ export default function Component({
     resolver: zodResolver(doctorSchema)
   });
 
-  const handleFileChange = useCallback(
-    async (e: React.ChangeEvent<HTMLInputElement>) => {
-      const file = e.target.files && e.target.files[0];
-
-      if (!file) return;
-      setImage(file);
-
-      const arrayBuffer = await file.arrayBuffer();
-      const base64 = arrayBufferToBase64(arrayBuffer);
-      const dataUrl = `data:${file.type};base64,${base64}`;
-
-      setImageSrc(dataUrl);
-    },
-    []
-  );
-
   return (
     <div className='flex h-full flex-col gap-8 lg:mx-auto lg:w-10/12'>
       <Card>
@@ -95,51 +76,28 @@ export default function Component({
         <CardContent>
           <Form {...form}>
             <form
-              className='space-y-2'
+              className='relative space-y-2'
               id='doctor-form'
               onSubmit={form.handleSubmit(handleSubmit)}
             >
               <FormField
                 control={form.control}
+                name='cover'
+                render={({ field }) => (
+                  <CoverUpload
+                    className='h-80'
+                    onImageChange={field.onChange}
+                  />
+                )}
+              />
+              <FormField
+                control={form.control}
                 name='image'
                 render={({ field }) => (
-                  <FormItem>
-                    <FormControl>
-                      <div className='relative grid min-h-80 gap-3 overflow-clip rounded-md border-2 border-dashed'>
-                        <Label
-                          className={cn(
-                            'absolute inset-0 z-10 grid place-items-center',
-                            { 'opacity-0': image }
-                          )}
-                          htmlFor='image'
-                        >
-                          <FileIcon />
-                        </Label>
-                        {imageSrc && (
-                          <Image
-                            alt='Profile Picture'
-                            className='aspect-video object-cover'
-                            fill
-                            src={imageSrc}
-                          />
-                        )}
-                        <Input
-                          className='hidden'
-                          id='image'
-                          name='image'
-                          onChange={e => {
-                            const files = e.target.files;
-                            if (files?.length) {
-                              field.onChange(files);
-                              handleFileChange(e);
-                            }
-                          }}
-                          type='file'
-                        />
-                      </div>
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
+                  <AvatarUpload
+                    className='absolute top-[calc(theme(spacing.80)-7rem)] left-4 size-24'
+                    onFileChange={field.onChange}
+                  />
                 )}
               />
               <FormField

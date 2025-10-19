@@ -10,7 +10,6 @@ import {
 import { titleCase } from 'moderndash';
 import { AuthError, User } from 'next-auth';
 import { twMerge } from 'tailwind-merge';
-import z, { ZodType } from 'zod';
 
 import { DOMAIN, MESSAGES, SMTP, UI } from '@/lib/constants';
 
@@ -18,12 +17,32 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
+export function valid(attribute: string) {
+  return `${capitalize(attribute)} should be valid.`;
+}
+
 export function capitalize(text: string) {
   return titleCase(String(text).toLowerCase());
 }
 
+export function positive(attribute: string) {
+  return `${capitalize(attribute)} should be positive.`;
+}
+
+export function required(attribute: string) {
+  return `${capitalize(attribute)} should not be empty.`;
+}
+
 export function formatTime(time: string) {
   return format(parse(time, 'HH:mm:ss', new Date()), 'hh:mm a');
+}
+
+export function exp(attribute: string, exp: string) {
+  return `${capitalize(attribute)} should be in the format ${exp}.`;
+}
+
+export function min(attribute: string, min: number) {
+  return `${capitalize(attribute)} should be atleast ${min} characters.`;
 }
 
 export function hasRole(roles: User['roles'], name: string) {
@@ -44,13 +63,6 @@ export function getDate(date?: string, day = true, time = true): string {
   if (!day) return format(date || new Date(), 'MMMM dd, yyyy');
   if (!time) return format(date || new Date(), 'EEEE, MMMM dd, yyyy');
   return format(date || new Date(), 'EEEE, MMMM dd, yyyy h:mm a');
-}
-
-export function arrayBufferToBase64(buffer: ArrayBuffer): string {
-  const bytes = new Uint8Array(buffer);
-  return window.btoa(
-    bytes.reduce((acc, byte) => acc + String.fromCharCode(byte), String())
-  );
 }
 
 export function formatChange(current: number, previous: number) {
@@ -191,39 +203,4 @@ export function hasFormChanged<T extends Record<string, unknown>>(
 
     return false;
   });
-}
-
-export function schema<T extends ZodType>(
-  base: T,
-  {
-    empty = false,
-    lowerCase = true,
-    max = Infinity,
-    min = 0,
-    regex,
-    trim = true
-  }: {
-    min?: number;
-    max?: number;
-    trim?: boolean;
-    regex?: RegExp;
-    empty?: boolean;
-    lowerCase?: boolean;
-  } = {}
-) {
-  let s = base;
-
-  if (base instanceof z.ZodString) {
-    let copy = base;
-
-    if (trim) copy = copy.trim();
-    if (min > 0) copy = copy.min(min);
-    if (regex) copy = copy.regex(regex);
-    if (max < Infinity) copy = copy.max(max);
-    if (lowerCase) copy = copy.toLowerCase();
-
-    s = copy;
-  }
-
-  return empty ? z.union([z.literal(String()), s]) : s;
 }

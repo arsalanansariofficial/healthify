@@ -272,11 +272,13 @@ export async function updateUserProfile(
     const updated = await prisma.$transaction(async function (transaction) {
       let imageName, coverName;
 
-      if (image?.size && user.image) await removeFile(user.image);
-      if (cover?.size && user.cover) await removeFile(user.cover);
+      if (image instanceof File && image.size) {
+        imageName = await saveFile(image);
+      }
 
-      if (image?.size) imageName = await saveFile(image);
-      if (cover?.size) coverName = await saveFile(cover);
+      if (cover instanceof File && cover.size) {
+        coverName = await saveFile(cover);
+      }
 
       const updated = await transaction.user.update({
         data: {
@@ -421,11 +423,21 @@ export async function updateDoctorProfile(
     const updated = await prisma.$transaction(async function (transaction) {
       let imageName, coverName;
 
-      if (image?.size && user.image) await removeFile(user.image);
-      if (cover?.size && user.cover) await removeFile(user.cover);
+      if (image instanceof File && image?.size && user.image) {
+        await removeFile(user.image);
+      }
 
-      if (image?.size) imageName = await saveFile(image);
-      if (cover?.size) coverName = await saveFile(cover);
+      if (cover instanceof File && cover?.size && user.cover) {
+        await removeFile(user.cover);
+      }
+
+      if (image instanceof File && image?.size) {
+        imageName = await saveFile(image);
+      }
+
+      if (cover instanceof File && cover?.size) {
+        coverName = await saveFile(cover);
+      }
 
       const updated = await transaction.user.update({
         data: {
@@ -526,7 +538,10 @@ export async function addDoctor(data: z.infer<typeof doctorSchema>) {
 
     await prisma.$transaction(async function (transaction) {
       let fileName;
-      if (image?.size) fileName = await saveFile(image);
+
+      if (image instanceof File && image?.size) {
+        fileName = await saveFile(image);
+      }
 
       const role = await transaction.role.findUnique({
         where: { name: ROLES.DOCTOR as string }

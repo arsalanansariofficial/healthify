@@ -1,0 +1,404 @@
+'use client';
+
+import {
+  Trash2,
+  Upload,
+  Download,
+  ImageIcon,
+  VideoIcon,
+  CloudUpload,
+  FileTextIcon,
+  RefreshCwIcon,
+  TriangleAlert,
+  HeadphonesIcon,
+  FileArchiveIcon,
+  FileSpreadsheetIcon
+} from 'lucide-react';
+import Link from 'next/link';
+import { useEffect, useState } from 'react';
+
+import {
+  Alert,
+  AlertIcon,
+  AlertTitle,
+  AlertContent,
+  AlertDescription
+} from '@/components/ui/alert';
+import { Button } from '@/components/ui/button';
+import {
+  Table,
+  TableRow,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader
+} from '@/components/ui/table';
+import { DOMAIN } from '@/constants/domain';
+import {
+  formatBytes,
+  useFileUpload,
+  type FileMetadata,
+  type FileWithPreview
+} from '@/hooks/use-file-upload';
+import { toAbsoluteUrl } from '@/lib/helpers';
+import { cn } from '@/lib/utils';
+
+import { Badge } from './ui/badge';
+
+interface FileUploadItem extends FileWithPreview {
+  error?: string;
+  progress: number;
+  status: 'uploading' | 'completed' | 'error';
+}
+
+interface TableUploadProps {
+  accept?: string;
+  maxSize?: number;
+  files?: string[];
+  maxFiles?: number;
+  multiple?: boolean;
+  className?: string;
+  simulateUpload?: boolean;
+  onFilesChange?: (files: FileWithPreview[]) => void;
+}
+
+export default function TableUpload({
+  accept = '*',
+  className,
+  files = [],
+  maxFiles = 10,
+  maxSize = 50 * 1024 * 1024,
+  multiple = true,
+  onFilesChange,
+  simulateUpload = true
+}: TableUploadProps) {
+  const defaultFiles = files.map(file => ({
+    id: 'default-doc-1',
+    name: 'document.pdf',
+    size: 529254,
+    type: 'application/pdf',
+    url: toAbsoluteUrl(`${DOMAIN.LOCAL}/api/upload/${file}`)
+  }));
+
+  const defaultUploadFiles: FileUploadItem[] = defaultFiles.map(file => ({
+    file: {
+      name: file.name,
+      size: file.size,
+      type: file.type
+    } as File,
+    id: file.id,
+    preview: file.url,
+    progress: 100,
+    status: 'completed' as const
+  }));
+
+  const [uploadFiles, setUploadFiles] =
+    useState<FileUploadItem[]>(defaultUploadFiles);
+
+  const [
+    { errors, isDragging },
+    {
+      clearFiles,
+      getInputProps,
+      handleDragEnter,
+      handleDragLeave,
+      handleDragOver,
+      handleDrop,
+      openFileDialog,
+      removeFile
+    }
+  ] = useFileUpload({
+    accept,
+    initialFiles: defaultFiles,
+    maxFiles,
+    maxSize,
+    multiple,
+    onFilesChange: newFiles => {
+      const newUploadFiles = newFiles.map(file => {
+        const existingFile = uploadFiles.find(
+          existing => existing.id === file.id
+        );
+
+        if (existingFile) {
+          return {
+            ...existingFile,
+            ...file
+          };
+        } else {
+          return {
+            ...file,
+            progress: 0,
+            status: 'uploading' as const
+          };
+        }
+      });
+      setUploadFiles(newUploadFiles);
+    }
+  });
+
+  useEffect(() => {
+    if (!simulateUpload) return;
+
+    const interval = setInterval(() => {
+      setUploadFiles(prev =>
+        prev.map(file => {
+          if (file.status !== 'uploading') return file;
+
+          const increment = Math.random() * 15 + 5;
+          const newProgress = Math.min(file.progress + increment, 100);
+
+          if (newProgress >= 100) {
+            return { ...file, progress: 100, status: 'completed' as const };
+          }
+
+          return { ...file, progress: newProgress };
+        })
+      );
+    }, 500);
+
+    return () => clearInterval(interval);
+  }, [simulateUpload]);
+
+  useEffect(() => {
+    onFilesChange?.(uploadFiles);
+  }, [onFilesChange, uploadFiles]);
+
+  const removeUploadFile = (fileId: string) => {
+    setUploadFiles(prev => prev.filter(file => file.id !== fileId));
+    removeFile(fileId);
+  };
+
+  const retryUpload = (fileId: string) => {
+    setUploadFiles(prev =>
+      prev.map(file =>
+        file.id === fileId
+          ? {
+              ...file,
+              error: undefined,
+              progress: 0,
+              status: 'uploading' as const
+            }
+          : file
+      )
+    );
+  };
+
+  const getFileIcon = (file: File | FileMetadata) => {
+    const type = file instanceof File ? file.type : file.type;
+    if (type.startsWith('image/')) return <ImageIcon className='size-4' />;
+    if (type.startsWith('video/')) return <VideoIcon className='size-4' />;
+    if (type.startsWith('audio/')) return <HeadphonesIcon className='size-4' />;
+    if (type.includes('pdf')) return <FileTextIcon className='size-4' />;
+    if (type.includes('word') || type.includes('doc'))
+      return <FileTextIcon className='size-4' />;
+    if (type.includes('excel') || type.includes('sheet'))
+      return <FileSpreadsheetIcon className='size-4' />;
+    if (type.includes('zip') || type.includes('rar'))
+      return <FileArchiveIcon className='size-4' />;
+    return <FileTextIcon className='size-4' />;
+  };
+
+  const getFileTypeLabel = (file: File | FileMetadata) => {
+    const type = file instanceof File ? file.type : file.type;
+    if (type.startsWith('image/')) return 'Image';
+    if (type.startsWith('video/')) return 'Video';
+    if (type.startsWith('audio/')) return 'Audio';
+    if (type.includes('pdf')) return 'PDF';
+    if (type.includes('word') || type.includes('doc')) return 'Word';
+    if (type.includes('excel') || type.includes('sheet')) return 'Excel';
+    if (type.includes('zip') || type.includes('rar')) return 'Archive';
+    if (type.includes('json')) return 'JSON';
+    if (type.includes('text')) return 'Text';
+    return 'File';
+  };
+
+  return (
+    <div className={cn('w-full space-y-4', className)}>
+      <div
+        className={cn(
+          'relative rounded-lg border border-dashed p-6 text-center transition-colors',
+          isDragging
+            ? 'border-primary bg-primary/5'
+            : 'border-muted-foreground/25 hover:border-muted-foreground/50'
+        )}
+        onDragEnter={handleDragEnter}
+        onDragLeave={handleDragLeave}
+        onDragOver={handleDragOver}
+        onDrop={handleDrop}
+      >
+        <input {...getInputProps()} className='sr-only' />
+        <div className='flex flex-col items-center gap-4'>
+          <div
+            className={cn(
+              'bg-muted flex h-12 w-12 items-center justify-center rounded-full transition-colors',
+              isDragging
+                ? 'border-primary bg-primary/10'
+                : 'border-muted-foreground/25'
+            )}
+          >
+            <Upload
+              className='text-muted-foreground h-5 w-5 cursor-pointer'
+              onClick={openFileDialog}
+            />
+          </div>
+          <p className='text-muted-foreground text-xs'>
+            Maximum file size: {formatBytes(maxSize)}, Maximum files:
+            {maxFiles}
+          </p>
+        </div>
+      </div>
+      {uploadFiles.length > 0 && (
+        <div className='space-y-4'>
+          <div className='flex items-center justify-between'>
+            <h3 className='text-sm font-medium'>
+              Files ({uploadFiles.length})
+            </h3>
+            <div className='flex gap-2'>
+              <Button onClick={openFileDialog} size='sm' variant='outline'>
+                <CloudUpload />
+                Add files
+              </Button>
+              <Button onClick={clearFiles} size='sm' variant='outline'>
+                <Trash2 />
+                Remove all
+              </Button>
+            </div>
+          </div>
+          <div className='rounded-lg border'>
+            <Table>
+              <TableHeader>
+                <TableRow className='text-xs'>
+                  <TableHead className='h-9'>Name</TableHead>
+                  <TableHead className='h-9'>Type</TableHead>
+                  <TableHead className='h-9'>Size</TableHead>
+                  <TableHead className='h-9 w-[100px] text-end'>
+                    Actions
+                  </TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {uploadFiles.map(fileItem => (
+                  <TableRow key={fileItem.id}>
+                    <TableCell className='py-2 ps-1.5'>
+                      <div className='flex items-center gap-1'>
+                        <div
+                          className={cn(
+                            'text-muted-foreground/80 relative flex size-8 shrink-0 items-center justify-center'
+                          )}
+                        >
+                          {fileItem.status === 'uploading' ? (
+                            <div className='relative'>
+                              <svg
+                                className='size-8 -rotate-90'
+                                viewBox='0 0 32 32'
+                              >
+                                <circle
+                                  className='text-muted-foreground/20'
+                                  cx='16'
+                                  cy='16'
+                                  fill='none'
+                                  r='14'
+                                  stroke='currentColor'
+                                  strokeWidth='2'
+                                />
+                                <circle
+                                  className='text-primary transition-all duration-300'
+                                  cx='16'
+                                  cy='16'
+                                  fill='none'
+                                  r='14'
+                                  stroke='currentColor'
+                                  strokeDasharray={`${2 * Math.PI * 14}`}
+                                  strokeDashoffset={`${2 * Math.PI * 14 * (1 - fileItem.progress / 100)}`}
+                                  strokeLinecap='round'
+                                  strokeWidth='2'
+                                />
+                              </svg>
+                              <div className='absolute inset-0 flex items-center justify-center'>
+                                {getFileIcon(fileItem.file)}
+                              </div>
+                            </div>
+                          ) : (
+                            <div className='not-[]:size-8 flex items-center justify-center'>
+                              {getFileIcon(fileItem.file)}
+                            </div>
+                          )}
+                        </div>
+                        <p className='flex items-center gap-1 truncate text-sm font-medium'>
+                          {fileItem.file.name}
+                          {fileItem.status === 'error' && (
+                            <Badge variant='destructive'>Error</Badge>
+                          )}
+                        </p>
+                      </div>
+                    </TableCell>
+                    <TableCell className='py-2'>
+                      <Badge className='text-xs' variant='secondary'>
+                        {getFileTypeLabel(fileItem.file)}
+                      </Badge>
+                    </TableCell>
+                    <TableCell className='text-muted-foreground py-2 text-sm'>
+                      {formatBytes(fileItem.file.size)}
+                    </TableCell>
+                    <TableCell className='py-2 pe-1'>
+                      <div className='flex items-center gap-1'>
+                        {fileItem.preview && (
+                          <Button
+                            asChild
+                            className='size-8'
+                            size='icon'
+                            variant='secondary'
+                          >
+                            <Link href={fileItem.preview} target='_blank'>
+                              <Download className='size-3.5' />
+                            </Link>
+                          </Button>
+                        )}
+                        {fileItem.status === 'error' ? (
+                          <Button
+                            className='text-destructive/80 hover:text-destructive size-8'
+                            onClick={() => retryUpload(fileItem.id)}
+                            size='icon'
+                            variant='secondary'
+                          >
+                            <RefreshCwIcon className='size-3.5' />
+                          </Button>
+                        ) : (
+                          <Button
+                            className='size-8'
+                            onClick={() => removeUploadFile(fileItem.id)}
+                            size='icon'
+                            variant='secondary'
+                          >
+                            <Trash2 className='size-3.5' />
+                          </Button>
+                        )}
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </div>
+        </div>
+      )}
+      {errors.length > 0 && (
+        <Alert appearance='light' className='mt-5' variant='destructive'>
+          <AlertIcon>
+            <TriangleAlert />
+          </AlertIcon>
+          <AlertContent>
+            <AlertTitle>File upload error(s)</AlertTitle>
+            <AlertDescription>
+              {errors.map((error, index) => (
+                <p className='last:mb-0' key={index}>
+                  {error}
+                </p>
+              ))}
+            </AlertDescription>
+          </AlertContent>
+        </Alert>
+      )}
+    </div>
+  );
+}

@@ -1,9 +1,14 @@
-import { Gender, RenewalType, SubscriptionStatus } from '@prisma/client';
+import {
+  AppointmentStatus,
+  Gender,
+  RenewalType,
+  SubscriptionStatus
+} from '@prisma/client';
 import { z } from 'zod';
 
 import { TIME_REG_EX, PHONE_REG_EX } from '@/constants/regex';
 import { DATES } from '@/lib/constants';
-import { exp, getDate, positive, required, valid } from '@/lib/utils';
+import { exp, getDate, min, positive, required, valid } from '@/lib/utils';
 
 export const loginSchema = z.object({
   email: z
@@ -394,3 +399,80 @@ export const pharmaBrandSchema = pharmaBaseSchema;
 
 export const medicationFormSchema = pharmaBaseSchema;
 export const pharmaManufacturerSchema = pharmaBaseSchema;
+
+export const appointmentSummarySchema = z.object({
+  appointmentHospitals: z.array(
+    z
+      .string({ error: valid('hospital') })
+      .nonempty({ error: required('hospital') })
+      .trim()
+      .toLowerCase()
+  ),
+  benificiaryId: z
+    .string({ error: valid('benificiary') })
+    .trim()
+    .toLowerCase(),
+  city: z
+    .string({ error: valid('city') })
+    .trim()
+    .toLowerCase(),
+  date: z.date({ error: valid('date') }),
+  doctorId: z
+    .string({ error: valid('doctor') })
+    .nonempty({ error: required('doctor') })
+    .trim()
+    .toLowerCase(),
+  email: z
+    .email({ error: valid('email') })
+    .trim()
+    .toLowerCase(),
+  facilities: z.array(
+    z
+      .string({ error: valid('facility') })
+      .nonempty({ error: required('facility') })
+      .trim()
+      .toLowerCase()
+  ),
+  isReferred: z.enum(['yes', 'no']).default('no'),
+  name: z
+    .string({ error: valid('name') })
+    .min(5, min('name', 5))
+    .trim()
+    .toLowerCase(),
+  notes: z
+    .string({ error: valid('notes') })
+    .trim()
+    .toLowerCase(),
+  patientId: z
+    .string({ error: valid('patient') })
+    .nonempty({ error: required('patient') })
+    .trim()
+    .toLowerCase(),
+  phone: z
+    .string({ error: valid('phone') })
+    .regex(PHONE_REG_EX as RegExp, { error: exp('phone', '+919876543210') })
+    .trim()
+    .toLowerCase(),
+  prescriptions: z.array(
+    z
+      .string({ error: valid('prescription') })
+      .nonempty({ error: required('prescription') })
+      .trim()
+      .toLowerCase()
+  ),
+  reports: z.array(
+    z.union([
+      z
+        .string({ error: valid('file') })
+        .trim()
+        .toLowerCase(),
+      z.array(z.file())
+    ])
+  ),
+  status: z.enum(AppointmentStatus),
+  timeSlotId: z
+    .string({ error: valid('timing') })
+    .nonempty({ error: required('timing') })
+    .trim()
+    .toLowerCase()
+});

@@ -1,12 +1,13 @@
 'use client';
 
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Prisma } from '@prisma/client';
+import { AppointmentStatus, Facility, Hospital, Prisma } from '@prisma/client';
 import { User as AuthUser } from 'next-auth';
 import { useForm } from 'react-hook-form';
 
 import handler from '@/components/display-toast';
 import Footer from '@/components/footer';
+import TableUpload from '@/components/table-upload';
 import { Button } from '@/components/ui/button';
 import {
   Card,
@@ -25,17 +26,37 @@ import {
   FormMessage
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
+import MultiSelect from '@/components/ui/multi-select';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue
+} from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import useHookForm from '@/hooks/use-hook-form';
 import { getAppointment } from '@/lib/actions';
-import { appointmentSchema } from '@/lib/schemas';
+import { appointmentSummarySchema } from '@/lib/schemas';
 import { formatTime, getDate } from '@/lib/utils';
 
 export default function Component({
-  appointment
+  appointment,
+  facilities,
+  hospitals
 }: {
+  facilities: Facility[];
+  hospitals: Hospital[];
   appointment: Prisma.AppointmentGetPayload<{
-    include: { timeSlot: true; doctor: true };
+    include: {
+      doctor: true;
+      patient: true;
+      timeSlot: true;
+      facilities: true;
+      benificiary: true;
+      prescriptions: true;
+      appointmentHospitals: true;
+    };
   }>;
   user: AuthUser;
 }) {
@@ -48,25 +69,36 @@ export default function Component({
 
   const form = useForm({
     defaultValues: {
+      appointmentHospitals: appointment.appointmentHospitals.map(
+        ah => ah.hospitalId
+      ),
+      benificiaryId: appointment.benificiary?.id || String(),
       city: appointment.city,
       date: appointment.date,
-      doctor: appointment.doctor.name || String(),
+      doctorId: appointment.doctor.id,
       email: appointment.email,
+      facilities: appointment.facilities.map(f => f.id),
+      isReferred: appointment.isReferred ? 'yes' : 'no',
       name: appointment.name,
       notes: appointment.notes || String(),
+      patientId: appointment.patient.id,
       phone: appointment.phone,
-      time: formatTime(appointment.timeSlot.time)
+      prescriptions: appointment.prescriptions.map(p => p.id),
+      reports: appointment.reports,
+      status: appointment.status,
+      timeSlotId: appointment.timeSlot.id
     },
-    resolver: zodResolver(appointmentSchema)
+    resolver: zodResolver(appointmentSummarySchema)
   });
 
   return (
     <div className='flex h-full flex-col gap-8 lg:mx-auto lg:w-10/12'>
       <Card>
         <CardHeader>
-          <CardTitle>Get Appointment</CardTitle>
+          <CardTitle>Appointment Summary</CardTitle>
           <CardDescription>
-            Enter the details below to book an appointment with the appointment.
+            You can update appointment details here, click save when you&apos;re
+            done.
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -78,7 +110,7 @@ export default function Component({
             >
               <FormField
                 control={form.control}
-                name='doctor'
+                name='doctorId'
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Doctor</FormLabel>
@@ -89,6 +121,7 @@ export default function Component({
                         disabled
                         placeholder='Gwen Tennyson'
                         type='text'
+                        value={appointment.doctor.name || String()}
                       />
                     </FormControl>
                     <FormMessage />
@@ -189,12 +222,156 @@ export default function Component({
               />
               <FormField
                 control={form.control}
-                name='time'
+                name='timeSlotId'
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Time</FormLabel>
                     <FormControl>
-                      <Input {...field} disabled placeholder='10:00 AM' />
+                      <Input
+                        {...field}
+                        disabled
+                        placeholder='10:00 AM'
+                        value={formatTime(appointment.timeSlot.time)}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              {appointment.appointmentHospitals.length > 0 && (
+                <FormField
+                  control={form.control}
+                  name='appointmentHospitals'
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Hospitals</FormLabel>
+                      <FormControl>
+                        <MultiSelect
+                          options={hospitals.map(h => ({
+                            label: h.name,
+                            value: h.id
+                          }))}
+                          placeholder='Select hospitals...'
+                          selectedValues={field.value}
+                          setSelectedValues={field.onChange}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              )}
+              {appointment.benificiary && (
+                <FormField
+                  control={form.control}
+                  name='benificiaryId'
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Benificiary</FormLabel>
+                      <FormControl>
+                        <Textarea
+                          className='capitalize'
+                          {...field}
+                          placeholder='Gwen Tennyson'
+                          value={appointment.benificiary?.name}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              )}
+              <FormField
+                control={form.control}
+                name='facilities'
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Facilites</FormLabel>
+                    <FormControl>
+                      <MultiSelect
+                        options={facilities.map(f => ({
+                          label: f.name,
+                          value: f.id
+                        }))}
+                        placeholder='Select facilities...'
+                        selectedValues={field.value}
+                        setSelectedValues={field.onChange}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name='isReferred'
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Referred to another hospital</FormLabel>
+                    <FormControl>
+                      <Select
+                        defaultValue={field.value}
+                        onValueChange={field.onChange}
+                      >
+                        <SelectTrigger className='w-full [&_span[data-slot]]:block [&_span[data-slot]]:truncate'>
+                          <SelectValue placeholder='Select a value' />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem className='capitalize' value='yes'>
+                            Yes
+                          </SelectItem>
+                          <SelectItem className='capitalize' value='no'>
+                            No
+                          </SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name='status'
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Status</FormLabel>
+                    <FormControl>
+                      <Select
+                        defaultValue={field.value}
+                        onValueChange={field.onChange}
+                      >
+                        <SelectTrigger className='w-full capitalize [&_span[data-slot]]:block [&_span[data-slot]]:truncate'>
+                          <SelectValue placeholder='Select a value' />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem
+                            className='capitalize'
+                            value={AppointmentStatus.pending}
+                          >
+                            {AppointmentStatus.pending}
+                          </SelectItem>
+                          <SelectItem
+                            className='capitalize'
+                            value={AppointmentStatus.confirmed}
+                          >
+                            {AppointmentStatus.confirmed}
+                          </SelectItem>
+                          <SelectItem
+                            className='capitalize'
+                            value={AppointmentStatus.cancelled}
+                          >
+                            {AppointmentStatus.cancelled}
+                          </SelectItem>
+                          <SelectItem
+                            className='capitalize'
+                            value={AppointmentStatus.done}
+                          >
+                            {AppointmentStatus.done}
+                          </SelectItem>
+                        </SelectContent>
+                      </Select>
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -209,9 +386,23 @@ export default function Component({
                     <FormControl>
                       <Textarea
                         className='capitalize'
-                        {...{ ...field, value: field.value as string }}
+                        {...field}
                         placeholder='Any prior medical history or symptoms...'
+                        value={appointment.notes || String()}
                       />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name='reports'
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Reports</FormLabel>
+                    <FormControl>
+                      <TableUpload onFilesChange={field.onChange} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>

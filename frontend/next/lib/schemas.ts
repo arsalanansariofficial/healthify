@@ -181,7 +181,7 @@ export const userProfileSchema = z.object({
       .string({ error: valid('file') })
       .trim()
       .toLowerCase(),
-    z.array(z.file())
+    z.file()
   ]),
   email: z
     .email({ error: valid('email') })
@@ -193,7 +193,7 @@ export const userProfileSchema = z.object({
       .string({ error: valid('file') })
       .trim()
       .toLowerCase(),
-    z.array(z.file())
+    z.file()
   ]),
   name: z
     .string({ error: valid('name') })
@@ -289,7 +289,7 @@ export const doctorSchema = z.object({
       .string({ error: valid('file') })
       .trim()
       .toLowerCase(),
-    z.array(z.file())
+    z.file()
   ]),
   daysOfVisit: z
     .array(
@@ -314,7 +314,7 @@ export const doctorSchema = z.object({
       .string({ error: valid('file') })
       .trim()
       .toLowerCase(),
-    z.array(z.file())
+    z.file()
   ]),
   name: z
     .string({ error: valid('name') })
@@ -466,7 +466,7 @@ export const appointmentSummarySchema = z.object({
         .string({ error: valid('file') })
         .trim()
         .toLowerCase(),
-      z.array(z.file())
+      z.file()
     ])
   ),
   status: z.enum(AppointmentStatus),

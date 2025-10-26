@@ -2,7 +2,7 @@
 
 import { CloudUpload, ImageIcon, Upload, XIcon } from 'lucide-react';
 import Image from 'next/image';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 
 import { Button } from '@/components/ui/button';
 import {
@@ -53,6 +53,7 @@ export default function CoverUpload({
       handleDragLeave,
       handleDragOver,
       handleDrop,
+      handleFileChange,
       openFileDialog
     }
   ] = useFileUpload({
@@ -70,12 +71,6 @@ export default function CoverUpload({
       }
     }
   });
-
-  useEffect(() => {
-    if (coverImage?.file) {
-      onImageChange?.(coverImage.file as File);
-    }
-  }, [coverImage, onImageChange]);
 
   const simulateUpload = () => {
     const interval = setInterval(() => {
@@ -116,7 +111,16 @@ export default function CoverUpload({
       onDragOver={handleDragOver}
       onDrop={handleDrop}
     >
-      <input {...getInputProps()} className='sr-only' />
+      <input
+        {...getInputProps()}
+        className='sr-only'
+        onChange={e => {
+          if (onImageChange && e.target.files && e.target.files.length) {
+            onImageChange(e.target.files[0]);
+            handleFileChange(e);
+          }
+        }}
+      />
       {hasImage && (
         <div className='relative h-full w-full'>
           {imageLoading && (

@@ -104,6 +104,7 @@ export default function TableUpload({
       handleDragLeave,
       handleDragOver,
       handleDrop,
+      handleFileChange,
       openFileDialog,
       removeFile
     }
@@ -158,12 +159,6 @@ export default function TableUpload({
 
     return () => clearInterval(interval);
   }, [simulateUpload]);
-
-  useEffect(() => {
-    if (uploadFiles.length) {
-      onFilesChange?.(uploadFiles.map(f => f.file as File));
-    }
-  }, [onFilesChange, uploadFiles]);
 
   const removeUploadFile = (fileId: string) => {
     setUploadFiles(prev => prev.filter(file => file.id !== fileId));
@@ -228,7 +223,16 @@ export default function TableUpload({
         onDragOver={handleDragOver}
         onDrop={handleDrop}
       >
-        <input {...getInputProps()} className='sr-only' />
+        <input
+          {...getInputProps()}
+          className='sr-only'
+          onChange={e => {
+            if (onFilesChange && e.target.files && e.target.files.length) {
+              onFilesChange(Array.from(e.target.files).map(f => f));
+              handleFileChange(e);
+            }
+          }}
+        />
         <div className='flex flex-col items-center gap-4'>
           <div
             className={cn(

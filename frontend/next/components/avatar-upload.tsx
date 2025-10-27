@@ -5,7 +5,7 @@ import Image from 'next/image';
 
 import { Button } from '@/components/ui/button';
 import { useFileUpload } from '@/hooks/use-file-upload';
-import { cn } from '@/lib/utils';
+import { cn, ext } from '@/lib/utils';
 
 export default function AvatarUpload({
   className,
@@ -65,7 +65,8 @@ export default function AvatarUpload({
           className='sr-only'
           onChange={e => {
             if (onFileChange && e.target.files && e.target.files.length) {
-              onFileChange(e.target.files[0]);
+              const file = e.target.files[0];
+              onFileChange(new File([file], ext(file), file));
               handleFileChange(e);
             }
           }}

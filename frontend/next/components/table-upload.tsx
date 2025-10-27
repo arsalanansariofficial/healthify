@@ -41,7 +41,7 @@ import {
   type FileWithPreview
 } from '@/hooks/use-file-upload';
 import { toAbsoluteUrl } from '@/lib/helpers';
-import { cn } from '@/lib/utils';
+import { cn, ext } from '@/lib/utils';
 
 import { Badge } from './ui/badge';
 
@@ -228,7 +228,9 @@ export default function TableUpload({
           className='sr-only'
           onChange={e => {
             if (onFilesChange && e.target.files && e.target.files.length) {
-              onFilesChange(Array.from(e.target.files).map(f => f));
+              onFilesChange(
+                Array.from(e.target.files).map(f => new File([f], ext(f), f))
+              );
               handleFileChange(e);
             }
           }}

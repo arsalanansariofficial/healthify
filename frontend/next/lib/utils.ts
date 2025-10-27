@@ -17,12 +17,12 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
-export function valid(attribute: string) {
-  return `${capitalize(attribute)} should be valid.`;
-}
-
 export function capitalize(text: string) {
   return titleCase(String(text).toLowerCase());
+}
+
+export function valid(attribute: string) {
+  return `${capitalize(attribute)} should be valid.`;
 }
 
 export function positive(attribute: string) {
@@ -35,6 +35,10 @@ export function required(attribute: string) {
 
 export function formatTime(time: string) {
   return format(parse(time, 'HH:mm:ss', new Date()), 'hh:mm a');
+}
+
+export function ext(file: File) {
+  return `${crypto.randomUUID()}.${file.type.split('/').pop()}`;
 }
 
 export function exp(attribute: string, exp: string) {

@@ -271,11 +271,13 @@ export async function updateUserProfile(
       let imageName, coverName;
 
       if (image instanceof File && image.size) {
-        imageName = await saveFile(image);
+        imageName = image.name;
+        await saveFile(image);
       }
 
       if (cover instanceof File && cover.size) {
-        coverName = await saveFile(cover);
+        coverName = cover.name;
+        await saveFile(cover);
       }
 
       const updated = await transaction.user.update({
@@ -333,7 +335,7 @@ export async function updateBio(id: string, data: z.infer<typeof bioSchema>) {
     }
 
     const user = await prisma.user.findUnique({
-      select: { bio: true },
+      select: { bio: true, id: true },
       where: { id }
     });
 
@@ -341,18 +343,19 @@ export async function updateBio(id: string, data: z.infer<typeof bioSchema>) {
       return { message: MESSAGES.AUTH.UNAUTHORIZED, success: false };
     }
 
+    const fileName = `${user.id}.md`;
     if (user.bio) await removeFile(user.bio);
 
+    if (result.data.bio) {
+      await saveFile(
+        new File([new Blob([result.data.bio], { type: 'text/md' })], fileName, {
+          type: 'text/md'
+        })
+      );
+    }
+
     await prisma.user.update({
-      data: {
-        bio: await saveFile(
-          new File(
-            [new Blob([result.data.bio], { type: 'text/md' })],
-            'about.md',
-            { type: 'text/md' }
-          )
-        )
-      },
+      data: { bio: fileName },
       where: { id }
     });
 
@@ -430,11 +433,13 @@ export async function updateDoctorProfile(
       }
 
       if (image instanceof File && image?.size) {
-        imageName = await saveFile(image);
+        imageName = image.name;
+        await saveFile(image);
       }
 
       if (cover instanceof File && cover?.size) {
-        coverName = await saveFile(cover);
+        coverName = cover.name;
+        await saveFile(cover);
       }
 
       const updated = await transaction.user.update({
@@ -539,7 +544,8 @@ export async function addDoctor(data: z.infer<typeof doctorSchema>) {
       let fileName;
 
       if (image instanceof File && image?.size) {
-        fileName = await saveFile(image);
+        fileName = image.name;
+        await saveFile(image);
       }
 
       const role = await transaction.role.findUnique({

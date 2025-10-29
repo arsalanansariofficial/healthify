@@ -3,6 +3,8 @@ import Link from 'next/link';
 
 import { hasPermission } from '@/lib/utils';
 
+import { Button } from './ui/button';
+
 type Props = {
   user: User;
   entries: [
@@ -13,25 +15,26 @@ type Props = {
 
 export default function Menu({ entries, user }: Props) {
   return (
-    <ul className='space-y-4 font-semibold'>
+    <ul className='space-y-4'>
       {entries.map(
         ([header, items]) =>
           hasPermission(user.permissions, header.permission) && (
             <li className='space-y-2' key={header.label}>
-              <span className='text-muted-foreground text-xs'>
+              <h1 className='text-muted-foreground px-2 text-sm'>
                 {header.label}
-              </span>
-              <ul>
+              </h1>
+              <ul className='space-y-1'>
                 {items.map(
                   item =>
                     hasPermission(user.permissions, item.permission) && (
                       <li key={item.label}>
-                        <Link
-                          className='block max-w-fit rounded-md text-sm hover:underline hover:underline-offset-4'
-                          href={item.url}
+                        <Button
+                          asChild
+                          className='block text-sm'
+                          variant='ghost'
                         >
-                          {item.label}
-                        </Link>
+                          <Link href={item.url}>{item.label}</Link>
+                        </Button>
                       </li>
                     )
                 )}

@@ -113,7 +113,7 @@ export default function CoverUpload({
     >
       <input
         {...getInputProps()}
-        className='sr-only'
+        className='sr-only -z-10'
         onChange={e => {
           if (onImageChange && e.target.files && e.target.files.length) {
             const file = e.target.files[0];
@@ -150,17 +150,20 @@ export default function CoverUpload({
           <div className='absolute inset-0 flex items-center justify-center opacity-0 transition-opacity duration-200 group-hover:opacity-100'>
             <div className='flex gap-2'>
               <Button
-                className='bg-white/90 text-gray-900 hover:bg-white'
+                className='cursor-pointer bg-white/90 text-gray-900 hover:bg-white'
                 onClick={openFileDialog}
                 size='sm'
+                type='button'
                 variant='secondary'
               >
                 <Upload />
                 Change Cover
               </Button>
               <Button
+                className='cursor-pointer'
                 onClick={removeCoverImage}
                 size='sm'
+                type='button'
                 variant='destructive'
               >
                 <XIcon />

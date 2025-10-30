@@ -1,7 +1,7 @@
 'use client';
 
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Fee, Prisma } from '@prisma/client';
+import { Prisma } from '@prisma/client';
 import { IconDotsVertical } from '@tabler/icons-react';
 import { ColumnDef } from '@tanstack/react-table';
 import { User } from 'next-auth';
@@ -201,7 +201,7 @@ export function TableCellViewer(props: { item: Row }) {
 export default function Component(props: { user: User; memberships: Row[] }) {
   return (
     <div className='flex h-full flex-col gap-8 lg:mx-auto lg:w-10/12'>
-      {hasPermission(props.user.permissions, 'view:users') && (
+      {hasPermission(props.user.permissions, 'view:memberships') && (
         <DataTable
           columns={
             [

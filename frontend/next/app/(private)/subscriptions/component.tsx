@@ -8,7 +8,6 @@ import { User } from 'next-auth';
 import Link from 'next/link';
 import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
-import z from 'zod';
 
 import handler from '@/components/display-toast';
 import Footer from '@/components/footer';
@@ -51,7 +50,7 @@ import {
   deleteMedicationForms
 } from '@/lib/actions';
 import { MESSAGES } from '@/lib/constants';
-import { membershipSchema, yesNo } from '@/lib/schemas';
+import { membershipSchema } from '@/lib/schemas';
 import { catchErrors, hasPermission } from '@/lib/utils';
 
 type Row = Prisma.MembershipSubscriptionGetPayload<{
@@ -159,9 +158,9 @@ export function TableCellViewer(props: { item: Row }) {
           hospital: {
             ...hm.hospital,
             address: hm.hospital.address as string,
-            isAffiliated: (hm.hospital.isAffiliated ? 'yes' : 'no') as z.infer<
-              typeof yesNo
-            >
+            isAffiliated: (hm.hospital.isAffiliated ? 'yes' : 'no') as
+              | 'yes'
+              | 'no'
           }
         })
       ),
@@ -303,7 +302,7 @@ export function TableCellViewer(props: { item: Row }) {
 export default function Component(props: { user: User; subscriptions: Row[] }) {
   return (
     <div className='flex h-full flex-col gap-8 lg:mx-auto lg:w-10/12'>
-      {hasPermission(props.user.permissions, 'view:users') && (
+      {hasPermission(props.user.permissions, 'view:subscriptions') && (
         <DataTable
           columns={
             [

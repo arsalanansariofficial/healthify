@@ -304,7 +304,6 @@ export const doctorSchema = z.object({
     .email({ error: valid('email') })
     .trim()
     .toLowerCase(),
-  emailVerified: z.enum(['yes', 'no']),
   experience: z.coerce
     .number({ error: valid('experience') })
     .positive(positive('experience')),

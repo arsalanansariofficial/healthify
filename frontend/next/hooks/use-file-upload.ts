@@ -11,6 +11,8 @@ import {
   type InputHTMLAttributes
 } from 'react';
 
+import { ext } from '@/lib/utils';
+
 export type FileUploadState = {
   errors: string[];
   isDragging: boolean;
@@ -145,12 +147,11 @@ export const useFileUpload = (
     []
   );
 
-  const generateUniqueId = useCallback((file: File | FileMetadata): string => {
-    if (file instanceof File) {
-      return `${file.name}-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`;
-    }
-    return file.id;
-  }, []);
+  const generateUniqueId = useCallback(
+    (file: File | FileMetadata): string =>
+      file instanceof File ? ext(file) : file.id,
+    []
+  );
 
   const clearFiles = useCallback(() => {
     setState(prev => {
@@ -360,7 +361,7 @@ export const useFileUpload = (
   const handleFileChange = useCallback(
     (e: ChangeEvent<HTMLInputElement>) => {
       if (e.target.files && e.target.files.length > 0) {
-        addFiles(e.target.files);
+        addFiles(Array.from(e.target.files).map(f => new File([f], ext(f), f)));
       }
     },
     [addFiles]

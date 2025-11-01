@@ -2,15 +2,17 @@
 
 import { User, X } from 'lucide-react';
 import Image from 'next/image';
+import { useEffect } from 'react';
 
 import { Button } from '@/components/ui/button';
+import { FILES } from '@/constants/file';
 import { useFileUpload } from '@/hooks/use-file-upload';
-import { cn, ext } from '@/lib/utils';
+import { cn } from '@/lib/utils';
 
 export default function AvatarUpload({
   className,
   defaultAvatar,
-  maxSize = 2 * 1024 * 1024,
+  maxSize = FILES.IMAGE.MAX_SIZE,
   onFileChange
 }: {
   maxSize?: number;
@@ -26,7 +28,6 @@ export default function AvatarUpload({
       handleDragLeave,
       handleDragOver,
       handleDrop,
-      handleFileChange,
       openFileDialog,
       removeFile
     }
@@ -39,6 +40,10 @@ export default function AvatarUpload({
 
   const currentFile = files[0];
   const previewUrl = currentFile?.preview || defaultAvatar;
+
+  useEffect(() => {
+    if (currentFile?.file) onFileChange?.(currentFile.file as File);
+  }, [currentFile, onFileChange]);
 
   const handleRemove = () => {
     if (currentFile) removeFile(currentFile.id);
@@ -60,17 +65,7 @@ export default function AvatarUpload({
         onDragOver={handleDragOver}
         onDrop={handleDrop}
       >
-        <input
-          {...getInputProps()}
-          className='sr-only'
-          onChange={e => {
-            if (onFileChange && e.target.files && e.target.files.length) {
-              const file = e.target.files[0];
-              onFileChange(new File([file], ext(file), file));
-              handleFileChange(e);
-            }
-          }}
-        />
+        <input {...getInputProps()} className='sr-only' />
         {previewUrl ? (
           <div className='relative h-full w-full'>
             <Image

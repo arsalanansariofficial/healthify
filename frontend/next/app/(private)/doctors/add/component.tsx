@@ -319,7 +319,7 @@ export default function Component({
                                     field.onChange(time);
                                   }}
                                   type='number'
-                                  value={time.duration}
+                                  value={time.duration as number}
                                 />
                                 <Button
                                   disabled={!index}

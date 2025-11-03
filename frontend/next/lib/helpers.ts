@@ -1,30 +1,47 @@
-export const throttle = (
-  func: (...args: unknown[]) => void,
-  limit: number
-): ((...args: unknown[]) => void) => {
-  let lastFunc: ReturnType<typeof setTimeout> | null = null;
-  let lastRan: number | null = null;
+export function uid(): string {
+  return (Date.now() + Math.floor(Math.random() * 1000)).toString();
+}
 
-  return function (this: unknown, ...args: unknown[]) {
-    if (lastRan === null) {
-      func.apply(this, args);
-      lastRan = Date.now();
-    } else {
-      if (lastFunc !== null) {
-        clearTimeout(lastFunc);
-      }
-      lastFunc = setTimeout(
-        () => {
-          if (Date.now() - (lastRan as number) >= limit) {
-            func.apply(this, args);
-            lastRan = Date.now();
-          }
-        },
-        limit - (Date.now() - (lastRan as number))
-      );
-    }
-  };
-};
+export function absoluteUrl(path: string): string {
+  return `${process.env.NEXT_PUBLIC_APP_URL}${path}`;
+}
+
+export function toAbsoluteUrl(path: string): string {
+  const cleanPath = path.startsWith('/') ? path.slice(1) : path;
+  return `/${cleanPath}`;
+}
+
+export function formatDate(input: Date | string | number): string {
+  const date = new Date(input);
+  return date.toLocaleDateString('en-US', {
+    day: 'numeric',
+    month: 'long',
+    year: 'numeric'
+  });
+}
+
+export function formatCurrency(
+  amount: number,
+  currency: string = 'USD',
+  locale: string = 'en-US'
+): string {
+  return new Intl.NumberFormat(locale, {
+    currency,
+    style: 'currency'
+  }).format(amount);
+}
+
+export function formatDateTime(input: Date | string | number): string {
+  const date = new Date(input);
+  return date.toLocaleString('en-US', {
+    day: 'numeric',
+    hour: 'numeric',
+    hour12: true,
+    minute: 'numeric',
+    month: 'long',
+    year: 'numeric'
+  });
+}
 
 export function debounce<T extends (...args: unknown[]) => unknown>(
   func: T,
@@ -43,8 +60,20 @@ export function debounce<T extends (...args: unknown[]) => unknown>(
   };
 }
 
-export function uid(): string {
-  return (Date.now() + Math.floor(Math.random() * 1000)).toString();
+export function getSlug(title: string): string {
+  if (!title || typeof title !== 'string') {
+    return '';
+  }
+
+  return title
+    .toLowerCase()
+    .trim()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/[^a-z0-9\s-]/g, '')
+    .replaceAll(/\s+/g, '-')
+    .replace(/-+/g, '-')
+    .replace(/^-|-$/g, '');
 }
 
 export const getInitials = (
@@ -64,47 +93,6 @@ export const getInitials = (
     ? initials.slice(0, count).join('')
     : initials.join('');
 };
-
-export function formatDate(input: Date | string | number): string {
-  const date = new Date(input);
-  return date.toLocaleDateString('en-US', {
-    day: 'numeric',
-    month: 'long',
-    year: 'numeric'
-  });
-}
-
-export function formatDateTime(input: Date | string | number): string {
-  const date = new Date(input);
-  return date.toLocaleString('en-US', {
-    day: 'numeric',
-    hour: 'numeric',
-    hour12: true,
-    minute: 'numeric',
-    month: 'long',
-    year: 'numeric'
-  });
-}
-
-export function formatCurrency(
-  amount: number,
-  currency: string = 'USD',
-  locale: string = 'en-US'
-): string {
-  return new Intl.NumberFormat(locale, {
-    currency,
-    style: 'currency'
-  }).format(amount);
-}
-
-export function absoluteUrl(path: string): string {
-  return `${process.env.NEXT_PUBLIC_APP_URL}${path}`;
-}
-
-export function toAbsoluteUrl(path: string): string {
-  const cleanPath = path.startsWith('/') ? path.slice(1) : path;
-  return `/${cleanPath}`;
-}
 
 export const getTimeZones = (): { label: string; value: string }[] => {
   const timezones = Intl.supportedValuesOf('timeZone');
@@ -131,18 +119,31 @@ export const getTimeZones = (): { label: string; value: string }[] => {
     .sort((a, b) => a.numericOffset - b.numericOffset);
 };
 
-export function getSlug(title: string): string {
-  if (!title || typeof title !== 'string') {
-    return '';
-  }
+export const throttle = (
+  func: (...args: unknown[]) => void,
+  limit: number
+): ((...args: unknown[]) => void) => {
+  let lastFunc: ReturnType<typeof setTimeout> | null = null;
+  let lastRan: number | null = null;
 
-  return title
-    .toLowerCase()
-    .trim()
-    .normalize('NFD')
-    .replace(/[\u0300-\u036f]/g, '')
-    .replace(/[^a-z0-9\s-]/g, '')
-    .replaceAll(/\s+/g, '-')
-    .replace(/-+/g, '-')
-    .replace(/^-|-$/g, '');
-}
+  return function (this: unknown, ...args: unknown[]) {
+    if (lastRan === null) {
+      func.apply(this, args);
+      return (lastRan = Date.now());
+    }
+
+    if (lastFunc !== null) {
+      clearTimeout(lastFunc);
+    }
+
+    lastFunc = setTimeout(
+      () => {
+        if (Date.now() - (lastRan as number) >= limit) {
+          func.apply(this, args);
+          lastRan = Date.now();
+        }
+      },
+      limit - (Date.now() - (lastRan as number))
+    );
+  };
+};

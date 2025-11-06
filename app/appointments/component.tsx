@@ -12,7 +12,6 @@ import { AppointmentStatus } from '@prisma/client';
 import * as actions from '@/lib/actions';
 import * as CONST from '@/lib/constants';
 import Footer from '@/components/footer';
-import Sidebar from '@/components/sidebar';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
@@ -374,24 +373,19 @@ export default function Component(props: Props) {
   ];
 
   return (
-    <div className="grid h-full xl:grid-cols-[1fr_auto] xl:gap-12">
-      <section className="flex flex-col gap-8 lg:mx-auto lg:w-10/12">
-        {hasPermission(props.user.permissions, 'view:appointments') && (
-          <DT.DataTable
-            columns={columns}
-            data={props.appointments}
-            filterConfig={[
-              { id: 'date', placeholder: 'Date' },
-              { id: 'time', placeholder: 'Time' },
-              { id: 'patient', placeholder: 'Patient' }
-            ]}
-          />
-        )}
-        <Footer />
-      </section>
-      <div className="hidden xl:block">
-        <Sidebar user={props.user} />
-      </div>
+    <div className="flex h-full flex-col gap-8 lg:mx-auto lg:w-10/12">
+      {hasPermission(props.user.permissions, 'view:appointments') && (
+        <DT.DataTable
+          columns={columns}
+          data={props.appointments}
+          filterConfig={[
+            { id: 'date', placeholder: 'Date' },
+            { id: 'time', placeholder: 'Time' },
+            { id: 'patient', placeholder: 'Patient' }
+          ]}
+        />
+      )}
+      <Footer />
     </div>
   );
 }

@@ -13,7 +13,6 @@ import * as actions from '@/lib/actions';
 import * as CONST from '@/lib/constants';
 import Footer from '@/components/footer';
 import { nameSchema } from '@/lib/schemas';
-import Sidebar from '@/components/sidebar';
 import * as RHF from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -236,20 +235,15 @@ export default function Component(props: Props) {
   ];
 
   return (
-    <div className="grid h-full xl:grid-cols-[1fr_auto] xl:gap-12">
-      <section className="flex flex-col gap-8 lg:mx-auto lg:w-10/12">
-        {hasPermission(props.user.permissions, 'view:specialities') && (
-          <DT.DataTable
-            columns={columns}
-            data={props.specialities}
-            filterConfig={[{ id: 'name', placeholder: 'Name' }]}
-          />
-        )}
-        <Footer />
-      </section>
-      <div className="hidden xl:block">
-        <Sidebar user={props.user} />
-      </div>
+    <div className="flex h-full flex-col gap-8 lg:mx-auto lg:w-10/12">
+      {hasPermission(props.user.permissions, 'view:specialities') && (
+        <DT.DataTable
+          columns={columns}
+          data={props.specialities}
+          filterConfig={[{ id: 'name', placeholder: 'Name' }]}
+        />
+      )}
+      <Footer />
     </div>
   );
 }

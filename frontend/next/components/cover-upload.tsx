@@ -6,7 +6,7 @@ import { useEffect, useState } from 'react';
 
 import { Button } from '@/components/ui/button';
 import { FILES } from '@/constants/file';
-import { useFileUpload, type FileWithPreview } from '@/hooks/use-file-upload';
+import { useFileUpload } from '@/hooks/use-file-upload';
 import { cn, getFilePreview } from '@/lib/utils';
 
 export default function CoverUpload({
@@ -26,15 +26,10 @@ export default function CoverUpload({
   const [imageLoading, setImageLoading] = useState(true);
   const [uploadProgress, setUploadProgress] = useState(0);
 
-  const [coverImage, setCoverImage] = useState<FileWithPreview | null>(
-    getFilePreview('cover', imageUrl)
-  );
-
-  const hasImage = coverImage && coverImage.preview;
-
   const [
     { files, isDragging },
     {
+      clearFiles,
       getInputProps,
       handleDragEnter,
       handleDragLeave,
@@ -44,6 +39,7 @@ export default function CoverUpload({
     }
   ] = useFileUpload({
     accept,
+    initialFiles: [getFilePreview('cover', imageUrl).file],
     maxFiles: 1,
     maxSize,
     multiple: false,
@@ -52,14 +48,18 @@ export default function CoverUpload({
         setImageLoading(true);
         setIsUploading(true);
         setUploadProgress(0);
-        setCoverImage(files[0]);
         simulateUpload();
       }
     }
   });
 
+  const coverImage = files[0];
+  const hasImage = coverImage && coverImage.preview;
+
   useEffect(() => {
-    if (files.length) onImageChange?.(files[0].file as File);
+    if (files.length && files[0].id !== FILES.COVER.ID) {
+      onImageChange?.(files[0].file as File);
+    }
   }, [files, onImageChange]);
 
   const simulateUpload = () => {
@@ -78,11 +78,10 @@ export default function CoverUpload({
   };
 
   const removeCoverImage = () => {
-    setCoverImage(null);
-    setImageLoading(false);
-    setIsUploading(false);
+    clearFiles();
     setUploadProgress(0);
-    onImageChange?.(null);
+    setIsUploading(false);
+    setImageLoading(false);
   };
 
   return (

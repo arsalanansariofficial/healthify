@@ -7,7 +7,7 @@ import { useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { FILES } from '@/constants/file';
 import { useFileUpload } from '@/hooks/use-file-upload';
-import { cn } from '@/lib/utils';
+import { cn, getFilePreview } from '@/lib/utils';
 
 export default function AvatarUpload({
   className,
@@ -32,18 +32,20 @@ export default function AvatarUpload({
       removeFile
     }
   ] = useFileUpload({
-    accept: 'image/*',
+    accept: FILES.IMAGE.ACCEPT,
+    initialFiles: [getFilePreview('image', defaultAvatar).file],
     maxFiles: 1,
     maxSize,
     multiple: false
   });
 
   const currentFile = files[0];
-  const previewUrl = currentFile?.preview || defaultAvatar;
 
   useEffect(() => {
-    if (currentFile?.file) onFileChange?.(currentFile.file as File);
-  }, [currentFile, onFileChange]);
+    if (files.length && files[0].id !== FILES.IMAGE.ID) {
+      onFileChange?.(files[0].file as File);
+    }
+  }, [files, onFileChange]);
 
   const handleRemove = () => {
     if (currentFile) removeFile(currentFile.id);
@@ -57,7 +59,7 @@ export default function AvatarUpload({
           isDragging
             ? 'border-primary bg-primary/5'
             : 'border-muted-foreground/25 hover:border-muted-foreground/20',
-          previewUrl && 'border-solid'
+          currentFile?.preview && 'border-solid'
         )}
         onClick={openFileDialog}
         onDragEnter={handleDragEnter}
@@ -66,13 +68,13 @@ export default function AvatarUpload({
         onDrop={handleDrop}
       >
         <input {...getInputProps()} className='sr-only' />
-        {previewUrl ? (
+        {currentFile?.preview ? (
           <div className='relative h-full w-full'>
             <Image
               alt='Avatar'
               className='h-full w-full object-cover'
               fill
-              src={previewUrl}
+              src={currentFile.preview}
               unoptimized
             />
           </div>

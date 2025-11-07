@@ -3,6 +3,7 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { AppointmentStatus, Facility, Hospital, Prisma } from '@prisma/client';
 import { User as AuthUser } from 'next-auth';
+import { useRef } from 'react';
 import { useForm } from 'react-hook-form';
 
 import handler from '@/components/display-toast';
@@ -60,6 +61,7 @@ export default function Component({
     };
   }>;
 }) {
+  const buttonRef = useRef<HTMLButtonElement | null>(null);
   const { handleSubmit, pending } = useHookForm(handler, updateAppointment);
 
   const form = useForm({
@@ -396,8 +398,9 @@ export default function Component({
                     <FormLabel>Reports</FormLabel>
                     <FormControl>
                       <TableUpload
+                        buttonRef={buttonRef}
                         onFilesChange={field.onChange}
-                        simulateUpload={false}
+                        simulateUpload={true}
                       />
                     </FormControl>
                     <FormMessage />
@@ -408,7 +411,12 @@ export default function Component({
           </Form>
         </CardContent>
         <CardFooter>
-          <Button disabled={pending} form='appointment-form' type='submit'>
+          <Button
+            disabled={pending}
+            form='appointment-form'
+            ref={buttonRef}
+            type='submit'
+          >
             {pending ? 'Saving...' : 'Save'}
           </Button>
         </CardFooter>

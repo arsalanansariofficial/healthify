@@ -2,7 +2,7 @@
 
 import { CloudUpload, ImageIcon, Upload, XIcon } from 'lucide-react';
 import Image from 'next/image';
-import { useEffect, useState } from 'react';
+import { RefObject, useState } from 'react';
 
 import { Button } from '@/components/ui/button';
 import { FILES } from '@/constants/file';
@@ -11,6 +11,7 @@ import { cn, getFilePreview } from '@/lib/utils';
 
 export default function CoverUpload({
   accept = FILES.COVER.ACCEPT,
+  buttonRef,
   className,
   imageUrl,
   maxSize = FILES.COVER.MAX_SIZE,
@@ -21,13 +22,13 @@ export default function CoverUpload({
   imageUrl?: string;
   className?: string;
   onImageChange?: (file: File | null) => void;
+  buttonRef: RefObject<HTMLButtonElement | null>;
 }) {
-  const [isUploading, setIsUploading] = useState(false);
-  const [imageLoading, setImageLoading] = useState(true);
-  const [uploadProgress, setUploadProgress] = useState(0);
-
   const [
-    { files, isDragging },
+    {
+      files: [coverImage],
+      isDragging
+    },
     {
       clearFiles,
       getInputProps,
@@ -43,24 +44,22 @@ export default function CoverUpload({
     maxFiles: 1,
     maxSize,
     multiple: false,
-    onFilesChange: files => {
-      if (files.length > 0) {
-        setImageLoading(true);
+    onFilesChange([file]) {
+      if (file) {
+        simulateUpload();
         setIsUploading(true);
         setUploadProgress(0);
-        simulateUpload();
+        setImageLoading(true);
+        if (buttonRef.current) buttonRef.current.disabled = true;
+        if (file.id !== FILES.COVER.ID) onImageChange?.(file.file as File);
       }
     }
   });
 
-  const coverImage = files[0];
+  const [isUploading, setIsUploading] = useState(false);
+  const [imageLoading, setImageLoading] = useState(true);
+  const [uploadProgress, setUploadProgress] = useState(0);
   const hasImage = coverImage && coverImage.preview;
-
-  useEffect(() => {
-    if (files.length && files[0].id !== FILES.COVER.ID) {
-      onImageChange?.(files[0].file as File);
-    }
-  }, [files, onImageChange]);
 
   const simulateUpload = () => {
     const interval = setInterval(() => {
@@ -68,6 +67,7 @@ export default function CoverUpload({
         if (prev >= 100) {
           clearInterval(interval);
           setIsUploading(false);
+          if (buttonRef.current) buttonRef.current.disabled = false;
           return 100;
         }
 
@@ -82,6 +82,7 @@ export default function CoverUpload({
     setUploadProgress(0);
     setIsUploading(false);
     setImageLoading(false);
+    if (buttonRef.current) buttonRef.current.disabled = false;
   };
 
   return (

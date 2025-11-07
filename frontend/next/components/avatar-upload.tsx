@@ -2,7 +2,6 @@
 
 import { User, X } from 'lucide-react';
 import Image from 'next/image';
-import { useEffect } from 'react';
 
 import { Button } from '@/components/ui/button';
 import { FILES } from '@/constants/file';
@@ -21,7 +20,10 @@ export default function AvatarUpload({
   onFileChange?: (file: File) => void;
 }) {
   const [
-    { files, isDragging },
+    {
+      files: [currentFile],
+      isDragging
+    },
     {
       getInputProps,
       handleDragEnter,
@@ -36,16 +38,11 @@ export default function AvatarUpload({
     initialFiles: [getFilePreview('image', defaultAvatar).file],
     maxFiles: 1,
     maxSize,
-    multiple: false
-  });
-
-  const currentFile = files[0];
-
-  useEffect(() => {
-    if (files.length && files[0].id !== FILES.IMAGE.ID) {
-      onFileChange?.(files[0].file as File);
+    multiple: false,
+    onFilesChange([file]) {
+      if (file && file.id !== FILES.IMAGE.ID) onFileChange?.(file.file as File);
     }
-  }, [files, onFileChange]);
+  });
 
   const handleRemove = () => {
     if (currentFile) removeFile(currentFile.id);

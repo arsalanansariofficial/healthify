@@ -270,6 +270,14 @@ export async function updateUserProfile(
     const updated = await prisma.$transaction(async function (transaction) {
       let imageName, coverName;
 
+      if (image instanceof File && image?.size && user.image) {
+        await removeFile(user.image);
+      }
+
+      if (cover instanceof File && cover?.size && user.cover) {
+        await removeFile(user.cover);
+      }
+
       if (image instanceof File && image.size) {
         imageName = image.name;
         await saveFile(image);

@@ -133,3 +133,27 @@ export const doctorSchema = userSchema
   .merge(visitDays)
   .merge(experience)
   .merge(specialities);
+
+export const userProfileSchema = name
+  .merge(email)
+  .merge(image)
+  .merge(
+    z.object({
+      city: z.union([z.literal(String()), city.shape.city])
+    })
+  )
+  .merge(
+    z.object({
+      phone: z.union([z.literal(String()), phone.shape.phone])
+    })
+  )
+  .merge(
+    z.object({
+      gender: z.union([z.literal(String()), gender.shape.gender])
+    })
+  )
+  .merge(
+    z.object({
+      password: z.union([z.literal(String()), password.shape.password])
+    })
+  );

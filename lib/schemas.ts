@@ -134,6 +134,12 @@ export const doctorSchema = userSchema
   .merge(experience)
   .merge(specialities);
 
+export const doctorProfileSchema = doctorSchema.merge(
+  z.object({
+    password: z.union([z.literal(String()), password.shape.password])
+  })
+);
+
 export const userProfileSchema = name
   .merge(email)
   .merge(image)

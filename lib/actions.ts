@@ -1,7 +1,5 @@
 'use server';
 
-import path from 'path';
-import fs from 'fs/promises';
 import bcrypt from 'bcrypt-mini';
 import { z, ZodSchema } from 'zod';
 import nodemailer from 'nodemailer';
@@ -12,23 +10,31 @@ import prisma from '@/lib/prisma';
 import * as CONST from '@/lib/constants';
 import * as schemas from '@/lib/schemas';
 import { auth, signIn, unstable_update as update } from '@/auth';
-import {
-  catchErrors,
-  catchAuthError,
-  getFileWithName,
-  removeDuplicateTimes
-} from '@/lib/utils';
+import { catchErrors, catchAuthError, removeDuplicateTimes } from '@/lib/utils';
 
 type Schema<T extends ZodSchema> = z.infer<T>;
 
-const dir = path.join(process.cwd(), CONST.USER_DIR);
+async function removeFile(slug: string) {
+  const result = await fetch(`${CONST.HOST}/api/upload/${slug}`, {
+    method: 'DELETE'
+  });
 
-async function saveFile(file: File, fileName: string) {
-  await fs.mkdir(dir, { recursive: true });
-  await fs.writeFile(
-    path.join(dir, fileName),
-    Buffer.from(await file.arrayBuffer())
-  );
+  const response = await result.json();
+  if (!response.success) throw new Error(response.message);
+}
+
+async function saveFile(file: File) {
+  const formData = new FormData();
+  formData.append('file', file);
+
+  const result = await fetch(`${CONST.HOST}/api/upload`, {
+    method: 'POST',
+    body: formData
+  });
+
+  const response = await result.json();
+  if (!response.success) throw new Error(response.message);
+  return response.file as string;
 }
 
 async function generateToken(userId: string) {
@@ -114,7 +120,7 @@ export async function deleteSpecialities(ids: string[]) {
 export async function deleteUser(id: string) {
   await prisma.$transaction(async function (transaction) {
     const user = await transaction.user.delete({ where: { id } });
-    if (user && user.image) await fs.unlink(path.join(dir, `${user?.image}`));
+    if (user && user.image) await removeFile(user.image);
   });
 
   revalidatePath(CONST.HOME);
@@ -130,7 +136,7 @@ export async function deleteUsers(ids: string[]) {
       transaction.user.deleteMany({ where: { id: { in: ids } } }),
       ...users
         .filter(user => !!user.image)
-        .map(user => fs.unlink(path.join(dir, `${user?.image}`)))
+        .map(user => removeFile(user?.image as string))
     ]);
   });
 
@@ -536,7 +542,7 @@ export async function addDoctor(data: Schema<typeof schemas.doctorSchema>) {
 
   const timings = result.data.timings;
   const specialities = result.data.specialities;
-  const [file, fileName, fileExtension] = getFileWithName(result.data?.image);
+  const image = result.data.image && result.data.image[0];
 
   try {
     const user = await prisma.user.findUnique({
@@ -545,20 +551,23 @@ export async function addDoctor(data: Schema<typeof schemas.doctorSchema>) {
 
     if (user) return { success: false, message: CONST.EMAIL_REGISTERED };
 
-    const created = await prisma.$transaction(async function (transaction) {
+    await prisma.$transaction(async function (transaction) {
+      let fileName;
+      if (image?.size) fileName = await saveFile(image);
+
       const role = await transaction.role.findUnique({
         where: { name: CONST.DOCTOR_ROLE }
       });
 
       const user = await transaction.user.create({
         data: {
+          image: fileName,
           name: result.data.name,
           city: result.data.city,
           email: result.data.email,
           phone: result.data.phone,
           gender: result.data.gender,
           experience: result.data.experience,
-          image: file?.size ? `${file}.${fileExtension}` : undefined,
           password: bcrypt.hashSync(result.data.password as string, 10),
           daysOfVisit: (result.data.daysOfVisit as P.Day[]) || undefined,
           timings: {
@@ -579,13 +588,7 @@ export async function addDoctor(data: Schema<typeof schemas.doctorSchema>) {
       await transaction.userRole.create({
         data: { userId: user.id, roleId: role?.id as string }
       });
-
-      return user;
     });
-
-    if (created && file?.size) {
-      await saveFile(file, `${fileName}.${fileExtension}`);
-    }
   } catch (error) {
     return catchErrors(error as Error);
   }
@@ -641,8 +644,6 @@ export async function updateUserProfile(
       return { success: false, message: CONST.INVALID_INPUTS };
     }
 
-    const [file, fileName, fileExtension] = getFileWithName(result.data?.image);
-
     const user = await prisma.user.findUnique({
       where: { id: userId },
       select: {
@@ -655,6 +656,7 @@ export async function updateUserProfile(
       }
     });
 
+    const image = result.data.image && result.data.image[0];
     const { email, city, phone, password, gender } = result.data;
 
     if (!user) return { success: false, message: CONST.USER_NOT_FOUND };
@@ -669,16 +671,21 @@ export async function updateUserProfile(
     }
 
     await prisma.$transaction(async function (transaction) {
-      const updated = await transaction.user.update({
+      let fileName;
+
+      if (image?.size && user.image) await removeFile(user.image);
+      if (image?.size) fileName = await saveFile(image);
+
+      await transaction.user.update({
         where: { id: userId },
         data: {
+          image: fileName,
           name: result.data.name,
           email: email !== user.email ? email : undefined,
           city: city && city !== user.city ? city : undefined,
           phone: phone && phone !== user.phone ? phone : undefined,
           gender: gender && gender !== user.gender ? gender : undefined,
-          password: password ? bcrypt.hashSync(password, 10) : undefined,
-          image: file?.size ? `${fileName}.${fileExtension}` : undefined
+          password: password ? bcrypt.hashSync(password, 10) : undefined
         }
       });
 
@@ -692,14 +699,6 @@ export async function updateUserProfile(
       await transaction.userRole.create({
         data: { userId, roleId: role?.id as string }
       });
-
-      if (file?.size && user.image) {
-        await fs.unlink(path.join(dir, `${user.image}`));
-      }
-
-      if (updated && file?.size) {
-        await saveFile(file, `${file}.${fileExtension}`);
-      }
     });
 
     if (email !== user.email) {
@@ -726,8 +725,6 @@ export async function updateDoctorProfile(
       return { success: false, message: CONST.INVALID_INPUTS };
     }
 
-    const [file, fileName, fileExtension] = getFileWithName(result.data?.image);
-
     const user = await prisma.user.findUnique({
       where: { id: doctorId },
       select: {
@@ -736,8 +733,8 @@ export async function updateDoctorProfile(
         phone: true,
         image: true,
         gender: true,
-        emailVerified: true,
-        experience: true
+        experience: true,
+        emailVerified: true
       }
     });
 
@@ -753,6 +750,7 @@ export async function updateDoctorProfile(
       specialities
     } = result.data;
 
+    const image = result.data.image && result.data.image[0];
     if (!user) return { success: false, message: CONST.USER_NOT_FOUND };
 
     const emailExists = await prisma.user.findUnique({
@@ -765,16 +763,21 @@ export async function updateDoctorProfile(
     }
 
     await prisma.$transaction(async function (transaction) {
-      const updated = await transaction.user.update({
+      let fileName;
+
+      if (image?.size && user.image) await removeFile(user.image);
+      if (image?.size) fileName = await saveFile(image);
+
+      await transaction.user.update({
         where: { id: doctorId },
         data: {
+          image: fileName,
           name: result.data.name,
           email: email !== user.email ? email : undefined,
           city: city && city !== user.city ? city : undefined,
           phone: phone && phone !== user.phone ? phone : undefined,
           gender: gender && gender !== user.gender ? gender : undefined,
           password: password ? bcrypt.hashSync(password, 10) : undefined,
-          image: file?.size ? `${fileName}.${fileExtension}` : undefined,
           experience:
             experience && experience !== user.experience
               ? experience
@@ -821,14 +824,6 @@ export async function updateDoctorProfile(
       await transaction.userRole.create({
         data: { userId: doctorId, roleId: role?.id as string }
       });
-
-      if (file?.size && user.image) {
-        await fs.unlink(path.join(dir, `${user.image}`));
-      }
-
-      if (updated && file?.size) {
-        await saveFile(file, `${file}.${fileExtension}`);
-      }
     });
 
     if (email !== user.email) {

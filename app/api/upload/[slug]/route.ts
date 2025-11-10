@@ -3,6 +3,7 @@ import mime from 'mime';
 import fs, { readFile } from 'fs/promises';
 
 import * as CONST from '@/lib/constants';
+import { NextResponse } from 'next/server';
 
 const dir = path.join(process.cwd(), CONST.USER_DIR);
 
@@ -22,12 +23,9 @@ export async function GET(_: Request, { params }: Params) {
       })
     });
   } catch {
-    return Response.json(
+    return NextResponse.json(
       { success: false, message: CONST.SERVER_ERROR_MESSAGE },
-      {
-        status: CONST.SERVER_ERROR_CODE,
-        statusText: CONST.SERVER_ERROR_MESSAGE
-      }
+      { status: CONST.SERVER_ERROR_CODE }
     );
   }
 }
@@ -35,18 +33,14 @@ export async function GET(_: Request, { params }: Params) {
 export async function DELETE(_: Request, { params }: Params) {
   try {
     await fs.unlink(path.join(dir, (await params).slug));
-
-    return Response.json(
+    return NextResponse.json(
       { success: true, message: CONST.FILE_REMOVED },
-      { status: CONST.RESPONSE_OK_CODE, statusText: CONST.FILE_REMOVED }
+      { status: CONST.RESPONSE_OK_CODE }
     );
   } catch {
-    return Response.json(
+    return NextResponse.json(
       { success: false, message: CONST.DELETE_FAILED },
-      {
-        status: CONST.SERVER_ERROR_CODE,
-        statusText: CONST.SERVER_ERROR_MESSAGE
-      }
+      { status: CONST.SERVER_ERROR_CODE }
     );
   }
 }

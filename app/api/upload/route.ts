@@ -1,6 +1,7 @@
 import path from 'path';
 import fs from 'fs/promises';
 import { randomUUID } from 'crypto';
+import { NextResponse } from 'next/server';
 
 import * as CONST from '@/lib/constants';
 
@@ -9,38 +10,31 @@ const dir = path.join(process.cwd(), CONST.USER_DIR);
 export async function POST(request: Request) {
   try {
     const formData = await request.formData();
-    const file = formData.get('image') as File;
+    const buffer = formData.get('file') as File;
 
-    if (!file || !(file instanceof File)) {
-      return Response.json(
+    if (!buffer || !(buffer instanceof File)) {
+      return NextResponse.json(
         { success: false, message: CONST.INVALID_IMAGE_FORMAT },
-        {
-          status: CONST.BAD_REQUEST_CODE,
-          statusText: CONST.BAD_REQUEST_MESSAGE
-        }
+        { status: CONST.BAD_REQUEST_CODE }
       );
     }
 
-    const extension = file.type.split('/').pop();
-    const image = `${randomUUID()}.${extension}`;
+    const file = `${randomUUID()}.${buffer.type.split('/').pop()}`;
 
     await fs.mkdir(dir, { recursive: true });
     await fs.writeFile(
-      path.join(dir, image),
-      Buffer.from(await file.arrayBuffer())
+      path.join(dir, file),
+      Buffer.from(await buffer.arrayBuffer())
     );
 
-    return Response.json(
-      { image, success: true, message: CONST.FILE_UPLOADED },
-      { status: CONST.RESPONSE_WRITTEN_CODE, statusText: CONST.FILE_UPLOADED }
+    return NextResponse.json(
+      { file, success: true, message: CONST.FILE_UPLOADED },
+      { status: CONST.RESPONSE_WRITTEN_CODE }
     );
   } catch {
-    return Response.json(
+    return NextResponse.json(
       { success: false, message: CONST.UPLOAD_FAILED },
-      {
-        status: CONST.SERVER_ERROR_CODE,
-        statusText: CONST.SERVER_ERROR_MESSAGE
-      }
+      { status: CONST.SERVER_ERROR_CODE }
     );
   }
 }

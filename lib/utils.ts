@@ -116,3 +116,42 @@ export function catchErrors(error: Error) {
 
   throw error;
 }
+
+export function hasFormChanged<T extends Record<string, unknown>>(
+  initialValues: T,
+  currentValues: T
+): boolean {
+  return Object.keys(initialValues).some(key => {
+    const initialValue = initialValues[key];
+    const currentValue = currentValues[key];
+
+    if (currentValue == null) return false;
+
+    if (typeof currentValue === 'string') {
+      return currentValue.trim() !== String() && currentValue !== initialValue;
+    }
+
+    if (typeof currentValue === 'number') {
+      return currentValue !== initialValue;
+    }
+
+    if (Array.isArray(currentValue)) {
+      if (!Array.isArray(initialValue)) return true;
+      if (currentValue.length !== initialValue.length) return true;
+
+      return currentValue.some((item, i) => {
+        if (typeof item === 'object' && typeof initialValue[i] === 'object') {
+          return JSON.stringify(item) !== JSON.stringify(initialValue[i]);
+        }
+
+        return item !== initialValue[i];
+      });
+    }
+
+    if (typeof currentValue === 'object') {
+      return JSON.stringify(currentValue) !== JSON.stringify(initialValue);
+    }
+
+    return false;
+  });
+}

@@ -1,5 +1,6 @@
 'use client';
 
+import z from 'zod';
 import Image from 'next/image';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
@@ -20,8 +21,8 @@ import useHookForm from '@/hooks/use-hook-form';
 import * as Select from '@/components/ui/select';
 import handler from '@/components/display-toast';
 import MultiSelect from '@/components/ui/multi-select';
-import { addDoctor, updateUserProfile } from '@/lib/actions';
-import { doctorSchema, userProfileSchema } from '@/lib/schemas';
+import { doctorProfileSchema, userProfileSchema } from '@/lib/schemas';
+import { updateDoctorProfile, updateUserProfile } from '@/lib/actions';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 type Props = {
@@ -34,7 +35,6 @@ type Props = {
 };
 
 export default function Component({ user, specialities }: Props) {
-  const [image, setImage] = useState<File>();
   const [imageSrc, setImageSrc] = useState<string | null>(null);
 
   const isDoctor = utils.hasRole(
@@ -42,53 +42,53 @@ export default function Component({ user, specialities }: Props) {
     'doctor'
   );
 
+  const defaultUserValues: z.infer<typeof userProfileSchema> = {
+    password: String(),
+    name: user.name || String(),
+    email: user.email || String(),
+    phone: user.phone || String(),
+    city: user.city ? capitalize(user.city) : String(),
+    gender: (user.gender as 'male' | 'female') || String()
+  };
+
+  const defaultDoctorValues: z.infer<typeof doctorProfileSchema> = {
+    ...defaultUserValues,
+    experience: user.experience || 0,
+    gender: (user.gender as 'male' | 'female') || String(),
+    daysOfVisit: user.daysOfVisit.map(d => capitalize(d)) || [],
+    specialities: user.UserSpecialities.map(us => us.speciality.id),
+    timings: user.timings.length
+      ? user.timings
+      : [{ id: '1', time: '10:00:00', duration: 1 }]
+  };
+
   const [role, setRole] = useState(isDoctor ? 'doctor' : 'user');
 
-  const { pending: savingDoctor, handleSubmit: submitDoctor } = useHookForm(
-    handler,
-    addDoctor
-  );
-
-  const { pending: savingUser, handleSubmit: submitUser } = useHookForm(
+  const { handleSubmit: submitUser } = useHookForm(
     handler,
     updateUserProfile.bind(null, user.id) as (data: unknown) => Promise<unknown>
   );
 
+  const { handleSubmit: submitDoctor } = useHookForm(
+    handler,
+    updateDoctorProfile.bind(null, user.id) as (
+      data: unknown
+    ) => Promise<unknown>
+  );
+
   const userForm = useForm({
-    resolver: zodResolver(userProfileSchema),
-    defaultValues: {
-      password: String(),
-      name: user.name || String(),
-      email: user.email || String(),
-      phone: user.phone || String(),
-      city: user.city ? capitalize(user.city) : String(),
-      gender: (user.gender as 'male' | 'female') || String()
-    }
+    defaultValues: defaultUserValues,
+    resolver: zodResolver(userProfileSchema)
   });
 
-  console.log(userForm.formState.errors);
-
   const doctorForm = useForm({
-    resolver: zodResolver(doctorSchema),
-    defaultValues: {
-      password: String(),
-      timings: user.timings,
-      name: user.name || String(),
-      email: user.email || String(),
-      phone: user.phone || String(),
-      experience: user.experience || 0,
-      city: user.city ? capitalize(user.city) : String(),
-      gender: (user.gender as 'male' | 'female') || String(),
-      daysOfVisit: user.daysOfVisit.map(d => capitalize(d)) || [],
-      specialities: user.UserSpecialities.map(us => us.speciality.id)
-    }
+    defaultValues: defaultDoctorValues,
+    resolver: zodResolver(doctorProfileSchema)
   });
 
   async function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files && e.target.files[0];
-
     if (!file) return;
-    setImage(file);
 
     const arrayBuffer = await file.arrayBuffer();
     const base64 = utils.arrayBufferToBase64(arrayBuffer);
@@ -275,8 +275,16 @@ export default function Component({ user, specialities }: Props) {
                       </RHF.FormItem>
                     )}
                   />
-                  <Button type="submit" disabled={savingUser}>
-                    {savingUser ? 'Saving...' : 'Save'}
+                  <Button
+                    type="submit"
+                    disabled={
+                      !utils.hasFormChanged(
+                        defaultUserValues,
+                        userForm.watch()
+                      ) || userForm.formState.isSubmitting
+                    }
+                  >
+                    {userForm.formState.isSubmitting ? 'Saving...' : 'Save'}
                   </Button>
                 </form>
               </RHF.Form>
@@ -289,26 +297,24 @@ export default function Component({ user, specialities }: Props) {
                 >
                   <RHF.FormField
                     name="image"
-                    control={doctorForm.control}
+                    control={userForm.control}
                     render={({ field }) => (
                       <RHF.FormItem>
                         <RHF.FormControl>
                           <div className="relative grid min-h-80 gap-3 overflow-clip rounded-md border-2 border-dashed">
                             <Label
                               htmlFor="image"
-                              className={utils.cn(
-                                'absolute inset-0 z-10 grid place-items-center',
-                                { 'opacity-0': image }
-                              )}
+                              className="absolute inset-0 z-10 grid place-items-center"
                             >
                               <FileIcon />
                             </Label>
-                            {imageSrc && (
+                            {(imageSrc || user.image) && (
                               <Image
                                 fill
-                                src={imageSrc}
+                                unoptimized
                                 alt="Profile Picture"
                                 className="aspect-video object-cover"
+                                src={imageSrc || `/users/${user.image}`}
                               />
                             )}
                             <Input
@@ -434,11 +440,9 @@ export default function Component({ user, specialities }: Props) {
                         <RHF.FormLabel>Experience</RHF.FormLabel>
                         <RHF.FormControl>
                           <Input
-                            min={1}
-                            max={100}
                             {...field}
                             type="number"
-                            placeholder="Moradabad"
+                            placeholder="1 Year"
                           />
                         </RHF.FormControl>
                         <RHF.FormMessage />
@@ -472,10 +476,10 @@ export default function Component({ user, specialities }: Props) {
                           <MultiSelect
                             setSelectedValues={field.onChange}
                             placeholder="Select specialities ..."
-                            selectedValues={field.value.map(s => capitalize(s))}
+                            selectedValues={field.value}
                             options={specialities.map(s => ({
-                              label: capitalize(s.label),
-                              value: capitalize(s.value)
+                              ...s,
+                              label: capitalize(s.label)
                             }))}
                           />
                         </RHF.FormControl>
@@ -518,13 +522,11 @@ export default function Component({ user, specialities }: Props) {
                                 variant="ghost"
                                 onClick={() => {
                                   field.onChange([
-                                    ...(field.value ?? []),
+                                    ...field.value,
                                     {
                                       duration: 1,
                                       time: '10:00:00',
-                                      id: Math.floor(
-                                        10000 + Math.random() * 90000
-                                      )
+                                      id: utils.shortId(5)
                                     }
                                   ]);
                                 }}
@@ -587,8 +589,16 @@ export default function Component({ user, specialities }: Props) {
                       </RHF.FormItem>
                     )}
                   />
-                  <Button type="submit" disabled={savingDoctor}>
-                    {savingDoctor ? 'Saving...' : 'Save'}
+                  <Button
+                    type="submit"
+                    disabled={
+                      !utils.hasFormChanged(
+                        defaultDoctorValues,
+                        doctorForm.watch()
+                      ) || doctorForm.formState.isSubmitting
+                    }
+                  >
+                    {doctorForm.formState.isSubmitting ? 'Saving...' : 'Save'}
                   </Button>
                 </form>
               </RHF.Form>

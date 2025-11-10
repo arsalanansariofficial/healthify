@@ -223,11 +223,11 @@ export const CHARTS_DATA = [
 export const DAYS = [
   { value: 'SUNDAY', label: 'SUNDAY' },
   { value: 'MONDAY', label: 'MONDAY' },
-  { value: 'FRIDAY', label: 'FRIDAY' },
   { value: 'TUESDAY', label: 'TUESDAY' },
+  { value: 'WEDNESDAY', label: 'WEDNESDAY' },
   { value: 'THURSDAY', label: 'THURSDAY' },
-  { value: 'SATURDAY', label: 'SATURDAY' },
-  { value: 'WEDNESDAY', label: 'WEDNESDAY' }
+  { value: 'FRIDAY', label: 'FRIDAY' },
+  { value: 'SATURDAY', label: 'SATURDAY' }
 ];
 
 export const URLS = [

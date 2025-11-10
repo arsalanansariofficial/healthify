@@ -682,6 +682,17 @@ export async function updateUserProfile(
         }
       });
 
+      const [role] = await Promise.all([
+        transaction.role.findUnique({ where: { name: CONST.DEFAULT_ROLE } }),
+        transaction.userRole.deleteMany({
+          where: { userId }
+        })
+      ]);
+
+      await transaction.userRole.create({
+        data: { userId, roleId: role?.id as string }
+      });
+
       if (image?.size && user.image) {
         await fs.unlink(path.join(dir, `${user.image}`));
       }

@@ -9,6 +9,7 @@ import { useForm } from 'react-hook-form';
 import { Speciality, TimeSlot } from '@prisma/client';
 import { zodResolver } from '@hookform/resolvers/zod';
 
+import { HOST } from '@/lib/constants';
 import * as actions from '@/lib/actions';
 import Footer from '@/components/footer';
 import * as CN from '@/components/ui/card';
@@ -235,9 +236,13 @@ export default function Component(props: Props) {
                   <Image
                     fill
                     priority
+                    unoptimized
                     alt={doctor.name as string}
-                    src={`/users/${doctor.image}` || '/users/user.png'}
                     sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                    src={
+                      `${HOST}/api/upload/${doctor.image}` ||
+                      `${HOST}/api/upload/user.png`
+                    }
                   />
                 </div>
                 <ul className="flex flex-wrap gap-2">

@@ -42,6 +42,8 @@
     "clsx": "^2.1.1",
     "cmdk": "^1.1.1",
     "date-fns": "^4.1.0",
+    "html-to-image": "^1.11.13",
+    "jspdf": "^3.0.3",
     "lucide-react": "^0.513.0",
     "mime": "^4.0.7",
     "moderndash": "^4.0.0",

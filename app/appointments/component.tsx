@@ -23,7 +23,13 @@ import handler from '@/components/display-toast';
 import * as DM from '@/components/ui/dropdown-menu';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Badge, BadgeVariant } from '@/components/ui/badge';
-import { catchErrors, formatTime, getDate, hasPermission } from '@/lib/utils';
+import {
+  getDate,
+  formatTime,
+  catchErrors,
+  isPastByTime,
+  hasPermission
+} from '@/lib/utils';
 
 type TableSchema = { id: number } & Omit<Appointment, 'id'>;
 type MenuProps = { id?: string; ids?: string[]; isHeader: boolean };
@@ -100,13 +106,26 @@ function Menu({ id, ids, isHeader = false }: MenuProps) {
 }
 
 export function TableCellViewer<T extends z.ZodType>(props: TCVProps<T>) {
-  const { status } = props.item;
   const isMobile = useIsMobile();
-  const { pending } = useHookForm(
+  const { status, date, time } = props.item;
+  const isInFuture = isPastByTime(date, time, CONST.EXPIRES_AT * 1000);
+
+  const { pending: validating, handleSubmit: confirmAppointment } = useHookForm(
     handler,
-    actions.getAppointment.bind(null, String()) as (
-      data: unknown
-    ) => Promise<unknown>
+    actions.updateAppointmentStatus.bind(
+      null,
+      props.item.id,
+      AppointmentStatus.CONFIRMED
+    ) as (data: unknown) => Promise<unknown>
+  );
+
+  const { pending: cancelling, handleSubmit: cancelAppointment } = useHookForm(
+    handler,
+    actions.updateAppointmentStatus.bind(
+      null,
+      props.item.id,
+      AppointmentStatus.CANCELLED
+    ) as (data: unknown) => Promise<unknown>
   );
 
   return (
@@ -187,32 +206,36 @@ export function TableCellViewer<T extends z.ZodType>(props: TCVProps<T>) {
         </div>
         <Drawer.DrawerFooter>
           <div className="grid grid-flow-col gap-2">
-            {(status === AppointmentStatus.PENDING ||
-              status === AppointmentStatus.CONFIRMED) &&
+            {isInFuture &&
+              (status === AppointmentStatus.PENDING ||
+                status === AppointmentStatus.CONFIRMED) &&
               hasPermission(props.user.permissions, 'cancel:appointment') && (
                 <Button
                   type="submit"
                   variant="outline"
-                  disabled={pending}
                   form="appointment-form"
                   className="cursor-pointer"
+                  onClick={cancelAppointment}
+                  disabled={validating || cancelling}
                 >
                   {!isMobile && (
-                    <span>{pending ? 'Cancelling...' : 'Cancel'}</span>
+                    <span>{cancelling ? 'Cancelling...' : 'Cancel'}</span>
                   )}
                   <X />
                 </Button>
               )}
-            {status === AppointmentStatus.PENDING &&
+            {isInFuture &&
+              status === AppointmentStatus.PENDING &&
               hasPermission(props.user.permissions, 'confirm:appointment') && (
                 <Button
                   type="submit"
-                  disabled={pending}
                   form="appointment-form"
                   className="cursor-pointer"
+                  onClick={confirmAppointment}
+                  disabled={validating || cancelling}
                 >
                   {!isMobile && (
-                    <span>{pending ? 'Saving...' : 'Confirm'}</span>
+                    <span>{validating ? 'Saving...' : 'Confirm'}</span>
                   )}
                   <Check />
                 </Button>
@@ -222,11 +245,10 @@ export function TableCellViewer<T extends z.ZodType>(props: TCVProps<T>) {
                 <Button
                   asChild
                   type="submit"
-                  disabled={pending}
                   form="appointment-form"
                   className="cursor-pointer"
                 >
-                  <Link href="/receipt">
+                  <Link href="/appointments/receipt">
                     {!isMobile && <span>View Receipt</span>}
                     <Printer />
                   </Link>

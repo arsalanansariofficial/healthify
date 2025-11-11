@@ -4,8 +4,24 @@ import { ArrowDown, Printer } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
+import { capitalize, formatTime, getDate } from '@/lib/utils';
 
-export default function Page() {
+type Props = {
+  appointment: {
+    id: string;
+    date: Date;
+    city: string;
+    timeSlot: { time: string };
+    patient: { name: string | null };
+    doctor: {
+      name: string | null;
+      phone: string | null;
+      UserSpecialities: { speciality: { name: string } }[];
+    };
+  };
+};
+
+export default function Page({ appointment }: Props) {
   return (
     <main className="row-start-2 grid place-items-center">
       <section className="bg-background text-foreground font-serif font-semibold print:bg-white print:text-black">
@@ -21,32 +37,40 @@ export default function Page() {
               <CardContent className="grid min-h-50 grid-cols-2 gap-2 print:text-black">
                 <h2 className="col-span-2 text-center">Queue 1</h2>
                 <h2>Appointment Number</h2>
-                <h2 className="text-right">abcde12345</h2>
-                <h2>Dental Checkup</h2>
-                <h2 className="text-right">Confirmation</h2>
+                <h2 className="text-right">{appointment.id.slice(-5)}</h2>
+                <h2>Doctor Speciality</h2>
+                <h2 className="text-right">
+                  {appointment.doctor.UserSpecialities.map(us =>
+                    capitalize(us.speciality.name)
+                  ).toString()}
+                </h2>
                 <div>
                   <span>Patient</span>
-                  <h3 className="font-sans">Patient Name</h3>
+                  <h3 className="font-sans">{appointment.patient.name}</h3>
                 </div>
                 <div className="text-right">
                   <span>Doctor</span>
-                  <h3 className="font-sans">Doctor Name</h3>
+                  <h3 className="font-sans">{appointment.doctor.name}</h3>
                 </div>
                 <div>
                   <span>Date</span>
-                  <h3 className="font-sans">Appointment Date</h3>
+                  <h3 className="font-sans">
+                    {getDate(appointment.date.toString(), false, false)}
+                  </h3>
                 </div>
                 <div className="text-right">
                   <span>Time</span>
-                  <h3 className="font-sans">Appointment Time</h3>
+                  <h3 className="font-sans">
+                    {formatTime(appointment.timeSlot.time)}
+                  </h3>
                 </div>
                 <div>
                   <span>Location</span>
-                  <h3 className="font-sans">Address</h3>
+                  <h3 className="font-sans">{capitalize(appointment.city)}</h3>
                 </div>
                 <div className="text-right">
-                  <span>Room</span>
-                  <h3 className="font-sans">Room Number</h3>
+                  <span>Phone</span>
+                  <h3 className="font-sans">{appointment.doctor.phone}</h3>
                 </div>
               </CardContent>
             </Card>

@@ -4,23 +4,30 @@ import { redirect } from 'next/navigation';
 import { auth } from '@/auth';
 import prisma from '@/lib/prisma';
 import Component from './component';
-import { getDate } from '@/lib/utils';
-import { LOGIN } from '@/lib/constants';
 import Header from '@/components/header';
 import Session from '@/components/session';
 import Sidebar from '@/components/sidebar';
+import { getDate, hasRole } from '@/lib/utils';
+import { ADMIN_ROLE, LOGIN } from '@/lib/constants';
 
 export default async function Page() {
   const session = await auth();
   if (!session?.user) redirect(LOGIN);
 
-  const appointments = await prisma.appointment.findMany({
+  let appointments = await prisma.appointment.findMany({
     orderBy: { date: 'desc' },
-    include: { timeSlot: true, patient: true, doctor: true },
-    where: {
-      OR: [{ patientId: session.user.id }, { doctorId: session.user.id }]
-    }
+    include: { timeSlot: true, patient: true, doctor: true }
   });
+
+  if (hasRole(session.user.roles, ADMIN_ROLE)) {
+    appointments = await prisma.appointment.findMany({
+      orderBy: { date: 'desc' },
+      include: { timeSlot: true, patient: true, doctor: true },
+      where: {
+        OR: [{ patientId: session.user.id }, { doctorId: session.user.id }]
+      }
+    });
+  }
 
   return (
     <Session expiresAt={session?.user?.expiresAt}>

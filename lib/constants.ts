@@ -234,6 +234,21 @@ export const PUBLIC_ROUTES = [
   '/create-password'
 ];
 
+export const MONTHS = [
+  'Jan',
+  'Feb',
+  'Mar',
+  'Apr',
+  'May',
+  'Jun',
+  'Jul',
+  'Aug',
+  'Sep',
+  'Oct',
+  'Nov',
+  'Dec'
+];
+
 export const CHARTS_DATA = [
   { month: 'Jan', users: 186 },
   { month: 'Feb', users: 305 },

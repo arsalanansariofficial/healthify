@@ -20,3 +20,5 @@ A simple demo on how to use **next-auth** inside a **Next.js** app, created by *
 
 - Run `npm i` to install the dependencies.
 - Run `npm run dev` to start the development server.
+- Run `mongodump --db="database" --username="username" --authenticationDatabase="authenticationDatabase" --out="directoryLocation"` this command to export the database.
+- Run `mongorestore --db="database" --username="username" --authenticationDatabase="authenticationDatabase" --dir="directoryLocation"` this command to import the database.

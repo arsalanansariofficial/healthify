@@ -16,6 +16,7 @@ type Props = {
     id: string;
     date: Date;
     city: string;
+    status: string;
     timeSlot: { time: string };
     patient: { name: string | null };
     doctor: {

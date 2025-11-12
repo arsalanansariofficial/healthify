@@ -44,7 +44,7 @@ export default function Component(props: Props) {
                   <CN.CardAction>{card.action}</CN.CardAction>
                 </CN.CardHeader>
                 <CN.CardFooter className="flex-col items-start gap-1.5 text-sm">
-                  <div className="line-clamp-1 flex gap-2 font-medium">
+                  <div className="line-clamp-1 max-w-11/12 gap-2 truncate font-medium">
                     {card.subtitle}
                   </div>
                   <div className="text-muted-foreground">{card.summary}</div>
@@ -133,7 +133,11 @@ export default function Component(props: Props) {
                 <CNC.ChartLegend
                   content={<CNC.ChartLegendContent payload={[]} />}
                 />
-                <Bar radius={4} dataKey="appointments" fill="var(--color-blue-500)" />
+                <Bar
+                  radius={4}
+                  dataKey="appointments"
+                  fill="var(--color-blue-500)"
+                />
               </BarChart>
             </CNC.ChartContainer>
           </CN.CardContent>

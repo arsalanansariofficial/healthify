@@ -32,7 +32,7 @@ export default async function Page() {
   return (
     <Session expiresAt={session?.user?.expiresAt}>
       <Header />
-      <main className="row-start-2 px-8 py-4 lg:grid lg:grid-cols-[auto_1fr] lg:gap-12">
+      <main className="row-start-2 overflow-x-auto px-8 py-4 lg:grid lg:grid-cols-[auto_1fr] lg:gap-12 lg:overflow-x-visible">
         <Sidebar user={session?.user as User} />
         <Component
           user={session?.user as User}

@@ -41,6 +41,16 @@ export function arrayBufferToBase64(buffer: ArrayBuffer): string {
   );
 }
 
+export function formatChange(current: number, previous: number) {
+  if (!previous && !current) return '0%';
+  if (!previous && current > 0) return '+100%';
+
+  const diff = ((current - previous) / previous) * 100;
+  const sign = diff > 0 ? '+' : String();
+
+  return `${sign}${diff.toFixed(1)}%`;
+}
+
 export function removeDuplicateTimes(
   timings: { duration: number; time: string; id: string }[]
 ) {

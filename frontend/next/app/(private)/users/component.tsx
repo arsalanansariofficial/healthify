@@ -7,7 +7,6 @@ import { ColumnDef } from '@tanstack/react-table';
 import { User } from 'next-auth';
 import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
-import z from 'zod';
 
 import Chart from '@/components/chart';
 import handler from '@/components/display-toast';
@@ -59,8 +58,10 @@ import {
   verifyEmail
 } from '@/lib/actions';
 import { MESSAGES } from '@/lib/constants';
-import { userSchema, yesNo } from '@/lib/schemas';
+import { userSchema } from '@/lib/schemas';
 import { catchErrors, getDate, hasPermission } from '@/lib/utils';
+
+type yesNo = 'yes' | 'no';
 
 function Menu({
   id,
@@ -140,7 +141,7 @@ export function TableCellViewer(props: {
   return (
     <Drawer direction={isMobile ? 'bottom' : 'right'}>
       <DrawerTrigger asChild onClick={e => e.currentTarget.blur()}>
-        <Button className='text-foreground px-0' variant='link'>
+        <Button className='text-foreground px-0 capitalize' variant='link'>
           {props.item.name}
         </Button>
       </DrawerTrigger>
@@ -174,6 +175,7 @@ export function TableCellViewer(props: {
                     <FormControl>
                       <Input
                         {...field}
+                        className='capitalize'
                         placeholder='Gwen Tennyson'
                         type='text'
                       />
@@ -226,7 +228,7 @@ export function TableCellViewer(props: {
                     <FormControl>
                       <Select
                         onValueChange={field.onChange}
-                        value={field.value as z.infer<typeof yesNo>}
+                        value={field.value as yesNo}
                       >
                         <SelectTrigger className='w-full'>
                           <SelectValue placeholder='Select a status' />

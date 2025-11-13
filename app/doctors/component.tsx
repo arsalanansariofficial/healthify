@@ -6,6 +6,7 @@ import Image from 'next/image';
 import { User } from 'next-auth';
 import { useForm } from 'react-hook-form';
 import { getHours, parse } from 'date-fns';
+import { useDebounce } from 'use-debounce';
 import { FormEvent, useState } from 'react';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Speciality, TimeSlot, User as Doctor } from '@prisma/client';
@@ -113,7 +114,10 @@ export function TableCellViewer<T extends z.ZodType>(props: TCVProps<T>) {
 export default function Component(props: Props) {
   const [query, setQuery] = useState(String());
   const [gender, setGender] = useState(String());
+
+  const [debouncedQuery] = useDebounce(query, 300);
   const [speciality, setSpeciality] = useState(String());
+
   const [experience, setExperience] = useState(String());
   const [time, setTime] = useState<'morning' | 'evening' | string>(String());
 
@@ -131,13 +135,13 @@ export default function Component(props: Props) {
     }));
 
     if (
-      query &&
+      debouncedQuery &&
       !(
-        doctorGender == query ||
-        doctorExperience.includes(query) ||
-        doctor.name?.toLowerCase().includes(query) ||
-        doctorTimings.some(t => t.formatted.includes(query)) ||
-        doctorSpecialities.some(spec => spec.includes(query))
+        doctorGender == debouncedQuery ||
+        doctorExperience.includes(debouncedQuery) ||
+        doctor.name?.toLowerCase().includes(debouncedQuery) ||
+        doctorTimings.some(t => t.formatted.includes(debouncedQuery)) ||
+        doctorSpecialities.some(spec => spec.includes(debouncedQuery))
       )
     ) {
       return false;

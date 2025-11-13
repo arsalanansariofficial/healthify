@@ -616,6 +616,30 @@ export async function getAppointment(
       return { success: false, message: CONST.USER_NOT_FOUND };
     }
 
+    const time = await prisma.timeSlot.findUnique({
+      select: { time: true },
+      where: { id: result.data.time }
+    });
+
+    if (
+      !time ||
+      !utils.isPastByTime(result.data.date, time.time, CONST.EXPIRES_AT * 1000)
+    ) {
+      return { success: false, message: CONST.INVALID_TIME_SLOT };
+    }
+
+    if (
+      await prisma.appointment.findFirst({
+        where: {
+          doctorId,
+          patientId: session.user.id,
+          timeSlotId: result.data.time
+        }
+      })
+    ) {
+      return { success: false, message: CONST.APPOINTMENT_EXISTS };
+    }
+
     await prisma.appointment.create({
       data: {
         doctorId,

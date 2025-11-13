@@ -3,15 +3,17 @@
 import z from 'zod';
 import Link from 'next/link';
 import Image from 'next/image';
-import { useState } from 'react';
 import { User } from 'next-auth';
 import { useForm } from 'react-hook-form';
-import { Speciality, TimeSlot } from '@prisma/client';
+import { getHours, parse } from 'date-fns';
+import { FormEvent, useState } from 'react';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { Speciality, TimeSlot, User as Doctor } from '@prisma/client';
 
 import { HOST } from '@/lib/constants';
 import * as actions from '@/lib/actions';
 import Footer from '@/components/footer';
+import { formatTime } from '@/lib/utils';
 import * as CN from '@/components/ui/card';
 import { nameSchema } from '@/lib/schemas';
 import * as RHF from '@/components/ui/form';
@@ -21,7 +23,6 @@ import { Badge } from '@/components/ui/badge';
 import * as CND from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import useHookForm from '@/hooks/use-hook-form';
-import { User as Doctor } from '@prisma/client';
 import * as Drawer from '@/components/ui/drawer';
 import { useIsMobile } from '@/hooks/use-mobile';
 import * as Select from '@/components/ui/select';
@@ -34,9 +35,7 @@ type Props = {
   specialities: Speciality[];
   doctors: (Doctor & {
     timings: TimeSlot[];
-    UserSpecialities: {
-      speciality: { name: string };
-    }[];
+    UserSpecialities: { speciality: { name: string } }[];
   })[];
 };
 
@@ -112,20 +111,89 @@ export function TableCellViewer<T extends z.ZodType>(props: TCVProps<T>) {
 }
 
 export default function Component(props: Props) {
-  const [, setTime] = useState<string>();
-  const [, setGender] = useState<string>();
-  const [, setSpeciality] = useState<string>();
-  const [, setExperience] = useState<string>();
+  const [query, setQuery] = useState(String());
+  const [gender, setGender] = useState(String());
+  const [speciality, setSpeciality] = useState(String());
+  const [experience, setExperience] = useState(String());
+  const [time, setTime] = useState<'morning' | 'evening' | string>(String());
+
+  const doctors = props.doctors.filter(doctor => {
+    const doctorGender = doctor.gender?.toLowerCase() || String();
+    const doctorExperience = doctor.experience?.toString() || String();
+
+    const doctorSpecialities = doctor.UserSpecialities?.map(us =>
+      us.speciality.name.toLowerCase()
+    );
+
+    const doctorTimings = doctor.timings?.map(t => ({
+      formatted: formatTime(t.time).toLowerCase(),
+      hour: getHours(parse(t.time, 'HH:mm:ss', new Date()))
+    }));
+
+    if (
+      query &&
+      !(
+        doctorGender == query ||
+        doctorExperience.includes(query) ||
+        doctor.name?.toLowerCase().includes(query) ||
+        doctorTimings.some(t => t.formatted.includes(query)) ||
+        doctorSpecialities.some(spec => spec.includes(query))
+      )
+    ) {
+      return false;
+    }
+
+    if (gender && doctorGender != gender.toLowerCase()) return false;
+    if (experience && !doctorExperience.includes(experience)) return false;
+
+    if (
+      speciality &&
+      !doctorSpecialities.some(spec => spec.includes(speciality.toLowerCase()))
+    ) {
+      return false;
+    }
+
+    if (
+      time &&
+      !doctorTimings.some(({ hour }) => {
+        if (time === 'morning') return hour >= 6 && hour < 12;
+        if (time === 'evening') return hour >= 12 && hour < 20;
+        return false;
+      })
+    ) {
+      return false;
+    }
+
+    return true;
+  });
+
+  function resetFilters() {
+    setTime(String());
+    setGender(String());
+    setSpeciality(String());
+    setExperience(String());
+  }
+
+  function applyFilters(event: FormEvent<HTMLFormElement>): void {
+    event.preventDefault();
+    const formData = new FormData(event.target as HTMLFormElement);
+
+    setTime(formData.get('time') as string);
+    setGender(formData.get('gender') as string);
+    setSpeciality(formData.get('speciality') as string);
+    setExperience(formData.get('experience') as string);
+  }
 
   return (
     <div className="flex h-full flex-col gap-8 lg:mx-auto lg:w-10/12">
-      <form action="" className="grid grid-cols-[1fr_auto_auto] gap-2">
+      <form className="grid grid-cols-[1fr_auto_auto] gap-2">
         <Input
           type="text"
           name="name"
           id="doctor-name"
           className="w-full"
           placeholder="Search doctor..."
+          onChange={e => setQuery(e.target.value.toLowerCase())}
         />
         <CND.Dialog>
           <div>
@@ -139,10 +207,14 @@ export default function Component(props: Props) {
                   Find doctors based on your preferences.
                 </CND.DialogDescription>
               </CND.DialogHeader>
-              <form className="space-y-4">
+              <form
+                id="filter-form"
+                className="space-y-4"
+                onSubmit={applyFilters}
+              >
                 <div className="space-y-2">
                   <Label htmlFor="doctor-speciality">Speciality</Label>
-                  <Select.Select onValueChange={setSpeciality}>
+                  <Select.Select name="speciality">
                     <Select.SelectTrigger
                       id="doctor-speciality"
                       className="w-full [&_span[data-slot]]:block [&_span[data-slot]]:truncate"
@@ -161,7 +233,7 @@ export default function Component(props: Props) {
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="doctor-experience">Experience</Label>
-                  <Select.Select onValueChange={setExperience}>
+                  <Select.Select name="experience">
                     <Select.SelectTrigger
                       id="doctor-experience"
                       className="w-full [&_span[data-slot]]:block [&_span[data-slot]]:truncate"
@@ -182,7 +254,7 @@ export default function Component(props: Props) {
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="doctor-gender">Gender</Label>
-                  <Select.Select onValueChange={setGender}>
+                  <Select.Select name="gender">
                     <Select.SelectTrigger
                       id="doctor-gender"
                       className="w-full [&_span[data-slot]]:block [&_span[data-slot]]:truncate"
@@ -199,7 +271,7 @@ export default function Component(props: Props) {
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="doctor-time">Time</Label>
-                  <Select.Select onValueChange={setTime}>
+                  <Select.Select name="time">
                     <Select.SelectTrigger
                       id="doctor-time"
                       className="w-full [&_span[data-slot]]:block [&_span[data-slot]]:truncate"
@@ -219,16 +291,23 @@ export default function Component(props: Props) {
               </form>
               <CND.DialogFooter>
                 <CND.DialogClose asChild>
-                  <Button variant="outline">Reset</Button>
+                  <Button variant="outline" onClick={resetFilters}>
+                    Reset
+                  </Button>
                 </CND.DialogClose>
-                <Button type="submit">Filter</Button>
+                <Button type="submit" form="filter-form">
+                  Filter
+                </Button>
               </CND.DialogFooter>
             </CND.DialogContent>
           </div>
         </CND.Dialog>
+        <Button variant="secondary" onClick={resetFilters}>
+          Reset
+        </Button>
       </form>
       <ul className="grid grid-cols-[repeat(auto-fill,minmax(15em,1fr))] gap-4">
-        {props.doctors.map(doctor => (
+        {doctors.map(doctor => (
           <li key={doctor.id}>
             <CN.Card className="rounded-md py-3">
               <CN.CardContent className="space-y-3 px-3">
@@ -252,7 +331,7 @@ export default function Component(props: Props) {
                         variant="outline"
                         className="text-xs font-semibold capitalize"
                       >
-                        {t.time}
+                        {formatTime(t.time)}
                       </Badge>
                     </li>
                   ))}

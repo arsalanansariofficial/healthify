@@ -100,13 +100,15 @@ export default function Component({ doctors }: { doctors: User[] }) {
                               field.onChange([
                                 ...field.value,
                                 {
-                                  address: String(),
-                                  city: String(),
-                                  doctors: [],
-                                  email: String(),
-                                  isAffiliated: 'no',
-                                  name: String(),
-                                  phone: String()
+                                  hospital: {
+                                    address: String(),
+                                    city: String(),
+                                    doctors: [],
+                                    email: String(),
+                                    isAffiliated: 'no',
+                                    name: String(),
+                                    phone: String()
+                                  }
                                 }
                               ]);
                             }}

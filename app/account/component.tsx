@@ -2,9 +2,9 @@
 
 import z from 'zod';
 import Image from 'next/image';
-import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { useCallback, useMemo, useState } from 'react';
 import { FileIcon, PlusIcon, TrashIcon } from 'lucide-react';
 import { Role, Speciality, TimeSlot, User } from '@prisma/client';
 
@@ -28,40 +28,56 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 type Props = {
   specialities: { value: string; label: string }[];
   user: Omit<User, 'token' | 'accounts' | 'hasOAuth' | 'password'> & {
-    timings: Pick<TimeSlot, 'id' | 'time' | 'duration'>[];
     UserRoles: { role: Pick<Role, 'id' | 'name'> }[];
+    timings: Pick<TimeSlot, 'id' | 'time' | 'duration'>[];
     UserSpecialities: { speciality: Pick<Speciality, 'id' | 'name'> }[];
   };
 };
 
 export default function Component({ user, specialities }: Props) {
-  const [imageSrc, setImageSrc] = useState<string | null>(null);
-
-  const isDoctor = utils.hasRole(
-    user.UserRoles.map(ur => ur.role as Role),
-    'doctor'
+  const isDoctor = useMemo(
+    () =>
+      utils.hasRole(
+        user.UserRoles.map(ur => ur.role as Role),
+        'doctor'
+      ),
+    [user.UserRoles]
   );
 
-  const defaultUserValues: z.infer<typeof userProfileSchema> = {
-    password: String(),
-    name: user.name || String(),
-    email: user.email || String(),
-    phone: user.phone || String(),
-    city: user.city ? capitalize(user.city) : String(),
-    gender: (user.gender as 'male' | 'female') || String()
-  };
+  const defaultUserValues = useMemo<z.infer<typeof userProfileSchema>>(
+    () => ({
+      password: String(),
+      name: user.name || String(),
+      email: user.email || String(),
+      phone: user.phone || String(),
+      city: user.city ? capitalize(user.city) : String(),
+      gender: (user.gender as 'male' | 'female') || String()
+    }),
+    [user.city, user.email, user.gender, user.name, user.phone]
+  );
 
-  const defaultDoctorValues: z.infer<typeof doctorProfileSchema> = {
-    ...defaultUserValues,
-    experience: user.experience || 0,
-    gender: (user.gender as 'male' | 'female') || String(),
-    daysOfVisit: user.daysOfVisit.map(d => capitalize(d)) || [],
-    specialities: user.UserSpecialities.map(us => us.speciality.id),
-    timings: user.timings.length
-      ? user.timings
-      : [{ id: '1', time: '10:00:00', duration: 1 }]
-  };
+  const defaultDoctorValues = useMemo<z.infer<typeof doctorProfileSchema>>(
+    () => ({
+      ...defaultUserValues,
+      experience: user.experience || 0,
+      gender: (user.gender as 'male' | 'female') || String(),
+      daysOfVisit: user.daysOfVisit.map(d => capitalize(d)) || [],
+      specialities: user.UserSpecialities.map(us => us.speciality.id),
+      timings: user.timings.length
+        ? user.timings
+        : [{ id: '1', time: '10:00:00', duration: 1 }]
+    }),
+    [
+      user.gender,
+      user.timings,
+      user.experience,
+      user.daysOfVisit,
+      defaultUserValues,
+      user.UserSpecialities
+    ]
+  );
 
+  const [imageSrc, setImageSrc] = useState<string | null>(null);
   const [role, setRole] = useState(isDoctor ? 'doctor' : 'user');
 
   const { handleSubmit: submitUser } = useHookForm(
@@ -86,7 +102,9 @@ export default function Component({ user, specialities }: Props) {
     resolver: zodResolver(doctorProfileSchema)
   });
 
-  async function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
+  const handleFileChange = useCallback(async function (
+    e: React.ChangeEvent<HTMLInputElement>
+  ) {
     const file = e.target.files && e.target.files[0];
     if (!file) return;
 
@@ -95,7 +113,7 @@ export default function Component({ user, specialities }: Props) {
     const dataUrl = `data:${file.type};base64,${base64}`;
 
     setImageSrc(dataUrl);
-  }
+  }, []);
 
   return (
     <div className="flex h-full flex-col gap-8 lg:mx-auto lg:w-10/12">

@@ -1,14 +1,12 @@
 import { SearchIcon } from 'lucide-react';
-import { useRouter } from 'next/navigation';
 
+import Router from '@/components/router';
 import { Kbd } from '@/components/ui/kbd';
 import { MAIL_TO } from '@/lib/constants';
 import * as EMPTY from '@/components/ui/empty';
 import * as IG from '@/components/ui/input-group';
 
 export default function Info(props: { title: string; message: string }) {
-  const router = useRouter();
-
   return (
     <EMPTY.Empty>
       <EMPTY.EmptyHeader>
@@ -17,18 +15,12 @@ export default function Info(props: { title: string; message: string }) {
       </EMPTY.EmptyHeader>
       <EMPTY.EmptyContent>
         <IG.InputGroup className="sm:w-3/4">
-          <form
-            onSubmit={e => {
-              e.preventDefault();
-              const formData = new FormData(e.target as HTMLFormElement);
-              router.push(`/${formData.get('search') as string}`);
-            }}
-          >
+          <Router>
             <IG.InputGroupInput
               name="search"
               placeholder="Try searching for pages..."
             />
-          </form>
+          </Router>
           <IG.InputGroupAddon>
             <SearchIcon />
           </IG.InputGroupAddon>

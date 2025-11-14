@@ -415,7 +415,7 @@ export async function signup(data: Schema<typeof schemas.signupSchema>) {
   return loginWithCredentials(data);
 }
 
-export default async function seed() {
+export async function seed() {
   try {
     await prisma.$transaction(async function (transaction) {
       const [role, permission, user] = await Promise.all([

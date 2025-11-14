@@ -304,6 +304,11 @@ export default function Component(props: { user: User; subscriptions: Row[] }) {
     <div className='flex h-full flex-col gap-8 lg:mx-auto lg:w-10/12'>
       {hasPermission(props.user.permissions, 'view:subscriptions') && (
         <DataTable
+          button={
+            <Button asChild>
+              <Link href='/subscriptions/add'>Add</Link>
+            </Button>
+          }
           columns={
             [
               {

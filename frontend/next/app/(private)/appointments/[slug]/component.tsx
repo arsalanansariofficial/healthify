@@ -235,7 +235,6 @@ export default function Component({
                   </FormItem>
                 )}
               />
-
               {appointment.appointmentHospitals.length > 0 && (
                 <FormField
                   control={form.control}

@@ -45,7 +45,7 @@ import {
 } from '@tanstack/react-table';
 import { format } from 'date-fns';
 import { CalendarIcon } from 'lucide-react';
-import React, { useId, useState, useMemo, useEffect } from 'react';
+import React, { useId, useState, useMemo, useEffect, ReactNode } from 'react';
 import { useDebounce } from 'use-debounce';
 
 import { TimePicker } from '@/components/time-picker';
@@ -127,6 +127,7 @@ export function DraggableRow<T extends { id: string }>(props: { row: Row<T> }) {
 
 export function DataTable<T extends { id: string }>(props: {
   data: T[];
+  button?: ReactNode;
   columns: ColumnDef<T>[];
   filterConfig: {
     id: string;
@@ -334,6 +335,7 @@ export function DataTable<T extends { id: string }>(props: {
                 })}
             </DropdownMenuContent>
           </DropdownMenu>
+          {props.button}
         </div>
       </div>
       <TabsContent

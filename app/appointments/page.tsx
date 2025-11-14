@@ -3,12 +3,12 @@ import { redirect } from 'next/navigation';
 
 import { auth } from '@/auth';
 import prisma from '@/lib/prisma';
-import Component from './component';
 import Header from '@/components/header';
 import Session from '@/components/session';
 import Sidebar from '@/components/sidebar';
 import { getDate, hasRole } from '@/lib/utils';
 import { ADMIN_ROLE, LOGIN } from '@/lib/constants';
+import Component from '@/app/appointments/component';
 
 export default async function Page() {
   const session = await auth();

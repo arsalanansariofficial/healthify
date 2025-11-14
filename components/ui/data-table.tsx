@@ -2,14 +2,17 @@
 
 import { z } from 'zod';
 import * as React from 'react';
+import { format } from 'date-fns';
 import * as Core from '@dnd-kit/core';
 import { CSS } from '@dnd-kit/utilities';
 import { useDebounce } from 'use-debounce';
 import * as RT from '@tanstack/react-table';
+import { CalendarIcon } from 'lucide-react';
 import * as Icons from '@tabler/icons-react';
 import * as Sortable from '@dnd-kit/sortable';
 import { restrictToVerticalAxis } from '@dnd-kit/modifiers';
 
+import { getDate } from '@/lib/utils';
 import * as Tabs from '@/components/ui/tabs';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
@@ -17,13 +20,25 @@ import * as Table from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
 import * as Select from '@/components/ui/select';
 import * as DM from '@/components/ui/dropdown-menu';
+import { Calendar } from '@/components/ui/calendar';
+import { TimePicker } from '@/components/time-picker';
+
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger
+} from '@/components/ui/popover';
 
 type DraggableRowProps<T extends z.ZodType> = { row: RT.Row<z.infer<T>> };
 
 type DataTableProps<T extends z.ZodType> = {
   data: z.infer<T>[];
   columns: RT.ColumnDef<z.infer<T>>[];
-  filterConfig: { id: string; placeholder: string }[];
+  filterConfig: {
+    id: string;
+    placeholder: string;
+    type?: 'text' | 'number' | 'date' | 'time';
+  }[];
 };
 
 export function DragHandle({ id }: { id: number }) {
@@ -131,7 +146,7 @@ export function DataTable<T extends z.ZodType>(props: DataTableProps<T>) {
           (table.getColumn(filter.id)?.getFilterValue() as string) ?? String();
         return acc;
       },
-      {} as Record<string, string>
+      {} as Record<string, string | Date>
     )
   );
 
@@ -161,21 +176,83 @@ export function DataTable<T extends z.ZodType>(props: DataTableProps<T>) {
     >
       <div className="flex justify-between gap-2">
         <div className="grid auto-cols-auto grid-flow-col gap-2">
-          {props.filterConfig.map(filter => (
-            <Input
-              key={filter.id}
-              name={filter.id}
-              className="max-w-sm"
-              placeholder={filter.placeholder}
-              value={filterValues[filter.id] ?? ''}
-              onChange={e =>
-                setFilterValues(prev => ({
-                  ...prev,
-                  [filter.id]: e.target.value
-                }))
-              }
-            />
-          ))}
+          {props.filterConfig.map(filter => {
+            const value = filterValues[filter.id] ?? '';
+
+            if (filter.type && filter.type === 'time') {
+              return (
+                <TimePicker
+                  key={filter.id}
+                  value={value as string}
+                  onChange={val =>
+                    setFilterValues(prev => ({
+                      ...prev,
+                      [filter.id]: val
+                    }))
+                  }
+                />
+              );
+            }
+
+            if (filter.type && filter.type === 'date') {
+              return (
+                <Popover key={filter.id}>
+                  <PopoverTrigger asChild>
+                    <Button
+                      variant="outline"
+                      data-empty={!value}
+                      className="data-[empty=true]:text-muted-foreground flex justify-between text-left font-normal"
+                    >
+                      {value && format(value, 'PPP')}
+                      {!value && <span>Pick a date</span>}
+                      <CalendarIcon />
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-auto p-0">
+                    <Calendar
+                      mode="single"
+                      selected={value as Date}
+                      onSelect={value =>
+                        setFilterValues(prev => ({
+                          ...prev,
+                          [filter.id]: getDate(value?.toString())
+                        }))
+                      }
+                    />
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      className="w-full text-red-500"
+                      onClick={() =>
+                        setFilterValues(prev => ({
+                          ...prev,
+                          [filter.id]: ''
+                        }))
+                      }
+                    >
+                      Clear
+                    </Button>
+                  </PopoverContent>
+                </Popover>
+              );
+            }
+
+            return (
+              <Input
+                key={filter.id}
+                name={filter.id}
+                className="max-w-sm"
+                placeholder={filter.placeholder}
+                value={(filterValues[filter.id] as string) ?? ''}
+                onChange={e =>
+                  setFilterValues(prev => ({
+                    ...prev,
+                    [filter.id]: e.target.value
+                  }))
+                }
+              />
+            );
+          })}
         </div>
         <div className="flex items-center gap-2">
           <DM.DropdownMenu>

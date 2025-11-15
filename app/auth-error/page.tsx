@@ -1,19 +1,23 @@
-import { Suspense } from 'react';
+import Link from 'next/link';
 
-import Component from './component';
+import { HOME } from '@/lib/constants';
+import { Button } from '@/components/ui/button';
 
-export default function Page() {
+type Props = {
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
+};
+
+export default async function Page({ searchParams }: Props) {
+  const { error } = await searchParams;
+
   return (
-    <Suspense
-      fallback={
-        <main className="row-start-2 mx-8 grid place-items-center">
-          <section className="space-y-4 text-center">
-            <p className="animate-pulse font-semibold">Loading...</p>
-          </section>
-        </main>
-      }
-    >
-      <Component />
-    </Suspense>
+    <main className="row-start-2 mx-8 grid place-items-center">
+      <section className="space-y-4 text-center">
+        <h1 className="text-xl font-bold">{error}</h1>
+        <Button>
+          <Link href={HOME}>Home Page</Link>
+        </Button>
+      </section>
+    </main>
   );
 }

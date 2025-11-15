@@ -9,20 +9,48 @@ import { zodResolver } from '@hookform/resolvers/zod';
 
 import Footer from '@/components/footer';
 import { formatTime } from '@/lib/utils';
-import * as CN from '@/components/ui/card';
-import * as RHF from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import * as PO from '@/components/ui/popover';
 import { getAppointment } from '@/lib/actions';
 import useHookForm from '@/hooks/use-hook-form';
 import { Button } from '@/components/ui/button';
 import handler from '@/components/display-toast';
-import * as Select from '@/components/ui/select';
 import { appointmentSchema } from '@/lib/schemas';
 import { Calendar } from '@/components/ui/calendar';
 import { Textarea } from '@/components/ui/textarea';
 import { MIN_DATE, MAX_DATE } from '@/lib/constants';
+
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger
+} from '@/components/ui/popover';
+
+import {
+  Select,
+  SelectItem,
+  SelectValue,
+  SelectContent,
+  SelectTrigger
+} from '@/components/ui/select';
+
+import {
+  Form,
+  FormItem,
+  FormField,
+  FormLabel,
+  FormControl,
+  FormMessage
+} from '@/components/ui/form';
+
+import {
+  Card,
+  CardTitle,
+  CardFooter,
+  CardHeader,
+  CardContent,
+  CardDescription
+} from '@/components/ui/card';
 
 type Props = { doctor: User & { timings: TimeSlot[] }; user: AuthUser };
 
@@ -46,15 +74,15 @@ export default function Component({ doctor, user }: Props) {
 
   return (
     <div className="flex h-full flex-col gap-8 lg:mx-auto lg:w-10/12">
-      <CN.Card>
-        <CN.CardHeader>
-          <CN.CardTitle>Get Appointment</CN.CardTitle>
-          <CN.CardDescription>
+      <Card>
+        <CardHeader>
+          <CardTitle>Get Appointment</CardTitle>
+          <CardDescription>
             Enter the details below to book an appointment with the doctor.
-          </CN.CardDescription>
-        </CN.CardHeader>
-        <CN.CardContent>
-          <RHF.Form {...form}>
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <Form {...form}>
             <form
               id="appointment-form"
               className="space-y-2"
@@ -70,79 +98,79 @@ export default function Component({ doctor, user }: Props) {
                   value={doctor.name as string}
                 />
               </div>
-              <RHF.FormField
+              <FormField
                 name="name"
                 control={form.control}
                 render={({ field }) => (
-                  <RHF.FormItem>
-                    <RHF.FormLabel>Name</RHF.FormLabel>
-                    <RHF.FormControl>
+                  <FormItem>
+                    <FormLabel>Name</FormLabel>
+                    <FormControl>
                       <Input
                         {...field}
                         type="text"
                         placeholder="Gwen Tennyson"
                       />
-                    </RHF.FormControl>
-                    <RHF.FormMessage />
-                  </RHF.FormItem>
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
                 )}
               />
-              <RHF.FormField
+              <FormField
                 name="email"
                 control={form.control}
                 render={({ field }) => (
-                  <RHF.FormItem>
-                    <RHF.FormLabel>Email</RHF.FormLabel>
-                    <RHF.FormControl>
+                  <FormItem>
+                    <FormLabel>Email</FormLabel>
+                    <FormControl>
                       <Input
                         {...field}
                         type="email"
                         placeholder="your.name@domain.com"
                       />
-                    </RHF.FormControl>
-                    <RHF.FormMessage />
-                  </RHF.FormItem>
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
                 )}
               />
-              <RHF.FormField
+              <FormField
                 name="phone"
                 control={form.control}
                 render={({ field }) => (
-                  <RHF.FormItem>
-                    <RHF.FormLabel>Phone</RHF.FormLabel>
-                    <RHF.FormControl>
+                  <FormItem>
+                    <FormLabel>Phone</FormLabel>
+                    <FormControl>
                       <Input
                         {...field}
                         type="tel"
                         placeholder="+919876543210"
                       />
-                    </RHF.FormControl>
-                    <RHF.FormMessage />
-                  </RHF.FormItem>
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
                 )}
               />
-              <RHF.FormField
+              <FormField
                 name="city"
                 control={form.control}
                 render={({ field }) => (
-                  <RHF.FormItem>
-                    <RHF.FormLabel>City</RHF.FormLabel>
-                    <RHF.FormControl>
+                  <FormItem>
+                    <FormLabel>City</FormLabel>
+                    <FormControl>
                       <Input {...field} type="text" placeholder="Moradabad" />
-                    </RHF.FormControl>
-                    <RHF.FormMessage />
-                  </RHF.FormItem>
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
                 )}
               />
-              <RHF.FormField
+              <FormField
                 name="date"
                 control={form.control}
                 render={({ field }) => (
-                  <RHF.FormItem>
-                    <RHF.FormLabel>Day</RHF.FormLabel>
-                    <RHF.FormControl>
-                      <PO.Popover>
-                        <PO.PopoverTrigger asChild>
+                  <FormItem>
+                    <FormLabel>Day</FormLabel>
+                    <FormControl>
+                      <Popover>
+                        <PopoverTrigger asChild>
                           <Button
                             variant="outline"
                             data-empty={!field.value}
@@ -152,8 +180,8 @@ export default function Component({ doctor, user }: Props) {
                             {!field.value && <span>Pick a date</span>}
                             <CalendarIcon />
                           </Button>
-                        </PO.PopoverTrigger>
-                        <PO.PopoverContent className="w-auto p-0">
+                        </PopoverTrigger>
+                        <PopoverContent className="w-auto p-0">
                           <Calendar
                             mode="single"
                             selected={field.value}
@@ -168,66 +196,66 @@ export default function Component({ doctor, user }: Props) {
                                 .includes(day.toLowerCase() as Day);
                             }}
                           />
-                        </PO.PopoverContent>
-                      </PO.Popover>
-                    </RHF.FormControl>
-                    <RHF.FormMessage />
-                  </RHF.FormItem>
+                        </PopoverContent>
+                      </Popover>
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
                 )}
               />
-              <RHF.FormField
+              <FormField
                 name="time"
                 control={form.control}
                 render={({ field }) => (
-                  <RHF.FormItem>
-                    <RHF.FormLabel>Time</RHF.FormLabel>
-                    <RHF.FormControl>
-                      <Select.Select onValueChange={field.onChange}>
-                        <Select.SelectTrigger className="w-full [&_span[data-slot]]:block [&_span[data-slot]]:truncate">
-                          <Select.SelectValue placeholder="Select a time" />
-                        </Select.SelectTrigger>
-                        <Select.SelectContent>
+                  <FormItem>
+                    <FormLabel>Time</FormLabel>
+                    <FormControl>
+                      <Select onValueChange={field.onChange}>
+                        <SelectTrigger className="w-full [&_span[data-slot]]:block [&_span[data-slot]]:truncate">
+                          <SelectValue placeholder="Select a time" />
+                        </SelectTrigger>
+                        <SelectContent>
                           {doctor.timings.map(time => (
-                            <Select.SelectItem
+                            <SelectItem
                               key={time.id}
                               value={time.id}
                               className="capitalize"
                             >
                               {formatTime(time.time)}
-                            </Select.SelectItem>
+                            </SelectItem>
                           ))}
-                        </Select.SelectContent>
-                      </Select.Select>
-                    </RHF.FormControl>
-                    <RHF.FormMessage />
-                  </RHF.FormItem>
+                        </SelectContent>
+                      </Select>
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
                 )}
               />
-              <RHF.FormField
+              <FormField
                 name="notes"
                 control={form.control}
                 render={({ field }) => (
-                  <RHF.FormItem>
-                    <RHF.FormLabel>Notes</RHF.FormLabel>
-                    <RHF.FormControl>
+                  <FormItem>
+                    <FormLabel>Notes</FormLabel>
+                    <FormControl>
                       <Textarea
                         {...field}
                         placeholder="Any prior medical history or symptoms..."
                       />
-                    </RHF.FormControl>
-                    <RHF.FormMessage />
-                  </RHF.FormItem>
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
                 )}
               />
             </form>
-          </RHF.Form>
-        </CN.CardContent>
-        <CN.CardFooter>
+          </Form>
+        </CardContent>
+        <CardFooter>
           <Button type="submit" form="appointment-form" disabled={pending}>
             {pending ? 'Saving...' : 'Save'}
           </Button>
-        </CN.CardFooter>
-      </CN.Card>
+        </CardFooter>
+      </Card>
       <Footer />
     </div>
   );

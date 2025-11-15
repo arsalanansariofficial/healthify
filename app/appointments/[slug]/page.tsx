@@ -3,10 +3,10 @@ import { notFound } from 'next/navigation';
 import { auth } from '@/auth';
 import { User } from 'next-auth';
 import prisma from '@/lib/prisma';
-import Component from './component';
 import Header from '@/components/header';
 import Session from '@/components/session';
 import Sidebar from '@/components/sidebar';
+import Component from '@/app/appointments/[slug]/component';
 
 type Props = { params: Promise<{ slug: string }> };
 

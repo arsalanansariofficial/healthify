@@ -323,7 +323,7 @@ export default function Component(props: Props) {
                     alt={doctor.name as string}
                     sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                     src={
-                      `${HOST}/api/upload/${doctor.image}` ||
+                      `${!doctor.hasOAuth ? `${HOST}/api/upload/` : ''}${doctor.image}` ||
                       `${HOST}/api/upload/user.png`
                     }
                   />

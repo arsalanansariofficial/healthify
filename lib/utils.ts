@@ -1,10 +1,30 @@
-import * as dateFns from 'date-fns';
 import { titleCase } from 'moderndash';
 import { twMerge } from 'tailwind-merge';
 import { AuthError, User } from 'next-auth';
 import { clsx, type ClassValue } from 'clsx';
 
-import * as CONST from '@/lib/constants';
+import {
+  parse,
+  format,
+  isBefore,
+  setHours,
+  setMinutes,
+  setSeconds
+} from 'date-fns';
+
+import {
+  SPACE_FULL,
+  UNIQUE_ERR,
+  PRISMA_INIT,
+  E_AUTH_FAILED,
+  EMAIL_BOUNCED,
+  SMTP_TIME_OUT,
+  E_CONNECT_FAILED,
+  PERMISSION_DENIED,
+  DIRECTORY_NOT_FOUND,
+  INVALID_CREDENTIALS,
+  SERVER_ERROR_MESSAGE
+} from '@/lib/constants';
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -15,7 +35,7 @@ export function capitalize(text: string) {
 }
 
 export function formatTime(time: string) {
-  return dateFns.format(dateFns.parse(time, 'HH:mm:ss', new Date()), 'hh:mm a');
+  return format(parse(time, 'HH:mm:ss', new Date()), 'hh:mm a');
 }
 
 export function hasRole(roles: User['roles'], name: string) {
@@ -29,9 +49,9 @@ export function hasPermission(permissions: User['permissions'], name: string) {
 }
 
 export function getDate(date?: string, day = true, time = true): string {
-  if (!day) return dateFns.format(date || new Date(), 'MMMM dd, yyyy');
-  if (!time) return dateFns.format(date || new Date(), 'EEEE, MMMM dd, yyyy');
-  return dateFns.format(date || new Date(), 'EEEE, MMMM dd, yyyy h:mm a');
+  if (!day) return format(date || new Date(), 'MMMM dd, yyyy');
+  if (!time) return format(date || new Date(), 'EEEE, MMMM dd, yyyy');
+  return format(date || new Date(), 'EEEE, MMMM dd, yyyy h:mm a');
 }
 
 export function arrayBufferToBase64(buffer: ArrayBuffer): string {
@@ -77,15 +97,13 @@ export function shortId(length = 5) {
 
 export function isPastByTime(date: Date, time: string, diff: number) {
   const [hours, minutes, seconds] = time.split(':').map(Number);
-  return dateFns.isBefore(
+  return isBefore(
     new Date(),
     new Date(
-      dateFns
-        .setSeconds(
-          dateFns.setMinutes(dateFns.setHours(date, hours), minutes),
-          seconds
-        )
-        .getTime() - diff
+      setSeconds(
+        setMinutes(setHours(date, hours), minutes),
+        seconds
+      ).getTime() - diff
     )
   );
 }
@@ -94,9 +112,9 @@ export function catchAuthError(error: Error) {
   if (error instanceof AuthError) {
     switch (error.type) {
       case 'CredentialsSignin':
-        return { success: false, message: CONST.INVALID_CREDENTIALS };
+        return { success: false, message: INVALID_CREDENTIALS };
       default:
-        return { success: false, message: CONST.SERVER_ERROR_MESSAGE };
+        return { success: false, message: SERVER_ERROR_MESSAGE };
     }
   }
 
@@ -105,27 +123,29 @@ export function catchAuthError(error: Error) {
 
 export function catchErrors(error: Error) {
   if (error.name === 'PrismaClientKnownRequestError') {
-    return { success: false, message: CONST.UNIQUE_ERR };
+    return { success: false, message: UNIQUE_ERR };
   }
 
   if (error.name === 'PrismaClientInitializationError') {
-    return { success: false, message: CONST.PRISMA_INIT };
+    return { success: false, message: PRISMA_INIT };
   }
 
   if (error instanceof Error && 'code' in error) {
     switch (error.code) {
       case 'ENOSPC':
-        return { success: false, message: CONST.SPACE_FULL };
+        return { success: false, message: SPACE_FULL };
       case 'EAUTH':
-        return { success: false, message: CONST.E_AUTH_FAILED };
+        return { success: false, message: E_AUTH_FAILED };
       case 'ETIMEDOUT':
-        return { success: false, message: CONST.SMTP_TIME_OUT };
+        return { success: false, message: SMTP_TIME_OUT };
+      case 'EDNS':
+        return { success: false, message: EMAIL_BOUNCED };
       case 'ECONNECTION':
-        return { success: false, message: CONST.E_CONNECT_FAILED };
+        return { success: false, message: E_CONNECT_FAILED };
       case 'EACCES':
-        return { success: false, message: CONST.PERMISSION_DENIED };
+        return { success: false, message: PERMISSION_DENIED };
       case 'ENOENT':
-        return { success: false, message: CONST.DIRECTORY_NOT_FOUND };
+        return { success: false, message: DIRECTORY_NOT_FOUND };
     }
   }
 

@@ -3,35 +3,47 @@ import { SearchIcon } from 'lucide-react';
 import Router from '@/components/router';
 import { Kbd } from '@/components/ui/kbd';
 import { MAIL_TO } from '@/lib/constants';
-import * as EMPTY from '@/components/ui/empty';
-import * as IG from '@/components/ui/input-group';
+
+import {
+  InputGroup,
+  InputGroupAddon,
+  InputGroupInput
+} from '@/components/ui/input-group';
+
+import {
+  Empty,
+  EmptyTitle,
+  EmptyHeader,
+  EmptyContent,
+  EmptyDescription
+} from '@/components/ui/empty';
 
 export default function Info(props: { title: string; message: string }) {
   return (
-    <EMPTY.Empty>
-      <EMPTY.EmptyHeader>
-        <EMPTY.EmptyTitle>{props.title}</EMPTY.EmptyTitle>
-        <EMPTY.EmptyDescription>{props.message}</EMPTY.EmptyDescription>
-      </EMPTY.EmptyHeader>
-      <EMPTY.EmptyContent>
-        <IG.InputGroup className="sm:w-3/4">
+    <Empty>
+      <EmptyHeader>
+        <EmptyTitle>{props.title}</EmptyTitle>
+        <EmptyDescription>{props.message}</EmptyDescription>
+      </EmptyHeader>
+      <EmptyContent>
+        <InputGroup className="sm:w-3/4">
           <Router>
-            <IG.InputGroupInput
+            <InputGroupInput
               name="search"
               placeholder="Try searching for pages..."
             />
           </Router>
-          <IG.InputGroupAddon>
+          <InputGroupAddon>
             <SearchIcon />
-          </IG.InputGroupAddon>
-          <IG.InputGroupAddon align="inline-end">
+          </InputGroupAddon>
+          <InputGroupAddon align="inline-end">
             <Kbd>/</Kbd>
-          </IG.InputGroupAddon>
-        </IG.InputGroup>
-        <EMPTY.EmptyDescription>
+          </InputGroupAddon>
+        </InputGroup>
+        <EmptyDescription>
           Need help? <a href={MAIL_TO}>Contact support</a>
-        </EMPTY.EmptyDescription>
-      </EMPTY.EmptyContent>
-    </EMPTY.Empty>
+        </EmptyDescription>
+      </EmptyContent>
+    </Empty>
   );
 }

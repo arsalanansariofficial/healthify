@@ -8,11 +8,17 @@ export default async function Page() {
   const session = await auth();
   if (!session || !session.user) notFound();
 
-  const departments = await prisma.department.findMany();
+  const [departments, facilities, hospitals] = await Promise.all([
+    prisma.department.findMany(),
+    prisma.facility.findMany(),
+    prisma.hospital.findMany()
+  ]);
 
   return (
     <Component
       departments={departments}
+      facilities={facilities}
+      hospitals={hospitals}
       key={departments.map(d => d.updatedAt).toString()}
       user={session.user}
     />

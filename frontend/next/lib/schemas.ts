@@ -147,13 +147,6 @@ export const hospitalSchema = z.object({
     .string({ error: valid('city') })
     .trim()
     .toLowerCase(),
-  departments: z.array(
-    z
-      .string({ error: valid('id') })
-      .nonempty(required('id'))
-      .trim()
-      .toLowerCase()
-  ),
   doctors: z.array(
     z
       .string({ error: valid('id') })
@@ -165,14 +158,21 @@ export const hospitalSchema = z.object({
     .email({ error: valid('email') })
     .trim()
     .toLowerCase(),
-  isAffiliated: z.enum(['yes', 'no']),
-  memberships: z.array(
+  hospitalDepartments: z.array(
     z
       .string({ error: valid('id') })
       .nonempty(required('id'))
       .trim()
       .toLowerCase()
   ),
+  hospitalMemberships: z.array(
+    z
+      .string({ error: valid('id') })
+      .nonempty(required('id'))
+      .trim()
+      .toLowerCase()
+  ),
+  isAffiliated: z.enum(['yes', 'no']),
   name: z
     .string({ error: valid('name') })
     .nonempty(required('name'))

@@ -1,7 +1,7 @@
 'use client';
 
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Facility } from '@prisma/client';
+import { Department, Facility } from '@prisma/client';
 import { IconDotsVertical } from '@tabler/icons-react';
 import { ColumnDef } from '@tanstack/react-table';
 import { User } from 'next-auth';
@@ -39,6 +39,7 @@ import {
   FormControl
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
+import MultiSelect from '@/components/ui/multi-select';
 import useHookForm from '@/hooks/use-hook-form';
 import { useIsMobile } from '@/hooks/use-mobile';
 import {
@@ -112,10 +113,14 @@ function Menu({
   );
 }
 
-export function TableCellViewer(props: { item: Facility }) {
+export function TableCellViewer(props: {
+  item: Facility;
+  departments: Department[];
+}) {
   const isMobile = useIsMobile();
   const form = useForm({
     defaultValues: {
+      departments: [],
       name: props.item.name
     },
     resolver: zodResolver(facilitySchema)
@@ -166,6 +171,26 @@ export function TableCellViewer(props: { item: Facility }) {
                 </FormItem>
               )}
             />
+            <FormField
+              control={form.control}
+              name='departments'
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Departments</FormLabel>
+                  <FormControl>
+                    <MultiSelect
+                      options={props.departments.map(v => ({
+                        label: v.name || String(),
+                        value: v.id
+                      }))}
+                      selectedValues={field.value}
+                      setSelectedValues={field.onChange}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
           </form>
         </Form>
         <DrawerFooter>
@@ -189,6 +214,7 @@ export function TableCellViewer(props: { item: Facility }) {
 export default function Component(props: {
   user: User;
   facilities: Facility[];
+  departments: Department[];
 }) {
   return (
     <div className='flex h-full flex-col gap-8 lg:mx-auto lg:w-10/12'>
@@ -232,7 +258,11 @@ export default function Component(props: {
               {
                 accessorKey: 'name',
                 cell: ({ row }) => (
-                  <TableCellViewer item={row.original} key={Date.now()} />
+                  <TableCellViewer
+                    departments={props.departments}
+                    item={row.original}
+                    key={Date.now()}
+                  />
                 ),
                 enableHiding: false,
                 header: 'Name'

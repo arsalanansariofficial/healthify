@@ -2,10 +2,10 @@ import { User } from 'next-auth';
 
 import { auth } from '@/auth';
 import prisma from '@/lib/prisma';
-import Component from './component';
 import Header from '@/components/header';
 import Session from '@/components/session';
 import Sidebar from '@/components/sidebar';
+import Component from '@/app/doctors/component';
 
 export default async function Page() {
   const [session, specialities, doctors] = await Promise.all([

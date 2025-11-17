@@ -1,12 +1,24 @@
 'use client';
 
 import { Check } from 'lucide-react';
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, useMemo } from 'react';
 
 import { cn } from '@/lib/utils';
-import * as CNP from '@/components/ui/popover';
-import * as CMD from '@/components/ui/command';
 import { Button } from '@/components/ui/button';
+
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger
+} from '@/components/ui/popover';
+
+import {
+  Command,
+  CommandEmpty,
+  CommandInput,
+  CommandItem,
+  CommandList
+} from '@/components/ui/command';
 
 type CmdProps = {
   selected: string;
@@ -21,8 +33,12 @@ export default function CmdSelect(props: CmdProps) {
   const [inputValue, setInputValue] = useState(String());
   const [triggerWidth, setTriggerWidth] = useState<number | undefined>();
 
-  const filteredOptions = props.options.filter(option =>
-    option.label.toLowerCase().includes(inputValue.toLowerCase())
+  const filteredOptions = useMemo(
+    () =>
+      props.options.filter(option =>
+        option.label.toLowerCase().includes(inputValue.toLowerCase())
+      ),
+    [inputValue, props.options]
   );
 
   useEffect(() => {
@@ -36,8 +52,8 @@ export default function CmdSelect(props: CmdProps) {
   }, []);
 
   return (
-    <CNP.Popover open={open} onOpenChange={setOpen}>
-      <CNP.PopoverTrigger asChild>
+    <Popover open={open} onOpenChange={setOpen}>
+      <PopoverTrigger asChild>
         <Button
           ref={triggerRef}
           variant="outline"
@@ -53,26 +69,26 @@ export default function CmdSelect(props: CmdProps) {
             </span>
           )}
         </Button>
-      </CNP.PopoverTrigger>
-      <CNP.PopoverContent
+      </PopoverTrigger>
+      <PopoverContent
         className="p-0"
         align="start"
         style={{ width: triggerWidth }}
       >
-        <CMD.Command>
-          <CMD.CommandInput
+        <Command>
+          <CommandInput
             value={inputValue}
             placeholder="Search..."
             onValueChange={setInputValue}
           />
-          <CMD.CommandList>
+          <CommandList>
             {filteredOptions.length === 0 && (
-              <CMD.CommandEmpty>No options found.</CMD.CommandEmpty>
+              <CommandEmpty>No options found.</CommandEmpty>
             )}
             {filteredOptions.map(option => {
               const isSelected = props.selected === option.value;
               return (
-                <CMD.CommandItem
+                <CommandItem
                   key={option.value}
                   onSelect={() => {
                     setOpen(false);
@@ -87,12 +103,12 @@ export default function CmdSelect(props: CmdProps) {
                     />
                     {option.label}
                   </div>
-                </CMD.CommandItem>
+                </CommandItem>
               );
             })}
-          </CMD.CommandList>
-        </CMD.Command>
-      </CNP.PopoverContent>
-    </CNP.Popover>
+          </CommandList>
+        </Command>
+      </PopoverContent>
+    </Popover>
   );
 }

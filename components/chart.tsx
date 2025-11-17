@@ -1,5 +1,6 @@
 'use client';
 
+import { useMemo } from 'react';
 import { Bar, BarChart, CartesianGrid, XAxis } from 'recharts';
 
 import {
@@ -22,7 +23,10 @@ type Props = {
 };
 
 export default function Chart(props: Props) {
-  const color = props.chartConfig[props.dataKey]?.color || 'var(--primary)';
+  const color = useMemo(
+    () => props.chartConfig[props.dataKey]?.color || 'var(--primary)',
+    [props.chartConfig, props.dataKey]
+  );
 
   return (
     <ChartContainer config={props.chartConfig} className={props.className}>

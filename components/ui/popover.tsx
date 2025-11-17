@@ -1,38 +1,42 @@
 'use client';
 
-import * as React from 'react';
-import * as PopoverPrimitive from '@radix-ui/react-popover';
+import { useMemo } from 'react';
+
+import {
+  Root,
+  Anchor,
+  Portal,
+  Trigger,
+  Content
+} from '@radix-ui/react-popover';
 
 import { cn } from '@/lib/utils';
 
-type PopoverProps = React.ComponentProps<typeof PopoverPrimitive.Root>;
-type PopoverAnchorProps = React.ComponentProps<typeof PopoverPrimitive.Anchor>;
+type PopoverProps = React.ComponentProps<typeof Root>;
+type PopoverAnchorProps = React.ComponentProps<typeof Anchor>;
 
-type PopoverContentProps = React.ComponentProps<
-  typeof PopoverPrimitive.Content
->;
+type PopoverContentProps = React.ComponentProps<typeof Content>;
 
-type PopoverTriggerProps = React.ComponentProps<
-  typeof PopoverPrimitive.Trigger
->;
+type PopoverTriggerProps = React.ComponentProps<typeof Trigger>;
 
 export function Popover(props: PopoverProps) {
-  return <PopoverPrimitive.Root data-slot="popover" {...props} />;
+  return <Root data-slot="popover" {...props} />;
 }
 
 export function PopoverAnchor(props: PopoverAnchorProps) {
-  return <PopoverPrimitive.Anchor data-slot="popover-anchor" {...props} />;
+  return <Anchor data-slot="popover-anchor" {...props} />;
 }
 
 export function PopoverTrigger(props: PopoverTriggerProps) {
-  return <PopoverPrimitive.Trigger data-slot="popover-trigger" {...props} />;
+  return <Trigger data-slot="popover-trigger" {...props} />;
 }
 
 export function PopoverContent(props: PopoverContentProps) {
-  const { align = 'center', sideOffset = 4 } = props;
+  const { align = 'center', sideOffset = 4 } = useMemo(() => props, [props]);
+
   return (
-    <PopoverPrimitive.Portal>
-      <PopoverPrimitive.Content
+    <Portal>
+      <Content
         {...props}
         align={align}
         sideOffset={sideOffset}
@@ -42,6 +46,6 @@ export function PopoverContent(props: PopoverContentProps) {
           props.className
         )}
       />
-    </PopoverPrimitive.Portal>
+    </Portal>
   );
 }

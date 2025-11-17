@@ -1,21 +1,26 @@
 'use client';
 
-import * as React from 'react';
-import * as ScrollAreaPrimitive from '@radix-ui/react-scroll-area';
+import { useMemo } from 'react';
+
+import {
+  Root,
+  Corner,
+  Viewport,
+  ScrollAreaThumb,
+  ScrollAreaScrollbar
+} from '@radix-ui/react-scroll-area';
 
 import { cn } from '@/lib/utils';
 
-type ScrollAreaProps = React.ComponentProps<typeof ScrollAreaPrimitive.Root>;
+type ScrollAreaProps = React.ComponentProps<typeof Root>;
 
-type ScrollbarProps = React.ComponentProps<
-  typeof ScrollAreaPrimitive.ScrollAreaScrollbar
->;
+type ScrollbarProps = React.ComponentProps<typeof ScrollAreaScrollbar>;
 
 export function ScrollBar(props: ScrollbarProps) {
-  const { orientation = 'vertical' } = props;
+  const { orientation = 'vertical' } = useMemo(() => props, [props]);
 
   return (
-    <ScrollAreaPrimitive.ScrollAreaScrollbar
+    <ScrollAreaScrollbar
       {...props}
       data-slot="scroll-area-scrollbar"
       orientation={orientation}
@@ -28,29 +33,29 @@ export function ScrollBar(props: ScrollbarProps) {
         props.className
       )}
     >
-      <ScrollAreaPrimitive.ScrollAreaThumb
+      <ScrollAreaThumb
         data-slot="scroll-area-thumb"
         className="bg-border relative flex-1 rounded-full"
       />
-    </ScrollAreaPrimitive.ScrollAreaScrollbar>
+    </ScrollAreaScrollbar>
   );
 }
 
 export function ScrollArea(props: ScrollAreaProps) {
   return (
-    <ScrollAreaPrimitive.Root
+    <Root
       {...props}
       data-slot="scroll-area"
       className={cn('relative', props.className)}
     >
-      <ScrollAreaPrimitive.Viewport
+      <Viewport
         data-slot="scroll-area-viewport"
         className="focus-visible:ring-ring/50 size-full rounded-[inherit] transition-[color,box-shadow] outline-none focus-visible:ring-[3px] focus-visible:outline-1"
       >
         {props.children}
-      </ScrollAreaPrimitive.Viewport>
+      </Viewport>
       <ScrollBar />
-      <ScrollAreaPrimitive.Corner />
-    </ScrollAreaPrimitive.Root>
+      <Corner />
+    </Root>
   );
 }

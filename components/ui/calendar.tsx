@@ -1,7 +1,7 @@
 'use client';
 
-import * as React from 'react';
 import { DayButton, DayPicker, getDefaultClassNames } from 'react-day-picker';
+
 import {
   ChevronDownIcon,
   ChevronLeftIcon,
@@ -10,18 +10,19 @@ import {
 
 import { cn } from '@/lib/utils';
 import { Button, buttonVariants } from '@/components/ui/button';
+import { ComponentProps, useEffect, useMemo, useRef } from 'react';
 
-type CalendarDayButtonProps = React.ComponentProps<typeof DayButton>;
+type CalendarDayButtonProps = ComponentProps<typeof DayButton>;
 
-type Props = React.ComponentProps<typeof DayPicker> & {
-  buttonVariant?: React.ComponentProps<typeof Button>['variant'];
+type Props = ComponentProps<typeof DayPicker> & {
+  buttonVariant?: ComponentProps<typeof Button>['variant'];
 };
 
 export function CalendarDayButton(props: CalendarDayButtonProps) {
   const defaultClassNames = getDefaultClassNames();
 
-  const ref = React.useRef<HTMLButtonElement>(null);
-  React.useEffect(() => {
+  const ref = useRef<HTMLButtonElement>(null);
+  useEffect(() => {
     if (props.modifiers.focused) ref.current?.focus();
   }, [props.modifiers.focused]);
 
@@ -51,12 +52,13 @@ export function CalendarDayButton(props: CalendarDayButtonProps) {
 }
 
 export function Calendar(props: Props) {
-  const defaultClassNames = getDefaultClassNames();
+  const defaultClassNames = useMemo(() => getDefaultClassNames(), []);
+
   const {
     showOutsideDays = true,
     captionLayout = 'label',
     buttonVariant = 'ghost'
-  } = props;
+  } = useMemo(() => props, [props]);
 
   return (
     <DayPicker

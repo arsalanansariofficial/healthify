@@ -1,10 +1,10 @@
 'use client';
 
-import * as React from 'react';
+import { ComponentProps } from 'react';
 
 import { cn } from '@/lib/utils';
 
-export function TableHeader(props: React.ComponentProps<'thead'>) {
+export function TableHeader(props: ComponentProps<'thead'>) {
   return (
     <thead
       {...props}
@@ -14,7 +14,7 @@ export function TableHeader(props: React.ComponentProps<'thead'>) {
   );
 }
 
-export function TableBody(props: React.ComponentProps<'tbody'>) {
+export function TableBody(props: ComponentProps<'tbody'>) {
   return (
     <tbody
       data-slot="table-body"
@@ -24,7 +24,7 @@ export function TableBody(props: React.ComponentProps<'tbody'>) {
   );
 }
 
-export function TableFooter(props: React.ComponentProps<'tfoot'>) {
+export function TableFooter(props: ComponentProps<'tfoot'>) {
   return (
     <tfoot
       {...props}
@@ -37,7 +37,7 @@ export function TableFooter(props: React.ComponentProps<'tfoot'>) {
   );
 }
 
-export function TableRow(props: React.ComponentProps<'tr'>) {
+export function TableRow(props: ComponentProps<'tr'>) {
   return (
     <tr
       {...props}
@@ -50,7 +50,7 @@ export function TableRow(props: React.ComponentProps<'tr'>) {
   );
 }
 
-export function TableCaption(props: React.ComponentProps<'caption'>) {
+export function TableCaption(props: ComponentProps<'caption'>) {
   return (
     <caption
       {...props}
@@ -60,7 +60,7 @@ export function TableCaption(props: React.ComponentProps<'caption'>) {
   );
 }
 
-export function TableHead(props: React.ComponentProps<'th'>) {
+export function TableHead(props: ComponentProps<'th'>) {
   return (
     <th
       {...props}
@@ -73,7 +73,7 @@ export function TableHead(props: React.ComponentProps<'th'>) {
   );
 }
 
-export function TableCell(props: React.ComponentProps<'td'>) {
+export function TableCell(props: ComponentProps<'td'>) {
   return (
     <td
       {...props}
@@ -86,7 +86,7 @@ export function TableCell(props: React.ComponentProps<'td'>) {
   );
 }
 
-export function Table(props: React.ComponentProps<'table'>) {
+export function Table(props: ComponentProps<'table'>) {
   return (
     <div
       data-slot="table-container"

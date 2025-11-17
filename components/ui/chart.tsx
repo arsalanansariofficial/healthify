@@ -1,47 +1,58 @@
 'use client';
 
-import * as React from 'react';
-import * as RechartsPrimitive from 'recharts';
-import * as DTC from 'recharts/types/component/DefaultTooltipContent';
+import { Legend, ResponsiveContainer, Tooltip } from 'recharts';
+
+import {
+  Payload,
+  NameType,
+  ValueType
+} from 'recharts/types/component/DefaultTooltipContent';
+
+import {
+  useId,
+  useMemo,
+  ReactNode,
+  useContext,
+  ComponentType,
+  createContext,
+  CSSProperties,
+  ComponentProps
+} from 'react';
 
 import { cn } from '@/lib/utils';
 
 const THEMES = { light: '', dark: '.dark' } as const;
-export const ChartLegend = RechartsPrimitive.Legend;
-export const ChartTooltip = RechartsPrimitive.Tooltip;
-export const ChartContext = React.createContext<ChartContextProps | null>(null);
+export const ChartLegend = Legend;
+export const ChartTooltip = Tooltip;
+export const ChartContext = createContext<ChartContextProps | null>(null);
 
 type ChartContextProps = { config: ChartConfig };
 type ChartStyleProps = { id: string; config: ChartConfig };
 
 export type ChartConfig = {
-  [k in string]: { label?: React.ReactNode; icon?: React.ComponentType } & (
+  [k in string]: { label?: ReactNode; icon?: ComponentType } & (
     | { color?: string; theme?: never }
     | { color?: never; theme: Record<keyof typeof THEMES, string> }
   );
 };
 
-type ChartContainerProps = React.ComponentProps<'div'> & {
+type ChartContainerProps = ComponentProps<'div'> & {
   config: ChartConfig;
-  children: React.ComponentProps<
-    typeof RechartsPrimitive.ResponsiveContainer
-  >['children'];
+  children: ComponentProps<typeof ResponsiveContainer>['children'];
 };
 
-type ChartTooltipContentProps = React.ComponentProps<
-  typeof RechartsPrimitive.Tooltip
-> &
-  React.ComponentProps<'div'> & {
+type ChartTooltipContentProps = ComponentProps<typeof Tooltip> &
+  ComponentProps<'div'> & {
     label?: string;
     nameKey?: string;
     labelKey?: string;
     hideLabel?: boolean;
     hideIndicator?: boolean;
     indicator?: 'line' | 'dot' | 'dashed';
-    payload?: readonly DTC.Payload<DTC.ValueType, DTC.NameType>[];
+    payload?: readonly Payload<ValueType, NameType>[];
   };
 
-type CharLegendContentProps = React.ComponentProps<'div'> & {
+type CharLegendContentProps = ComponentProps<'div'> & {
   nameKey?: string;
   hideIcon?: boolean;
   verticalAlign?: 'top' | 'bottom' | 'middle';
@@ -56,7 +67,7 @@ type CharLegendContentProps = React.ComponentProps<'div'> & {
 };
 
 export function useChart() {
-  const context = React.useContext(ChartContext);
+  const context = useContext(ChartContext);
 
   if (!context) {
     throw new Error('useChart must be used within a <ChartContainer />');
@@ -66,7 +77,7 @@ export function useChart() {
 }
 
 export function ChartContainer(props: ChartContainerProps) {
-  const uniqueId = React.useId();
+  const uniqueId = useId();
   const chartId = `chart-${props.id || uniqueId.replace(/:/g, '')}`;
 
   return (
@@ -81,9 +92,7 @@ export function ChartContainer(props: ChartContainerProps) {
         )}
       >
         <ChartStyle id={chartId} config={props.config} />
-        <RechartsPrimitive.ResponsiveContainer>
-          {props.children}
-        </RechartsPrimitive.ResponsiveContainer>
+        <ResponsiveContainer>{props.children}</ResponsiveContainer>
       </div>
     </ChartContext.Provider>
   );
@@ -204,7 +213,7 @@ export function ChartTooltipContent(props: ChartTooltipContentProps) {
   const { config } = useChart();
   const { indicator = 'dot', hideLabel = false, hideIndicator = false } = props;
 
-  const tooltipLabel = React.useMemo(() => {
+  const tooltipLabel = useMemo(() => {
     if (hideLabel || !props.payload?.length) return null;
 
     const [item] = props.payload;
@@ -289,7 +298,7 @@ export function ChartTooltipContent(props: ChartTooltipContentProps) {
                           {
                             '--color-bg': indicatorColor,
                             '--color-border': indicatorColor
-                          } as React.CSSProperties
+                          } as CSSProperties
                         }
                       />
                     )

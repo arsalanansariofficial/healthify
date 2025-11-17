@@ -1,4 +1,4 @@
-import * as utils from '@/lib/utils';
+import { formatTime, getDate } from '@/lib/utils';
 
 type Props = {
   data: {
@@ -15,8 +15,8 @@ export function ConfirmAppointment({ data }: Props) {
       <p>🎉 Greetings,</p>
       <p>
         We are pleased to confirm your appointment scheduled for
-        <strong>${utils.getDate(String(data.date), true, false)}</strong> at
-        <strong>${utils.formatTime(data.time)}</strong>. The appointment is set
+        <strong>${getDate(String(data.date), true, false)}</strong> at
+        <strong>${formatTime(data.time)}</strong>. The appointment is set
         for a duration of <strong>${data.duration}</strong> hour(s) with
         <strong>Dr. ${data.doctorName}</strong>
         and patient <strong>${data.patientName}</strong>. Please ensure you
@@ -34,8 +34,8 @@ export function CancelAppointment({ data }: Props) {
   return `<main>
       <p>Dear <strong>${data.patientName}</strong>,</p>
       <p>
-        This is to confirm that your appointment scheduled for <strong>${utils.getDate(String(data.date), true, false)}</strong> at
-        <strong>${utils.formatTime(data.time)}</strong>. The appointment is set for a duration of
+        This is to confirm that your appointment scheduled for <strong>${getDate(String(data.date), true, false)}</strong> at
+        <strong>${formatTime(data.time)}</strong>. The appointment is set for a duration of
         <strong>${data.duration}</strong> hour(s) with <strong>Dr. ${data.doctorName}</strong>
         has been cancelled successfully.
       </p>

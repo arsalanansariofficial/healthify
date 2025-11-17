@@ -3,19 +3,43 @@
 import { User } from 'next-auth';
 import { Role } from '@prisma/client';
 import { useForm } from 'react-hook-form';
+import { useCallback, useMemo } from 'react';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 
 import Footer from '@/components/footer';
-import * as SCN from '@/components/ui/card';
-import * as RHF from '@/components/ui/form';
-import * as CN from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
 import useHookForm from '@/hooks/use-hook-form';
 import handler from '@/components/display-toast';
 import { assignPermissions } from '@/lib/actions';
 import { rolePermissionsSchema } from '@/lib/schemas';
 import MultiSelect from '@/components/ui/multi-select';
+
+import {
+  Form,
+  FormItem,
+  FormField,
+  FormLabel,
+  FormControl,
+  FormMessage
+} from '@/components/ui/form';
+
+import {
+  Select,
+  SelectItem,
+  SelectValue,
+  SelectContent,
+  SelectTrigger
+} from '@/components/ui/select';
+
+import {
+  Card,
+  CardTitle,
+  CardFooter,
+  CardHeader,
+  CardContent,
+  CardDescription
+} from '@/components/ui/card';
 
 type Props = {
   user: User;
@@ -30,7 +54,11 @@ export default function Component(props: Props) {
   const pathname = usePathname();
   const searchParams = useSearchParams();
 
-  const role = props.role ?? props.roles[0].name;
+  const role = useMemo(
+    () => props.role ?? props.roles[0].name,
+    [props.role, props.roles]
+  );
+
   const { pending, handleSubmit } = useHookForm(
     handler,
     assignPermissions,
@@ -45,38 +73,41 @@ export default function Component(props: Props) {
     }
   });
 
-  function updateParam(key: string, value: string) {
-    const params = new URLSearchParams(searchParams);
+  const updateParam = useCallback(
+    (key: string, value: string) => {
+      const params = new URLSearchParams(searchParams);
 
-    params.set(key, value);
-    router.push(`${pathname}?${params}`);
-  }
+      params.set(key, value);
+      router.push(`${pathname}?${params}`);
+    },
+    [pathname, router, searchParams]
+  );
 
   return (
-    <div className="flex flex-col h-full lg:mx-auto lg:w-10/12">
-      <SCN.Card>
-        <SCN.CardHeader>
-          <SCN.CardTitle>Add permissions for a given role</SCN.CardTitle>
-          <SCN.CardDescription>
+    <div className="flex h-full flex-col lg:mx-auto lg:w-10/12">
+      <Card>
+        <CardHeader>
+          <CardTitle>Add permissions for a given role</CardTitle>
+          <CardDescription>
             Select a given role from the dropdown and choose the permissions to
             assign to that role
-          </SCN.CardDescription>
-        </SCN.CardHeader>
-        <SCN.CardContent>
-          <RHF.Form {...form}>
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <Form {...form}>
             <form
               className="space-y-2"
               id="role-permissions-form"
               onSubmit={form.handleSubmit(handleSubmit)}
             >
-              <RHF.FormField
+              <FormField
                 name="name"
                 control={form.control}
                 render={({ field }) => (
-                  <RHF.FormItem>
-                    <RHF.FormLabel>Role</RHF.FormLabel>
-                    <RHF.FormControl>
-                      <CN.Select
+                  <FormItem>
+                    <FormLabel>Role</FormLabel>
+                    <FormControl>
+                      <Select
                         name="role"
                         value={field.value}
                         onValueChange={role => {
@@ -84,44 +115,44 @@ export default function Component(props: Props) {
                           updateParam('role', role);
                         }}
                       >
-                        <CN.SelectTrigger className="w-full">
-                          <CN.SelectValue placeholder="Select a role" />
-                        </CN.SelectTrigger>
-                        <CN.SelectContent>
+                        <SelectTrigger className="w-full">
+                          <SelectValue placeholder="Select a role" />
+                        </SelectTrigger>
+                        <SelectContent>
                           {props.roles.map(role => (
-                            <CN.SelectItem key={role.id} value={role.name}>
+                            <SelectItem key={role.id} value={role.name}>
                               {role.name}
-                            </CN.SelectItem>
+                            </SelectItem>
                           ))}
-                        </CN.SelectContent>
-                      </CN.Select>
-                    </RHF.FormControl>
-                    <RHF.FormMessage />
-                  </RHF.FormItem>
+                        </SelectContent>
+                      </Select>
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
                 )}
               />
-              <RHF.FormField
+              <FormField
                 name="permissions"
                 control={form.control}
                 render={({ field }) => (
-                  <RHF.FormItem>
-                    <RHF.FormLabel>Role</RHF.FormLabel>
-                    <RHF.FormControl>
+                  <FormItem>
+                    <FormLabel>Role</FormLabel>
+                    <FormControl>
                       <MultiSelect
                         options={props.permissions}
                         selectedValues={field.value}
                         setSelectedValues={field.onChange}
                         placeholder="Select permissions..."
                       />
-                    </RHF.FormControl>
-                    <RHF.FormMessage />
-                  </RHF.FormItem>
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
                 )}
               />
             </form>
-          </RHF.Form>
-        </SCN.CardContent>
-        <SCN.CardFooter>
+          </Form>
+        </CardContent>
+        <CardFooter>
           <Button
             type="submit"
             disabled={pending}
@@ -130,8 +161,8 @@ export default function Component(props: Props) {
           >
             {pending ? 'Assigning permissions...' : 'Assign permissions'}
           </Button>
-        </SCN.CardFooter>
-      </SCN.Card>
+        </CardFooter>
+      </Card>
       <Footer />
     </div>
   );

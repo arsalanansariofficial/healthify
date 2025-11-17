@@ -2,39 +2,77 @@
 
 import z from 'zod';
 import { toast } from 'sonner';
+import { useMemo } from 'react';
 import { User } from 'next-auth';
 import { useForm } from 'react-hook-form';
+import { ColumnDef } from '@tanstack/react-table';
 import { User as PrismaUser } from '@prisma/client';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Bar, BarChart, CartesianGrid, XAxis } from 'recharts';
+import { IconDotsVertical } from '@tabler/icons-react';
 
-import * as actions from '@/lib/actions';
+import Chart from '@/components/chart';
 import Footer from '@/components/footer';
 import { userSchema } from '@/lib/schemas';
-import * as RT from '@tanstack/react-table';
-import * as RHF from '@/components/ui/form';
-import { catchErrors, getDate, hasPermission } from '@/lib/utils';
-import * as CNC from '@/components/ui/chart';
-import * as Icons from '@tabler/icons-react';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
-import * as Chart from '@/components/ui/chart';
 import { Button } from '@/components/ui/button';
 import { Switch } from '@/components/ui/switch';
 import useHookForm from '@/hooks/use-hook-form';
-import * as Drawer from '@/components/ui/drawer';
 import { useIsMobile } from '@/hooks/use-mobile';
-import * as DT from '@/components/ui/data-table';
-import * as Select from '@/components/ui/select';
 import handler from '@/components/display-toast';
-import * as DM from '@/components/ui/dropdown-menu';
 import { Checkbox } from '@/components/ui/checkbox';
+import { ChartConfig } from '@/components/ui/chart';
+import { USER_DELETED, USERS_DELETED } from '@/lib/constants';
+import { catchErrors, getDate, hasPermission } from '@/lib/utils';
+import { DragHandle, DataTable } from '@/components/ui/data-table';
+
+import {
+  deleteUser,
+  updateUser,
+  deleteUsers,
+  verifyEmail
+} from '@/lib/actions';
+
+import {
+  Form,
+  FormItem,
+  FormField,
+  FormLabel,
+  FormMessage,
+  FormControl
+} from '@/components/ui/form';
+
+import {
+  Select,
+  SelectItem,
+  SelectValue,
+  SelectContent,
+  SelectTrigger
+} from '@/components/ui/select';
+
+import {
+  DropdownMenu,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+  DropdownMenuContent
+} from '@/components/ui/dropdown-menu';
+
+import {
+  Drawer,
+  DrawerClose,
+  DrawerTitle,
+  DrawerFooter,
+  DrawerHeader,
+  DrawerContent,
+  DrawerTrigger,
+  DrawerDescription
+} from '@/components/ui/drawer';
 
 type MenuProps = { id?: string; ids?: string[]; isHeader: boolean };
 
 type TCVProps<T extends z.ZodType> = {
   item: z.infer<T>;
-  chartConfig: CNC.ChartConfig;
+  chartConfig: ChartConfig;
   chartData: { month: string; users: number }[];
 };
 
@@ -50,7 +88,7 @@ type TableSchema = {
 type Props = {
   user: User;
   users: PrismaUser[];
-  chartConfig: CNC.ChartConfig;
+  chartConfig: ChartConfig;
   chartData: { month: string; users: number }[];
   cardsData: {
     title: string;
@@ -63,31 +101,31 @@ type Props = {
 
 function Menu({ id, ids, isHeader = false }: MenuProps) {
   const menuTrigger = (
-    <DM.DropdownMenuTrigger asChild>
+    <DropdownMenuTrigger asChild>
       <Button
         size="icon"
         variant="ghost"
         className="data-[state=open]:bg-muted text-muted-foreground flex size-8"
       >
-        <Icons.IconDotsVertical />
+        <IconDotsVertical />
         <span className="sr-only">Open menu</span>
       </Button>
-    </DM.DropdownMenuTrigger>
+    </DropdownMenuTrigger>
   );
 
   return (
-    <DM.DropdownMenu>
+    <DropdownMenu>
       {!isHeader && menuTrigger}
       {ids && ids.length > 0 && isHeader && menuTrigger}
-      <DM.DropdownMenuContent align="end" className="w-32">
-        <DM.DropdownMenuItem
+      <DropdownMenuContent align="end" className="w-32">
+        <DropdownMenuItem
           variant="destructive"
           onClick={async () => {
             if (!isHeader) {
-              toast.promise(actions.deleteUser(id as string), {
+              toast.promise(deleteUser(id as string), {
+                success: USER_DELETED,
                 position: 'top-center',
                 loading: 'Deleting user',
-                success: '🎉 User deleted successfully.',
                 error(error) {
                   const { message } = catchErrors(error as Error);
                   return <span className="text-destructive">{message}</span>;
@@ -96,10 +134,10 @@ function Menu({ id, ids, isHeader = false }: MenuProps) {
             }
 
             if (isHeader) {
-              toast.promise(actions.deleteUsers(ids as string[]), {
+              toast.promise(deleteUsers(ids as string[]), {
+                success: USERS_DELETED,
                 position: 'top-center',
                 loading: 'Deleting users',
-                success: '🎉 Users deleted successfully.',
                 error(error) {
                   const { message } = catchErrors(error as Error);
                   return <span className="text-destructive">{message}</span>;
@@ -109,9 +147,9 @@ function Menu({ id, ids, isHeader = false }: MenuProps) {
           }}
         >
           Delete
-        </DM.DropdownMenuItem>
-      </DM.DropdownMenuContent>
-    </DM.DropdownMenu>
+        </DropdownMenuItem>
+      </DropdownMenuContent>
+    </DropdownMenu>
   );
 }
 
@@ -121,57 +159,44 @@ export function TableCellViewer<T extends z.ZodType>(props: TCVProps<T>) {
 
   const { pending, handleSubmit } = useHookForm(
     handler,
-    actions.updateUser.bind(null, props.item.id) as (
-      data: unknown
-    ) => Promise<unknown>
+    updateUser.bind(null, props.item.id) as (data: unknown) => Promise<unknown>
   );
 
   return (
-    <Drawer.Drawer direction={isMobile ? 'bottom' : 'right'}>
-      <Drawer.DrawerTrigger asChild onClick={e => e.currentTarget.blur()}>
+    <Drawer direction={isMobile ? 'bottom' : 'right'}>
+      <DrawerTrigger asChild onClick={e => e.currentTarget.blur()}>
         <Button variant="link" className="text-foreground px-0">
           {props.item.name}
         </Button>
-      </Drawer.DrawerTrigger>
-      <Drawer.DrawerContent>
-        <Drawer.DrawerHeader className="gap-1">
-          <Drawer.DrawerTitle>Users Chart</Drawer.DrawerTitle>
-          <Drawer.DrawerDescription>
+      </DrawerTrigger>
+      <DrawerContent>
+        <DrawerHeader className="gap-1">
+          <DrawerTitle>Users Chart</DrawerTitle>
+          <DrawerDescription>
             Showing total users for the last 6 months
-          </Drawer.DrawerDescription>
-        </Drawer.DrawerHeader>
+          </DrawerDescription>
+        </DrawerHeader>
         <div className="flex flex-col gap-4 overflow-y-auto px-4 text-sm">
           {!isMobile && (
-            <Chart.ChartContainer config={props.chartConfig}>
-              <BarChart accessibilityLayer data={props.chartData}>
-                <CartesianGrid vertical={false} />
-                <XAxis
-                  dataKey="month"
-                  tickMargin={10}
-                  tickLine={false}
-                  axisLine={false}
-                />
-                <CNC.ChartTooltip content={<CNC.ChartTooltipContent />} />
-                <CNC.ChartLegend
-                  content={<CNC.ChartLegendContent payload={[]} />}
-                />
-                <Bar radius={4} dataKey="users" fill="var(--color-blue-500)" />
-              </BarChart>
-            </Chart.ChartContainer>
+            <Chart
+              dataKey="users"
+              data={props.chartData}
+              chartConfig={props.chartConfig}
+            />
           )}
-          <RHF.Form {...form}>
+          <Form {...form}>
             <form
               id="user-form"
               className="space-y-2"
               onSubmit={form.handleSubmit(handleSubmit)}
             >
-              <RHF.FormField
+              <FormField
                 name="name"
                 control={form.control}
                 render={({ field }) => (
-                  <RHF.FormItem>
-                    <RHF.FormLabel>Name</RHF.FormLabel>
-                    <RHF.FormControl>
+                  <FormItem>
+                    <FormLabel>Name</FormLabel>
+                    <FormControl>
                       <Input
                         {...field}
                         type="text"
@@ -181,18 +206,18 @@ export function TableCellViewer<T extends z.ZodType>(props: TCVProps<T>) {
                           field.onChange(value || undefined)
                         }
                       />
-                    </RHF.FormControl>
-                    <RHF.FormMessage />
-                  </RHF.FormItem>
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
                 )}
               />
-              <RHF.FormField
+              <FormField
                 name="email"
                 control={form.control}
                 render={({ field }) => (
-                  <RHF.FormItem>
-                    <RHF.FormLabel>Email</RHF.FormLabel>
-                    <RHF.FormControl>
+                  <FormItem>
+                    <FormLabel>Email</FormLabel>
+                    <FormControl>
                       <Input
                         {...field}
                         type="email"
@@ -202,18 +227,18 @@ export function TableCellViewer<T extends z.ZodType>(props: TCVProps<T>) {
                           field.onChange(value || undefined)
                         }
                       />
-                    </RHF.FormControl>
-                    <RHF.FormMessage />
-                  </RHF.FormItem>
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
                 )}
               />
-              <RHF.FormField
+              <FormField
                 name="password"
                 control={form.control}
                 render={({ field }) => (
-                  <RHF.FormItem>
-                    <RHF.FormLabel>Password</RHF.FormLabel>
-                    <RHF.FormControl>
+                  <FormItem>
+                    <FormLabel>Password</FormLabel>
+                    <FormControl>
                       <Input
                         {...field}
                         type="password"
@@ -223,40 +248,40 @@ export function TableCellViewer<T extends z.ZodType>(props: TCVProps<T>) {
                           field.onChange(value || undefined)
                         }
                       />
-                    </RHF.FormControl>
-                    <RHF.FormMessage />
-                  </RHF.FormItem>
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
                 )}
               />
-              <RHF.FormField
+              <FormField
                 name="emailVerified"
                 control={form.control}
                 defaultValue={props.item.emailVerified ? 'yes' : 'no'}
                 render={({ field }) => (
-                  <RHF.FormItem>
-                    <RHF.FormLabel>Email Verified</RHF.FormLabel>
-                    <RHF.FormControl>
-                      <Select.Select
+                  <FormItem>
+                    <FormLabel>Email Verified</FormLabel>
+                    <FormControl>
+                      <Select
                         value={field.value}
                         onValueChange={field.onChange}
                       >
-                        <Select.SelectTrigger className="w-full">
-                          <Select.SelectValue placeholder="Select a status" />
-                        </Select.SelectTrigger>
-                        <Select.SelectContent>
-                          <Select.SelectItem value="no">No</Select.SelectItem>
-                          <Select.SelectItem value="yes">Yes</Select.SelectItem>
-                        </Select.SelectContent>
-                      </Select.Select>
-                    </RHF.FormControl>
-                    <RHF.FormMessage />
-                  </RHF.FormItem>
+                        <SelectTrigger className="w-full">
+                          <SelectValue placeholder="Select a status" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="no">No</SelectItem>
+                          <SelectItem value="yes">Yes</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
                 )}
               />
             </form>
-          </RHF.Form>
+          </Form>
         </div>
-        <Drawer.DrawerFooter>
+        <DrawerFooter>
           <Button
             type="submit"
             form="user-form"
@@ -265,119 +290,122 @@ export function TableCellViewer<T extends z.ZodType>(props: TCVProps<T>) {
           >
             {pending ? 'Saving...' : 'Save'}
           </Button>
-          <Drawer.DrawerClose asChild>
+          <DrawerClose asChild>
             <Button variant="outline">Done</Button>
-          </Drawer.DrawerClose>
-        </Drawer.DrawerFooter>
-      </Drawer.DrawerContent>
-    </Drawer.Drawer>
+          </DrawerClose>
+        </DrawerFooter>
+      </DrawerContent>
+    </Drawer>
   );
 }
 
 export default function Component(props: Props) {
-  function getEmailChecked(email: string) {
-    const user = props.users.find(user => email === user.email);
-    return user?.emailVerified ? true : false;
-  }
-
-  const columns: RT.ColumnDef<TableSchema>[] = [
-    {
-      id: 'drag',
-      cell: ({ row }) => <DT.DragHandle id={row.original.id} />
-    },
-    {
-      id: 'select',
-      enableHiding: false,
-      enableSorting: false,
-      header: ({ table }) => (
-        <Checkbox
-          aria-label="Select all"
-          onCheckedChange={value => table.toggleAllPageRowsSelected(!!value)}
-          checked={
-            table.getIsAllPageRowsSelected() ||
-            (table.getIsSomePageRowsSelected() && 'indeterminate')
-          }
-        />
-      ),
-      cell: ({ row }) => (
-        <Checkbox
-          aria-label="Select row"
-          checked={row.getIsSelected()}
-          onCheckedChange={value => row.toggleSelected(!!value)}
-        />
-      )
-    },
-    {
-      header: 'Name',
-      enableHiding: false,
-      accessorKey: 'name',
-      cell: ({ row }) => (
-        <TableCellViewer
-          key={Date.now()}
-          chartData={props.chartData}
-          chartConfig={props.chartConfig}
-          item={props.users.find(u => u.email === row.original.email)}
-        />
-      )
-    },
-    {
-      header: 'Email',
-      accessorKey: 'email',
-      cell: ({ row }) => (
-        <Badge variant="outline" className="text-muted-foreground">
-          {row.original.email}
-        </Badge>
-      )
-    },
-    {
-      header: () => <div className="flex justify-center">Email Verified</div>,
-      accessorKey: 'emailVerified',
-      cell: ({ row }) => (
-        <Switch
-          id="verify-email"
-          className="mx-auto block"
-          checked={getEmailChecked(row.original.email)}
-          onCheckedChange={async () =>
-            toast.promise(actions.verifyEmail(row.original.email), {
-              success: 'Done',
-              position: 'top-center',
-              loading: 'Verifying Email',
-              error(error) {
-                const { message } = catchErrors(error as Error);
-                return <span className="text-destructive">{message}</span>;
-              }
-            })
-          }
-        />
-      )
-    },
-    {
-      accessorKey: 'createdAt',
-      header: () => <div>Created At</div>,
-      cell: ({ row }) => getDate(row.original.createdAt)
-    },
-    {
-      id: 'actions',
-      cell: ({ row }) => (
-        <Menu isHeader={false} id={row.original.id.toString()} />
-      ),
-      header: ({ table }) => {
-        return (
-          <Menu
-            isHeader={true}
-            ids={table
-              .getSelectedRowModel()
-              .rows.map(r => r.original.id.toString())}
+  const columns = useMemo<ColumnDef<TableSchema>[]>(
+    () => [
+      {
+        id: 'drag',
+        cell: ({ row }) => <DragHandle id={row.original.id} />
+      },
+      {
+        id: 'select',
+        enableHiding: false,
+        enableSorting: false,
+        header: ({ table }) => (
+          <Checkbox
+            aria-label="Select all"
+            onCheckedChange={value => table.toggleAllPageRowsSelected(!!value)}
+            checked={
+              table.getIsAllPageRowsSelected() ||
+              (table.getIsSomePageRowsSelected() && 'indeterminate')
+            }
           />
-        );
+        ),
+        cell: ({ row }) => (
+          <Checkbox
+            aria-label="Select row"
+            checked={row.getIsSelected()}
+            onCheckedChange={value => row.toggleSelected(!!value)}
+          />
+        )
+      },
+      {
+        header: 'Name',
+        enableHiding: false,
+        accessorKey: 'name',
+        cell: ({ row }) => (
+          <TableCellViewer
+            key={Date.now()}
+            chartData={props.chartData}
+            chartConfig={props.chartConfig}
+            item={props.users.find(u => u.email === row.original.email)}
+          />
+        )
+      },
+      {
+        header: 'Email',
+        accessorKey: 'email',
+        cell: ({ row }) => (
+          <Badge variant="outline" className="text-muted-foreground">
+            {row.original.email}
+          </Badge>
+        )
+      },
+      {
+        header: () => <div className="flex justify-center">Email Verified</div>,
+        accessorKey: 'emailVerified',
+        cell: ({ row }) => (
+          <Switch
+            id="verify-email"
+            className="mx-auto block"
+            checked={
+              props.users.find(user => row.original.email === user.email)
+                ?.emailVerified
+                ? true
+                : false
+            }
+            onCheckedChange={async () =>
+              toast.promise(verifyEmail(row.original.email), {
+                success: 'Done',
+                position: 'top-center',
+                loading: 'Verifying Email',
+                error(error) {
+                  const { message } = catchErrors(error as Error);
+                  return <span className="text-destructive">{message}</span>;
+                }
+              })
+            }
+          />
+        )
+      },
+      {
+        accessorKey: 'createdAt',
+        header: () => <div>Created At</div>,
+        cell: ({ row }) => getDate(row.original.createdAt)
+      },
+      {
+        id: 'actions',
+        cell: ({ row }) => (
+          <Menu isHeader={false} id={row.original.id.toString()} />
+        ),
+        header: ({ table }) => {
+          return (
+            <Menu
+              isHeader={true}
+              ids={table
+                .getSelectedRowModel()
+                .rows.map(r => r.original.id.toString())}
+            />
+          );
+        }
       }
-    }
-  ];
+    ],
+    [props.chartConfig, props.chartData, props.users]
+  );
 
   return (
     <div className="flex h-full flex-col gap-8 lg:mx-auto lg:w-10/12">
       {hasPermission(props.user.permissions, 'view:users') && (
-        <DT.DataTable
+        <DataTable
           data={props.users}
           columns={columns}
           filterConfig={[

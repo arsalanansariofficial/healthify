@@ -65,7 +65,7 @@ import {
 } from '@/lib/actions';
 import { MESSAGES } from '@/lib/constants';
 import { hospitalSchema } from '@/lib/schemas';
-import { capitalize, catchErrors, getDate, hasPermission } from '@/lib/utils';
+import { capitalize, catchErrors, hasPermission } from '@/lib/utils';
 
 type yesNo = 'yes' | 'no';
 type Hospital = Prisma.HospitalGetPayload<{
@@ -175,7 +175,7 @@ export function TableCellViewer(props: {
     <Drawer direction={isMobile ? 'bottom' : 'right'}>
       <DrawerTrigger asChild onClick={e => e.currentTarget.blur()}>
         <Button className='text-foreground px-0 capitalize' variant='link'>
-          {props.item.name}
+          {props.item.id.slice(-5)}
         </Button>
       </DrawerTrigger>
       <DrawerContent>
@@ -424,7 +424,7 @@ export default function Component(props: {
                 id: 'select'
               },
               {
-                accessorKey: 'name',
+                accessorKey: 'id',
                 cell: ({ row }) => (
                   <TableCellViewer
                     departments={props.departments}
@@ -433,6 +433,14 @@ export default function Component(props: {
                     memberships={props.memberships}
                     users={props.users}
                   />
+                ),
+                enableHiding: false,
+                header: 'Id'
+              },
+              {
+                accessorKey: 'name',
+                cell: ({ row }) => (
+                  <span className='capitalize'>{row.original.name}</span>
                 ),
                 enableHiding: false,
                 header: 'Name'
@@ -476,12 +484,6 @@ export default function Component(props: {
                 accessorKey: 'city',
                 cell: ({ row }) => capitalize(row.original.city || String()),
                 header: () => <div>City</div>
-              },
-              {
-                accessorKey: 'createdAt',
-                cell: ({ row }) =>
-                  getDate(row.original.createdAt.toString(), false, false),
-                header: () => <div>Created At</div>
               },
               {
                 cell: ({ row }) => (

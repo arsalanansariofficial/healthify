@@ -49,7 +49,7 @@ import {
 } from '@/lib/actions';
 import { MESSAGES } from '@/lib/constants';
 import { facilitySchema } from '@/lib/schemas';
-import { catchErrors, getDate, hasPermission } from '@/lib/utils';
+import { catchErrors, hasPermission } from '@/lib/utils';
 
 function Menu({
   id,
@@ -137,7 +137,7 @@ export function TableCellViewer(props: {
     <Drawer direction={isMobile ? 'bottom' : 'right'}>
       <DrawerTrigger asChild onClick={e => e.currentTarget.blur()}>
         <Button className='text-foreground px-0 capitalize' variant='link'>
-          {props.item.name}
+          {props.item.id.slice(-5)}
         </Button>
       </DrawerTrigger>
       <DrawerContent>
@@ -256,7 +256,7 @@ export default function Component(props: {
                 id: 'select'
               },
               {
-                accessorKey: 'name',
+                accessorKey: 'id',
                 cell: ({ row }) => (
                   <TableCellViewer
                     departments={props.departments}
@@ -265,12 +265,15 @@ export default function Component(props: {
                   />
                 ),
                 enableHiding: false,
-                header: 'Name'
+                header: 'Id'
               },
               {
-                accessorKey: 'createdAt',
-                cell: ({ row }) => getDate(row.original.createdAt.toString()),
-                header: () => <div>Created At</div>
+                accessorKey: 'name',
+                cell: ({ row }) => (
+                  <span className='capitalize'>{row.original.name}</span>
+                ),
+                enableHiding: false,
+                header: 'Name'
               },
               {
                 cell: ({ row }) => (

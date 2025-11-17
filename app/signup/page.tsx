@@ -9,13 +9,30 @@ import { faGithub } from '@fortawesome/free-brands-svg-icons/faGithub';
 
 import { signup } from '@/lib/actions';
 import { LOGIN } from '@/lib/constants';
-import * as CN from '@/components/ui/card';
-import * as RHF from '@/components/ui/form';
 import { signupSchema } from '@/lib/schemas';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import useHookForm from '@/hooks/use-hook-form';
 import handler from '@/components/display-toast';
+
+import {
+  Form,
+  FormItem,
+  FormField,
+  FormLabel,
+  FormControl,
+  FormMessage
+} from '@/components/ui/form';
+
+import {
+  Card,
+  CardTitle,
+  CardAction,
+  CardFooter,
+  CardHeader,
+  CardContent,
+  CardDescription
+} from '@/components/ui/card';
 
 export default function Page() {
   const { pending, handleSubmit } = useHookForm(handler, signup);
@@ -32,80 +49,80 @@ export default function Page() {
   return (
     <main className="row-start-2 mx-8 grid place-items-center">
       <section>
-        <CN.Card className="min-w-sm">
-          <CN.CardHeader>
-            <CN.CardTitle>Create your account</CN.CardTitle>
-            <CN.CardDescription>
+        <Card className="min-w-sm">
+          <CardHeader>
+            <CardTitle>Create your account</CardTitle>
+            <CardDescription>
               Enter your details below to create your account
-            </CN.CardDescription>
-            <CN.CardAction>
+            </CardDescription>
+            <CardAction>
               <Button variant="link">
                 <Link href={LOGIN}>Login</Link>
               </Button>
-            </CN.CardAction>
-          </CN.CardHeader>
-          <CN.CardContent>
-            <RHF.Form {...form}>
+            </CardAction>
+          </CardHeader>
+          <CardContent>
+            <Form {...form}>
               <form
                 id="signup-form"
                 className="space-y-2"
                 onSubmit={form.handleSubmit(handleSubmit)}
               >
-                <RHF.FormField
+                <FormField
                   name="name"
                   control={form.control}
                   render={({ field }) => (
-                    <RHF.FormItem>
-                      <RHF.FormLabel>Name</RHF.FormLabel>
-                      <RHF.FormControl>
+                    <FormItem>
+                      <FormLabel>Name</FormLabel>
+                      <FormControl>
                         <Input
                           {...field}
                           type="text"
                           placeholder="Gwen Tennyson"
                         />
-                      </RHF.FormControl>
-                      <RHF.FormMessage />
-                    </RHF.FormItem>
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
                   )}
                 />
-                <RHF.FormField
+                <FormField
                   name="email"
                   control={form.control}
                   render={({ field }) => (
-                    <RHF.FormItem>
-                      <RHF.FormLabel>Email</RHF.FormLabel>
-                      <RHF.FormControl>
+                    <FormItem>
+                      <FormLabel>Email</FormLabel>
+                      <FormControl>
                         <Input
                           {...field}
                           type="email"
                           placeholder="your.name@domain.com"
                         />
-                      </RHF.FormControl>
-                      <RHF.FormMessage />
-                    </RHF.FormItem>
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
                   )}
                 />
-                <RHF.FormField
+                <FormField
                   name="password"
                   control={form.control}
                   render={({ field }) => (
-                    <RHF.FormItem>
-                      <RHF.FormLabel>Password</RHF.FormLabel>
-                      <RHF.FormControl>
+                    <FormItem>
+                      <FormLabel>Password</FormLabel>
+                      <FormControl>
                         <Input
                           {...field}
                           type="password"
                           placeholder="Secret@123"
                         />
-                      </RHF.FormControl>
-                      <RHF.FormMessage />
-                    </RHF.FormItem>
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
                   )}
                 />
               </form>
-            </RHF.Form>
-          </CN.CardContent>
-          <CN.CardFooter className="grid gap-2">
+            </Form>
+          </CardContent>
+          <CardFooter className="grid gap-2">
             <Button
               type="submit"
               form="signup-form"
@@ -121,8 +138,8 @@ export default function Page() {
             >
               <FontAwesomeIcon icon={faGithub} size="5x" />
             </Button>
-          </CN.CardFooter>
-        </CN.Card>
+          </CardFooter>
+        </Card>
       </section>
     </main>
   );

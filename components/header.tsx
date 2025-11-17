@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import { useState } from 'react';
+import { User } from 'next-auth';
 import { useTheme } from 'next-themes';
 import { Moon, Sun } from 'lucide-react';
 import { signOut } from 'next-auth/react';
@@ -9,10 +10,10 @@ import { faGithub } from '@fortawesome/free-brands-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 import { cn } from '@/lib/utils';
+import Menu from '@/components/menu';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { DASHBOARD, HOME } from '@/lib/constants';
-import { Card, CardContent } from '@/components/ui/card';
+import { ACCOUNT, DASHBOARD, SIDEBAR_ITEMS } from '@/lib/constants';
 
 import {
   DropdownMenu,
@@ -24,7 +25,7 @@ import {
   DropdownMenuSeparator
 } from '@/components/ui/dropdown-menu';
 
-export default function Header() {
+export default function Header({ user }: { user: User }) {
   const { theme, setTheme } = useTheme();
   const [hasMenu, setHasMenu] = useState(false);
 
@@ -96,7 +97,9 @@ export default function Header() {
               <DropdownMenuContent>
                 <DropdownMenuLabel>My Account</DropdownMenuLabel>
                 <DropdownMenuGroup>
-                  <DropdownMenuItem>Profile</DropdownMenuItem>
+                  <DropdownMenuItem>
+                    <Link href={ACCOUNT}>Account</Link>
+                  </DropdownMenuItem>
                   <DropdownMenuItem>Settings</DropdownMenuItem>
                 </DropdownMenuGroup>
                 <DropdownMenuSeparator />
@@ -121,38 +124,13 @@ export default function Header() {
       </header>
       <nav
         className={cn(
-          'fixed inset-x-8 top-28 bottom-8 z-20 col-span-2 hidden space-y-1 overflow-y-auto bg-transparent backdrop-blur-xs lg:hidden',
+          'fixed inset-x-0 top-16 bottom-0 z-30 col-span-2 mt-1 hidden space-y-1 overflow-y-auto bg-transparent px-8 backdrop-blur-xs lg:hidden',
           { block: hasMenu }
         )}
       >
-        <Card className="h-full bg-transparent">
-          <CardContent>
-            <Link
-              href="/docs"
-              className="hover:bg-accent block max-w-fit rounded-md px-2 py-1 font-semibold"
-            >
-              Docs
-            </Link>
-            <Link
-              href="/components"
-              className="hover:bg-accent block max-w-fit rounded-md px-2 py-1 font-semibold"
-            >
-              Components
-            </Link>
-            <Link
-              href={HOME}
-              className="hover:bg-accent block max-w-fit rounded-md px-2 py-1 font-semibold"
-            >
-              Home
-            </Link>
-            <Link
-              href="/documents"
-              className="hover:bg-accent block max-w-fit rounded-md px-2 py-1 font-semibold"
-            >
-              Documents
-            </Link>
-          </CardContent>
-        </Card>
+        <div className="h-full">
+          <Menu user={user} entries={Array.from(SIDEBAR_ITEMS.entries())} />
+        </div>
       </nav>
     </>
   );

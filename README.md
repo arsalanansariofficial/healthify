@@ -52,13 +52,13 @@ Use the .env.example file to configure:
 #### Export Database
 
 ```bash
-mongodump --db="database" --username="username" --authenticationDatabase="authenticationDatabase" --out="directoryLocation"
+npm run mongo:export
 ```
 
 #### Import Database
 
 ```bash
-mongorestore --db="database" --username="username" --authenticationDatabase="authenticationDatabase" --dir="directoryLocation"
+npm run mongo:import
 ```
 
 ### Author

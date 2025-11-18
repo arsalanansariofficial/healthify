@@ -15,8 +15,10 @@ export async function assignPermissions({
   permissions
 }: z.infer<typeof rolePermissionsSchema>) {
   const result = rolePermissionsSchema.safeParse({ name, permissions });
-  if (!result.success)
+
+  if (!result.success) {
     return { message: MESSAGES.SYSTEM.INVALID_INPUTS, success: false };
+  }
 
   try {
     const session = await auth();
@@ -68,6 +70,24 @@ export async function addPermission(data: z.infer<typeof permissionSchema>) {
       message: MESSAGES.PERMISSION.ADDED,
       success: true
     };
+  } catch (error) {
+    return catchErrors(error as Error);
+  }
+}
+
+export async function updatePermission(
+  id: string,
+  data: z.infer<typeof permissionSchema>
+) {
+  const result = permissionSchema.safeParse(data);
+  if (!result.success) {
+    return { message: MESSAGES.SYSTEM.INVALID_INPUTS, success: false };
+  }
+
+  try {
+    await prisma.permission.update({ data: { ...result.data }, where: { id } });
+    revalidatePath(ROUTES.HOME);
+    return { message: MESSAGES.PERMISSION.UPDATED, success: true };
   } catch (error) {
     return catchErrors(error as Error);
   }

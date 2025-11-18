@@ -37,6 +37,7 @@ import {
 import useHookForm from '@/hooks/use-hook-form';
 import { assignPermissions } from '@/lib/actions';
 import { rolePermissionsSchema } from '@/lib/schemas';
+import { capitalize } from '@/lib/utils';
 
 export default function Component(props: {
   user: User;
@@ -49,10 +50,7 @@ export default function Component(props: {
   const pathname = usePathname();
   const searchParams = useSearchParams();
 
-  const role = useMemo(
-    () => props.role ?? props.roles[0].name,
-    [props.role, props.roles]
-  );
+  const role = useMemo(() => props.role || String(), [props.role]);
 
   const { handleSubmit, pending } = useHookForm(
     handler,
@@ -62,7 +60,7 @@ export default function Component(props: {
 
   const form = useForm({
     defaultValues: {
-      name: props.roles.some(r => r.name === role) ? role : props.roles[0].name,
+      name: props.roles.some(r => r.name === role) ? role : String(),
       permissions: props.assigned
     },
     resolver: zodResolver(rolePermissionsSchema)
@@ -110,7 +108,7 @@ export default function Component(props: {
                         }}
                         value={field.value}
                       >
-                        <SelectTrigger className='w-full capitalize'>
+                        <SelectTrigger className='w-full'>
                           <SelectValue placeholder='Select a role' />
                         </SelectTrigger>
                         <SelectContent>
@@ -120,7 +118,7 @@ export default function Component(props: {
                               key={role.id}
                               value={role.name}
                             >
-                              {role.name}
+                              {capitalize(role.name)}
                             </SelectItem>
                           ))}
                         </SelectContent>
@@ -135,7 +133,7 @@ export default function Component(props: {
                 name='permissions'
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Role</FormLabel>
+                    <FormLabel>Permissions</FormLabel>
                     <FormControl>
                       <MultiSelect
                         options={props.permissions}

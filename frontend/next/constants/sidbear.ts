@@ -129,13 +129,13 @@ export const SIDEBAR = new Map([
         icon: faUserShield,
         label: 'Roles',
         permission: 'view:roles',
-        url: '/roles/add'
+        url: '/roles'
       },
       {
         icon: faKey,
         label: 'Permissions',
         permission: 'view:permissions',
-        url: '/permissions/add'
+        url: '/permissions'
       }
     ]
   ]

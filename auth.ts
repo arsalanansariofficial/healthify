@@ -6,7 +6,15 @@ import { PrismaAdapter } from '@auth/prisma-adapter';
 import Credentials from 'next-auth/providers/credentials';
 
 import prisma from '@/lib/prisma';
-import * as CONST from '@/lib/constants';
+
+import {
+  LOGIN,
+  AUTH_ERROR,
+  EXPIRES_AT,
+  DEFAULT_ROLE,
+  GITHUB_CLIENT_ID,
+  GITHUB_CLIENT_SECRET
+} from '@/lib/constants';
 
 declare module 'next-auth' {
   interface User {
@@ -22,8 +30,8 @@ export const authConfig = {
   trustHost: true,
   providers: [
     GitHub({
-      clientId: CONST.GITHUB_CLIENT_ID,
-      clientSecret: CONST.GITHUB_CLIENT_SECRET
+      clientId: GITHUB_CLIENT_ID,
+      clientSecret: GITHUB_CLIENT_SECRET
     }),
     Credentials({
       async authorize(credentials) {
@@ -47,7 +55,7 @@ export const { auth, handlers, signIn, signOut, unstable_update } = NextAuth({
   ...authConfig,
   session: { strategy: 'jwt' },
   adapter: PrismaAdapter(prisma),
-  pages: { signIn: CONST.LOGIN, error: CONST.AUTH_ERROR },
+  pages: { signIn: LOGIN, error: AUTH_ERROR },
   events: {
     async linkAccount({ user }) {
       const existingUser = await prisma.user.update({
@@ -59,7 +67,7 @@ export const { auth, handlers, signIn, signOut, unstable_update } = NextAuth({
       if (!existingUser?.UserRoles.length) {
         const defaultRole = await prisma.role.findUnique({
           select: { id: true },
-          where: { name: CONST.DEFAULT_ROLE }
+          where: { name: DEFAULT_ROLE }
         });
 
         await prisma.userRole.create({
@@ -116,7 +124,7 @@ export const { auth, handlers, signIn, signOut, unstable_update } = NextAuth({
         token.roles = user.roles;
         token.phone = user.phone;
         token.permissions = user.permissions;
-        token.expiresAt = Date.now() + CONST.EXPIRES_AT * 1000;
+        token.expiresAt = Date.now() + EXPIRES_AT * 1000;
       }
 
       if (trigger === 'update' && session.user) {

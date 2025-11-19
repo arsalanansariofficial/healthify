@@ -16,29 +16,27 @@ import prisma from '@/lib/prisma';
 import { membershipSchema, membershipSubscriptionSchema } from '@/lib/schemas';
 import { catchErrors } from '@/lib/utils';
 
+export async function deleteMembership(id: string) {
+  await prisma.membership.delete({ where: { id } });
+  revalidatePath(ROUTES.HOME);
+}
+
+export async function deleteMemberships(ids: string[]) {
+  await prisma.membership.deleteMany({ where: { id: { in: ids } } });
+  revalidatePath(ROUTES.HOME);
+}
+
 export async function addMembership(data: z.infer<typeof membershipSchema>) {
   const result = membershipSchema.safeParse(data);
-  if (!result.success)
+
+  if (!result.success) {
     return { message: MESSAGES.SYSTEM.INVALID_INPUTS, success: false };
+  }
+
+  const { name, perks } = result.data;
 
   try {
-    await prisma.membership.create({
-      data: {
-        ...result.data,
-        fees: { create: result.data.fees },
-        hospitalMemberships: {
-          create: result.data.hospitalMemberships.map(hm => ({
-            hospital: {
-              create: {
-                ...hm,
-                doctors: { connect: hm.doctors.map(d => ({ id: d })) },
-                isAffiliated: hm.isAffiliated === 'yes' ? true : false
-              }
-            }
-          }))
-        }
-      }
-    });
+    await prisma.membership.create({ data: { name, perks } });
 
     revalidatePath(ROUTES.HOME);
     return { message: MESSAGES.MEMBERSHIP.ADDED, success: true };

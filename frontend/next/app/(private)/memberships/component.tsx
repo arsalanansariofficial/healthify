@@ -43,8 +43,8 @@ import { Input } from '@/components/ui/input';
 import useHookForm from '@/hooks/use-hook-form';
 import { useIsMobile } from '@/hooks/use-mobile';
 import {
-  deleteMedicationForm,
-  deleteMedicationForms,
+  deleteMembership,
+  deleteMemberships,
   updateMedicationForm
 } from '@/lib/actions';
 import { MESSAGES } from '@/lib/constants';
@@ -85,7 +85,7 @@ function Menu({
         <DropdownMenuItem
           onClick={async () => {
             if (!isHeader) {
-              toast.promise(deleteMedicationForm(id as string), {
+              toast.promise(deleteMembership(id as string), {
                 error(error) {
                   const { message } = catchErrors(error as Error);
                   return <span className='text-destructive'>{message}</span>;
@@ -97,7 +97,7 @@ function Menu({
             }
 
             if (isHeader) {
-              toast.promise(deleteMedicationForms(ids as string[]), {
+              toast.promise(deleteMemberships(ids as string[]), {
                 error(error) {
                   const { message } = catchErrors(error as Error);
                   return <span className='text-destructive'>{message}</span>;

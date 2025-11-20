@@ -290,6 +290,7 @@ export function TableCellViewer(props: {
                   <FormControl>
                     <Textarea
                       {...field}
+                      className='capitalize'
                       placeholder='123 Main Street, Springfield, IL 62704'
                     />
                   </FormControl>
@@ -319,7 +320,7 @@ export function TableCellViewer(props: {
             />
             <FormField
               control={form.control}
-              name='hospitalDepartments'
+              name='hospitalMemberships'
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Memberships</FormLabel>

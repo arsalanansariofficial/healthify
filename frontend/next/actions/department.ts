@@ -26,8 +26,20 @@ export async function addDepartment(data: z.infer<typeof departmentSchema>) {
     return { message: MESSAGES.SYSTEM.INVALID_INPUTS, success: false };
   }
 
+  const { facilities, hospitals, name } = result.data;
+
   try {
-    await prisma.department.create({ data: { ...result.data } });
+    await prisma.department.create({
+      data: {
+        departmentFacilities: {
+          create: facilities.map(v => ({ facilityId: v }))
+        },
+        hospitalDepartments: {
+          create: hospitals.map(v => ({ hospitalId: v }))
+        },
+        name
+      }
+    });
     return { message: MESSAGES.DEPARTMENT.ADDED, success: true };
   } catch (error) {
     return catchErrors(error as Error);

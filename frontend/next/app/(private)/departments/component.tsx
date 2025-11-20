@@ -1,7 +1,7 @@
 'use client';
 
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Department, Facility, Hospital } from '@prisma/client';
+import { Facility, Hospital, Prisma } from '@prisma/client';
 import { IconDotsVertical } from '@tabler/icons-react';
 import { ColumnDef } from '@tanstack/react-table';
 import { User } from 'next-auth';
@@ -50,6 +50,10 @@ import {
 import { MESSAGES } from '@/lib/constants';
 import { departmentSchema } from '@/lib/schemas';
 import { catchErrors, hasPermission } from '@/lib/utils';
+
+type Department = Prisma.DepartmentGetPayload<{
+  include: { departmentFacilities: true; hospitalDepartments: true };
+}>;
 
 function Menu({
   id,
@@ -121,8 +125,8 @@ function TableCellViewer(props: {
   const isMobile = useIsMobile();
   const form = useForm({
     defaultValues: {
-      facilities: [],
-      hospitals: [],
+      facilities: props.item.departmentFacilities.map(v => v.facilityId),
+      hospitals: props.item.hospitalDepartments.map(v => v.hospitalId),
       name: props.item.name
     },
     resolver: zodResolver(departmentSchema)

@@ -9,7 +9,9 @@ export default async function Page() {
   if (!session || !session.user) notFound();
 
   const [departments, facilities, hospitals] = await Promise.all([
-    prisma.department.findMany(),
+    prisma.department.findMany({
+      include: { departmentFacilities: true, hospitalDepartments: true }
+    }),
     prisma.facility.findMany(),
     prisma.hospital.findMany()
   ]);

@@ -116,7 +116,6 @@ export const userSchema = z.object({
 export const membershipSubscriptionSchema = z.object({
   feeId: z
     .string({ error: valid('id') })
-    .nonempty(required('id'))
     .trim()
     .toLowerCase(),
   membershipId: z

@@ -13,7 +13,8 @@ import { cn } from '@/lib/utils';
 import Menu from '@/components/menu';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { ACCOUNT, DASHBOARD, SIDEBAR_ITEMS } from '@/lib/constants';
+import { ACCOUNT, DASHBOARD, HOST, SIDEBAR_ITEMS } from '@/lib/constants';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 
 import {
   DropdownMenu,
@@ -86,13 +87,16 @@ export default function Header({ user }: { user: User }) {
             />
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <button>
-                  <FontAwesomeIcon
-                    size="lg"
-                    icon={faGithub}
-                    className="h-5 w-5"
-                  />
-                </button>
+                <Avatar>
+                  <AvatarImage src={`${HOST}/api/upload/${user.image}`} />
+                  <AvatarFallback className="bg-transparent">
+                    <FontAwesomeIcon
+                      size="lg"
+                      icon={faGithub}
+                      className="h-5 w-5"
+                    />
+                  </AvatarFallback>
+                </Avatar>
               </DropdownMenuTrigger>
               <DropdownMenuContent>
                 <DropdownMenuLabel>My Account</DropdownMenuLabel>

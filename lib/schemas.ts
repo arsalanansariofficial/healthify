@@ -79,9 +79,10 @@ const image = z.object({
     .any()
     .optional()
     .refine(
-      fileList => {
-        if (!fileList || !fileList.length) return true;
-        return fileList[0].name?.length >= 5;
+      val => {
+        if (typeof val === 'string') return true;
+        if (!val || !val.length) return true;
+        return val[0]?.name?.length >= 5;
       },
       { message: 'File name should be at least 5 characters.' }
     )
@@ -132,7 +133,8 @@ export const doctorSchema = userSchema
   .merge(timings)
   .merge(visitDays)
   .merge(experience)
-  .merge(specialities);
+  .merge(specialities)
+  .merge(z.object({ cover: image.shape.image }));
 
 export const doctorProfileSchema = doctorSchema.merge(
   z.object({
@@ -143,6 +145,7 @@ export const doctorProfileSchema = doctorSchema.merge(
 export const userProfileSchema = name
   .merge(email)
   .merge(image)
+  .merge(z.object({ cover: image.shape.image }))
   .merge(
     z.object({
       city: z.union([z.literal(String()), city.shape.city])

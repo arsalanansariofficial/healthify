@@ -138,6 +138,7 @@ model User {
   experience    Int?
   name          String?
   image         String?
+  cover         String?
   password      String?
   city          String?
   phone         String?

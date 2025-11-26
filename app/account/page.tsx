@@ -17,6 +17,7 @@ export default async function Page() {
       name: true,
       email: true,
       image: true,
+      cover: true,
       phone: true,
       gender: true,
       hasOAuth: true,

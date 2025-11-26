@@ -95,7 +95,8 @@ import {
   APPOINTMENT_CANCELLED,
   APPOINTMENT_CONFIRMED,
   APPOINTMENT_NOT_FOUND,
-  APPOINTMENT_ACTION_RESTRICTED
+  APPOINTMENT_ACTION_RESTRICTED,
+  UN_AUTHORIZED
 } from '@/lib/constants';
 
 type Schema<T extends ZodSchema> = z.infer<T>;
@@ -738,6 +739,12 @@ export async function updateUserProfile(
   data: Schema<typeof userProfileSchema>
 ) {
   try {
+    const session = await auth();
+
+    if (!session?.user) {
+      return { success: false, message: UN_AUTHORIZED };
+    }
+
     const result = userProfileSchema.safeParse(data);
 
     if (!result.success) {
@@ -751,12 +758,14 @@ export async function updateUserProfile(
         email: true,
         phone: true,
         image: true,
+        cover: true,
         gender: true,
         emailVerified: true
       }
     });
 
     const image = result.data.image && result.data.image[0];
+    const cover = result.data.cover && result.data.cover[0];
     const { email, city, phone, password, gender } = result.data;
 
     if (!user) return { success: false, message: USER_NOT_FOUND };
@@ -770,16 +779,20 @@ export async function updateUserProfile(
       return { success: false, message: EMAIL_REGISTERED };
     }
 
-    await prisma.$transaction(async function (transaction) {
-      let fileName;
+    const updated = await prisma.$transaction(async function (transaction) {
+      let imageName, coverName;
 
       if (image?.size && user.image) await removeFile(user.image);
-      if (image?.size) fileName = await saveFile(image);
+      if (cover?.size && user.cover) await removeFile(user.cover);
 
-      await transaction.user.update({
+      if (image?.size) imageName = await saveFile(image);
+      if (cover?.size) coverName = await saveFile(cover);
+
+      const updated = await transaction.user.update({
         where: { id: userId },
         data: {
-          image: fileName,
+          image: imageName,
+          cover: coverName,
           name: result.data.name,
           email: email !== user.email ? email : undefined,
           city: city && city !== user.city ? city : undefined,
@@ -799,6 +812,8 @@ export async function updateUserProfile(
       await transaction.userRole.create({
         data: { userId, roleId: role?.id as string }
       });
+
+      return updated;
     });
 
     if (email !== user.email) {
@@ -808,7 +823,11 @@ export async function updateUserProfile(
       });
     }
 
-    return { success: false, message: PROFILE_UPDATED };
+    await update({
+      user: { ...session?.user, cover: updated.cover, image: updated.image }
+    });
+
+    return { success: true, message: PROFILE_UPDATED };
   } catch (error) {
     return catchErrors(error as Error);
   }
@@ -819,6 +838,12 @@ export async function updateDoctorProfile(
   data: Schema<typeof doctorProfileSchema>
 ) {
   try {
+    const session = await auth();
+
+    if (!session?.user) {
+      return { success: false, message: UN_AUTHORIZED };
+    }
+
     const result = doctorProfileSchema.safeParse(data);
 
     if (!result.success) {
@@ -832,6 +857,7 @@ export async function updateDoctorProfile(
         email: true,
         phone: true,
         image: true,
+        cover: true,
         gender: true,
         experience: true,
         emailVerified: true
@@ -851,6 +877,7 @@ export async function updateDoctorProfile(
     } = result.data;
 
     const image = result.data.image && result.data.image[0];
+    const cover = result.data.cover && result.data.cover[0];
     if (!user) return { success: false, message: USER_NOT_FOUND };
 
     const emailExists = await prisma.user.findUnique({
@@ -862,16 +889,20 @@ export async function updateDoctorProfile(
       return { success: false, message: EMAIL_REGISTERED };
     }
 
-    await prisma.$transaction(async function (transaction) {
-      let fileName;
+    const updated = await prisma.$transaction(async function (transaction) {
+      let imageName, coverName;
 
       if (image?.size && user.image) await removeFile(user.image);
-      if (image?.size) fileName = await saveFile(image);
+      if (cover?.size && user.cover) await removeFile(user.cover);
 
-      await transaction.user.update({
+      if (image?.size) imageName = await saveFile(image);
+      if (cover?.size) coverName = await saveFile(cover);
+
+      const updated = await transaction.user.update({
         where: { id: doctorId },
         data: {
-          image: fileName,
+          image: imageName,
+          cover: coverName,
           name: result.data.name,
           email: email !== user.email ? email : undefined,
           city: city && city !== user.city ? city : undefined,
@@ -924,6 +955,8 @@ export async function updateDoctorProfile(
       await transaction.userRole.create({
         data: { userId: doctorId, roleId: role?.id as string }
       });
+
+      return updated;
     });
 
     if (email !== user.email) {
@@ -932,6 +965,10 @@ export async function updateDoctorProfile(
         password: result.data.password || String()
       });
     }
+
+    await update({
+      user: { ...session?.user, cover: updated.cover, image: updated.image }
+    });
 
     return { success: false, message: PROFILE_UPDATED };
   } catch (error) {

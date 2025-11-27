@@ -62,7 +62,12 @@ export default function Component({
   }>;
 }) {
   const buttonRef = useRef<HTMLButtonElement | null>(null);
-  const { handleSubmit, pending } = useHookForm(handler, updateAppointment);
+  const { handleSubmit, pending } = useHookForm(
+    handler,
+    updateAppointment.bind(null, appointment.id) as (
+      data: unknown
+    ) => Promise<unknown>
+  );
 
   const form = useForm({
     defaultValues: {

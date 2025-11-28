@@ -12,14 +12,14 @@ type Params = RouteContext<'/api/upload/[slug]'>;
 export async function GET(_: Request, { params }: Params) {
   try {
     const { slug } = await params;
-    const image = path.join(dir, slug);
-    const buffer = await readFile(image);
+    const file = path.join(dir, slug);
+    const buffer = await readFile(file);
 
     return new Response(new Uint8Array(buffer), {
       status: CONST.RESPONSE_OK_CODE,
       headers: new Headers({
         'Content-Disposition': `inline; filename="${slug}"`,
-        'Content-Type': mime.getType(image) || CONST.OCTET_STREAM
+        'Content-Type': mime.getType(file) || CONST.OCTET_STREAM
       })
     });
   } catch {

@@ -1,8 +1,6 @@
 import { env } from '@/lib/utils';
 
-export const DIRECTORIES = {
-  PUBLIC: env('PUBLIC', '/public')
-};
+export const DIRECTORIES = { PUBLIC: env('PUBLIC', '/public') };
 
 export const FILES = {
   COVER: {
@@ -25,6 +23,13 @@ export const FILES = {
     MAX_FILES: 1,
     MAX_SIZE: 2 * 1024 * 1024,
     TYPE: 'image/jpg'
+  },
+  PDF: {
+    ACCEPT: 'application/pdf',
+    ID: 'pdf',
+    MAX_FILES: 10,
+    MAX_SIZE: 2 * 1024 * 1024,
+    TYPE: 'application/pdf'
   },
   UNITS: {
     KILO_BYTE: 1024,

@@ -38,6 +38,7 @@ import {
 import { Textarea } from '@/components/ui/textarea';
 import useHookForm from '@/hooks/use-hook-form';
 import { updateAppointment } from '@/lib/actions';
+import { FILES } from '@/lib/constants';
 import { appointmentSummarySchema } from '@/lib/schemas';
 import { capitalize, formatTime, getDate } from '@/lib/utils';
 
@@ -402,7 +403,9 @@ export default function Component({
                     <FormLabel>Reports</FormLabel>
                     <FormControl>
                       <TableUpload
+                        accept={FILES.PDF.TYPE}
                         buttonRef={buttonRef}
+                        files={appointment.reports}
                         onFilesChange={field.onChange}
                         simulateUpload={true}
                       />

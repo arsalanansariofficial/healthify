@@ -143,6 +143,7 @@ model User {
   city          String?
   phone         String?
   gender        String?
+  bio           String?
   emailVerified DateTime?
   email         String?   @unique
   updatedAt     DateTime  @updatedAt

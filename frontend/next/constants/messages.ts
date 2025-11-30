@@ -6,6 +6,10 @@ export const MESSAGES = {
       'APPOINTMENT_ACTION_RESTRICTED',
       '⚠️ Appointment status can not be updated!'
     ),
+    BULK_DELETED: env(
+      'APPOINTMENTS_DELETED',
+      '🎉 Appointments deleted successfully.'
+    ),
     CANCELLED: env('APPOINTMENT_CANCELLED', '💬 Appointment cancelled.'),
     CONFIRMED: env(
       'APPOINTMENT_CONFIRMED',
@@ -14,6 +18,10 @@ export const MESSAGES = {
     CREATED: env(
       'APPOINTMENT_CREATED',
       '💬 We have informed the doctor about the appointment, once he confirms your appointment you would be able to get the receipt.'
+    ),
+    DELETED: env(
+      'APPOINTMENT_DELETED',
+      '🎉 Appointments deleted successfully.'
     ),
     EXISTS: env('APPOINTMENT_EXISTS', '⚠️ Appointment already exists!'),
     INVALID_TIME_SLOT: env('INVALID_TIME_SLOT', '⚠️ Invalid time slot!'),

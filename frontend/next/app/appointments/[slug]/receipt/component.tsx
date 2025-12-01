@@ -9,7 +9,7 @@ import { useEffect, useRef } from 'react';
 
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-import { capitalize, formatTime, getDate } from '@/lib/utils';
+import { formatTime, getDate } from '@/lib/utils';
 
 export default function Page({
   appointment
@@ -84,18 +84,22 @@ export default function Page({
                 <h2>Appointment Number</h2>
                 <h2 className='text-right'>{appointment.id.slice(-5)}</h2>
                 <h2>Doctor Speciality</h2>
-                <h2 className='text-right'>
-                  {appointment.doctor.UserSpecialities.map(us =>
-                    capitalize(us.speciality.name)
+                <h2 className='text-right capitalize'>
+                  {appointment.doctor.UserSpecialities.map(
+                    us => us.speciality.name
                   ).toString()}
                 </h2>
                 <div>
                   <span>Patient</span>
-                  <h3 className='font-sans'>{appointment.patient.name}</h3>
+                  <h3 className='font-sans capitalize'>
+                    {appointment.patient.name}
+                  </h3>
                 </div>
                 <div className='text-right'>
                   <span>Doctor</span>
-                  <h3 className='font-sans'>{appointment.doctor.name}</h3>
+                  <h3 className='font-sans capitalize'>
+                    {appointment.doctor.name}
+                  </h3>
                 </div>
                 <div>
                   <span>Date</span>
@@ -111,7 +115,7 @@ export default function Page({
                 </div>
                 <div>
                   <span>Location</span>
-                  <h3 className='font-sans'>{capitalize(appointment.city)}</h3>
+                  <h3 className='font-sans capitalize'>{appointment.city}</h3>
                 </div>
                 <div className='text-right'>
                   <span>Phone</span>

@@ -203,27 +203,30 @@ export default function Component(props: {
                 id: 'drag'
               },
               {
-                cell: ({ row }) => (
-                  <Checkbox
-                    aria-label='Select row'
-                    checked={row.getIsSelected()}
-                    onCheckedChange={value => row.toggleSelected(!!value)}
-                  />
-                ),
+                cell: ({ row }) =>
+                  isAdmin && (
+                    <Checkbox
+                      aria-label='Select row'
+                      checked={row.getIsSelected()}
+                      onCheckedChange={value => row.toggleSelected(!!value)}
+                    />
+                  ),
                 enableHiding: false,
                 enableSorting: false,
                 header({ table }) {
                   return (
-                    <Checkbox
-                      aria-label='Select all'
-                      checked={
-                        table.getIsAllPageRowsSelected() ||
-                        (table.getIsSomePageRowsSelected() && 'indeterminate')
-                      }
-                      onCheckedChange={value =>
-                        table.toggleAllPageRowsSelected(!!value)
-                      }
-                    />
+                    isAdmin && (
+                      <Checkbox
+                        aria-label='Select all'
+                        checked={
+                          table.getIsAllPageRowsSelected() ||
+                          (table.getIsSomePageRowsSelected() && 'indeterminate')
+                        }
+                        onCheckedChange={value =>
+                          table.toggleAllPageRowsSelected(!!value)
+                        }
+                      />
+                    )
                   );
                 },
                 id: 'select'

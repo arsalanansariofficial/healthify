@@ -13,6 +13,7 @@ export default async function Page() {
     where: { id: session?.user?.id },
     select: {
       id: true,
+      bio: true,
       city: true,
       name: true,
       email: true,

@@ -154,10 +154,10 @@ async function sendEmail(to: string, subject: string, html: string) {
   });
 }
 
-export async function loginWithCredentials({
-  email,
-  password
-}: Schema<typeof loginSchema>) {
+export async function loginWithCredentials(
+  { email, password }: Schema<typeof loginSchema>,
+  redirectTo?: string
+) {
   try {
     const user = await prisma.user.findUnique({ where: { email } });
 
@@ -186,7 +186,7 @@ export async function loginWithCredentials({
     await signIn('credentials', {
       email,
       password,
-      redirectTo: DASHBOARD
+      redirectTo: redirectTo || DASHBOARD
     });
   } catch (error) {
     return catchAuthError(error as Error);
@@ -449,17 +449,23 @@ export async function verifyToken(id: string) {
   }
 }
 
-export async function login(data: Schema<typeof loginSchema>) {
+export async function login(
+  data: Schema<typeof loginSchema>,
+  redirectTo?: string
+) {
   const email = data.email as string;
   const password = data.password as string;
 
   const result = loginSchema.safeParse({ email, password });
   if (!result.success) return { success: false, message: INVALID_INPUTS };
 
-  return await loginWithCredentials({ email, password });
+  return await loginWithCredentials({ email, password }, redirectTo);
 }
 
-export async function signup(data: Schema<typeof signupSchema>) {
+export async function signup(
+  data: Schema<typeof signupSchema>,
+  redirectTo?: string
+) {
   const result = signupSchema.safeParse(data);
   if (!result.success) return { success: false, message: INVALID_INPUTS };
 
@@ -491,7 +497,7 @@ export async function signup(data: Schema<typeof signupSchema>) {
     return catchErrors(error as Error);
   }
 
-  return loginWithCredentials(data);
+  return loginWithCredentials(data, redirectTo);
 }
 
 export async function seed() {

@@ -3,7 +3,7 @@ import { cookies } from 'next/headers';
 import { Permission } from '@prisma/client';
 
 import { auth, authConfig } from '@/auth';
-import { hasPermission } from '@/lib/utils';
+import { hasPermission, withCallback } from '@/lib/utils';
 
 import {
   URLS,
@@ -25,19 +25,19 @@ export default NextAuth(authConfig).auth(async request => {
   const isLoggedin = request.auth?.user;
   const path = request.nextUrl.pathname;
 
+  const isPublicRoute = PUBLIC_ROUTES.includes(path);
   const isAvailableRoute = URLS.some(u => u.value === path);
-  const isPublicRoute = PUBLIC_ROUTES.includes(request.nextUrl.pathname);
   const isExpired = user?.expiresAt && user.expiresAt - Date.now() <= 0;
 
   const foundUrl = URLS.find(u => u.value === path);
-  const permissions = user?.permissions as Permission[];
   const permission = foundUrl?.permission || String();
+  const permissions = user?.permissions as Permission[];
 
   const hasUrlPermission = user && hasPermission(permissions, permission);
 
   if (user && isExpired) {
     sessionCookie.delete(SESSION);
-    return Response.redirect(new URL(LOGIN, request.nextUrl));
+    return Response.redirect(withCallback(request, LOGIN));
   }
 
   if (user && !isPublicRoute && isAvailableRoute && !hasUrlPermission) {
@@ -45,7 +45,7 @@ export default NextAuth(authConfig).auth(async request => {
   }
 
   if (!isPublicRoute && !isLoggedin) {
-    return Response.redirect(new URL(LOGIN, request.nextUrl));
+    return Response.redirect(withCallback(request, LOGIN));
   }
 
   if (isPublicRoute && isLoggedin) {

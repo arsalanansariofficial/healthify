@@ -1,8 +1,10 @@
 'use client';
 
+import z from 'zod';
 import Link from 'next/link';
 import { signIn } from 'next-auth/react';
 import { useForm } from 'react-hook-form';
+import { useSearchParams } from 'next/navigation';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faGithub } from '@fortawesome/free-brands-svg-icons/faGithub';
@@ -35,7 +37,13 @@ import {
 } from '@/components/ui/card';
 
 export default function Page() {
-  const { pending, handleSubmit } = useHookForm(handler, signup);
+  const params = useSearchParams();
+  const redirectTo = params.get('redirectTo') || String();
+
+  const { pending, handleSubmit } = useHookForm(
+    handler,
+    (data: z.infer<typeof signupSchema>) => signup(data, redirectTo)
+  );
 
   const form = useForm({
     resolver: zodResolver(signupSchema),

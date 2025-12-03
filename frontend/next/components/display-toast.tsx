@@ -9,24 +9,21 @@ export default async function handler<T, R>(
 ) {
   const result = (await action(data)) as { message: string; success: boolean };
 
-  if (error) {
+  if (error)
     toast(<h2 className='text-destructive'>{error}</h2>, {
       description: <p className='text-destructive'>{getDate()}</p>,
       position: 'top-center'
     });
-  }
 
-  if (result?.success) {
+  if (result?.success)
     toast(result.message, {
       description: <span className='text-foreground'>{getDate()}</span>,
       position: 'top-center'
     });
-  }
 
-  if (!result?.success && result?.message) {
+  if (!result?.success && result?.message)
     toast(<h2 className='text-destructive'>{result?.message}</h2>, {
       description: <p className='text-destructive'>{getDate()}</p>,
       position: 'top-center'
     });
-  }
 }

@@ -1,7 +1,5 @@
 'use client';
 
-import type React from 'react';
-
 import {
   useRef,
   useState,
@@ -63,7 +61,7 @@ export type FileUploadActions = {
   };
 };
 
-export const formatBytes = (bytes: number, decimals = 2): string => {
+export function formatBytes(bytes: number, decimals = 2): string {
   if (!bytes) return `${bytes} ${FILES.UNITS.SIZES[0]}`;
 
   const k = FILES.UNITS.KILO_BYTE;
@@ -72,11 +70,11 @@ export const formatBytes = (bytes: number, decimals = 2): string => {
   const i = Math.floor(Math.log(bytes) / Math.log(k));
 
   return Number.parseFloat((bytes / k ** i).toFixed(dm)) + sizes[i];
-};
+}
 
-export const useFileUpload = (
+export function useFileUpload(
   options: FileUploadOptions = {}
-): [FileUploadState, FileUploadActions] => {
+): [FileUploadState, FileUploadActions] {
   const {
     accept = FILES.FILE.ACCEPT,
     initialFiles = [],
@@ -90,11 +88,7 @@ export const useFileUpload = (
 
   const [state, setState] = useState<FileUploadState>({
     errors: [],
-    files: initialFiles.map(file => ({
-      file,
-      id: file.id,
-      preview: file.url
-    })),
+    files: initialFiles.map(file => ({ file, id: file.id, preview: file.url })),
     isDragging: false
   });
 
@@ -102,13 +96,12 @@ export const useFileUpload = (
 
   const validateFile = useCallback(
     (file: File | FileMetadata): string | null => {
-      if (file instanceof File && file.size > maxSize) {
+      if (file instanceof File && file.size > maxSize)
         return getFileErrorMessage({
           file,
           maxSize: formatBytes(maxSize),
           name: 'size'
         });
-      }
 
       if (accept !== FILES.FILE.ACCEPT) {
         const acceptedTypes = accept.split(',').map(type => type.trim());
@@ -117,21 +110,18 @@ export const useFileUpload = (
         const fileExtension = `.${file instanceof File ? file.name.split('.').pop() : file.name.split('.').pop()}`;
 
         const isAccepted = acceptedTypes.some(type => {
-          if (type.startsWith('.')) {
+          if (type.startsWith('.'))
             return fileExtension.toLowerCase() === type.toLowerCase();
-          }
 
           if (type.endsWith(`/${FILES.FILE.ACCEPT}`)) {
-            const baseType = type.split('/')[0];
+            const [baseType] = type.split('/');
             return fileType.startsWith(`${baseType}/`);
           }
 
           return fileType === type;
         });
 
-        if (!isAccepted) {
-          return getFileErrorMessage({ file, name: 'type' });
-        }
+        if (!isAccepted) return getFileErrorMessage({ file, name: 'type' });
       }
 
       return null;
@@ -141,9 +131,8 @@ export const useFileUpload = (
 
   const createPreview = useCallback(
     (file: File | FileMetadata): string | undefined => {
-      if (file instanceof File) {
-        return URL.createObjectURL(file);
-      }
+      if (file instanceof File) return URL.createObjectURL(file);
+
       return file.url;
     },
     []
@@ -156,19 +145,15 @@ export const useFileUpload = (
   );
 
   const clearFiles = useCallback(() => {
-    for (const file of state.files) {
+    for (const file of state.files)
       if (
         file.preview &&
         file.file instanceof File &&
         file.file.type.startsWith(`${FILES.IMAGE.ID}/`)
-      ) {
+      )
         URL.revokeObjectURL(file.preview);
-      }
-    }
 
-    if (inputRef.current) {
-      inputRef.current.value = String();
-    }
+    if (inputRef.current) inputRef.current.value = String();
 
     setState(prev => ({ ...prev, errors: [], files: [] }));
     onFilesChange?.([]);
@@ -183,9 +168,7 @@ export const useFileUpload = (
 
       setState(prev => ({ ...prev, errors: [] }));
 
-      if (!multiple) {
-        clearFiles();
-      }
+      if (!multiple) clearFiles();
 
       if (
         multiple &&
@@ -208,9 +191,7 @@ export const useFileUpload = (
               existingFile.file.size === file.size
           );
 
-          if (isDuplicate) {
-            return;
-          }
+          if (isDuplicate) return;
         }
 
         if (file.size > maxSize) {
@@ -226,24 +207,21 @@ export const useFileUpload = (
 
         const error = validateFile(file);
 
-        if (error) {
-          errors.push(error);
-        }
+        if (error) errors.push(error);
 
-        if (!error) {
+        if (!error)
           validFiles.push({
             file,
             id: generateUniqueId(file),
             preview: createPreview(file)
           });
-        }
       }
 
       if (validFiles.length > 0) {
         onFilesAdded?.(validFiles);
-        const newFiles = !multiple
-          ? validFiles
-          : [...state.files, ...validFiles];
+        const newFiles = multiple
+          ? [...state.files, ...validFiles]
+          : validFiles;
 
         setState(prev => ({ ...prev, errors, files: newFiles }));
         onFilesChange?.(newFiles);
@@ -280,9 +258,8 @@ export const useFileUpload = (
         fileToRemove.preview &&
         fileToRemove.file instanceof File &&
         fileToRemove.file.type.startsWith(`${FILES.IMAGE.ID}/`)
-      ) {
+      )
         URL.revokeObjectURL(fileToRemove.preview);
-      }
 
       const newFiles = state.files.filter(file => file.id !== id);
       setState(prev => ({ ...prev, errors: [], files: newFiles }));
@@ -292,10 +269,7 @@ export const useFileUpload = (
   );
 
   const clearErrors = useCallback(() => {
-    setState(prev => ({
-      ...prev,
-      errors: []
-    }));
+    setState(prev => ({ ...prev, errors: [] }));
   }, []);
 
   const handleDragEnter = useCallback((e: DragEvent<HTMLElement>) => {
@@ -308,9 +282,7 @@ export const useFileUpload = (
     e.preventDefault();
     e.stopPropagation();
 
-    if (e.currentTarget.contains(e.relatedTarget as Node)) {
-      return;
-    }
+    if (e.currentTarget.contains(e.relatedTarget as Node)) return;
 
     setState(prev => ({ ...prev, isDragging: false }));
   }, []);
@@ -326,45 +298,37 @@ export const useFileUpload = (
       e.stopPropagation();
       setState(prev => ({ ...prev, isDragging: false }));
 
-      if (inputRef.current?.disabled) {
-        return;
-      }
+      if (inputRef.current?.disabled) return;
 
-      if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
-        return !multiple
-          ? addFiles([e.dataTransfer.files[0]])
-          : addFiles(e.dataTransfer.files);
-      }
+      if (e.dataTransfer.files && e.dataTransfer.files.length > 0)
+        return multiple
+          ? addFiles(e.dataTransfer.files)
+          : addFiles([e.dataTransfer.files[0]]);
     },
     [addFiles, multiple]
   );
 
   const handleFileChange = useCallback(
     (e: ChangeEvent<HTMLInputElement>) => {
-      if (e.target.files && e.target.files.length > 0) {
+      if (e.target.files && e.target.files.length > 0)
         addFiles(Array.from(e.target.files).map(f => new File([f], ext(f), f)));
-      }
     },
     [addFiles]
   );
 
   const openFileDialog = useCallback(() => {
-    if (inputRef.current) {
-      inputRef.current.click();
-    }
+    if (inputRef.current) inputRef.current.click();
   }, []);
 
   const getInputProps = useCallback(
-    (props: InputHTMLAttributes<HTMLInputElement> = {}) => {
-      return {
-        ...props,
-        accept: props.accept || accept,
-        multiple: props.multiple !== undefined ? props.multiple : multiple,
-        onChange: handleFileChange,
-        ref: inputRef,
-        type: 'file' as const
-      };
-    },
+    (props: InputHTMLAttributes<HTMLInputElement> = {}) => ({
+      ...props,
+      accept: props.accept || accept,
+      multiple: props.multiple ? multiple : props.multiple,
+      onChange: handleFileChange,
+      ref: inputRef,
+      type: 'file' as const
+    }),
     [accept, multiple, handleFileChange]
   );
 
@@ -384,4 +348,4 @@ export const useFileUpload = (
       removeFile
     }
   ];
-};
+}

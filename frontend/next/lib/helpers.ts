@@ -25,10 +25,9 @@ export function formatCurrency(
   currency: string = 'USD',
   locale: string = 'en-US'
 ): string {
-  return new Intl.NumberFormat(locale, {
-    currency,
-    style: 'currency'
-  }).format(amount);
+  return new Intl.NumberFormat(locale, { currency, style: 'currency' }).format(
+    amount
+  );
 }
 
 export function formatDateTime(input: Date | string | number): string {
@@ -49,10 +48,8 @@ export function debounce<T extends (...args: unknown[]) => unknown>(
 ): (...args: Parameters<T>) => void {
   let timeout: NodeJS.Timeout | null = null;
 
-  return function (...args: Parameters<T>): void {
-    if (timeout) {
-      clearTimeout(timeout);
-    }
+  return (...args: Parameters<T>) => {
+    if (timeout) clearTimeout(timeout);
 
     timeout = setTimeout(() => {
       func(...args);
@@ -61,9 +58,7 @@ export function debounce<T extends (...args: unknown[]) => unknown>(
 }
 
 export function getSlug(title: string): string {
-  if (!title || typeof title !== 'string') {
-    return '';
-  }
+  if (!title || typeof title !== 'string') return '';
 
   return title
     .toLowerCase()
@@ -76,13 +71,11 @@ export function getSlug(title: string): string {
     .replace(/^-|-$/g, '');
 }
 
-export const getInitials = (
+export function getInitials(
   name: string | null | undefined,
   count?: number
-): string => {
-  if (!name || typeof name !== 'string') {
-    return '';
-  }
+): string {
+  if (!name || typeof name !== 'string') return '';
 
   const initials = name
     .split(' ')
@@ -92,9 +85,9 @@ export const getInitials = (
   return count && count > 0
     ? initials.slice(0, count).join('')
     : initials.join('');
-};
+}
 
-export const getTimeZones = (): { label: string; value: string }[] => {
+export function getTimeZones(): { label: string; value: string }[] {
   const timezones = Intl.supportedValuesOf('timeZone');
 
   return timezones
@@ -117,24 +110,22 @@ export const getTimeZones = (): { label: string; value: string }[] => {
       };
     })
     .sort((a, b) => a.numericOffset - b.numericOffset);
-};
+}
 
-export const throttle = (
+export function throttle(
   func: (...args: unknown[]) => void,
   limit: number
-): ((...args: unknown[]) => void) => {
+): (...args: unknown[]) => void {
   let lastFunc: ReturnType<typeof setTimeout> | null = null;
   let lastRan: number | null = null;
 
-  return function (this: unknown, ...args: unknown[]) {
+  return function throttler(this: unknown, ...args: unknown[]) {
     if (lastRan === null) {
       func.apply(this, args);
       return (lastRan = Date.now());
     }
 
-    if (lastFunc !== null) {
-      clearTimeout(lastFunc);
-    }
+    if (lastFunc !== null) clearTimeout(lastFunc);
 
     lastFunc = setTimeout(
       () => {
@@ -146,4 +137,4 @@ export const throttle = (
       limit - (Date.now() - (lastRan as number))
     );
   };
-};
+}

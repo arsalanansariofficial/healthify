@@ -442,10 +442,7 @@ export default function Component({ doctors }: { doctors: User[] }) {
 
                               field.onChange([
                                 ...field.value,
-                                {
-                                  amount: 100,
-                                  renewalType: availableTypes[0]
-                                }
+                                { amount: 100, renewalType: availableTypes[0] }
                               ]);
                             }}
                             type='button'
@@ -480,7 +477,9 @@ export default function Component({ doctors }: { doctors: User[] }) {
                                     min={0}
                                     onChange={e => {
                                       const value = field.value.slice();
-                                      value[index].amount = +e.target.value;
+                                      value[index].amount = Number(
+                                        e.target.value
+                                      );
                                       field.onChange(value);
                                     }}
                                     placeholder='100 Rupees'

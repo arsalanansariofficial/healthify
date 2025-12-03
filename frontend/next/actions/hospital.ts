@@ -22,9 +22,8 @@ export async function deleteHospitals(ids: string[]) {
 export async function addHospital(data: z.infer<typeof hospitalSchema>) {
   const result = hospitalSchema.safeParse(data);
 
-  if (!result.success) {
+  if (!result.success)
     return { message: MESSAGES.SYSTEM.INVALID_INPUTS, success: false };
-  }
 
   try {
     await prisma.hospital.create({
@@ -68,14 +67,12 @@ export async function updateHospital(
   } = result.data;
 
   try {
-    await prisma.$transaction(async function (transaction) {
+    await prisma.$transaction(async transaction => {
       await Promise.all([
         transaction.hospitalDepartment.deleteMany({
           where: { hospitalId: id }
         }),
-        transaction.hospitalMembership.deleteMany({
-          where: { hospitalId: id }
-        })
+        transaction.hospitalMembership.deleteMany({ where: { hospitalId: id } })
       ]);
 
       await transaction.hospital.update({
@@ -89,7 +86,7 @@ export async function updateHospital(
 
       const prismaCreates = [];
 
-      if (hospitalDepartments.length) {
+      if (hospitalDepartments.length)
         prismaCreates.push(
           transaction.hospitalDepartment.createMany({
             data: hospitalDepartments.map(departmentId => ({
@@ -98,9 +95,8 @@ export async function updateHospital(
             }))
           })
         );
-      }
 
-      if (hospitalMemberships.length) {
+      if (hospitalMemberships.length)
         prismaCreates.push(
           transaction.hospitalMembership.createMany({
             data: hospitalMemberships.map(membershipId => ({
@@ -109,7 +105,6 @@ export async function updateHospital(
             }))
           })
         );
-      }
 
       await Promise.all(prismaCreates);
     });

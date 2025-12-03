@@ -50,42 +50,40 @@ export const { auth, handlers, signIn, signOut, unstable_update } = NextAuth({
   callbacks: {
     async jwt({ account, session, token, trigger, user }) {
       if (user) {
-        if (!user.roles || !user.permissions) {
-          const roles = (
+        let { permissions, roles } = user;
+
+        if (!roles || !permissions) {
+          roles = (
             await prisma.userRole.findMany({
               select: { role: true },
               where: { userId: user.id }
             })
           ).map(ur => ur.role);
 
-          const permissions = (
+          permissions = (
             await prisma.rolePermission.findMany({
               select: { permission: true },
               where: { roleId: { in: roles.map(r => r.id) } }
             })
           ).map(rp => rp.permission);
-
-          user.roles = roles;
-          user.permissions = permissions;
         }
 
         token.id = user.id;
+        token.roles = roles;
         token.city = user.city;
-        token.roles = user.roles;
         token.phone = user.phone;
         token.image = user.image;
         token.cover = user.cover;
         token.hasOAuth = user.hasOAuth;
-        token.permissions = user.permissions;
+        token.permissions = permissions;
 
         if (account?.provider !== 'credentials') {
-          token.hasOAuth =
-            (
-              await prisma.user.findUnique({
-                select: { hasOAuth: true },
-                where: { id: user.id }
-              })
-            )?.hasOAuth || false;
+          const dbUser = await prisma.user.findUnique({
+            select: { hasOAuth: true },
+            where: { id: user.id }
+          });
+
+          token.hasOAuth = dbUser?.hasOAuth ?? false;
         }
       }
 
@@ -120,7 +118,7 @@ export const { auth, handlers, signIn, signOut, unstable_update } = NextAuth({
         where: { id: user.id }
       });
 
-      return !existingUser?.emailVerified ? false : true;
+      return Boolean(existingUser?.emailVerified);
     }
   },
   events: {

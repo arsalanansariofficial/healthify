@@ -31,11 +31,7 @@ import { pharmaCodeSchema } from '@/lib/schemas';
 export default function Component() {
   const { handleSubmit } = useHookForm(handler, addPharmaCode);
   const form = useForm({
-    defaultValues: {
-      code: String(),
-      description: String(),
-      frequency: 1
-    },
+    defaultValues: { code: String(), description: String(), frequency: 1 },
     resolver: zodResolver(pharmaCodeSchema)
   });
 

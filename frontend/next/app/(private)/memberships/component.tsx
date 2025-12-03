@@ -89,7 +89,7 @@ function Menu({
           <DropdownMenuItem
             className='flex cursor-pointer items-center justify-between gap-1'
             onClick={async () => {
-              if (!isHeader) {
+              if (!isHeader)
                 toast.promise(deleteMembership(id as string), {
                   error(error) {
                     const { message } = catchErrors(error as Error);
@@ -99,9 +99,8 @@ function Menu({
                   position: 'top-center',
                   success: MESSAGES.MEMBERSHIP.DELETED
                 });
-              }
 
-              if (isHeader) {
+              if (isHeader)
                 toast.promise(deleteMemberships(ids as string[]), {
                   error(error) {
                     const { message } = catchErrors(error as Error);
@@ -111,7 +110,6 @@ function Menu({
                   position: 'top-center',
                   success: MESSAGES.MEMBERSHIP.BULK_DELETED
                 });
-              }
             }}
             variant='destructive'
           >
@@ -225,7 +223,9 @@ export default function Component(props: { user: User; memberships: Row[] }) {
                     <Checkbox
                       aria-label='Select row'
                       checked={row.getIsSelected()}
-                      onCheckedChange={value => row.toggleSelected(!!value)}
+                      onCheckedChange={value =>
+                        row.toggleSelected(Boolean(value))
+                      }
                     />
                   ),
                 enableHiding: false,
@@ -239,7 +239,7 @@ export default function Component(props: { user: User; memberships: Row[] }) {
                         (table.getIsSomePageRowsSelected() && 'indeterminate')
                       }
                       onCheckedChange={value =>
-                        table.toggleAllPageRowsSelected(!!value)
+                        table.toggleAllPageRowsSelected(Boolean(value))
                       }
                     />
                   ),
@@ -300,9 +300,7 @@ export default function Component(props: { user: User; memberships: Row[] }) {
               {
                 accessorKey: 'fee',
                 cell: ({ row }) => {
-                  if (!row.original.fees.length) {
-                    return <Badge>Free</Badge>;
-                  }
+                  if (!row.original.fees.length) return <Badge>Free</Badge>;
 
                   return (
                     <ul className='space-y-2'>
@@ -331,20 +329,17 @@ export default function Component(props: { user: User; memberships: Row[] }) {
                     user={props.user}
                   />
                 ),
-                header: ({ table }) => {
-                  return (
-                    isAdmin && (
-                      <Menu
-                        ids={table
-                          .getSelectedRowModel()
-                          .rows.map(r => r.original.id.toString())}
-                        isAdmin={isAdmin}
-                        isHeader={true}
-                        user={props.user}
-                      />
-                    )
-                  );
-                },
+                header: ({ table }) =>
+                  isAdmin && (
+                    <Menu
+                      ids={table
+                        .getSelectedRowModel()
+                        .rows.map(r => r.original.id.toString())}
+                      isAdmin={isAdmin}
+                      isHeader={true}
+                      user={props.user}
+                    />
+                  ),
                 id: 'actions'
               }
             ] as ColumnDef<Row>[]

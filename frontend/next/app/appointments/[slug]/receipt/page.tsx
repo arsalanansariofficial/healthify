@@ -30,9 +30,8 @@ export default async function Page(props: {
     where: { id: slug }
   });
 
-  if (!appointment || appointment.status !== AppointmentStatus.confirmed) {
+  if (!appointment || appointment.status !== AppointmentStatus.confirmed)
     notFound();
-  }
 
   return <Component appointment={appointment} />;
 }

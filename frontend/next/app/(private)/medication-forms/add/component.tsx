@@ -31,10 +31,7 @@ import { medicationFormSchema } from '@/lib/schemas';
 export default function Component() {
   const { handleSubmit } = useHookForm(handler, addMedicationForm);
   const form = useForm({
-    defaultValues: {
-      description: String(),
-      name: String()
-    },
+    defaultValues: { description: String(), name: String() },
     resolver: zodResolver(medicationFormSchema)
   });
 

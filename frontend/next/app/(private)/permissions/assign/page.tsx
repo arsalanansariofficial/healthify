@@ -14,26 +14,24 @@ export default async function Page({
   const { role } = await searchParams;
 
   const { permissions, rolePermissions, roles } = await prisma.$transaction(
-    async function (transaction) {
+    async transaction => {
       const [roles, permissions] = await Promise.all([
         transaction.role.findMany(),
         transaction.permission.findMany()
       ]);
 
-      let existingRole;
+      let existingRole = null;
       let rolePermissions: RolePermission[] = [];
 
-      if (role) {
+      if (role)
         existingRole = await transaction.role.findUnique({
           where: { name: role }
         });
-      }
 
-      if (existingRole) {
+      if (existingRole)
         rolePermissions = await transaction.rolePermission.findMany({
           where: { roleId: existingRole.id }
         });
-      }
 
       return { permissions, rolePermissions, roles };
     }

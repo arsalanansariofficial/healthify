@@ -1,8 +1,7 @@
 'use client';
 
 import { zodResolver } from '@hookform/resolvers/zod';
-import { User as Doctor } from '@prisma/client';
-import { Speciality, TimeSlot } from '@prisma/client';
+import { Speciality, TimeSlot, User as Doctor } from '@prisma/client';
 import { IconDotsVertical } from '@tabler/icons-react';
 import { ColumnDef } from '@tanstack/react-table';
 import { User } from 'next-auth';
@@ -80,7 +79,7 @@ function Menu({
       <DropdownMenuContent align='end' className='w-32'>
         <DropdownMenuItem
           onClick={async () => {
-            if (!isHeader) {
+            if (!isHeader)
               toast.promise(deleteSpeciality(id as string), {
                 error(error) {
                   const { message } = catchErrors(error as Error);
@@ -90,9 +89,8 @@ function Menu({
                 position: 'top-center',
                 success: MESSAGES.SPECIALITY.DELETED
               });
-            }
 
-            if (isHeader) {
+            if (isHeader)
               toast.promise(deleteSpecialities(ids as string[]), {
                 error(error) {
                   const { message } = catchErrors(error as Error);
@@ -102,7 +100,6 @@ function Menu({
                 position: 'top-center',
                 success: MESSAGES.SPECIALITY.BULK_DELETED
               });
-            }
           }}
           variant='destructive'
         >
@@ -189,9 +186,7 @@ export default function Component(props: {
   specialities: Speciality[];
   doctors: (Doctor & {
     timings: TimeSlot[];
-    UserSpecialities: {
-      speciality: { name: string };
-    }[];
+    UserSpecialities: { speciality: { name: string } }[];
   })[];
 }) {
   return (
@@ -214,7 +209,9 @@ export default function Component(props: {
                   <Checkbox
                     aria-label='Select row'
                     checked={row.getIsSelected()}
-                    onCheckedChange={value => row.toggleSelected(!!value)}
+                    onCheckedChange={value =>
+                      row.toggleSelected(Boolean(value))
+                    }
                   />
                 ),
                 enableHiding: false,
@@ -227,7 +224,7 @@ export default function Component(props: {
                       (table.getIsSomePageRowsSelected() && 'indeterminate')
                     }
                     onCheckedChange={value =>
-                      table.toggleAllPageRowsSelected(!!value)
+                      table.toggleAllPageRowsSelected(Boolean(value))
                     }
                   />
                 ),
@@ -254,16 +251,14 @@ export default function Component(props: {
                 cell: ({ row }) => (
                   <Menu id={row.original.id.toString()} isHeader={false} />
                 ),
-                header: ({ table }) => {
-                  return (
-                    <Menu
-                      ids={table
-                        .getSelectedRowModel()
-                        .rows.map(r => r.original.id.toString())}
-                      isHeader={true}
-                    />
-                  );
-                },
+                header: ({ table }) => (
+                  <Menu
+                    ids={table
+                      .getSelectedRowModel()
+                      .rows.map(r => r.original.id.toString())}
+                    isHeader={true}
+                  />
+                ),
                 id: 'actions'
               }
             ] as ColumnDef<Speciality>[]

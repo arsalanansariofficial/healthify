@@ -14,7 +14,7 @@ import { loginSchema, signupSchema } from '@/lib/schemas';
 import { catchAuthError, catchErrors } from '@/lib/utils';
 
 export async function generateToken(userId: string) {
-  return await prisma.$transaction(async function (transaction) {
+  return await prisma.$transaction(async transaction => {
     const token = await transaction.token.findUnique({ where: { userId } });
     if (token) await transaction.token.delete({ where: { userId } });
     return await transaction.token.create({
@@ -33,24 +33,21 @@ export async function loginWithCredentials(
   try {
     const user = await prisma.user.findUnique({ where: { email } });
 
-    if (!user) {
+    if (!user)
       return { message: MESSAGES.USER.EMAIL_NOT_FOUND, success: false };
-    }
 
     if (!user.emailVerified) {
       const token = await generateToken(user.id as string);
 
-      if (!token) {
+      if (!token)
         return { message: MESSAGES.AUTH.TOKEN_NOT_GENERATED, success: false };
-      }
 
       const html = VerifyEmail({ data: { token: token.id } });
       const subject = `${DOMAIN.LOCAL}/verify?token=${token.id}`;
       const emailSent = await sendEmail(email, subject, html);
 
-      if (!emailSent) {
+      if (!emailSent)
         return { message: MESSAGES.USER.EMAIL_BOUNCED, success: false };
-      }
 
       return { message: MESSAGES.USER.CONFIRM_EMAIL, success: true };
     }
@@ -95,7 +92,7 @@ export async function signup(
     if (user)
       return { message: MESSAGES.USER.EMAIL_REGISTERED, success: false };
 
-    await prisma.$transaction(async function (transaction) {
+    await prisma.$transaction(async transaction => {
       const role = await transaction.role.findUnique({
         where: { name: ROLES.USER as string }
       });

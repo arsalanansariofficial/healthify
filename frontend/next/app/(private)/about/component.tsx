@@ -2,8 +2,7 @@
 
 import { zodResolver } from '@hookform/resolvers/zod';
 import { User } from '@prisma/client';
-import { useCallback } from 'react';
-import { useForm } from 'react-hook-form';
+import { useForm, useWatch } from 'react-hook-form';
 import ReactMarkdown from 'react-markdown';
 import rehypeHighlight from 'rehype-highlight';
 import remarkGfm from 'remark-gfm';
@@ -44,17 +43,14 @@ export default function Component({
     resolver: zodResolver(bioSchema)
   });
 
-  const onError = useCallback(
-    (errors: typeof userForm.formState.errors): void => {
-      if (errors.bio?.message) {
-        toast(<h2 className='text-destructive'>{errors.bio.message}</h2>, {
-          description: <p className='text-destructive'>{getDate()}</p>,
-          position: 'top-center'
-        });
-      }
-    },
-    [userForm]
-  );
+  function onError(errors: typeof userForm.formState.errors): void {
+    if (errors.bio?.message)
+      toast(<h2 className='text-destructive'>{errors.bio.message}</h2>, {
+        description: <p className='text-destructive'>{getDate()}</p>,
+        position: 'top-center'
+      });
+  }
+  const { bio } = useWatch({ control: userForm.control });
 
   return (
     <Tabs className='h-full' defaultValue='write'>
@@ -112,7 +108,7 @@ export default function Component({
               rehypePlugins={[rehypeHighlight]}
               remarkPlugins={[remarkGfm]}
             >
-              {userForm.watch().bio}
+              {bio}
             </ReactMarkdown>
           </TabsContent>
         </form>

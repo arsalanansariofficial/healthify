@@ -18,7 +18,7 @@ export default async function Page() {
 
   if (!user) notFound();
 
-  if (user.bio) {
+  if (user.bio)
     user.bio = (
       await readFile(
         path.join(
@@ -28,7 +28,6 @@ export default async function Page() {
         )
       )
     ).toString('utf-8');
-  }
 
   return <Component user={user} />;
 }

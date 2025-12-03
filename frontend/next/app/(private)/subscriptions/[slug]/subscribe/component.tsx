@@ -49,11 +49,7 @@ export default function Component({
 }) {
   const { handleSubmit } = useHookForm(handler, subscribeMembership);
   const form = useForm({
-    defaultValues: {
-      feeId: String(),
-      membershipId: membership.id,
-      users: []
-    },
+    defaultValues: { feeId: String(), membershipId: membership.id, users: [] },
     resolver: zodResolver(membershipSubscriptionSchema)
   });
 

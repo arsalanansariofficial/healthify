@@ -29,9 +29,8 @@ export async function deleteMemberships(ids: string[]) {
 export async function addMembership(data: z.infer<typeof membershipSchema>) {
   const result = membershipSchema.safeParse(data);
 
-  if (!result.success) {
+  if (!result.success)
     return { message: MESSAGES.SYSTEM.INVALID_INPUTS, success: false };
-  }
 
   const { name, perks } = result.data;
 
@@ -50,9 +49,8 @@ export async function subscribeMembership(
 ) {
   const result = membershipSubscriptionSchema.safeParse(data);
 
-  if (!result.success) {
+  if (!result.success)
     return { message: MESSAGES.SYSTEM.INVALID_INPUTS, success: false };
-  }
 
   const { feeId, membershipId, users } = result.data;
 
@@ -80,19 +78,16 @@ export async function payForMembership(id: string) {
       where: { id }
     });
 
-    if (!subscription || !subscription?.fee) {
+    if (!subscription || !subscription?.fee)
       return { message: MESSAGES.SYSTEM.INVALID_INPUTS, success: false };
-    }
 
-    let expiresAt;
+    let expiresAt = null;
 
-    if (subscription.fee.renewalType === 'monthly') {
+    if (subscription.fee.renewalType === 'monthly')
       expiresAt = addDays(new Date(), DATES.DAYS_IN_MONTH as number);
-    }
 
-    if (subscription.fee.renewalType === 'yearly') {
+    if (subscription.fee.renewalType === 'yearly')
       expiresAt = addDays(new Date(), DATES.DAYS_IN_YEAR as number);
-    }
 
     await prisma.membershipSubscription.update({
       data: {

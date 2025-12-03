@@ -307,9 +307,7 @@ export default function Component({
                     disabled={
                       !hasFormChanged(
                         defaultUserValues,
-                        useWatch({
-                          control: userForm.control
-                        })
+                        useWatch({ control: userForm.control })
                       ) || userForm.formState.isSubmitting
                     }
                     ref={userFormButtonRef}
@@ -544,7 +542,9 @@ export default function Component({
                                       {...field}
                                       onChange={e => {
                                         const time = field.value.slice();
-                                        time[index].duration = +e.target.value;
+                                        time[index].duration = Number(
+                                          e.target.value
+                                        );
                                         field.onChange(time);
                                       }}
                                       type='number'
@@ -580,9 +580,7 @@ export default function Component({
                     disabled={
                       !hasFormChanged(
                         defaultDoctorValues,
-                        useWatch({
-                          control: doctorForm.control
-                        })
+                        useWatch({ control: doctorForm.control })
                       ) || doctorForm.formState.isSubmitting
                     }
                     ref={doctorFormButtonRef}

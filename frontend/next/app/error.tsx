@@ -14,9 +14,9 @@ export default function Page({
       <section className='space-y-4 text-center'>
         <Info
           message={
-            !ENVIRONMENT.IS_PRODUCTION
-              ? error.message
-              : 'There is some error while processing your request, please try again after some time!'
+            ENVIRONMENT.IS_PRODUCTION
+              ? 'There is some error while processing your request, please try again after some time!'
+              : error.message
           }
           title='500 - Internal Server Error'
         />

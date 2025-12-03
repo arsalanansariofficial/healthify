@@ -61,7 +61,7 @@ export default function CoverUpload({
   const [uploadProgress, setUploadProgress] = useState(0);
   const hasImage = coverImage && coverImage.preview;
 
-  const simulateUpload = () => {
+  function simulateUpload() {
     const interval = setInterval(() => {
       setUploadProgress(prev => {
         if (prev >= 100) {
@@ -75,25 +75,27 @@ export default function CoverUpload({
         return Math.min(prev + increment, 100);
       });
     }, 200);
-  };
+  }
 
-  const removeCoverImage = () => {
+  function removeCoverImage() {
     clearFiles();
     setUploadProgress(0);
     setIsUploading(false);
     setImageLoading(false);
     if (buttonRef.current) buttonRef.current.disabled = false;
-  };
+  }
 
   return (
     <div
       className={cn(
         'group border-border relative cursor-pointer overflow-hidden rounded-xl border transition-all duration-200',
-        isDragging
-          ? 'border-primary bg-primary/5 border-dashed'
-          : hasImage
-            ? 'border-border bg-background hover:border-primary/50'
-            : 'border-muted-foreground/25 bg-muted/30 hover:border-primary hover:bg-primary/5 border-dashed',
+        {
+          'border-border bg-background hover:border-primary/50':
+            !isDragging && hasImage,
+          'border-muted-foreground/25 bg-muted/30 hover:border-primary hover:bg-primary/5 border-dashed':
+            !isDragging && !hasImage,
+          'border-primary bg-primary/5 border-dashed': isDragging
+        },
         className
       )}
       onDragEnter={handleDragEnter}

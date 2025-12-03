@@ -95,7 +95,7 @@ function Menu({
         {(status === 'pending' || status === 'cancelled') && (
           <DropdownMenuItem
             onClick={async () => {
-              if (!isHeader) {
+              if (!isHeader)
                 toast.promise(payForMembership(id as string), {
                   error(error) {
                     const { message } = catchErrors(error as Error);
@@ -105,7 +105,6 @@ function Menu({
                   position: 'top-center',
                   success: MESSAGES.PAYMENT.PROCESSED
                 });
-              }
             }}
           >
             Pay Now
@@ -113,7 +112,7 @@ function Menu({
         )}
         <DropdownMenuItem
           onClick={async () => {
-            if (!isHeader) {
+            if (!isHeader)
               toast.promise(deleteSubscription(id as string), {
                 error(error) {
                   const { message } = catchErrors(error as Error);
@@ -123,9 +122,8 @@ function Menu({
                 position: 'top-center',
                 success: MESSAGES.MEMBERSHIP_SUBSCRIPTION.DELETED
               });
-            }
 
-            if (isHeader) {
+            if (isHeader)
               toast.promise(deleteSubscriptions(ids as string[]), {
                 error(error) {
                   const { message } = catchErrors(error as Error);
@@ -135,7 +133,6 @@ function Menu({
                 position: 'top-center',
                 success: MESSAGES.MEMBERSHIP_SUBSCRIPTION.BULK_DELETED
               });
-            }
           }}
           variant='destructive'
         >
@@ -321,7 +318,9 @@ export default function Component(props: { user: User; subscriptions: Row[] }) {
                   <Checkbox
                     aria-label='Select row'
                     checked={row.getIsSelected()}
-                    onCheckedChange={value => row.toggleSelected(!!value)}
+                    onCheckedChange={value =>
+                      row.toggleSelected(Boolean(value))
+                    }
                   />
                 ),
                 enableHiding: false,
@@ -334,7 +333,7 @@ export default function Component(props: { user: User; subscriptions: Row[] }) {
                       (table.getIsSomePageRowsSelected() && 'indeterminate')
                     }
                     onCheckedChange={value =>
-                      table.toggleAllPageRowsSelected(!!value)
+                      table.toggleAllPageRowsSelected(Boolean(value))
                     }
                   />
                 ),
@@ -414,13 +413,11 @@ export default function Component(props: { user: User; subscriptions: Row[] }) {
                 cell: ({ row }) => {
                   let variant: BadgeVariant = 'default';
 
-                  if (row.original.status === SubscriptionStatus.pending) {
+                  if (row.original.status === SubscriptionStatus.pending)
                     variant = 'outline';
-                  }
 
-                  if (row.original.status === SubscriptionStatus.cancelled) {
+                  if (row.original.status === SubscriptionStatus.cancelled)
                     variant = 'destructive';
-                  }
 
                   return (
                     <Badge className='capitalize' variant={variant}>
@@ -434,9 +431,7 @@ export default function Component(props: { user: User; subscriptions: Row[] }) {
               {
                 accessorKey: 'fee',
                 cell: ({ row }) => {
-                  if (!row.original.fee) {
-                    return <Badge>Free</Badge>;
-                  }
+                  if (!row.original.fee) return <Badge>Free</Badge>;
 
                   return (
                     <ul className='space-y-2'>
@@ -457,17 +452,15 @@ export default function Component(props: { user: User; subscriptions: Row[] }) {
                     status={row.original.status}
                   />
                 ),
-                header: ({ table }) => {
-                  return (
-                    <Menu
-                      ids={table
-                        .getSelectedRowModel()
-                        .rows.map(r => r.original.id.toString())}
-                      isHeader={true}
-                      status='pending'
-                    />
-                  );
-                },
+                header: ({ table }) => (
+                  <Menu
+                    ids={table
+                      .getSelectedRowModel()
+                      .rows.map(r => r.original.id.toString())}
+                    isHeader={true}
+                    status='pending'
+                  />
+                ),
                 id: 'actions'
               }
             ] as ColumnDef<Row>[]

@@ -33,6 +33,10 @@ const city = z.object({
   city: z.string().toUpperCase().min(1, { message: 'City should be valid.' })
 });
 
+const bio = z.object({
+  bio: z.string().min(10, { message: 'Bio should be at least 10 characters' })
+});
+
 const permissions = z.object({
   permissions: z.array(z.string().min(1, { message: 'Name should be valid.' }))
 });
@@ -102,6 +106,7 @@ const timings = z.object({
   )
 });
 
+export const bioSchema = bio;
 export const nameSchema = name;
 export const roleSchema = name;
 

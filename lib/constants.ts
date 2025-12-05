@@ -170,6 +170,13 @@ export const SIDEBAR_ITEMS = new Map([
     ]
   ],
   [
+    { label: 'Hospitals', permission: 'view:hospitals' },
+    [
+      { label: 'View', url: '/hospitals', permission: 'view:hospitals' },
+      { label: 'Add', url: '/hospitals/add', permission: 'add:hospital' }
+    ]
+  ],
+  [
     { label: 'Appointments', permission: 'view:appointments' },
     [{ label: 'View', url: '/appointments', permission: 'view:appointments' }]
   ],

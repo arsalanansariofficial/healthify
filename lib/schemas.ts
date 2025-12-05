@@ -1,4 +1,6 @@
 import z from 'zod';
+import { Gender } from '@prisma/client';
+
 import { MAX_DATE, MIN_DATE } from '@/lib/constants';
 
 const emailVerified = z.object({
@@ -6,11 +8,11 @@ const emailVerified = z.object({
 });
 
 const appointmentTime = z.object({
-  time: z.string().min(1, { message: 'Should be valid.' })
+  time: z.string().toLowerCase().min(1, { message: 'Should be valid.' })
 });
 
 const name = z.object({
-  name: z.string().min(1, { message: 'Should be valid.' })
+  name: z.string().toLowerCase().min(1, { message: 'Should be valid.' })
 });
 
 const email = z.object({
@@ -26,11 +28,13 @@ const password = z.object({
 });
 
 const gender = z.object({
-  gender: z.enum(['male', 'female'], { message: 'Gender should be valid.' })
+  gender: z.enum([Gender.male, Gender.female], {
+    message: 'Gender should be valid.'
+  })
 });
 
 const city = z.object({
-  city: z.string().toUpperCase().min(1, { message: 'City should be valid.' })
+  city: z.string().toLowerCase().min(1, { message: 'City should be valid.' })
 });
 
 const bio = z.object({
@@ -38,18 +42,22 @@ const bio = z.object({
 });
 
 const permissions = z.object({
-  permissions: z.array(z.string().min(1, { message: 'Name should be valid.' }))
+  permissions: z.array(
+    z.string().toLowerCase().min(1, { message: 'Name should be valid.' })
+  )
 });
 
 const roles = z.object({
   roles: z
-    .array(z.string().min(1, { message: 'Name should be valid.' }))
+    .array(
+      z.string().toLowerCase().min(1, { message: 'Name should be valid.' })
+    )
     .min(1, { message: 'At least one role must be selected.' })
 });
 
 const specialities = z.object({
   specialities: z
-    .array(z.string().min(1, { message: 'Id should be valid.' }))
+    .array(z.string().toLowerCase().min(1, { message: 'Id should be valid.' }))
     .min(1, { message: 'At least one speciality must be selected.' })
 });
 
@@ -67,7 +75,7 @@ const phone = z.object({
 
 const visitDays = z.object({
   daysOfVisit: z
-    .array(z.string().toUpperCase().min(1, { message: 'Day should be valid.' }))
+    .array(z.string().toLowerCase().min(1, { message: 'Day should be valid.' }))
     .min(1, { message: 'Select at least one day of visit.' })
 });
 

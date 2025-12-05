@@ -22,7 +22,7 @@ import {
 import prisma from '@/lib/prisma';
 import { VerifyEmail } from '@/components/email/account/email';
 import { auth, signIn, unstable_update as update } from '@/auth';
-import { AppointmentStatus, Day, TimeSlot } from '@prisma/client';
+import { AppointmentStatus, Day, Gender, TimeSlot } from '@prisma/client';
 
 import {
   CancelAppointment,
@@ -39,6 +39,7 @@ import {
 } from '@/lib/utils';
 
 import {
+  bioSchema,
   nameSchema,
   roleSchema,
   userSchema,
@@ -51,8 +52,7 @@ import {
   appointmentSchema,
   userProfileSchema,
   doctorProfileSchema,
-  rolePermissionsSchema,
-  bioSchema
+  rolePermissionsSchema
 } from '@/lib/schemas';
 
 import {
@@ -842,8 +842,9 @@ export async function updateUserProfile(
           email: email !== user.email ? email : undefined,
           city: city && city !== user.city ? city : undefined,
           phone: phone && phone !== user.phone ? phone : undefined,
-          gender: gender && gender !== user.gender ? gender : undefined,
-          password: password ? bcrypt.hashSync(password, 10) : undefined
+          password: password ? bcrypt.hashSync(password, 10) : undefined,
+          gender:
+            gender && gender !== user.gender ? (gender as Gender) : undefined
         }
       });
 
@@ -1071,7 +1072,7 @@ export async function updateAppointmentStatus(id: string, status: string) {
       }
     };
 
-    if (status === AppointmentStatus.CONFIRMED) {
+    if (status === AppointmentStatus.confirmed) {
       await Promise.all([
         sendEmail(
           updated.doctor.email as string,
@@ -1086,7 +1087,7 @@ export async function updateAppointmentStatus(id: string, status: string) {
       ]);
     }
 
-    if (status === AppointmentStatus.CANCELLED) {
+    if (status === AppointmentStatus.cancelled) {
       await Promise.all([
         sendEmail(
           updated.doctor.email as string,
@@ -1105,7 +1106,7 @@ export async function updateAppointmentStatus(id: string, status: string) {
     return {
       success: true,
       message:
-        status === AppointmentStatus.CONFIRMED
+        status === AppointmentStatus.confirmed
           ? APPOINTMENT_CONFIRMED
           : APPOINTMENT_CANCELLED
     };
@@ -1209,11 +1210,11 @@ export async function getDashboardCards() {
   );
 
   const pendingAppointments = appointments.filter(
-    a => a.status === AppointmentStatus.PENDING
+    a => a.status === AppointmentStatus.pending
   );
 
   const pendingPrevWeek = appointmentsPrevWeek.filter(
-    a => a.status === AppointmentStatus.PENDING
+    a => a.status === AppointmentStatus.pending
   );
 
   const cities = new Set(users.map(u => u.city).filter(Boolean));
@@ -1295,11 +1296,11 @@ export async function getUserDashboardCards(userId: string) {
   ]);
 
   const upcoming = appointments.filter(
-    a => isFuture(a.date) && a.status !== AppointmentStatus.CANCELLED
+    a => isFuture(a.date) && a.status !== AppointmentStatus.cancelled
   );
 
   const completed = appointments.filter(
-    a => isPast(a.date) && a.status === AppointmentStatus.CONFIRMED
+    a => isPast(a.date) && a.status === AppointmentStatus.confirmed
   );
 
   return [

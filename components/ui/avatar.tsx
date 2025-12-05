@@ -1,5 +1,3 @@
-'use client';
-
 import { ComponentProps } from 'react';
 import { Root, Image, Fallback } from '@radix-ui/react-avatar';
 

@@ -142,7 +142,7 @@ export function TableCellViewer<T extends z.ZodType>(props: TCVProps<T>) {
     updateAppointmentStatus.bind(
       null,
       props.item.id,
-      AppointmentStatus.CONFIRMED
+      AppointmentStatus.confirmed
     ) as (data: unknown) => Promise<unknown>
   );
 
@@ -151,7 +151,7 @@ export function TableCellViewer<T extends z.ZodType>(props: TCVProps<T>) {
     updateAppointmentStatus.bind(
       null,
       props.item.id,
-      AppointmentStatus.CANCELLED
+      AppointmentStatus.cancelled
     ) as (data: unknown) => Promise<unknown>
   );
 
@@ -234,8 +234,8 @@ export function TableCellViewer<T extends z.ZodType>(props: TCVProps<T>) {
         <DrawerFooter>
           <div className="grid grid-flow-col gap-2">
             {isInFuture &&
-              (status === AppointmentStatus.PENDING ||
-                status === AppointmentStatus.CONFIRMED) &&
+              (status === AppointmentStatus.pending ||
+                status === AppointmentStatus.confirmed) &&
               hasPermission(props.user.permissions, 'cancel:appointment') && (
                 <Button
                   type="submit"
@@ -252,7 +252,7 @@ export function TableCellViewer<T extends z.ZodType>(props: TCVProps<T>) {
                 </Button>
               )}
             {isInFuture &&
-              status === AppointmentStatus.PENDING &&
+              status === AppointmentStatus.pending &&
               hasPermission(props.user.permissions, 'confirm:appointment') && (
                 <Button
                   type="submit"
@@ -267,7 +267,7 @@ export function TableCellViewer<T extends z.ZodType>(props: TCVProps<T>) {
                   <Check />
                 </Button>
               )}
-            {status === AppointmentStatus.CONFIRMED &&
+            {status === AppointmentStatus.confirmed &&
               hasPermission(props.user.permissions, 'view:receipt') && (
                 <Button
                   asChild
@@ -377,9 +377,9 @@ export default function Component(props: Props) {
         let variant: BadgeVariant = 'default';
         const status = findItem(props.appointments, row.original.id)?.status;
 
-        if (status === 'PENDING') variant = 'outline';
-        if (status === 'CONFIRMED') variant = 'secondary';
-        if (status === 'CANCELLED') variant = 'destructive';
+        if (status === AppointmentStatus.pending) variant = 'outline';
+        if (status === AppointmentStatus.confirmed) variant = 'secondary';
+        if (status === AppointmentStatus.cancelled) variant = 'destructive';
 
         return (
           <Badge className="capitalize" variant={variant}>

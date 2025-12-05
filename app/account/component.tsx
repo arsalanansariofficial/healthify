@@ -57,7 +57,20 @@ import {
 
 type Props = {
   specialities: { value: string; label: string }[];
-  user: Omit<User, 'token' | 'accounts' | 'password'> & {
+  user: Pick<
+    User,
+    | 'id'
+    | 'name'
+    | 'city'
+    | 'email'
+    | 'phone'
+    | 'image'
+    | 'cover'
+    | 'gender'
+    | 'hasOAuth'
+    | 'experience'
+    | 'daysOfVisit'
+  > & {
     UserRoles: { role: Pick<Role, 'id' | 'name'> }[];
     timings: Pick<TimeSlot, 'id' | 'time' | 'duration'>[];
     UserSpecialities: { speciality: Pick<Speciality, 'id' | 'name'> }[];

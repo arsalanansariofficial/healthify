@@ -105,13 +105,13 @@ export const CHARTS_DATA = [
 ];
 
 export const DAYS = [
-  { value: 'SUNDAY', label: 'SUNDAY' },
-  { value: 'MONDAY', label: 'MONDAY' },
-  { value: 'TUESDAY', label: 'TUESDAY' },
-  { value: 'WEDNESDAY', label: 'WEDNESDAY' },
-  { value: 'THURSDAY', label: 'THURSDAY' },
-  { value: 'FRIDAY', label: 'FRIDAY' },
-  { value: 'SATURDAY', label: 'SATURDAY' }
+  { value: 'sunday', label: 'Sunday' },
+  { value: 'monday', label: 'Monday' },
+  { value: 'tuesday', label: 'Tuesday' },
+  { value: 'wednesday', label: 'Wednesday' },
+  { value: 'thursday', label: 'Thursday' },
+  { value: 'friday', label: 'Friday' },
+  { value: 'saturday', label: 'Saturday' }
 ];
 
 export const URLS = [

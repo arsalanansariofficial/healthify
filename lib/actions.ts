@@ -338,10 +338,7 @@ export async function updateSpeciality(
   if (!result.success) return { success: false, message: INVALID_INPUTS };
 
   try {
-    await prisma.speciality.update({
-      where: { id },
-      data: { name: name.toUpperCase() }
-    });
+    await prisma.speciality.update({ where: { id }, data: { name } });
 
     revalidatePath(HOME);
     return {
@@ -359,7 +356,7 @@ export async function addSpeciality({ name }: Schema<typeof nameSchema>) {
 
   try {
     await prisma.speciality.create({
-      data: { name: result.data.name?.toUpperCase() as string }
+      data: { name: result.data.name as string }
     });
 
     revalidatePath(HOME);
@@ -379,7 +376,7 @@ export async function addRole(data: Schema<typeof roleSchema>) {
 
   try {
     await prisma.role.create({
-      data: { name: result.data.name.toUpperCase() }
+      data: { name: result.data.name }
     });
 
     return { ...data, success: true, message: ROLE_ADDED };
@@ -394,7 +391,7 @@ export async function addPermission(data: Schema<typeof permissionSchema>) {
 
   try {
     await prisma.permission.create({
-      data: { name: result.data.name.toUpperCase() }
+      data: { name: result.data.name }
     });
 
     return {

@@ -86,8 +86,7 @@ export default function Component({ error }: { error?: string }) {
             <form
               className='space-y-2'
               id='login-form'
-              onSubmit={form.handleSubmit(handleSubmit)}
-            >
+              onSubmit={form.handleSubmit(handleSubmit)}>
               <FormField
                 control={form.control}
                 name='email'
@@ -114,8 +113,7 @@ export default function Component({ error }: { error?: string }) {
                       <span>Password</span>
                       <Link
                         className='text-primary font-normal'
-                        href={ROUTES.FORGET}
-                      >
+                        href={ROUTES.FORGET}>
                         Forget Password?
                       </Link>
                     </FormLabel>
@@ -138,15 +136,13 @@ export default function Component({ error }: { error?: string }) {
             className='cursor-pointer'
             disabled={pending}
             form='login-form'
-            type='submit'
-          >
+            type='submit'>
             {pending ? 'Logging in...' : 'Login'}
           </Button>
           <Button
             className='cursor-pointer'
             onClick={() => signIn('github')}
-            variant='outline'
-          >
+            variant='outline'>
             <FontAwesomeIcon icon={faGithub} size='5x' />
           </Button>
         </CardFooter>

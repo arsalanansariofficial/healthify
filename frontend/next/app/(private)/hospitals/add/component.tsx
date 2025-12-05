@@ -76,8 +76,7 @@ export default function Component({
             <form
               className='space-y-2'
               id='hospital-form'
-              onSubmit={form.handleSubmit(handleSubmit)}
-            >
+              onSubmit={form.handleSubmit(handleSubmit)}>
               <FormField
                 control={form.control}
                 name='name'
@@ -151,8 +150,7 @@ export default function Component({
                     <FormControl>
                       <Select
                         defaultValue={field.value}
-                        onValueChange={field.onChange}
-                      >
+                        onValueChange={field.onChange}>
                         <SelectTrigger className='w-full [&_span[data-slot]]:block [&_span[data-slot]]:truncate'>
                           <SelectValue placeholder='Select a status' />
                         </SelectTrigger>
@@ -250,8 +248,7 @@ export default function Component({
             className='cursor-pointer'
             disabled={form.formState.isLoading}
             form='hospital-form'
-            type='submit'
-          >
+            type='submit'>
             {form.formState.isLoading ? 'Saving...' : 'Save'}
           </Button>
         </CardFooter>

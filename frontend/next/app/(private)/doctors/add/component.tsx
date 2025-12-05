@@ -78,8 +78,7 @@ export default function Component({
             <form
               className='relative space-y-2'
               id='doctor-form'
-              onSubmit={form.handleSubmit(handleSubmit)}
-            >
+              onSubmit={form.handleSubmit(handleSubmit)}>
               <FormField
                 control={form.control}
                 name='cover'
@@ -177,8 +176,7 @@ export default function Component({
                     <FormControl>
                       <Select
                         defaultValue={field.value}
-                        onValueChange={field.onChange}
-                      >
+                        onValueChange={field.onChange}>
                         <SelectTrigger className='w-full [&_span[data-slot]]:block [&_span[data-slot]]:truncate'>
                           <SelectValue placeholder='Select a gender' />
                         </SelectTrigger>
@@ -287,8 +285,7 @@ export default function Component({
                               ]);
                             }}
                             type='button'
-                            variant='ghost'
-                          >
+                            variant='ghost'>
                             <PlusIcon className='h-4 w-4' />
                           </Button>
                         </div>
@@ -297,8 +294,7 @@ export default function Component({
                             {field.value.map((time, index) => (
                               <li
                                 className='grid grid-cols-[1fr_auto_auto] gap-2'
-                                key={time.id}
-                              >
+                                key={time.id}>
                                 <Input
                                   className='bg-background appearance-none [&::-webkit-calendar-picker-indicator]:hidden [&::-webkit-calendar-picker-indicator]:appearance-none'
                                   defaultValue={time.time}
@@ -333,8 +329,7 @@ export default function Component({
                                     }
                                   }}
                                   type='button'
-                                  variant='ghost'
-                                >
+                                  variant='ghost'>
                                   <TrashIcon className='h-4 w-4' />
                                 </Button>
                               </li>

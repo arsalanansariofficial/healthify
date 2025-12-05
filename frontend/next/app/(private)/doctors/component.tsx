@@ -94,8 +94,7 @@ export function TableCellViewer(props: { item: Doctor }) {
             <form
               className='space-y-2'
               id='speciality-form'
-              onSubmit={form.handleSubmit(handleSubmit)}
-            >
+              onSubmit={form.handleSubmit(handleSubmit)}>
               <FormField
                 control={form.control}
                 name='name'
@@ -122,8 +121,7 @@ export function TableCellViewer(props: { item: Doctor }) {
             className='cursor-pointer'
             disabled={pending}
             form='speciality-form'
-            type='submit'
-          >
+            type='submit'>
             {pending ? 'Saving...' : 'Save'}
           </Button>
           <DrawerClose asChild>
@@ -251,15 +249,13 @@ export default function Component(props: {
               <form
                 className='space-y-4'
                 id='filter-form'
-                onSubmit={applyFilters}
-              >
+                onSubmit={applyFilters}>
                 <div className='space-y-2'>
                   <Label htmlFor='doctor-speciality'>Speciality</Label>
                   <Select name='speciality'>
                     <SelectTrigger
                       className='w-full [&_span[data-slot]]:block [&_span[data-slot]]:truncate'
-                      id='doctor-speciality'
-                    >
+                      id='doctor-speciality'>
                       <SelectValue placeholder='Select a speciality' />
                     </SelectTrigger>
                     <SelectContent>
@@ -273,8 +269,7 @@ export default function Component(props: {
                   <Select name='experience'>
                     <SelectTrigger
                       className='w-full [&_span[data-slot]]:block [&_span[data-slot]]:truncate'
-                      id='doctor-experience'
-                    >
+                      id='doctor-experience'>
                       <SelectValue placeholder='Select experience in years' />
                     </SelectTrigger>
                     <SelectContent>
@@ -294,8 +289,7 @@ export default function Component(props: {
                   <Select name='gender'>
                     <SelectTrigger
                       className='w-full [&_span[data-slot]]:block [&_span[data-slot]]:truncate'
-                      id='doctor-gender'
-                    >
+                      id='doctor-gender'>
                       <SelectValue placeholder='Select a gender' />
                     </SelectTrigger>
                     <SelectContent>
@@ -309,8 +303,7 @@ export default function Component(props: {
                   <Select name='time'>
                     <SelectTrigger
                       className='w-full [&_span[data-slot]]:block [&_span[data-slot]]:truncate'
-                      id='doctor-time'
-                    >
+                      id='doctor-time'>
                       <SelectValue placeholder='Select a time' />
                     </SelectTrigger>
                     <SelectContent>
@@ -344,8 +337,7 @@ export default function Component(props: {
               <CardContent className='space-y-3 px-3'>
                 <Link
                   className='relative block min-h-40 overflow-hidden rounded-md'
-                  href={`/doctors/${doctor.id}`}
-                >
+                  href={`/doctors/${doctor.id}`}>
                   <Image
                     alt={doctor.name as string}
                     fill
@@ -363,8 +355,7 @@ export default function Component(props: {
                     <li key={t.id}>
                       <Badge
                         className='text-xs font-semibold capitalize'
-                        variant='outline'
-                      >
+                        variant='outline'>
                         {formatTime(t.time)}
                       </Badge>
                     </li>
@@ -383,8 +374,7 @@ export default function Component(props: {
                         <li key={speciality.name}>
                           <Badge
                             className='text-xs font-semibold capitalize'
-                            variant='outline'
-                          >
+                            variant='outline'>
                             {speciality.name.toLowerCase()}
                           </Badge>
                         </li>
@@ -393,16 +383,14 @@ export default function Component(props: {
                   </div>
                   <Badge
                     className='text-xs font-semibold capitalize'
-                    variant='secondary'
-                  >
+                    variant='secondary'>
                     {doctor.experience} Years
                   </Badge>
                 </div>
                 <Button asChild className='mt-4 block w-full cursor-pointer'>
                   <Link
                     className='text-center'
-                    href={`/doctors/appointments/${doctor.id}`}
-                  >
+                    href={`/doctors/appointments/${doctor.id}`}>
                     Get Appointment
                   </Link>
                 </Button>

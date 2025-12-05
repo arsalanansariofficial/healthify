@@ -194,14 +194,16 @@ const alertVariants = cva(
 );
 
 interface AlertProps
-  extends React.HTMLAttributes<HTMLDivElement>,
+  extends
+    React.HTMLAttributes<HTMLDivElement>,
     VariantProps<typeof alertVariants> {
   close?: boolean;
   onClose?: () => void;
 }
 
 interface AlertIconProps
-  extends React.HTMLAttributes<HTMLDivElement>,
+  extends
+    React.HTMLAttributes<HTMLDivElement>,
     VariantProps<typeof alertVariants> {}
 
 function Alert({
@@ -223,16 +225,14 @@ function Alert({
       )}
       data-slot='alert'
       role='alert'
-      {...props}
-    >
+      {...props}>
       {children}
       {close && (
         <button
           aria-label='Dismiss'
           className={cn('group size-4 shrink-0 cursor-pointer')}
           data-slot='alert-close'
-          onClick={onClose}
-        >
+          onClick={onClose}>
           <X className='size-4 opacity-60 group-hover:opacity-100' />
         </button>
       )}
@@ -258,8 +258,7 @@ function AlertIcon({ children, className, ...props }: AlertIconProps) {
     <div
       className={cn('shrink-0', className)}
       data-slot='alert-icon'
-      {...props}
-    >
+      {...props}>
       {children}
     </div>
   );

@@ -31,8 +31,7 @@ export default function Page() {
             className='w-full cursor-pointer'
             disabled={pending}
             onClick={handleSubmit}
-            type='submit'
-          >
+            type='submit'>
             {pending ? 'Seeding...' : 'Seed database'}
           </Button>
         </EmptyContent>

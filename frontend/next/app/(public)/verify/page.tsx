@@ -17,8 +17,7 @@ async function Verify({ token }: { token: string }) {
             Verifying...
           </p>
         </section>
-      }
-    >
+      }>
       <section className='space-y-4 text-center'>
         <p className={cn('font-semibold', { 'text-destructive': !success })}>
           {message}

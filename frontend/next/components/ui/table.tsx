@@ -90,8 +90,7 @@ export function Table(props: ComponentProps<'table'>) {
   return (
     <div
       className='relative w-full overflow-x-auto'
-      data-slot='table-container'
-    >
+      data-slot='table-container'>
       <table
         {...props}
         className={cn('w-full caption-bottom text-sm', props.className)}

@@ -69,8 +69,7 @@ export default function Component() {
             <form
               className='space-y-2'
               id='membership-form'
-              onSubmit={form.handleSubmit(handleSubmit)}
-            >
+              onSubmit={form.handleSubmit(handleSubmit)}>
               <FormField
                 control={form.control}
                 name='name'
@@ -108,8 +107,7 @@ export default function Component() {
                               ]);
                             }}
                             type='button'
-                            variant='ghost'
-                          >
+                            variant='ghost'>
                             <PlusIcon className='h-4 w-4' />
                           </Button>
                         </div>
@@ -138,8 +136,7 @@ export default function Component() {
                                           field.onChange(newPerks);
                                         }}
                                         type='button'
-                                        variant='outline'
-                                      >
+                                        variant='outline'>
                                         <TrashIcon className='h-4 w-4' />
                                       </Button>
                                     </CardAction>
@@ -250,8 +247,7 @@ export default function Component() {
                                             value[index].hospital.isAffiliated =
                                               type;
                                             field.onChange(value);
-                                          }}
-                                        >
+                                          }}>
                                           <SelectTrigger className='w-full [&_span[data-slot]]:block [&_span[data-slot]]:truncate'>
                                             <SelectValue placeholder='Select a value' />
                                           </SelectTrigger>
@@ -326,8 +322,7 @@ export default function Component() {
                               field.onChange([...field.value, String()]);
                             }}
                             type='button'
-                            variant='ghost'
-                          >
+                            variant='ghost'>
                             <PlusIcon className='h-4 w-4' />
                           </Button>
                         </div>
@@ -338,8 +333,7 @@ export default function Component() {
                             return (
                               <li
                                 className='grid grid-cols-[1fr_auto] gap-2'
-                                key={index}
-                              >
+                                key={index}>
                                 <div className='space-y-2'>
                                   <Input
                                     {...field}
@@ -368,8 +362,7 @@ export default function Component() {
                                     field.onChange(newPerks);
                                   }}
                                   type='button'
-                                  variant='ghost'
-                                >
+                                  variant='ghost'>
                                   <TrashIcon className='h-4 w-4' />
                                 </Button>
                               </li>
@@ -409,8 +402,7 @@ export default function Component() {
                               ]);
                             }}
                             type='button'
-                            variant='ghost'
-                          >
+                            variant='ghost'>
                             <PlusIcon className='h-4 w-4' />
                           </Button>
                         </div>
@@ -429,8 +421,7 @@ export default function Component() {
                             return (
                               <li
                                 className='grid grid-cols-[1fr_1fr_auto] gap-2'
-                                key={index}
-                              >
+                                key={index}>
                                 <div className='space-y-2'>
                                   <Input
                                     className={cn({
@@ -461,8 +452,7 @@ export default function Component() {
                                       value[index].renewalType = type;
                                       field.onChange(value);
                                     }}
-                                    value={fee.renewalType}
-                                  >
+                                    value={fee.renewalType}>
                                     <SelectTrigger className='w-full [&_span[data-slot]]:block [&_span[data-slot]]:truncate'>
                                       <SelectValue placeholder='Select a renewal type' />
                                     </SelectTrigger>
@@ -471,8 +461,7 @@ export default function Component() {
                                         <SelectItem
                                           className='capitalize'
                                           key={type}
-                                          value={type}
-                                        >
+                                          value={type}>
                                           {type}
                                         </SelectItem>
                                       ))}
@@ -491,8 +480,7 @@ export default function Component() {
                                     field.onChange(newFees);
                                   }}
                                   type='button'
-                                  variant='ghost'
-                                >
+                                  variant='ghost'>
                                   <TrashIcon className='h-4 w-4' />
                                 </Button>
                               </li>
@@ -514,8 +502,7 @@ export default function Component() {
             className='cursor-pointer'
             disabled={form.formState.isLoading}
             form='membership-form'
-            type='submit'
-          >
+            type='submit'>
             {form.formState.isLoading ? 'Saving...' : 'Save'}
           </Button>
         </CardFooter>

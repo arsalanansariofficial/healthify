@@ -86,8 +86,7 @@ export default function Component({
             <form
               className='space-y-2'
               id='appointment-form'
-              onSubmit={form.handleSubmit(handleSubmit)}
-            >
+              onSubmit={form.handleSubmit(handleSubmit)}>
               <div className='space-y-2'>
                 <Label htmlFor='doctor-name'>Doctor</Label>
                 <Input
@@ -181,8 +180,7 @@ export default function Component({
                           <Button
                             className='data-[empty=true]:text-muted-foreground flex justify-between text-left font-normal'
                             data-empty={!field.value}
-                            variant='outline'
-                          >
+                            variant='outline'>
                             {field.value &&
                               getDate(field.value.toString(), false, false)}
                             {!field.value && <span>Pick a date</span>}
@@ -229,8 +227,7 @@ export default function Component({
                             <SelectItem
                               className='capitalize'
                               key={time.id}
-                              value={time.id}
-                            >
+                              value={time.id}>
                               {formatTime(time.time)}
                             </SelectItem>
                           ))}

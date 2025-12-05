@@ -91,8 +91,7 @@ export function DragHandle({ id }: { id: string }) {
       {...listeners}
       {...attributes}
       className='text-muted-foreground size-7 hover:bg-transparent'
-      variant='ghost'
-    >
+      variant='ghost'>
       <IconGripVertical className='text-muted-foreground size-3' />
       <span className='sr-only'>Drag to reorder</span>
     </Button>
@@ -111,8 +110,7 @@ export function DraggableRow<T extends { id: string }>(props: { row: Row<T> }) {
       data-dragging={isDragging}
       data-state={row.getIsSelected() && 'selected'}
       ref={setNodeRef}
-      style={{ transform: CSS.Transform.toString(transform), transition }}
-    >
+      style={{ transform: CSS.Transform.toString(transform), transition }}>
       {row.getVisibleCells().map(cell => (
         <TableCell key={cell.id}>
           {flexRender(cell.column.columnDef.cell, cell.getContext())}
@@ -212,8 +210,7 @@ export function DataTable<T extends { id: string }>(props: {
   return (
     <Tabs
       className='w-full flex-col justify-start gap-6'
-      defaultValue='outline'
-    >
+      defaultValue='outline'>
       <div className='flex justify-between gap-2'>
         <div className='grid auto-cols-auto grid-flow-col gap-2'>
           {props.filterConfig.map(filter => {
@@ -237,8 +234,7 @@ export function DataTable<T extends { id: string }>(props: {
                     <Button
                       className='data-[empty=true]:text-muted-foreground flex justify-between text-left font-normal'
                       data-empty={!value}
-                      variant='outline'
-                    >
+                      variant='outline'>
                       {value && format(value, 'PPP')}
                       {!value && <span>Pick a date</span>}
                       <CalendarIcon />
@@ -261,8 +257,7 @@ export function DataTable<T extends { id: string }>(props: {
                         setFilterValues(prev => ({ ...prev, [filter.id]: '' }))
                       }
                       size='sm'
-                      variant='ghost'
-                    >
+                      variant='ghost'>
                       Clear
                     </Button>
                   </PopoverContent>
@@ -311,8 +306,7 @@ export function DataTable<T extends { id: string }>(props: {
                     key={column.id}
                     onCheckedChange={value =>
                       column.toggleVisibility(Boolean(value))
-                    }
-                  >
+                    }>
                     {column.id}
                   </DropdownMenuCheckboxItem>
                 ))}
@@ -323,16 +317,14 @@ export function DataTable<T extends { id: string }>(props: {
       </div>
       <TabsContent
         className='relative flex flex-col gap-4 overflow-auto'
-        value='outline'
-      >
+        value='outline'>
         <div className='overflow-hidden rounded-lg border'>
           <DndContext
             collisionDetection={closestCenter}
             id={sortableId}
             modifiers={[restrictToVerticalAxis]}
             onDragEnd={handleDragEnd}
-            sensors={sensors}
-          >
+            sensors={sensors}>
             <Table>
               <TableHeader className='bg-muted sticky top-0 z-10'>
                 {table.getHeaderGroups().map(headerGroup => (
@@ -354,8 +346,7 @@ export function DataTable<T extends { id: string }>(props: {
                   <TableRow>
                     <TableCell
                       className='text-center'
-                      colSpan={props.columns.length}
-                    >
+                      colSpan={props.columns.length}>
                       No results.
                     </TableCell>
                   </TableRow>
@@ -363,8 +354,7 @@ export function DataTable<T extends { id: string }>(props: {
                 {table.getRowModel().rows?.length > 0 && (
                   <SortableContext
                     items={dataIds}
-                    strategy={verticalListSortingStrategy}
-                  >
+                    strategy={verticalListSortingStrategy}>
                     {table.getRowModel().rows.map(row => (
                       <DraggableRow key={row.id} row={row} />
                     ))}
@@ -388,8 +378,7 @@ export function DataTable<T extends { id: string }>(props: {
                 onValueChange={value => {
                   table.setPageSize(Number(value));
                 }}
-                value={`${table.getState().pagination.pageSize}`}
-              >
+                value={`${table.getState().pagination.pageSize}`}>
                 <SelectTrigger className='w-20' id='rows-per-page' size='sm'>
                   <SelectValue
                     placeholder={table.getState().pagination.pageSize}
@@ -413,8 +402,7 @@ export function DataTable<T extends { id: string }>(props: {
                 className='hidden h-8 w-8 p-0 lg:flex'
                 disabled={!table.getCanPreviousPage()}
                 onClick={() => table.setPageIndex(0)}
-                variant='outline'
-              >
+                variant='outline'>
                 <span className='sr-only'>Go to first page</span>
                 <IconChevronsLeft />
               </Button>
@@ -423,8 +411,7 @@ export function DataTable<T extends { id: string }>(props: {
                 disabled={!table.getCanPreviousPage()}
                 onClick={() => table.previousPage()}
                 size='icon'
-                variant='outline'
-              >
+                variant='outline'>
                 <span className='sr-only'>Go to previous page</span>
                 <IconChevronLeft />
               </Button>
@@ -433,8 +420,7 @@ export function DataTable<T extends { id: string }>(props: {
                 disabled={!table.getCanNextPage()}
                 onClick={() => table.nextPage()}
                 size='icon'
-                variant='outline'
-              >
+                variant='outline'>
                 <span className='sr-only'>Go to next page</span>
                 <IconChevronRight />
               </Button>
@@ -443,8 +429,7 @@ export function DataTable<T extends { id: string }>(props: {
                 disabled={!table.getCanNextPage()}
                 onClick={() => table.setPageIndex(table.getPageCount() - 1)}
                 size='icon'
-                variant='outline'
-              >
+                variant='outline'>
                 <span className='sr-only'>Go to last page</span>
                 <IconChevronsRight />
               </Button>

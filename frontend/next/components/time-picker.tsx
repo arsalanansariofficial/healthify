@@ -60,8 +60,7 @@ export function TimePicker({ label, onChange, value }: Props) {
       <div className='flex gap-2'>
         <Select
           onValueChange={value => update(value, undefined, undefined)}
-          value={hours12}
-        >
+          value={hours12}>
           <SelectTrigger className='w-20'>
             <SelectValue placeholder='HH' />
           </SelectTrigger>
@@ -75,8 +74,7 @@ export function TimePicker({ label, onChange, value }: Props) {
         </Select>
         <Select
           onValueChange={value => update(undefined, value, undefined)}
-          value={minutes}
-        >
+          value={minutes}>
           <SelectTrigger className='w-20'>
             <SelectValue placeholder='MM' />
           </SelectTrigger>
@@ -92,8 +90,7 @@ export function TimePicker({ label, onChange, value }: Props) {
           onValueChange={value =>
             update(undefined, undefined, value as 'AM' | 'PM')
           }
-          value={period}
-        >
+          value={period}>
           <SelectTrigger className='w-24'>
             <SelectValue placeholder='AM/PM' />
           </SelectTrigger>

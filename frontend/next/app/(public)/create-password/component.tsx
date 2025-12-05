@@ -34,8 +34,7 @@ export default function Component({ email }: { email: string }) {
             <form
               className='space-y-2'
               id='reset-form'
-              onSubmit={form.handleSubmit(handleSubmit)}
-            >
+              onSubmit={form.handleSubmit(handleSubmit)}>
               <RHF.FormField
                 control={form.control}
                 name='password'
@@ -63,8 +62,7 @@ export default function Component({ email }: { email: string }) {
             className='w-full cursor-pointer'
             disabled={pending}
             form='reset-form'
-            type='submit'
-          >
+            type='submit'>
             {pending ? 'Updating password...' : 'Reset password'}
           </Button>
         </CN.CardFooter>

@@ -70,8 +70,7 @@ export default function Component({
               className='cursor-pointer'
               disabled={userForm.formState.isSubmitting}
               form='bio-form'
-              type='submit'
-            >
+              type='submit'>
               {userForm.formState.isSubmitting ? 'Saving...' : 'Save'}
             </Button>
           </CardAction>
@@ -81,8 +80,7 @@ export default function Component({
         <form
           className='h-full space-y-2'
           id='bio-form'
-          onSubmit={userForm.handleSubmit(handleSubmit, onError)}
-        >
+          onSubmit={userForm.handleSubmit(handleSubmit, onError)}>
           <TabsContent className='h-full' value='write'>
             <FormField
               control={userForm.control}
@@ -102,12 +100,10 @@ export default function Component({
           </TabsContent>
           <TabsContent
             className='prose prose-neutral dark:prose-invert h-full max-w-none rounded-xl border p-8 shadow'
-            value='preview'
-          >
+            value='preview'>
             <ReactMarkdown
               rehypePlugins={[rehypeHighlight]}
-              remarkPlugins={[remarkGfm]}
-            >
+              remarkPlugins={[remarkGfm]}>
               {bio}
             </ReactMarkdown>
           </TabsContent>

@@ -24,8 +24,7 @@ export default async function RootLayout({
   return (
     <html lang='en' suppressHydrationWarning>
       <body
-        className={`${serif.variable} ${sans.variable} font-sans antialiased`}
-      >
+        className={`${serif.variable} ${sans.variable} font-sans antialiased`}>
         <SessionProvider>
           <ThemeProvider attribute='class' defaultTheme='system' enableSystem>
             {children}

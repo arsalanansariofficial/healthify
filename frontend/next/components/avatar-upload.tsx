@@ -62,8 +62,7 @@ export default function AvatarUpload({
         onDragEnter={handleDragEnter}
         onDragLeave={handleDragLeave}
         onDragOver={handleDragOver}
-        onDrop={handleDrop}
-      >
+        onDrop={handleDrop}>
         <input {...getInputProps()} className='sr-only' />
         {currentFile?.preview ? (
           <div className='relative h-full w-full'>
@@ -88,8 +87,7 @@ export default function AvatarUpload({
           onClick={handleRemove}
           size='icon'
           type='button'
-          variant='outline'
-        >
+          variant='outline'>
           <X className='size-3.5' />
         </Button>
       )}

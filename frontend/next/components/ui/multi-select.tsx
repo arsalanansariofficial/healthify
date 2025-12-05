@@ -96,8 +96,7 @@ export default function MultiSelect(props: MultiSelectProps) {
         <Button
           className='flex h-full min-w-[200px] items-center justify-between px-2 pb-2'
           ref={triggerRef}
-          variant='outline'
-        >
+          variant='outline'>
           <div className='flex flex-wrap gap-1'>
             {props.selectedValues.length === 0 && (
               <span className='truncate font-normal text-gray-500'>
@@ -108,8 +107,7 @@ export default function MultiSelect(props: MultiSelectProps) {
               props.selectedValues.map(val => (
                 <Badge
                   className='flex items-center gap-1 rounded-md bg-gray-200 px-2 py-1 text-black capitalize dark:bg-gray-700 dark:text-white'
-                  key={val}
-                >
+                  key={val}>
                   {props.options.find(opt => opt.value === val)?.label}
                   <div
                     className='ml-1 cursor-pointer text-red-500 hover:text-red-700'
@@ -122,8 +120,7 @@ export default function MultiSelect(props: MultiSelectProps) {
                         e.stopPropagation();
                         removeSelected(val);
                       }
-                    }}
-                  >
+                    }}>
                     <X className='h-3 w-3' />
                   </div>
                 </Badge>
@@ -135,8 +132,7 @@ export default function MultiSelect(props: MultiSelectProps) {
       <PopoverContent
         align='start'
         className='p-0'
-        style={{ width: triggerWidth }}
-      >
+        style={{ width: triggerWidth }}>
         <Command>
           <CommandInput
             onValueChange={setInputValue}
@@ -164,8 +160,7 @@ export default function MultiSelect(props: MultiSelectProps) {
                   <CommandItem
                     className='capitalize'
                     key={option.value}
-                    onSelect={() => toggleSelection(option.value)}
-                  >
+                    onSelect={() => toggleSelection(option.value)}>
                     <div className='flex items-center'>
                       <Check
                         className={cn('mr-2 h-4 w-4 opacity-0', {

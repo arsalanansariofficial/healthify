@@ -46,8 +46,7 @@ export default function Page() {
             <form
               className='space-y-2'
               id='reset-form'
-              onSubmit={form.handleSubmit(handleSubmit)}
-            >
+              onSubmit={form.handleSubmit(handleSubmit)}>
               <FormField
                 control={form.control}
                 name='email'
@@ -68,8 +67,7 @@ export default function Page() {
                 className='cursor-pointer'
                 disabled={pending}
                 form='reset-form'
-                type='submit'
-              >
+                type='submit'>
                 {pending ? 'Sending...' : 'Send token'}
               </Button>
             </form>

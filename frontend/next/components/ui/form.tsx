@@ -95,8 +95,7 @@ export function FormMessage({ className, ...props }: ComponentProps<'p'>) {
       {...props}
       className={cn('text-destructive text-sm', className)}
       data-slot='form-message'
-      id={formMessageId}
-    >
+      id={formMessageId}>
       {body}
     </p>
   );

@@ -49,8 +49,7 @@ export default function Page() {
             <form
               className='space-y-2'
               id='speciality-form'
-              onSubmit={form.handleSubmit(handleSubmit)}
-            >
+              onSubmit={form.handleSubmit(handleSubmit)}>
               <FormField
                 control={form.control}
                 name='name'

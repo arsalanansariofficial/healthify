@@ -64,8 +64,7 @@ function Menu({
       <Button
         className='data-[state=open]:bg-muted text-muted-foreground flex size-8'
         size='icon'
-        variant='ghost'
-      >
+        variant='ghost'>
         <IconDotsVertical />
         <span className='sr-only'>Open menu</span>
       </Button>
@@ -101,8 +100,7 @@ function Menu({
                 success: MESSAGES.SPECIALITY.BULK_DELETED
               });
           }}
-          variant='destructive'
-        >
+          variant='destructive'>
           Delete
         </DropdownMenuItem>
       </DropdownMenuContent>
@@ -145,8 +143,7 @@ export function TableCellViewer(props: { item: Speciality }) {
             <form
               className='space-y-2'
               id='speciality-form'
-              onSubmit={form.handleSubmit(handleSubmit)}
-            >
+              onSubmit={form.handleSubmit(handleSubmit)}>
               <FormField
                 control={form.control}
                 name='name'
@@ -168,8 +165,7 @@ export function TableCellViewer(props: { item: Speciality }) {
             className='cursor-pointer'
             disabled={pending}
             form='speciality-form'
-            type='submit'
-          >
+            type='submit'>
             {pending ? 'Saving...' : 'Save'}
           </Button>
           <DrawerClose asChild>

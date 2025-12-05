@@ -12,8 +12,7 @@ export default function Router({ children }: { children: ReactNode }) {
         e.preventDefault();
         const formData = new FormData(e.target as HTMLFormElement);
         router.push(`/${formData.get('search') as string}`);
-      }}
-    >
+      }}>
       {children}
     </form>
   );

@@ -104,8 +104,7 @@ export function DrawerContent(props: DrawerContentProps) {
           'data-[vaul-drawer-direction=left]:inset-y-0 data-[vaul-drawer-direction=left]:left-0 data-[vaul-drawer-direction=left]:w-3/4 data-[vaul-drawer-direction=left]:border-r data-[vaul-drawer-direction=left]:sm:max-w-sm',
           props.className
         )}
-        data-slot='drawer-content'
-      >
+        data-slot='drawer-content'>
         <div className='bg-muted mx-auto mt-4 hidden h-2 w-[100px] shrink-0 rounded-full group-data-[vaul-drawer-direction=bottom]/drawer-content:block' />
         {props.children}
       </DrawerPrimitive.Content>

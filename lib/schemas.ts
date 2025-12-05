@@ -7,16 +7,16 @@ const emailVerified = z.object({
   emailVerified: z.enum(['yes', 'no']).optional()
 });
 
+const email = z.object({
+  email: z.string().email({ message: 'Email should be valid.' })
+});
+
 const appointmentTime = z.object({
   time: z.string().toLowerCase().min(1, { message: 'Should be valid.' })
 });
 
 const name = z.object({
   name: z.string().toLowerCase().min(1, { message: 'Should be valid.' })
-});
-
-const email = z.object({
-  email: z.string().email({ message: 'Email should be valid.' })
 });
 
 const notes = z.object({
@@ -177,5 +177,20 @@ export const userProfileSchema = name
   .merge(
     z.object({
       password: z.union([z.literal(String()), password.shape.password])
+    })
+  );
+
+export const hospitalSchema = name
+  .merge(city)
+  .merge(email)
+  .merge(phone)
+  .merge(
+    z.object({
+      isAffiliated: emailVerified.shape.emailVerified
+    })
+  )
+  .merge(
+    z.object({
+      address: z.union([z.literal(String()), name.shape.name])
     })
   );

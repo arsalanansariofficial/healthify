@@ -195,5 +195,28 @@ export const hospitalSchema = name
     })
   );
 
-export const departmentSchema = name;
 export const facilitySchema = name;
+export const departmentSchema = name;
+
+export const pharmaCodeSchema = z.object({
+  code: name.shape.name,
+  frequency: experience.shape.experience,
+  description: z.union([
+    z.literal(String()),
+    z
+      .string()
+      .min(10, { message: 'Description should be atleast 10 characters' })
+  ])
+});
+
+export const pharmaManufacturerSchema = z.object({
+  name: name.shape.name,
+  description: z.union([
+    z.literal(String()),
+    pharmaCodeSchema.shape.description
+  ])
+});
+
+export const pharmaSaltSchema = pharmaManufacturerSchema;
+export const pharmaBrandSchema = pharmaManufacturerSchema;
+export const medicationFormSchema = pharmaManufacturerSchema;

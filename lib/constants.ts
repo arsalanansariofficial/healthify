@@ -191,6 +191,81 @@ export const SIDEBAR_ITEMS = new Map([
     ]
   ],
   [
+    { label: 'Pharma Brands', permission: 'view:pharma-brands' },
+    [
+      {
+        label: 'View',
+        url: '/pharma-brands',
+        permission: 'view:pharma-brands'
+      },
+      {
+        label: 'Add',
+        url: '/pharma-brands/add',
+        permission: 'add:pharma-brand'
+      }
+    ]
+  ],
+  [
+    { label: 'Pharma Codes', permission: 'view:pharma-codes' },
+    [
+      {
+        label: 'View',
+        url: '/pharma-codes',
+        permission: 'view:pharma-codes'
+      },
+      {
+        label: 'Add',
+        url: '/pharma-codes/add',
+        permission: 'add:pharma-code'
+      }
+    ]
+  ],
+  [
+    { label: 'Pharma Salt', permission: 'view:pharma-salts' },
+    [
+      {
+        label: 'View',
+        url: '/pharma-salts',
+        permission: 'view:pharma-salts'
+      },
+      {
+        label: 'Add',
+        url: '/pharma-salts/add',
+        permission: 'add:pharma-salt'
+      }
+    ]
+  ],
+  [
+    { label: 'Medication Forms', permission: 'view:medication-forms' },
+    [
+      {
+        label: 'View',
+        url: '/medication-forms',
+        permission: 'view:medication-forms'
+      },
+      {
+        label: 'Add',
+        url: '/medication-forms/add',
+        permission: 'add:medication-form'
+      }
+    ]
+  ],
+  [
+    { label: 'Pharma Manufacturers', permission: 'view:pharma-manufacturers' },
+    [
+      {
+        label: 'View',
+        url: '/pharma-manufacturers',
+        permission: 'view:pharma-manufacturers'
+      },
+      {
+        label: 'Add',
+        url: '/pharma-manufacturers/add',
+        permission: 'add:pharma-manufacturer'
+      }
+    ]
+  ],
+  [
     { label: 'Appointments', permission: 'view:appointments' },
     [{ label: 'View', url: '/appointments', permission: 'view:appointments' }]
   ],
@@ -263,6 +338,36 @@ export let FACILITY_ADDED = '🎉 Facility added successfully';
 export let FACILITY_UPDATED = '🎉 Facility updated successfully';
 export let FACILITY_DELETED = '🎉 Facility deleted successfully.';
 export let FACILITIES_DELETED = '🎉 Facilities deleted successfully.';
+
+export let PHARMA_CODE_ADDED = '🎉 Pharma code added successfully';
+export let PHARMA_CODE_UPDATED = '🎉 Pharma code updated successfully';
+export let PHARMA_CODE_DELETED = '🎉 Pharma code deleted successfully.';
+export let PHARMA_CODES_DELETED = '🎉 Pharma code deleted successfully.';
+
+export let PHARMA_MANUFACTURER_ADDED =
+  '🎉 Pharma manufacture added successfully';
+export let PHARMA_MANUFACTURER_UPDATED =
+  '🎉 Pharma manufacture updated successfully';
+export let PHARMA_MANUFACTURER_DELETED =
+  '🎉 Pharma manufacture deleted successfully.';
+export let PHARMA_MANUFACTURERS_DELETED =
+  '🎉 Pharma manufacturers deleted successfully.';
+
+export let PHARMA_SALT_ADDED = '🎉 Pharma salt added successfully';
+export let PHARMA_SALT_UPDATED = '🎉 Pharma salt updated successfully';
+export let PHARMA_SALT_DELETED = '🎉 Pharma salt deleted successfully.';
+export let PHARMA_SALTS_DELETED = '🎉 Pharma salts deleted successfully.';
+
+export let PHARMA_BRAND_ADDED = '🎉 Pharma brand added successfully';
+export let PHARMA_BRAND_UPDATED = '🎉 Pharma brand updated successfully';
+export let PHARMA_BRAND_DELETED = '🎉 Pharma brand deleted successfully.';
+export let PHARMA_BRANDS_DELETED = '🎉 Pharma brands deleted successfully.';
+
+export let MEDICATION_FORM_ADDED = '🎉 Medication form added successfully';
+export let MEDICATION_FORM_UPDATED = '🎉 Medication form updated successfully';
+export let MEDICATION_FORM_DELETED = '🎉 Medication form deleted successfully.';
+export let MEDICATION_FORMS_DELETED =
+  '🎉 Medication form deleted successfully.';
 
 export let FILE_UPLOADED = '🎉 File uploaded successfully.';
 export let EMAIL_REGISTERED = '⚠️ Email already registered!';
@@ -346,6 +451,51 @@ if (process.env?.FACILITY_DELETED)
   FACILITY_DELETED = process.env.FACILITY_DELETED;
 if (process.env?.FACILITIES_DELETED)
   FACILITIES_DELETED = process.env.FACILITIES_DELETED;
+
+if (process.env?.PHARMA_CODE_ADDED)
+  PHARMA_CODE_ADDED = process.env.PHARMA_CODE_ADDED;
+if (process.env?.PHARMA_CODE_UPDATED)
+  PHARMA_CODE_UPDATED = process.env.PHARMA_CODE_UPDATED;
+if (process.env?.PHARMA_CODE_DELETED)
+  PHARMA_CODE_DELETED = process.env.PHARMA_CODE_DELETED;
+if (process.env?.PHARMA_CODES_DELETED)
+  PHARMA_CODES_DELETED = process.env.PHARMA_CODES_DELETED;
+
+if (process.env?.PHARMA_MANUFACTURER_ADDED)
+  PHARMA_MANUFACTURER_ADDED = process.env.PHARMA_MANUFACTURER_ADDED;
+if (process.env?.PHARMA_MANUFACTURER_UPDATED)
+  PHARMA_MANUFACTURER_UPDATED = process.env.PHARMA_MANUFACTURER_UPDATED;
+if (process.env?.PHARMA_MANUFACTURER_DELETED)
+  PHARMA_MANUFACTURER_DELETED = process.env.PHARMA_MANUFACTURER_DELETED;
+if (process.env?.PHARMA_MANUFACTURERS_DELETED)
+  PHARMA_MANUFACTURERS_DELETED = process.env.PHARMA_MANUFACTURERS_DELETED;
+
+if (process.env?.PHARMA_SALT_ADDED)
+  PHARMA_SALT_ADDED = process.env.PHARMA_SALT_ADDED;
+if (process.env?.PHARMA_SALT_UPDATED)
+  PHARMA_SALT_UPDATED = process.env.PHARMA_SALT_UPDATED;
+if (process.env?.PHARMA_SALT_DELETED)
+  PHARMA_SALT_DELETED = process.env.PHARMA_SALT_DELETED;
+if (process.env?.PHARMA_SALTS_DELETED)
+  PHARMA_SALTS_DELETED = process.env.PHARMA_SALTS_DELETED;
+
+if (process.env?.PHARMA_BRAND_ADDED)
+  PHARMA_BRAND_ADDED = process.env.PHARMA_BRAND_ADDED;
+if (process.env?.PHARMA_BRAND_UPDATED)
+  PHARMA_BRAND_UPDATED = process.env.PHARMA_BRAND_UPDATED;
+if (process.env?.PHARMA_BRAND_DELETED)
+  PHARMA_BRAND_DELETED = process.env.PHARMA_BRAND_DELETED;
+if (process.env?.PHARMA_BRANDS_DELETED)
+  PHARMA_BRANDS_DELETED = process.env.PHARMA_BRANDS_DELETED;
+
+if (process.env?.MEDICATION_FORM_ADDED)
+  MEDICATION_FORM_ADDED = process.env.MEDICATION_FORM_ADDED;
+if (process.env?.MEDICATION_FORM_UPDATED)
+  MEDICATION_FORM_UPDATED = process.env.MEDICATION_FORM_UPDATED;
+if (process.env?.MEDICATION_FORM_DELETED)
+  MEDICATION_FORM_DELETED = process.env.MEDICATION_FORM_DELETED;
+if (process.env?.MEDICATION_FORMS_DELETED)
+  MEDICATION_FORMS_DELETED = process.env.MEDICATION_FORMS_DELETED;
 
 if (process.env?.GITHUB_CLIENT_ID)
   GITHUB_CLIENT_ID = process.env.GITHUB_CLIENT_ID;

@@ -20,7 +20,8 @@ import {
   ABOUT,
   ACCOUNT,
   DASHBOARD,
-  SIDEBAR_ITEMS
+  SIDEBAR_ITEMS,
+  DEFAULT_USER_PROFILE
 } from '@/lib/constants';
 
 import {
@@ -96,7 +97,7 @@ export default function Header({ user }: { user: User }) {
               <DropdownMenuTrigger asChild>
                 <Avatar>
                   <AvatarImage
-                    src={`${!user.hasOAuth ? `${HOST}/api/upload/` : ''}${user.image}`}
+                    src={`${!user.hasOAuth ? `${HOST}/api/upload/` : ''}${user.image || DEFAULT_USER_PROFILE}`}
                   />
                   <AvatarFallback className="bg-transparent">
                     <FontAwesomeIcon

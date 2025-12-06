@@ -177,6 +177,13 @@ export const SIDEBAR_ITEMS = new Map([
     ]
   ],
   [
+    { label: 'Departments', permission: 'view:departments' },
+    [
+      { label: 'View', url: '/departments', permission: 'view:departments' },
+      { label: 'Add', url: '/departments/add', permission: 'add:department' }
+    ]
+  ],
+  [
     { label: 'Appointments', permission: 'view:appointments' },
     [{ label: 'View', url: '/appointments', permission: 'view:appointments' }]
   ],
@@ -241,6 +248,10 @@ export let GITHUB_CLIENT_SECRET = 'GITHUB_CLIENT_SECRET';
 export let USERS_DELETED = '🎉 Users deleted successfully.';
 export let HOSPITAL_ADDED = '🎉 Hospital added successfully';
 export let HOSPITAL_UPDATED = '🎉 Hospital updated successfully';
+export let DEPARTMENT_ADDED = '🎉 Department added successfully';
+export let DEPARTMENT_UPDATED = '🎉 Department updated successfully';
+export let DEPARTMENT_DELETED = '🎉 Department deleted successfully.';
+export let DEPARTMENTS_DELETED = '🎉 Departments deleted successfully.';
 
 export let FILE_UPLOADED = '🎉 File uploaded successfully.';
 export let EMAIL_REGISTERED = '⚠️ Email already registered!';
@@ -307,6 +318,15 @@ if (process.env?.TOKEN_NOT_FOUND) TOKEN_NOT_FOUND = process.env.TOKEN_NOT_FOUND;
 
 if (process.env?.HOSPITAL_UPDATED)
   HOSPITAL_UPDATED = process.env.HOSPITAL_UPDATED;
+
+if (process.env?.DEPARTMENT_ADDED)
+  DEPARTMENT_ADDED = process.env.DEPARTMENT_ADDED;
+if (process.env?.DEPARTMENT_UPDATED)
+  DEPARTMENT_UPDATED = process.env.DEPARTMENT_UPDATED;
+if (process.env?.DEPARTMENT_DELETED)
+  DEPARTMENT_DELETED = process.env.DEPARTMENT_DELETED;
+if (process.env?.DEPARTMENTS_DELETED)
+  DEPARTMENTS_DELETED = process.env.DEPARTMENTS_DELETED;
 
 if (process.env?.GITHUB_CLIENT_ID)
   GITHUB_CLIENT_ID = process.env.GITHUB_CLIENT_ID;

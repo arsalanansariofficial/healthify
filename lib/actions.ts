@@ -50,6 +50,7 @@ import {
   hospitalSchema,
   userRolesSchema,
   permissionSchema,
+  departmentSchema,
   appointmentSchema,
   userProfileSchema,
   doctorProfileSchema,
@@ -90,7 +91,9 @@ import {
   SMTP_PORT_NUMBER,
   SPECIALITY_ADDED,
   HOSPITAL_UPDATED,
+  DEPARTMENT_ADDED,
   INVALID_TIME_SLOT,
+  DEPARTMENT_UPDATED,
   APPOINTMENT_EXISTS,
   DEFAULT_PERMISSION,
   SPECIALITY_UPDATED,
@@ -360,11 +363,7 @@ export async function addSpeciality({ name }: Schema<typeof nameSchema>) {
     });
 
     revalidatePath(HOME);
-    return {
-      success: true,
-      name: name.toUpperCase(),
-      message: SPECIALITY_ADDED
-    };
+    return { success: true, message: SPECIALITY_ADDED };
   } catch (error) {
     return catchErrors(error as Error);
   }
@@ -1381,6 +1380,44 @@ export async function updateHospital(
 
     revalidatePath(HOME);
     return { success: true, message: HOSPITAL_UPDATED };
+  } catch (error) {
+    return catchErrors(error as Error);
+  }
+}
+
+export async function deleteDepartment(id: string) {
+  await prisma.department.delete({ where: { id } });
+  revalidatePath(HOME);
+}
+
+export async function deleteDepartments(ids: string[]) {
+  await prisma.department.deleteMany({ where: { id: { in: ids } } });
+  revalidatePath(HOME);
+}
+
+export async function addDepartment(data: Schema<typeof departmentSchema>) {
+  const result = departmentSchema.safeParse(data);
+  if (!result.success) return { success: false, message: INVALID_INPUTS };
+
+  try {
+    await prisma.department.create({ data: { ...result.data } });
+    return { success: true, message: DEPARTMENT_ADDED };
+  } catch (error) {
+    return catchErrors(error as Error);
+  }
+}
+
+export async function updateDepartment(
+  id: string,
+  data: Schema<typeof departmentSchema>
+) {
+  const result = departmentSchema.safeParse(data);
+  if (!result.success) return { success: false, message: INVALID_INPUTS };
+
+  try {
+    await prisma.department.update({ where: { id }, data: { ...result.data } });
+    revalidatePath(HOME);
+    return { success: true, message: DEPARTMENT_UPDATED };
   } catch (error) {
     return catchErrors(error as Error);
   }

@@ -66,7 +66,7 @@ export function withCallback(
   redirectTo: string
 ): string | URL {
   return new URL(
-    `${redirectTo}?redirectTo=${request.nextUrl.pathname + request.nextUrl.search}`,
+    `${redirectTo}?redirectTo=${encodeURIComponent(request.nextUrl.pathname + request.nextUrl.search)}`,
     request.nextUrl
   );
 }

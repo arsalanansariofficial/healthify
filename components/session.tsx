@@ -17,7 +17,7 @@ export default function Session({ children, expiresAt }: Props) {
     if (expiresAt) {
       setTimeout(async () => {
         await signOut({
-          redirectTo: `${LOGIN}?redirectTo=${params || String()}`
+          redirectTo: `${LOGIN}?redirectTo=${encodeURIComponent(params || String())}`
         });
       }, expiresAt - Date.now());
     }

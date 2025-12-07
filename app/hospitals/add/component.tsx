@@ -56,9 +56,9 @@ export default function Component() {
     <div className="flex h-full flex-col gap-8 lg:mx-auto lg:w-10/12">
       <Card>
         <CardHeader>
-          <CardTitle>Add Doctor</CardTitle>
+          <CardTitle>Add Hospital</CardTitle>
           <CardDescription>
-            Add details for the doctor here. Click save when you&apos;re done.
+            Add details for the hospital here. Click save when you&apos;re done.
           </CardDescription>
         </CardHeader>
         <CardContent>

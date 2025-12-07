@@ -76,11 +76,13 @@ model HospitalDepartment {
 model HospitalMembership {
   id String @id @default(auto()) @map("_id") @db.ObjectId
 
-  membershipId String @db.ObjectId
   hospitalId   String @db.ObjectId
+  membershipId String @db.ObjectId
 
   hospital   Hospital   @relation(fields: [hospitalId], references: [id], onDelete: Cascade)
   membership Membership @relation(fields: [membershipId], references: [id], onDelete: Cascade)
+
+  @@unique([hospitalId, membershipId])
 }
 
 model UserRole {
@@ -263,7 +265,7 @@ model TimeSlot {
 model Membership {
   id       String  @id @default(auto()) @map("_id") @db.ObjectId
   name     String
-  benefits String?
+  benefits String[]
 
   updatedAt DateTime @updatedAt
   createdAt DateTime @default(now())

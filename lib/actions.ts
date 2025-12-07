@@ -60,7 +60,8 @@ import {
   pharmaManufacturerSchema,
   pharmaSaltSchema,
   pharmaBrandSchema,
-  medicationFormSchema
+  medicationFormSchema,
+  membershipSchema
 } from '@/lib/schemas';
 
 import {
@@ -1675,6 +1676,27 @@ export async function updateMedicationForm(
       where: { id },
       data: { ...result.data }
     });
+    revalidatePath(HOME);
+    return { success: true, message: MEDICATION_FORM_UPDATED };
+  } catch (error) {
+    return catchErrors(error as Error);
+  }
+}
+
+export async function createMembership(data: Schema<typeof membershipSchema>) {
+  const result = membershipSchema.safeParse(data);
+  if (!result.success) return { success: false, message: INVALID_INPUTS };
+
+  try {
+    await prisma.membership.create({
+      data: {
+        ...result.data,
+        fees: { create: result.data.fees },
+        users: { connect: result.data.users },
+        hospitalMemberships: { create: result.data.hospitalMemberships }
+      }
+    });
+
     revalidatePath(HOME);
     return { success: true, message: MEDICATION_FORM_UPDATED };
   } catch (error) {

@@ -231,6 +231,7 @@ export async function deleteSpecialities(ids: string[]) {
 export async function deleteUser(id: string) {
   await prisma.$transaction(async function (transaction) {
     const user = await transaction.user.delete({ where: { id } });
+    if (user && user.cover) await removeFile(user.cover);
     if (user && !user.hasOAuth && user.image) await removeFile(user.image);
   });
 
@@ -247,7 +248,10 @@ export async function deleteUsers(ids: string[]) {
       transaction.user.deleteMany({ where: { id: { in: ids } } }),
       ...users
         .filter(user => !user.hasOAuth && user.image)
-        .map(user => removeFile(user?.image as string))
+        .map(user => removeFile(user?.image as string)),
+      ...users
+        .filter(user => user.cover)
+        .map(user => removeFile(user?.cover as string))
     ]);
   });
 

@@ -1,0 +1,30 @@
+{
+  "compilerOptions": {
+    "forceConsistentCasingInFileNames": true,
+    "moduleResolution": "Node",
+    "resolveJsonModule": true,
+    "esModuleInterop": true,
+    "noImplicitThis": true,
+    "noEmitOnError": true,
+    "module": "CommonJS",
+    "skipLibCheck": true,
+    "incremental": true,
+    "target": "ES2019",
+    "lib": ["ES2020"],
+    "outDir": "dist",
+    "strict": true,
+    "rootDir": "."
+  },
+  "exclude": [
+    "src/plugins/**",
+    "node_modules/",
+    "**/*.test.*",
+    "src/admin/",
+    ".strapi/",
+    ".cache/",
+    "build/",
+    "dist/",
+    ".tmp/"
+  ],
+  "include": ["src/**/*.json", "./**/*.ts", "./**/*.js", "./"]
+}

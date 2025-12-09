@@ -1,0 +1,56 @@
+{
+  "name": "backend",
+  "version": "0.1.0",
+  "private": true,
+  "description": "API for Healthify",
+  "keywords": [
+    "typescript",
+    "nodejs",
+    "strapi"
+  ],
+  "license": "MIT",
+  "author": {
+    "name": "Arsalan Ansari"
+  },
+  "scripts": {
+    "build": "strapi build",
+    "console": "strapi console",
+    "deploy": "strapi deploy",
+    "dev": "strapi develop",
+    "develop": "strapi develop",
+    "start": "strapi start",
+    "strapi": "strapi",
+    "upgrade": "npx @strapi/upgrade latest",
+    "upgrade:dry": "npx @strapi/upgrade latest --dry"
+  },
+  "dependencies": {
+    "@strapi/plugin-cloud": "5.50.1",
+    "@strapi/plugin-users-permissions": "5.50.1",
+    "@strapi/provider-email-nodemailer": "^5.50.2",
+    "@strapi/strapi": "5.50.1",
+    "better-sqlite3": "12.8.0",
+    "react": "^18.0.0",
+    "react-dom": "^18.0.0",
+    "react-router-dom": "^6.0.0",
+    "styled-components": "^6.0.0"
+  },
+  "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "@types/node": "^20",
+    "@types/react": "^18",
+    "@types/react-dom": "^18",
+    "eslint-plugin-perfectionist": "^5.10.0",
+    "globals": "^17.7.0",
+    "prettier": "^3.9.5",
+    "typescript": "^5",
+    "typescript-eslint": "^8.64.0"
+  },
+  "engines": {
+    "node": ">=20.0.0 <=26.x.x",
+    "npm": ">=6.0.0"
+  },
+  "strapi": {
+    "uuid": "3a12d674-0995-46ce-ba71-62e72ea927ff",
+    "installId": "c8c8a9bd3de7c8e69a8737c30edaa6d6c3304262ac870eb7e9c237153f452217"
+  }
+}

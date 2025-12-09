@@ -22,10 +22,24 @@ const deniedExecutableTypes = [
   'application/x-sh'
 ];
 
-export default function config(
-  _env: Core.Config.Shared.ConfigParams
-): Core.Config.Plugin {
+export default function config({
+  env
+}: Core.Config.Shared.ConfigParams): Core.Config.Plugin {
   return {
+    email: {
+      config: {
+        providerOptions: {
+          auth: { pass: env('SMTP_PASSWORD'), user: env('SMTP_USER') },
+          host: env('SMTP_HOST'),
+          port: env('SMTP_PORT')
+        },
+        settings: {
+          defaultReplyTo: env('SMTP_USER'),
+          defaultFrom: env('SMTP_USER')
+        },
+        provider: 'nodemailer'
+      }
+    },
     upload: {
       config: {
         security: {

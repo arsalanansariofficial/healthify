@@ -3,14 +3,16 @@
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 
+import { User } from '@prisma/client';
 import Footer from '@/components/footer';
 import { addHospital } from '@/lib/actions';
-import { hospitalSchema } from '@/lib/schemas';
 import { Input } from '@/components/ui/input';
+import { hospitalSchema } from '@/lib/schemas';
 import { Button } from '@/components/ui/button';
 import useHookForm from '@/hooks/use-hook-form';
 import handler from '@/components/display-toast';
 import { Textarea } from '@/components/ui/textarea';
+import MultiSelect from '@/components/ui/multi-select';
 
 import {
   Card,
@@ -38,11 +40,12 @@ import {
   SelectTrigger
 } from '@/components/ui/select';
 
-export default function Component() {
+export default function Component({ users }: { users: User[] }) {
   const { handleSubmit } = useHookForm(handler, addHospital);
   const form = useForm({
     resolver: zodResolver(hospitalSchema),
     defaultValues: {
+      users: [],
       name: String(),
       city: String(),
       email: String(),
@@ -78,7 +81,7 @@ export default function Component() {
                       <Input
                         {...field}
                         type="text"
-                        placeholder="Gwen Tennyson"
+                        placeholder="Riverdale General Hospital"
                       />
                     </FormControl>
                     <FormMessage />
@@ -166,6 +169,26 @@ export default function Component() {
                       <Textarea
                         {...field}
                         placeholder="123 Main Street, Springfield, IL 62704"
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                name="users"
+                control={form.control}
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Users</FormLabel>
+                    <FormControl>
+                      <MultiSelect
+                        selectedValues={field.value}
+                        setSelectedValues={field.onChange}
+                        options={users.map(u => ({
+                          value: u.id,
+                          label: u.name || String()
+                        }))}
                       />
                     </FormControl>
                     <FormMessage />

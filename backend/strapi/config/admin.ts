@@ -12,6 +12,7 @@ export default function config({
     transfer: { token: { salt: env('TRANSFER_TOKEN_SALT')! } },
     secrets: { encryptionKey: env('ENCRYPTION_KEY')! },
     auth: { secret: env('ADMIN_JWT_SECRET')! },
-    apiToken: { salt: env('API_TOKEN_SALT')! }
+    apiToken: { salt: env('API_TOKEN_SALT')! },
+    autoOpen: false
   };
 }

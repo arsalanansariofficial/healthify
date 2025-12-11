@@ -222,19 +222,14 @@ export const pharmaBrandSchema = pharmaManufacturerSchema;
 export const medicationFormSchema = pharmaManufacturerSchema;
 
 export const membershipSchema = z.object({
-  users: z.array(z.object({ id: z.string() })).optional(),
+  users: z.array(z.string()),
+  hospitalMemberships: z.array(hospitalSchema),
+  perks: z.array(z.string().min(10, 'Should be atleast 10 characters.')),
   name: z.string().min(5, { message: 'Name should be atleast 5 characters.' }),
-  benefits: z
-    .array(z.string().min(10, 'Should be atleast 10 characters.'))
-    .optional(),
-  fees: z
-    .array(
-      z.object({
-        membershipId: z.string().optional(),
-        renewalType: z.nativeEnum(RenewalType),
-        amount: z.number().positive({ message: 'Should be a positive number.' })
-      })
-    )
-    .min(1),
-  hospitalMemberships: z.array(z.object({ hospitalId: z.string() }))
+  fees: z.array(
+    z.object({
+      renewalType: z.nativeEnum(RenewalType),
+      amount: z.number().positive({ message: 'Should be a positive number.' })
+    })
+  )
 });

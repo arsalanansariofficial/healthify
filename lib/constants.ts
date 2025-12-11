@@ -170,6 +170,13 @@ export const SIDEBAR_ITEMS = new Map([
     ]
   ],
   [
+    { label: 'Memberships', permission: 'view:memberships' },
+    [
+      { label: 'View', url: '/memberships', permission: 'view:memberships' },
+      { label: 'Add', url: '/memberships/add', permission: 'add:membership' }
+    ]
+  ],
+  [
     { label: 'Hospitals', permission: 'view:hospitals' },
     [
       { label: 'View', url: '/hospitals', permission: 'view:hospitals' },
@@ -369,6 +376,11 @@ export let MEDICATION_FORM_DELETED = '🎉 Medication form deleted successfully.
 export let MEDICATION_FORMS_DELETED =
   '🎉 Medication form deleted successfully.';
 
+export let MEMBERSHIP_ADDED = '🎉 Membership added successfully';
+export let MEMBERSHIP_UPDATED = '🎉 Membership updated successfully';
+export let MEMBERSHIP_DELETED = '🎉 Membership deleted successfully.';
+export let MEMBERSHIPS_DELETED = '🎉 Membership deleted successfully.';
+
 export let FILE_UPLOADED = '🎉 File uploaded successfully.';
 export let EMAIL_REGISTERED = '⚠️ Email already registered!';
 export let EMAIL_VERIFIED = '🎉 Email verified successfully.';
@@ -496,6 +508,15 @@ if (process.env?.MEDICATION_FORM_DELETED)
   MEDICATION_FORM_DELETED = process.env.MEDICATION_FORM_DELETED;
 if (process.env?.MEDICATION_FORMS_DELETED)
   MEDICATION_FORMS_DELETED = process.env.MEDICATION_FORMS_DELETED;
+
+if (process.env?.MEMBERSHIP_ADDED)
+  MEMBERSHIP_ADDED = process.env.MEMBERSHIP_ADDED;
+if (process.env?.MEMBERSHIP_UPDATED)
+  MEMBERSHIP_UPDATED = process.env.MEMBERSHIP_UPDATED;
+if (process.env?.MEMBERSHIP_DELETED)
+  MEMBERSHIP_DELETED = process.env.MEMBERSHIP_DELETED;
+if (process.env?.MEMBERSHIPS_DELETED)
+  MEMBERSHIPS_DELETED = process.env.MEMBERSHIPS_DELETED;
 
 if (process.env?.GITHUB_CLIENT_ID)
   GITHUB_CLIENT_ID = process.env.GITHUB_CLIENT_ID;

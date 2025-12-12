@@ -1,0 +1,54 @@
+{
+  "kind": "collectionType",
+  "collectionName": "doctors",
+  "info": {
+    "singularName": "doctor",
+    "pluralName": "doctors",
+    "displayName": "Doctor"
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "licenseNumber": {
+      "type": "string",
+      "required": true,
+      "unique": true
+    },
+    "experienceYears": {
+      "type": "integer",
+      "required": true,
+      "default": 0
+    },
+    "consultationFee": {
+      "type": "biginteger",
+      "required": true,
+      "default": "0"
+    },
+    "user": {
+      "type": "relation",
+      "relation": "oneToOne",
+      "target": "plugin::users-permissions.user",
+      "inversedBy": "doctor"
+    },
+    "specializations": {
+      "type": "relation",
+      "relation": "manyToMany",
+      "target": "api::specialization.specialization",
+      "inversedBy": "doctors"
+    },
+    "timings": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::doctor-schedule.doctor-schedule",
+      "mappedBy": "doctor"
+    },
+    "apppointments": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::apppointment.apppointment",
+      "mappedBy": "doctor"
+    }
+  }
+}

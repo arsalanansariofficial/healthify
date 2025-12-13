@@ -228,3 +228,9 @@ export const membershipSchema = z.object({
     })
   )
 });
+
+export const membershipSubscriptionSchema = z.object({
+  feeId: z.string(),
+  membershipId: z.string(),
+  users: z.array(z.string())
+});

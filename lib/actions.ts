@@ -61,7 +61,8 @@ import {
   doctorProfileSchema,
   medicationFormSchema,
   rolePermissionsSchema,
-  pharmaManufacturerSchema
+  pharmaManufacturerSchema,
+  membershipSubscriptionSchema
 } from '@/lib/schemas';
 
 import {
@@ -123,7 +124,8 @@ import {
   MEDICATION_FORM_UPDATED,
   PHARMA_MANUFACTURER_ADDED,
   PHARMA_MANUFACTURER_UPDATED,
-  APPOINTMENT_ACTION_RESTRICTED
+  APPOINTMENT_ACTION_RESTRICTED,
+  MEMBERSHIP_SUBSCRIPTION_ADDED
 } from '@/lib/constants';
 
 type Schema<T extends ZodSchema> = z.infer<T>;
@@ -1722,6 +1724,28 @@ export async function addMembership(data: Schema<typeof membershipSchema>) {
 
     revalidatePath(HOME);
     return { success: true, message: MEMBERSHIP_ADDED };
+  } catch (error) {
+    return catchErrors(error as Error);
+  }
+}
+
+export async function subscribeMembership(
+  data: Schema<typeof membershipSubscriptionSchema>
+) {
+  const result = membershipSubscriptionSchema.safeParse(data);
+  if (!result.success) return { success: false, message: INVALID_INPUTS };
+
+  try {
+    await prisma.membershipSubscription.createMany({
+      data: result.data.users.map(u => ({
+        userId: u,
+        feeId: result.data.feeId,
+        membershipId: result.data.membershipId
+      }))
+    });
+
+    revalidatePath(HOME);
+    return { success: true, message: MEMBERSHIP_SUBSCRIPTION_ADDED };
   } catch (error) {
     return catchErrors(error as Error);
   }

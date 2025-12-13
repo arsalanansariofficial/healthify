@@ -1,6 +1,7 @@
 'use client';
 
 import z from 'zod';
+import Link from 'next/link';
 import { toast } from 'sonner';
 import { useMemo } from 'react';
 import { User } from 'next-auth';
@@ -12,6 +13,7 @@ import { Fee, Membership, Prisma } from '@prisma/client';
 
 import Footer from '@/components/footer';
 import { Input } from '@/components/ui/input';
+import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import useHookForm from '@/hooks/use-hook-form';
 import { useIsMobile } from '@/hooks/use-mobile';
@@ -58,7 +60,6 @@ import {
   DrawerTrigger,
   DrawerDescription
 } from '@/components/ui/drawer';
-import { Badge } from '@/components/ui/badge';
 
 type MenuProps = { id?: string; ids?: string[]; isHeader: boolean };
 
@@ -203,7 +204,11 @@ export function TableCellViewer<T extends z.ZodType>(props: TCVProps<T>) {
             {form.formState.isLoading ? 'Saving...' : 'Save'}
           </Button>
           <DrawerClose asChild>
-            <Button variant="outline">Done</Button>
+            <Button variant="outline" asChild>
+              <Link href={`/memberships/${props.item.id}/subscribe`}>
+                Subscribe
+              </Link>
+            </Button>
           </DrawerClose>
         </DrawerFooter>
       </DrawerContent>

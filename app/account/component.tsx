@@ -114,7 +114,7 @@ export default function Component({ user, specialities }: Props) {
       ...defaultUserValues,
       experience: user.experience || 0,
       gender: (user.gender as 'male' | 'female') || String(),
-      daysOfVisit: user.daysOfVisit.map(d => capitalize(d)) || [],
+      daysOfVisit: user.daysOfVisit || [],
       specialities: user.UserSpecialities.map(us => us.speciality.id),
       timings: user.timings.length
         ? user.timings

@@ -1,3 +1,6 @@
+export const DAYS_IN_MONTH = 30;
+export const DAYS_IN_YEAR = 365;
+
 export const HOME = '/';
 export const LOGIN = '/login';
 export const ABOUT = '/about';
@@ -363,6 +366,8 @@ export let PHARMA_MANUFACTURER_DELETED =
 export let PHARMA_MANUFACTURERS_DELETED =
   '🎉 Pharma manufacturers deleted successfully.';
 
+export let PAYMENT_PROCESSED = '🎉 Payment processed successfully.';
+
 export let PHARMA_SALT_ADDED = '🎉 Pharma salt added successfully';
 export let PHARMA_SALT_UPDATED = '🎉 Pharma salt updated successfully';
 export let PHARMA_SALT_DELETED = '🎉 Pharma salt deleted successfully.';
@@ -480,6 +485,9 @@ if (process.env?.FACILITY_DELETED)
   FACILITY_DELETED = process.env.FACILITY_DELETED;
 if (process.env?.FACILITIES_DELETED)
   FACILITIES_DELETED = process.env.FACILITIES_DELETED;
+
+if (process.env?.PAYMENT_PROCESSED)
+  PAYMENT_PROCESSED = process.env.PAYMENT_PROCESSED;
 
 if (process.env?.PHARMA_CODE_ADDED)
   PHARMA_CODE_ADDED = process.env.PHARMA_CODE_ADDED;

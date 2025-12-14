@@ -7,6 +7,7 @@ import { revalidatePath } from 'next/cache';
 
 import {
   isPast,
+  addDays,
   isFuture,
   subWeeks,
   endOfWeek,
@@ -22,7 +23,16 @@ import {
 import prisma from '@/lib/prisma';
 import { VerifyEmail } from '@/components/email/account/email';
 import { auth, signIn, unstable_update as update } from '@/auth';
-import { AppointmentStatus, Day, Gender, TimeSlot } from '@prisma/client';
+
+import {
+  Day,
+  Gender,
+  TimeSlot,
+  PaymentMethod,
+  PaymentStatus,
+  AppointmentStatus,
+  SubscriptionStatus
+} from '@prisma/client';
 
 import {
   CancelAppointment,
@@ -77,12 +87,14 @@ import {
   SMTP_EMAIL,
   ADMIN_EMAIL,
   DOCTOR_ROLE,
+  DAYS_IN_YEAR,
   DEFAULT_ROLE,
   EMAIL_FAILED,
   CONFIRM_EMAIL,
   SMTP_PASSWORD,
   TOKEN_EXPIRED,
   UN_AUTHORIZED,
+  DAYS_IN_MONTH,
   USER_NOT_FOUND,
   ADMIN_PASSWORD,
   EMAIL_VERIFIED,
@@ -1385,7 +1397,7 @@ export async function addHospital(data: Schema<typeof hospitalSchema>) {
       data: {
         ...result.data,
         isAffiliated: result.data.isAffiliated === 'yes',
-        users: { connect: result.data.users.map(u => ({ id: u })) }
+        doctors: { connect: result.data.doctors.map(d => ({ id: d })) }
       }
     });
 
@@ -1408,7 +1420,7 @@ export async function updateHospital(
       data: {
         ...result.data,
         isAffiliated: result.data.isAffiliated === 'yes',
-        users: { set: [], connect: result.data.users.map(u => ({ id: u })) }
+        doctors: { set: [], connect: result.data.doctors.map(d => ({ id: d })) }
       }
     });
 
@@ -1707,13 +1719,12 @@ export async function addMembership(data: Schema<typeof membershipSchema>) {
       data: {
         ...result.data,
         fees: { create: result.data.fees },
-        users: { connect: result.data.users.map(u => ({ id: u })) },
         hospitalMemberships: {
           create: result.data.hospitalMemberships.map(hm => ({
             hospital: {
               create: {
                 ...hm,
-                users: { create: [] },
+                doctors: { connect: hm.doctors.map(d => ({ id: d })) },
                 isAffiliated: hm.isAffiliated === 'yes' ? true : false
               }
             }
@@ -1742,6 +1753,48 @@ export async function subscribeMembership(
         feeId: result.data.feeId,
         membershipId: result.data.membershipId
       }))
+    });
+
+    revalidatePath(HOME);
+    return { success: true, message: MEMBERSHIP_SUBSCRIPTION_ADDED };
+  } catch (error) {
+    return catchErrors(error as Error);
+  }
+}
+
+export async function payForMembership(id: string) {
+  try {
+    const subscription = await prisma.membershipSubscription.findUnique({
+      where: { id },
+      select: { fee: { select: { amount: true, renewalType: true } } }
+    });
+
+    if (!subscription) return { success: false, message: INVALID_INPUTS };
+
+    let expiresAt;
+
+    if (subscription.fee.renewalType === 'monthly') {
+      expiresAt = addDays(new Date(), DAYS_IN_MONTH);
+    }
+
+    if (subscription.fee.renewalType === 'yearly') {
+      expiresAt = addDays(new Date(), DAYS_IN_YEAR);
+    }
+
+    await prisma.membershipSubscription.update({
+      where: { id },
+      select: { fee: { select: { renewalType: true } }, updatedAt: true },
+      data: {
+        status: SubscriptionStatus.active,
+        transactions: {
+          create: {
+            expiresAt,
+            method: PaymentMethod.cash,
+            status: PaymentStatus.completed,
+            amount: subscription.fee.amount as number
+          }
+        }
+      }
     });
 
     revalidatePath(HOME);

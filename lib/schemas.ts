@@ -1,5 +1,5 @@
 import z from 'zod';
-import { Gender, RenewalType } from '@prisma/client';
+import { Gender, RenewalType, SubscriptionStatus } from '@prisma/client';
 
 import { MAX_DATE, MIN_DATE } from '@/lib/constants';
 
@@ -184,7 +184,7 @@ export const hospitalSchema = z.object({
   city: city.shape.city,
   email: email.shape.email,
   phone: phone.shape.phone,
-  users: z.array(z.string()),
+  doctors: z.array(z.string()),
   isAffiliated: emailVerified.shape.emailVerified,
   address: z.union([z.literal(String()), name.shape.name]),
   name: z.string().min(5, { message: 'Name should be atleast 5 characters.' })
@@ -217,7 +217,6 @@ export const pharmaBrandSchema = pharmaManufacturerSchema;
 export const medicationFormSchema = pharmaManufacturerSchema;
 
 export const membershipSchema = z.object({
-  users: z.array(z.string()),
   hospitalMemberships: z.array(hospitalSchema),
   perks: z.array(z.string().min(10, 'Should be atleast 10 characters.')),
   name: z.string().min(5, { message: 'Name should be atleast 5 characters.' }),
@@ -232,5 +231,6 @@ export const membershipSchema = z.object({
 export const membershipSubscriptionSchema = z.object({
   feeId: z.string(),
   membershipId: z.string(),
-  users: z.array(z.string())
+  users: z.array(z.string()),
+  status: z.nativeEnum(SubscriptionStatus)
 });

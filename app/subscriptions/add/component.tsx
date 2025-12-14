@@ -1,7 +1,7 @@
 'use client';
 
 import { useForm } from 'react-hook-form';
-import { RenewalType, User } from '@prisma/client';
+import { RenewalType } from '@prisma/client';
 import { PlusIcon, TrashIcon } from 'lucide-react';
 import { zodResolver } from '@hookform/resolvers/zod';
 
@@ -42,18 +42,15 @@ import {
   SelectContent,
   SelectTrigger
 } from '@/components/ui/select';
-import MultiSelect from '@/components/ui/multi-select';
-import { capitalize } from 'moderndash';
 
-type Props = { doctors: User[] };
-
-export default function Component({ doctors }: Props) {
+export default function Component() {
   const { handleSubmit } = useHookForm(handler, addMembership);
   const form = useForm({
     resolver: zodResolver(membershipSchema),
     defaultValues: {
       fees: [],
       perks: [],
+      users: [],
       name: String(),
       hospitalMemberships: []
     }
@@ -105,7 +102,6 @@ export default function Component({ doctors }: Props) {
                               field.onChange([
                                 ...field.value,
                                 {
-                                  doctors: [],
                                   city: String(),
                                   name: String(),
                                   email: String(),
@@ -141,10 +137,9 @@ export default function Component({ doctors }: Props) {
                                         variant="outline"
                                         className="cursor-pointer"
                                         onClick={() => {
-                                          const newHospitals =
-                                            field.value.slice();
-                                          newHospitals.splice(index, 1);
-                                          field.onChange(newHospitals);
+                                          const newPerks = field.value.slice();
+                                          newPerks.splice(index, 1);
+                                          field.onChange(newPerks);
                                         }}
                                       >
                                         <TrashIcon className="h-4 w-4" />
@@ -288,31 +283,6 @@ export default function Component({ doctors }: Props) {
                                               e.target.value;
                                             field.onChange(value);
                                           }}
-                                        />
-                                        {error?.isAffiliated && (
-                                          <span className="text-destructive text-sm">
-                                            {error.isAffiliated.message}
-                                          </span>
-                                        )}
-                                      </li>
-                                      <li className="grid gap-2">
-                                        <Label>Doctors</Label>
-                                        <MultiSelect
-                                          placeholder="Select doctors..."
-                                          setSelectedValues={doctors => {
-                                            const newHospitals =
-                                              field.value.slice();
-                                            newHospitals[index].doctors =
-                                              doctors;
-                                            field.onChange(newHospitals);
-                                          }}
-                                          selectedValues={
-                                            field.value[index].doctors
-                                          }
-                                          options={doctors.map(d => ({
-                                            value: d.id,
-                                            label: d.name || String()
-                                          }))}
                                         />
                                         {error?.isAffiliated && (
                                           <span className="text-destructive text-sm">
@@ -495,7 +465,7 @@ export default function Component({ doctors }: Props) {
                                           value={type}
                                           className="capitalize"
                                         >
-                                          {capitalize(type)}
+                                          {type}
                                         </SelectItem>
                                       ))}
                                     </SelectContent>

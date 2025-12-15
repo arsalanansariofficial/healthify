@@ -10,10 +10,11 @@
     "skipLibCheck": true,
     "incremental": true,
     "target": "ES2019",
+    "sourceMap": true,
     "lib": ["ES2020"],
     "outDir": "dist",
     "strict": true,
-    "rootDir": "."
+    "rootDir": ".",
   },
   "exclude": [
     "src/plugins/**",

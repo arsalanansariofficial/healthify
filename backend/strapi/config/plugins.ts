@@ -40,6 +40,14 @@ export default function config({
         provider: 'nodemailer'
       }
     },
+    'users-permissions': {
+      config: {
+        register: { allowedFields: ['name'] },
+        sessions: { httpOnly: true },
+        jwt: { expiresIn: '30d' },
+        jwtManagement: 'refresh'
+      }
+    },
     upload: {
       config: {
         security: {
@@ -47,9 +55,6 @@ export default function config({
           allowedTypes: allowedMediaTypes
         }
       }
-    },
-    'users-permissions': {
-      config: { sessions: { httpOnly: true }, jwtManagement: 'refresh' }
     }
   };
 }

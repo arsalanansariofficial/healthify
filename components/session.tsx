@@ -2,28 +2,18 @@
 
 import { useEffect } from 'react';
 import { signOut } from 'next-auth/react';
-import { usePathname } from 'next/navigation';
 
-import { LOGIN } from '@/lib/constants';
-
-type Props = { children: React.ReactNode; expiresAt: number | undefined };
-
-export default function Session({ children, expiresAt }: Props) {
-  const params = usePathname();
-
+export default function Session({
+  expires,
+  children
+}: {
+  expires: string;
+  children: Readonly<React.ReactNode>;
+}) {
   useEffect(() => {
-    let timeout;
-
-    if (expiresAt) {
-      setTimeout(async () => {
-        await signOut({
-          redirectTo: `${LOGIN}?redirectTo=${encodeURIComponent(params || String())}`
-        });
-      }, expiresAt - Date.now());
-    }
-
-    return () => clearTimeout(timeout);
-  }, [params, expiresAt]);
+    const timer = setTimeout(signOut, new Date(expires).getTime() - Date.now());
+    return () => clearTimeout(timer);
+  }, [expires]);
 
   return children;
 }

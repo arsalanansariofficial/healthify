@@ -27,7 +27,7 @@ export function ConfirmAppointment({ data }: Props) {
       <p>
         <strong>Healthify</strong>
       </p>
-    </main>`;
+    </>`;
 }
 
 export function CancelAppointment({ data }: Props) {
@@ -43,5 +43,5 @@ export function CancelAppointment({ data }: Props) {
       <p>
         <strong>Healthify</strong>
       </p>
-    </main>`;
+    </>`;
 }

@@ -7,5 +7,5 @@ export function VerifyEmail({ data }: Props) {
       <p>
         Click <a href="${HOST}/verify?token=${data.token}">here</a> to verify your email.
       </p>
-    </main>`;
+    </>`;
 }

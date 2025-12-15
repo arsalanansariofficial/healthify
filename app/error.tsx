@@ -3,11 +3,14 @@
 import Info from '@/components/info';
 import { IS_PRODUCTION } from '@/lib/constants';
 
-type Props = { reset: () => void; error: Error & { digest?: string } };
-
-export default function Error({ error }: Props) {
+export default function Page({
+  error
+}: {
+  reset: () => void;
+  error: Error & { digest?: string };
+}) {
   return (
-    <main className="row-start-2 mx-8 grid place-items-center">
+    <main className="grid min-h-screen place-items-center">
       <section className="space-y-4 text-center">
         <Info
           title="500 - Internal Server Error"

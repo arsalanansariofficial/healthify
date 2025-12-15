@@ -19,7 +19,6 @@ import {
 declare module 'next-auth' {
   interface User {
     roles?: Role[];
-    expiresAt?: number;
     hasOAuth?: boolean;
     city?: string | null;
     cover?: string | null;
@@ -55,9 +54,9 @@ export const authConfig = {
 
 export const { auth, handlers, signIn, signOut, unstable_update } = NextAuth({
   ...authConfig,
-  session: { strategy: 'jwt' },
   adapter: PrismaAdapter(prisma),
   pages: { signIn: LOGIN, error: AUTH_ERROR },
+  session: { strategy: 'jwt', maxAge: EXPIRES_AT },
   events: {
     async linkAccount({ user }) {
       const existingUser = await prisma.user.update({
@@ -100,7 +99,6 @@ export const { auth, handlers, signIn, signOut, unstable_update } = NextAuth({
       session.user.phone = token.phone as string | undefined;
       session.user.permissions = token.permissions as Permission[];
       session.user.hasOAuth = token.hasOAuth as boolean | undefined;
-      session.user.expiresAt = token.expiresAt as number | undefined;
       return session;
     },
     async jwt({ token, user, session, trigger, account }) {
@@ -132,7 +130,6 @@ export const { auth, handlers, signIn, signOut, unstable_update } = NextAuth({
         token.cover = user.cover;
         token.hasOAuth = user.hasOAuth;
         token.permissions = user.permissions;
-        token.expiresAt = Date.now() + EXPIRES_AT * 1000;
 
         if (account?.provider !== 'credentials') {
           token.hasOAuth =
@@ -153,7 +150,6 @@ export const { auth, handlers, signIn, signOut, unstable_update } = NextAuth({
         token.image = session.user.image;
         token.cover = session.user.cover;
         token.hasOAuth = session.user.hasOAuth;
-        token.expiresAt = session.user.expiresAt;
         token.permissions = session.user.permissions;
       }
 

@@ -42,9 +42,13 @@ export default function config({
     },
     'users-permissions': {
       config: {
+        sessions: {
+          idleRefreshTokenLifespan: 2592000,
+          maxRefreshTokenLifespan: 2592000,
+          accessTokenLifespan: 2592000,
+          httpOnly: true
+        },
         register: { allowedFields: ['name'] },
-        sessions: { httpOnly: true },
-        jwt: { expiresIn: '30d' },
         jwtManagement: 'refresh'
       }
     },

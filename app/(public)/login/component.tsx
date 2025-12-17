@@ -12,10 +12,10 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 import { login } from '@/lib/actions';
 import { getDate } from '@/lib/utils';
+import { ROUTES } from '@/lib/constants';
 import { loginSchema } from '@/lib/schemas';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { FORGET, SIGNUP } from '@/lib/constants';
 
 import {
   Form,
@@ -82,7 +82,7 @@ export default function Component({ error }: { error?: string }) {
           </CardDescription>
           <CardAction>
             <Button variant="link">
-              <Link href={SIGNUP}>Signup</Link>
+              <Link href={ROUTES.SIGNUP}>Signup</Link>
             </Button>
           </CardAction>
         </CardHeader>
@@ -117,7 +117,10 @@ export default function Component({ error }: { error?: string }) {
                   <FormItem>
                     <FormLabel className="flex items-center justify-between">
                       <span>Password</span>
-                      <Link href={FORGET} className="text-primary font-normal">
+                      <Link
+                        href={ROUTES.FORGET}
+                        className="text-primary font-normal"
+                      >
                         Forget Password?
                       </Link>
                     </FormLabel>

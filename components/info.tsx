@@ -1,8 +1,8 @@
 import { SearchIcon } from 'lucide-react';
 
 import Router from '@/components/router';
+import { SOCIAL } from '@/lib/constants';
 import { Kbd } from '@/components/ui/kbd';
-import { MAIL_TO } from '@/lib/constants';
 
 import {
   InputGroup,
@@ -41,7 +41,7 @@ export default function Info(props: { title: string; message: string }) {
           </InputGroupAddon>
         </InputGroup>
         <EmptyDescription>
-          Need help? <a href={MAIL_TO}>Contact support</a>
+          Need help? <a href={SOCIAL.EMAIL as string}>Contact support</a>
         </EmptyDescription>
       </EmptyContent>
     </Empty>

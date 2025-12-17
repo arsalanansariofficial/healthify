@@ -11,6 +11,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { IconDotsVertical } from '@tabler/icons-react';
 
 import Footer from '@/components/footer';
+import { MESSAGES } from '@/lib/constants';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import useHookForm from '@/hooks/use-hook-form';
@@ -21,7 +22,6 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { pharmaManufacturerSchema } from '@/lib/schemas';
 import { catchErrors, getDate, hasPermission } from '@/lib/utils';
 import { DragHandle, DataTable } from '@/components/ui/data-table';
-import { PHARMA_SALT_DELETED, PHARMA_SALTS_DELETED } from '@/lib/constants';
 
 import {
   deletePharmaSalt,
@@ -89,8 +89,8 @@ function Menu({
             if (!isHeader) {
               toast.promise(deletePharmaSalt(id as string), {
                 position: 'top-center',
-                success: PHARMA_SALT_DELETED,
                 loading: 'Deleting pharma salt',
+                success: MESSAGES.PHARMA_SALT.DELETED,
                 error(error) {
                   const { message } = catchErrors(error as Error);
                   return <span className="text-destructive">{message}</span>;
@@ -101,8 +101,8 @@ function Menu({
             if (isHeader) {
               toast.promise(deletePharmaSalts(ids as string[]), {
                 position: 'top-center',
-                success: PHARMA_SALTS_DELETED,
                 loading: 'Deleting pharma salts',
+                success: MESSAGES.PHARMA_SALT.BULK_DELETED,
                 error(error) {
                   const { message } = catchErrors(error as Error);
                   return <span className="text-destructive">{message}</span>;

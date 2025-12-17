@@ -1,7 +1,7 @@
 import { titleCase } from 'moderndash';
 import { twMerge } from 'tailwind-merge';
+import { AuthError, User } from 'next-auth';
 import { clsx, type ClassValue } from 'clsx';
-import { AuthError, NextAuthRequest, User } from 'next-auth';
 
 import {
   parse,
@@ -12,19 +12,7 @@ import {
   setSeconds
 } from 'date-fns';
 
-import {
-  SPACE_FULL,
-  UNIQUE_ERR,
-  PRISMA_INIT,
-  E_AUTH_FAILED,
-  EMAIL_BOUNCED,
-  SMTP_TIME_OUT,
-  E_CONNECT_FAILED,
-  PERMISSION_DENIED,
-  DIRECTORY_NOT_FOUND,
-  INVALID_CREDENTIALS,
-  SERVER_ERROR_MESSAGE
-} from '@/lib/constants';
+import { MESSAGES, SMTP } from '@/lib/constants';
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -58,16 +46,6 @@ export function arrayBufferToBase64(buffer: ArrayBuffer): string {
   const bytes = new Uint8Array(buffer);
   return window.btoa(
     bytes.reduce((acc, byte) => acc + String.fromCharCode(byte), String())
-  );
-}
-
-export function withCallback(
-  request: NextAuthRequest,
-  redirectTo: string
-): string | URL {
-  return new URL(
-    `${redirectTo}?redirectTo=${encodeURIComponent(request.nextUrl.pathname + request.nextUrl.search)}`,
-    request.nextUrl
   );
 }
 
@@ -122,9 +100,9 @@ export function catchAuthError(error: Error) {
   if (error instanceof AuthError) {
     switch (error.type) {
       case 'CredentialsSignin':
-        return { success: false, message: INVALID_CREDENTIALS };
+        return { success: false, message: MESSAGES.AUTH.INVALID_CREDENTIALS };
       default:
-        return { success: false, message: SERVER_ERROR_MESSAGE };
+        return { success: false, message: MESSAGES.SYSTEM.SERVER_ERROR };
     }
   }
 
@@ -133,29 +111,29 @@ export function catchAuthError(error: Error) {
 
 export function catchErrors(error: Error) {
   if (error.name === 'PrismaClientKnownRequestError') {
-    return { success: false, message: UNIQUE_ERR };
+    return { success: false, message: MESSAGES.SYSTEM.UNIQUE_ERROR };
   }
 
   if (error.name === 'PrismaClientInitializationError') {
-    return { success: false, message: PRISMA_INIT };
+    return { success: false, message: MESSAGES.SYSTEM.PRISMA_INIT_FAILED };
   }
 
   if (error instanceof Error && 'code' in error) {
     switch (error.code) {
-      case 'ENOSPC':
-        return { success: false, message: SPACE_FULL };
-      case 'EAUTH':
-        return { success: false, message: E_AUTH_FAILED };
       case 'ETIMEDOUT':
-        return { success: false, message: SMTP_TIME_OUT };
-      case 'EDNS':
-        return { success: false, message: EMAIL_BOUNCED };
-      case 'ECONNECTION':
-        return { success: false, message: E_CONNECT_FAILED };
-      case 'EACCES':
-        return { success: false, message: PERMISSION_DENIED };
+        return { success: false, message: SMTP.ERRORS.TIMEOUT };
+      case 'EAUTH':
+        return { success: false, message: SMTP.ERRORS.AUTH_FAILED };
       case 'ENOENT':
-        return { success: false, message: DIRECTORY_NOT_FOUND };
+        return { success: false, message: MESSAGES.FILE.NOT_FOUND };
+      case 'ENOSPC':
+        return { success: false, message: MESSAGES.FILE.SPACE_FULL };
+      case 'ECONNECTION':
+        return { success: false, message: SMTP.ERRORS.CONNECT_FAILED };
+      case 'EDNS':
+        return { success: false, message: MESSAGES.USER.EMAIL_BOUNCED };
+      case 'EACCES':
+        return { success: false, message: MESSAGES.FILE.PERMISSION_DENIED };
     }
   }
 
@@ -199,4 +177,14 @@ export function hasFormChanged<T extends Record<string, unknown>>(
 
     return false;
   });
+}
+
+export function env<T>(key: string, fallback: T) {
+  const value = process.env[key];
+
+  if (!value) return fallback;
+  if (typeof fallback === 'number') return Number(value);
+  if (typeof fallback === 'boolean') return value === 'true';
+
+  return value;
 }

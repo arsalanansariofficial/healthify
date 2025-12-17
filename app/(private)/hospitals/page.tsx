@@ -2,8 +2,7 @@ import { notFound } from 'next/navigation';
 
 import { auth } from '@/auth';
 import prisma from '@/lib/prisma';
-
-import { DOCTOR_ROLE } from '@/lib/constants';
+import { ROLES } from '@/lib/constants';
 import Component from '@/app/(private)/hospitals/component';
 
 export default async function Page() {
@@ -20,7 +19,9 @@ export default async function Page() {
       hospitals={hospitals}
       key={hospitals.map(h => h.updatedAt).toString()}
       users={await prisma.user.findMany({
-        where: { UserRoles: { some: { role: { name: DOCTOR_ROLE } } } }
+        where: {
+          UserRoles: { some: { role: { name: ROLES.DOCTOR as string } } }
+        }
       })}
     />
   );

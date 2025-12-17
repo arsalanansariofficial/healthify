@@ -12,6 +12,7 @@ import { IconDotsVertical } from '@tabler/icons-react';
 import { Fee, Membership, Prisma } from '@prisma/client';
 
 import Footer from '@/components/footer';
+import { MESSAGES } from '@/lib/constants';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -22,11 +23,6 @@ import { membershipSchema } from '@/lib/schemas';
 import { Checkbox } from '@/components/ui/checkbox';
 import { catchErrors, getDate, hasPermission } from '@/lib/utils';
 import { DragHandle, DataTable } from '@/components/ui/data-table';
-
-import {
-  MEDICATION_FORM_DELETED,
-  MEDICATION_FORMS_DELETED
-} from '@/lib/constants';
 
 import {
   deleteMedicationForm,
@@ -94,8 +90,8 @@ function Menu({
             if (!isHeader) {
               toast.promise(deleteMedicationForm(id as string), {
                 position: 'top-center',
-                success: MEDICATION_FORM_DELETED,
                 loading: 'Deleting medication form',
+                success: MESSAGES.MEMBERSHIP.DELETED,
                 error(error) {
                   const { message } = catchErrors(error as Error);
                   return <span className="text-destructive">{message}</span>;
@@ -106,8 +102,8 @@ function Menu({
             if (isHeader) {
               toast.promise(deleteMedicationForms(ids as string[]), {
                 position: 'top-center',
-                success: MEDICATION_FORMS_DELETED,
                 loading: 'Deleting medication forms',
+                success: MESSAGES.MEMBERSHIP.BULK_DELETED,
                 error(error) {
                   const { message } = catchErrors(error as Error);
                   return <span className="text-destructive">{message}</span>;

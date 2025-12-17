@@ -5,7 +5,7 @@ import { MDXRemote } from 'next-mdx-remote/rsc';
 import { auth } from '@/auth';
 import prisma from '@/lib/prisma';
 import { getDate } from '@/lib/utils';
-import { HOST } from '@/lib/constants';
+import { DOMAIN } from '@/lib/constants';
 import Footer from '@/components/footer';
 
 type Props = { params: Promise<{ slug: string }> };
@@ -20,7 +20,7 @@ export default async function Page({ params }: Props) {
 
   if (!session?.user || !doctor) notFound();
 
-  const response = await fetch(`${HOST}/api/upload/${doctor.bio}`);
+  const response = await fetch(`${DOMAIN.LOCAL}/api/upload/${doctor.bio}`);
   if (!response.ok) notFound();
 
   return (
@@ -32,7 +32,7 @@ export default async function Page({ params }: Props) {
           unoptimized
           alt="Post Image"
           className="aspect-video rounded-lg object-cover"
-          src={`${!doctor.hasOAuth ? `${HOST}/api/upload/` : ''}${doctor.image}`}
+          src={`${!doctor.hasOAuth ? `${DOMAIN.LOCAL}/api/upload/` : ''}${doctor.image}`}
         />
       </header>
       <main className="space-y-4">

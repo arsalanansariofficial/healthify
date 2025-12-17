@@ -1,5 +1,5 @@
 import { auth } from '@/auth';
-import { LOGIN } from '@/lib/constants';
+import { ROUTES } from '@/lib/constants';
 import Header from '@/components/header';
 import Sidebar from '@/components/sidebar';
 import Session from '@/components/session';
@@ -9,7 +9,7 @@ export default async function Layout({
   children
 }: Readonly<{ children: React.ReactNode }>) {
   const session = await auth();
-  if (!session || !session.expires || !session.user) redirect(LOGIN);
+  if (!session || !session.expires || !session.user) redirect(ROUTES.LOGIN);
 
   return (
     <Session expires={session.expires}>

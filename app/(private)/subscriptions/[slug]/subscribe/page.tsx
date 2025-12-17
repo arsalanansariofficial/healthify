@@ -2,7 +2,7 @@ import { notFound } from 'next/navigation';
 
 import { auth } from '@/auth';
 import prisma from '@/lib/prisma';
-import { DEFAULT_ROLE } from '@/lib/constants';
+import { ROLES } from '@/lib/constants';
 import Component from '@/app/(private)/memberships/[slug]/subscribe/component';
 
 export default async function Page({
@@ -25,7 +25,7 @@ export default async function Page({
 
   const users = await prisma.user.findMany({
     select: { id: true, name: true },
-    where: { UserRoles: { some: { role: { name: DEFAULT_ROLE } } } }
+    where: { UserRoles: { some: { role: { name: ROLES.USER as string } } } }
   });
 
   if (!users.length) notFound();

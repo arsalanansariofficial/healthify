@@ -7,6 +7,7 @@ import { User as AuthUser } from 'next-auth';
 import { Day, TimeSlot, User } from '@prisma/client';
 import { zodResolver } from '@hookform/resolvers/zod';
 
+import { DATES } from '@/lib/constants';
 import Footer from '@/components/footer';
 import { formatTime } from '@/lib/utils';
 import { Input } from '@/components/ui/input';
@@ -18,7 +19,6 @@ import handler from '@/components/display-toast';
 import { appointmentSchema } from '@/lib/schemas';
 import { Calendar } from '@/components/ui/calendar';
 import { Textarea } from '@/components/ui/textarea';
-import { MIN_DATE, MAX_DATE } from '@/lib/constants';
 
 import {
   Popover,
@@ -52,9 +52,13 @@ import {
   CardDescription
 } from '@/components/ui/card';
 
-type Props = { doctor: User & { timings: TimeSlot[] }; user: AuthUser };
-
-export default function Component({ doctor, user }: Props) {
+export default function Component({
+  user,
+  doctor
+}: {
+  doctor: User & { timings: TimeSlot[] };
+  user: AuthUser;
+}) {
   const { pending, handleSubmit } = useHookForm(
     handler,
     getAppointment.bind(null, doctor.id) as (data: unknown) => Promise<unknown>
@@ -186,15 +190,17 @@ export default function Component({ doctor, user }: Props) {
                             mode="single"
                             selected={field.value}
                             onSelect={field.onChange}
-                            hidden={{ before: MIN_DATE, after: MAX_DATE }}
-                            disabled={date => {
-                              const day = date.toLocaleDateString('en-US', {
-                                weekday: 'long'
-                              });
-                              return !doctor.daysOfVisit
-                                .map(d => d.toLowerCase())
-                                .includes(day.toLowerCase() as Day);
+                            hidden={{
+                              after: DATES.MAX_DATE as Date,
+                              before: DATES.MIN_DATE as Date
                             }}
+                            disabled={date =>
+                              !doctor.daysOfVisit.includes(
+                                date.toLocaleDateString('en-US', {
+                                  weekday: 'long'
+                                }) as Day
+                              )
+                            }
                           />
                         </PopoverContent>
                       </Popover>

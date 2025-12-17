@@ -16,15 +16,10 @@ import { Button } from '@/components/ui/button';
 import useHookForm from '@/hooks/use-hook-form';
 import { useIsMobile } from '@/hooks/use-mobile';
 import handler from '@/components/display-toast';
+import { DATES, MESSAGES } from '@/lib/constants';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Badge, BadgeVariant } from '@/components/ui/badge';
 import { DataTable, DragHandle } from '@/components/ui/data-table';
-
-import {
-  EXPIRES_AT,
-  SPECIALITY_DELETED,
-  SPECIALITIES_DELETED
-} from '@/lib/constants';
 
 import {
   getDate,
@@ -103,7 +98,7 @@ function Menu({ id, ids, isHeader = false }: MenuProps) {
             if (!isHeader) {
               toast.promise(deleteSpeciality(id as string), {
                 position: 'top-center',
-                success: SPECIALITY_DELETED,
+                success: MESSAGES.SPECIALITY.DELETED,
                 loading: 'Deleting speciality',
                 error(error) {
                   const { message } = catchErrors(error as Error);
@@ -116,7 +111,7 @@ function Menu({ id, ids, isHeader = false }: MenuProps) {
               toast.promise(deleteSpecialities(ids as string[]), {
                 position: 'top-center',
                 loading: 'Deleting specialities',
-                success: SPECIALITIES_DELETED,
+                success: MESSAGES.SPECIALITY.BULK_DELETED,
                 error(error) {
                   const { message } = catchErrors(error as Error);
                   return <span className="text-destructive">{message}</span>;
@@ -135,7 +130,11 @@ function Menu({ id, ids, isHeader = false }: MenuProps) {
 export function TableCellViewer<T extends z.ZodType>(props: TCVProps<T>) {
   const isMobile = useIsMobile();
   const { status, date, time } = props.item;
-  const isInFuture = isPastByTime(date, time, EXPIRES_AT * 1000);
+  const isInFuture = isPastByTime(
+    date,
+    time,
+    (DATES.EXPIRES_AT as number) * 1000
+  );
 
   const { pending: validating, handleSubmit: confirmAppointment } = useHookForm(
     handler,

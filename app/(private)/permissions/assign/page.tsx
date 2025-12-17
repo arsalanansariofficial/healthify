@@ -2,7 +2,7 @@ import { User } from 'next-auth';
 
 import { auth } from '@/auth';
 import prisma from '@/lib/prisma';
-import { DEFAULT_ROLE } from '@/lib/constants';
+import { ROLES } from '@/lib/constants';
 import Component from '@/app/(private)/permissions/assign/component';
 
 export default async function Page({
@@ -15,12 +15,16 @@ export default async function Page({
 
   const { roles, permissions, rolePermissions } = await prisma.$transaction(
     async function (transaction) {
-      const roles = await transaction.role.findMany();
-      const defaultRole = await transaction.role.findFirst();
-      const permissions = await transaction.permission.findMany();
+      const [roles, defaultRole, permissions] = await Promise.all([
+        transaction.role.findMany(),
+        transaction.role.findFirst(),
+        transaction.permission.findMany()
+      ]);
 
       const existingRole = await transaction.role.findUnique({
-        where: { name: role ? role : defaultRole?.name || DEFAULT_ROLE }
+        where: {
+          name: role ? role : defaultRole?.name || (ROLES.DOCTOR as string)
+        }
       });
 
       const rolePermissions = await transaction.rolePermission.findMany({

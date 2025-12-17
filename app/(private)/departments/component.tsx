@@ -20,7 +20,7 @@ import handler from '@/components/display-toast';
 import { Checkbox } from '@/components/ui/checkbox';
 import { catchErrors, getDate, hasPermission } from '@/lib/utils';
 import { DragHandle, DataTable } from '@/components/ui/data-table';
-import { DEPARTMENT_DELETED, DEPARTMENTS_DELETED } from '@/lib/constants';
+import { MESSAGES } from '@/lib/constants';
 
 import {
   deleteDepartment,
@@ -96,7 +96,7 @@ function Menu({ id, ids, isHeader = false }: MenuProps) {
             if (!isHeader) {
               toast.promise(deleteDepartment(id as string), {
                 position: 'top-center',
-                success: DEPARTMENT_DELETED,
+                success: MESSAGES.DEPARTMENT.DELETED,
                 loading: 'Deleting department',
                 error(error) {
                   const { message } = catchErrors(error as Error);
@@ -108,8 +108,8 @@ function Menu({ id, ids, isHeader = false }: MenuProps) {
             if (isHeader) {
               toast.promise(deleteDepartments(ids as string[]), {
                 position: 'top-center',
-                success: DEPARTMENTS_DELETED,
                 loading: 'Deleting departments',
+                success: MESSAGES.DEPARTMENT.BULK_DELETED,
                 error(error) {
                   const { message } = catchErrors(error as Error);
                   return <span className="text-destructive">{message}</span>;

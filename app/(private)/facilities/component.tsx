@@ -11,16 +11,16 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { IconDotsVertical } from '@tabler/icons-react';
 
 import Footer from '@/components/footer';
+import { MESSAGES } from '@/lib/constants';
 import { Input } from '@/components/ui/input';
+import { facilitySchema } from '@/lib/schemas';
 import { Button } from '@/components/ui/button';
 import useHookForm from '@/hooks/use-hook-form';
-import { facilitySchema } from '@/lib/schemas';
 import { useIsMobile } from '@/hooks/use-mobile';
 import handler from '@/components/display-toast';
 import { Checkbox } from '@/components/ui/checkbox';
 import { catchErrors, getDate, hasPermission } from '@/lib/utils';
 import { DragHandle, DataTable } from '@/components/ui/data-table';
-import { FACILITIES_DELETED, FACILITY_DELETED } from '@/lib/constants';
 
 import {
   deleteFacility,
@@ -88,8 +88,8 @@ function Menu({
             if (!isHeader) {
               toast.promise(deleteFacility(id as string), {
                 position: 'top-center',
-                success: FACILITY_DELETED,
                 loading: 'Deleting facility',
+                success: MESSAGES.FACILITY.DELETED,
                 error(error) {
                   const { message } = catchErrors(error as Error);
                   return <span className="text-destructive">{message}</span>;
@@ -100,8 +100,8 @@ function Menu({
             if (isHeader) {
               toast.promise(deleteFacilities(ids as string[]), {
                 position: 'top-center',
-                success: FACILITIES_DELETED,
                 loading: 'Deleting facilities',
+                success: MESSAGES.FACILITY.BULK_DELETED,
                 error(error) {
                   const { message } = catchErrors(error as Error);
                   return <span className="text-destructive">{message}</span>;

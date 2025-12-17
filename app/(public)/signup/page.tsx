@@ -12,7 +12,7 @@ import { faGithub } from '@fortawesome/free-brands-svg-icons/faGithub';
 
 import { getDate } from '@/lib/utils';
 import { signup } from '@/lib/actions';
-import { LOGIN } from '@/lib/constants';
+import { ROUTES } from '@/lib/constants';
 import { signupSchema } from '@/lib/schemas';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -75,7 +75,7 @@ export default function Component() {
           </CardDescription>
           <CardAction>
             <Button variant="link">
-              <Link href={LOGIN}>Login</Link>
+              <Link href={ROUTES.LOGIN}>Login</Link>
             </Button>
           </CardAction>
         </CardHeader>

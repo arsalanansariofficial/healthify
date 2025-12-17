@@ -1,7 +1,7 @@
 import z from 'zod';
 import { Gender, RenewalType, SubscriptionStatus } from '@prisma/client';
 
-import { MAX_DATE, MIN_DATE } from '@/lib/constants';
+import { DATES } from '@/lib/constants';
 
 const emailVerified = z.object({
   emailVerified: z.enum(['yes', 'no']).optional()
@@ -82,8 +82,12 @@ const visitDays = z.object({
 const appointmentDate = z.object({
   date: z
     .date()
-    .max(MAX_DATE, { message: `Date must be less than ${MAX_DATE}` })
-    .min(MIN_DATE, { message: `Date must be greater than ${MIN_DATE}` })
+    .max(DATES.MAX_DATE as Date, {
+      message: `Date must be less than ${DATES.MAX_DATE}`
+    })
+    .min(DATES.MIN_DATE as Date, {
+      message: `Date must be greater than ${DATES.MIN_DATE}`
+    })
 });
 
 const image = z.object({

@@ -5,13 +5,7 @@ import { faEnvelope } from '@fortawesome/free-solid-svg-icons/faEnvelope';
 import { faLinkedin } from '@fortawesome/free-brands-svg-icons/faLinkedin';
 import { faWhatsapp } from '@fortawesome/free-brands-svg-icons/faWhatsapp';
 
-import {
-  WEBSITE,
-  MAIL_TO,
-  GIT_HUB,
-  LINKED_IN,
-  WHATS_APP
-} from '@/lib/constants';
+import { SOCIAL } from '@/lib/constants';
 
 export default function Footer() {
   return (
@@ -19,7 +13,7 @@ export default function Footer() {
       <p className="text-muted-foreground space-x-1 text-center text-xs leading-5 capitalize">
         <span>Created By</span>
         <Link
-          href={WEBSITE}
+          href={SOCIAL.WEBSITE as string}
           className="text-muted-foreground hover:text-foreground"
         >
           Arsalan Ansari
@@ -30,7 +24,7 @@ export default function Footer() {
           <a
             title="Email"
             target="_blank"
-            href={MAIL_TO}
+            href={SOCIAL.EMAIL as string}
             className="text-muted-foreground hover:text-foreground grid"
           >
             <FontAwesomeIcon size="sm" icon={faEnvelope} />
@@ -40,7 +34,7 @@ export default function Footer() {
           <a
             title="GitHub"
             target="_blank"
-            href={GIT_HUB}
+            href={SOCIAL.GITHUB as string}
             className="text-muted-foreground hover:text-foreground grid"
           >
             <FontAwesomeIcon size="sm" icon={faGithub} />
@@ -50,7 +44,7 @@ export default function Footer() {
           <a
             title="LinkedIn"
             target="_blank"
-            href={LINKED_IN}
+            href={SOCIAL.LINKEDIN as string}
             className="text-muted-foreground hover:text-foreground grid"
           >
             <FontAwesomeIcon size="sm" icon={faLinkedin} />
@@ -60,7 +54,7 @@ export default function Footer() {
           <a
             target="_blank"
             title="WhatsApp"
-            href={WHATS_APP}
+            href={SOCIAL.WHATSAPP as string}
             className="text-muted-foreground hover:text-foreground grid"
           >
             <FontAwesomeIcon size="sm" icon={faWhatsapp} />

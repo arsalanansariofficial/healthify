@@ -11,6 +11,7 @@ import { IconDotsVertical } from '@tabler/icons-react';
 import { Hospital, User as PrismaUser } from '@prisma/client';
 
 import Footer from '@/components/footer';
+import { MESSAGES } from '@/lib/constants';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { hospitalSchema } from '@/lib/schemas';
@@ -23,7 +24,6 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Textarea } from '@/components/ui/textarea';
 import MultiSelect from '@/components/ui/multi-select';
 import { DragHandle, DataTable } from '@/components/ui/data-table';
-import { HOSPITAL_DELETED, HOSPITALS_DELETED } from '@/lib/constants';
 import { capitalize, catchErrors, getDate, hasPermission } from '@/lib/utils';
 
 import {
@@ -68,24 +68,15 @@ import {
   DrawerDescription
 } from '@/components/ui/drawer';
 
-type MenuProps = { id?: string; ids?: string[]; isHeader: boolean };
-
-type TCVProps<T extends z.ZodType> = { item: z.infer<T>; users: PrismaUser[] };
-
-type TableSchema = {
-  id: number;
-  name: string;
-  email: string;
-  header: string;
-  createdAt: string;
-  city: string | null;
-  users: PrismaUser[];
-  isAffiliated: boolean;
-};
-
-type Props = { user: User; users: PrismaUser[]; hospitals: Hospital[] };
-
-function Menu({ id, ids, isHeader = false }: MenuProps) {
+function Menu({
+  id,
+  ids,
+  isHeader = false
+}: {
+  id?: string;
+  ids?: string[];
+  isHeader: boolean;
+}) {
   const menuTrigger = (
     <DropdownMenuTrigger asChild>
       <Button
@@ -110,8 +101,8 @@ function Menu({ id, ids, isHeader = false }: MenuProps) {
             if (!isHeader) {
               toast.promise(deleteHospital(id as string), {
                 position: 'top-center',
-                success: HOSPITAL_DELETED,
                 loading: 'Deleting hospital',
+                success: MESSAGES.HOSPITAL.DELETED,
                 error(error) {
                   const { message } = catchErrors(error as Error);
                   return <span className="text-destructive">{message}</span>;
@@ -123,7 +114,7 @@ function Menu({ id, ids, isHeader = false }: MenuProps) {
               toast.promise(deleteHospitals(ids as string[]), {
                 position: 'top-center',
                 loading: 'Deleting users',
-                success: HOSPITALS_DELETED,
+                success: MESSAGES.HOSPITAL.BULK_DELETED,
                 error(error) {
                   const { message } = catchErrors(error as Error);
                   return <span className="text-destructive">{message}</span>;
@@ -139,7 +130,10 @@ function Menu({ id, ids, isHeader = false }: MenuProps) {
   );
 }
 
-export function TableCellViewer<T extends z.ZodType>(props: TCVProps<T>) {
+export function TableCellViewer<T extends z.ZodType>(props: {
+  item: z.infer<T>;
+  users: PrismaUser[];
+}) {
   const isMobile = useIsMobile();
   const form = useForm({
     resolver: zodResolver(hospitalSchema),
@@ -336,8 +330,23 @@ export function TableCellViewer<T extends z.ZodType>(props: TCVProps<T>) {
   );
 }
 
-export default function Component(props: Props) {
-  const columns = useMemo<ColumnDef<TableSchema>[]>(
+export default function Component(props: {
+  user: User;
+  users: PrismaUser[];
+  hospitals: Hospital[];
+}) {
+  const columns = useMemo<
+    ColumnDef<{
+      id: number;
+      name: string;
+      email: string;
+      header: string;
+      createdAt: string;
+      city: string | null;
+      users: PrismaUser[];
+      isAffiliated: boolean;
+    }>[]
+  >(
     () => [
       {
         id: 'drag',

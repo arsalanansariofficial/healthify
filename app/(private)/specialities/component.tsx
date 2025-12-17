@@ -5,18 +5,18 @@ import { toast } from 'sonner';
 import { useMemo } from 'react';
 import { User } from 'next-auth';
 import { useForm } from 'react-hook-form';
+import { User as Doctor } from '@prisma/client';
 import { ColumnDef } from '@tanstack/react-table';
 import { Speciality, TimeSlot } from '@prisma/client';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { IconDotsVertical } from '@tabler/icons-react';
-import { SPECIALITY_DELETED, SPECIALITIES_DELETED } from '@/lib/constants';
 
 import Footer from '@/components/footer';
 import { nameSchema } from '@/lib/schemas';
+import { MESSAGES } from '@/lib/constants';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import useHookForm from '@/hooks/use-hook-form';
-import { User as Doctor } from '@prisma/client';
 import { useIsMobile } from '@/hooks/use-mobile';
 import handler from '@/components/display-toast';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -90,7 +90,7 @@ function Menu({
               toast.promise(deleteSpeciality(id as string), {
                 position: 'top-center',
                 loading: 'Deleting speciality',
-                success: SPECIALITY_DELETED,
+                success: MESSAGES.SPECIALITY.DELETED,
                 error(error) {
                   const { message } = catchErrors(error as Error);
                   return <span className="text-destructive">{message}</span>;
@@ -102,7 +102,7 @@ function Menu({
               toast.promise(deleteSpecialities(ids as string[]), {
                 position: 'top-center',
                 loading: 'Deleting specialities',
-                success: SPECIALITIES_DELETED,
+                success: MESSAGES.SPECIALITY.BULK_DELETED,
                 error(error) {
                   const { message } = catchErrors(error as Error);
                   return <span className="text-destructive">{message}</span>;

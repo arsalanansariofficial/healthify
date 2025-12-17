@@ -1,7 +1,7 @@
 'use client';
 
 import Info from '@/components/info';
-import { IS_PRODUCTION } from '@/lib/constants';
+import { ENVIRONMENT } from '@/lib/constants';
 
 export default function Page({
   error
@@ -15,7 +15,7 @@ export default function Page({
         <Info
           title="500 - Internal Server Error"
           message={
-            !IS_PRODUCTION
+            !ENVIRONMENT.IS_PRODUCTION
               ? error.message
               : 'There is some error while processing your request, please try again after some time!'
           }

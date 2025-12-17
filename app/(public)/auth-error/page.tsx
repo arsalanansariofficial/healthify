@@ -1,6 +1,6 @@
 import Link from 'next/link';
 
-import { HOME } from '@/lib/constants';
+import { ROUTES } from '@/lib/constants';
 import { Button } from '@/components/ui/button';
 
 export default async function Page({
@@ -14,7 +14,7 @@ export default async function Page({
     <section className="space-y-4 text-center">
       <h1 className="text-xl font-bold">{error}</h1>
       <Button>
-        <Link href={HOME}>Home Page</Link>
+        <Link href={ROUTES.HOME}>Home Page</Link>
       </Button>
     </section>
   );

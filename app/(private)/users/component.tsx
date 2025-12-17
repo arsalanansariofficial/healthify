@@ -22,7 +22,7 @@ import { useIsMobile } from '@/hooks/use-mobile';
 import handler from '@/components/display-toast';
 import { Checkbox } from '@/components/ui/checkbox';
 import { ChartConfig } from '@/components/ui/chart';
-import { USER_DELETED, USERS_DELETED } from '@/lib/constants';
+import { MESSAGES } from '@/lib/constants';
 import { catchErrors, getDate, hasPermission } from '@/lib/utils';
 import { DragHandle, DataTable } from '@/components/ui/data-table';
 
@@ -100,9 +100,9 @@ function Menu({
           onClick={async () => {
             if (!isHeader) {
               toast.promise(deleteUser(id as string), {
-                success: USER_DELETED,
                 position: 'top-center',
                 loading: 'Deleting user',
+                success: MESSAGES.USER.DELETED,
                 error(error) {
                   const { message } = catchErrors(error as Error);
                   return <span className="text-destructive">{message}</span>;
@@ -112,9 +112,9 @@ function Menu({
 
             if (isHeader) {
               toast.promise(deleteUsers(ids as string[]), {
-                success: USERS_DELETED,
                 position: 'top-center',
                 loading: 'Deleting users',
+                success: MESSAGES.USER.BULK_DELETED,
                 error(error) {
                   const { message } = catchErrors(error as Error);
                   return <span className="text-destructive">{message}</span>;

@@ -11,17 +11,17 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { IconDotsVertical } from '@tabler/icons-react';
 
 import Footer from '@/components/footer';
+import { MESSAGES } from '@/lib/constants';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import useHookForm from '@/hooks/use-hook-form';
-import { pharmaBrandSchema } from '@/lib/schemas';
 import { useIsMobile } from '@/hooks/use-mobile';
 import handler from '@/components/display-toast';
+import { pharmaBrandSchema } from '@/lib/schemas';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Textarea } from '@/components/ui/textarea';
 import { catchErrors, getDate, hasPermission } from '@/lib/utils';
 import { DragHandle, DataTable } from '@/components/ui/data-table';
-import { PHARMA_BRAND_DELETED, PHARMA_BRANDS_DELETED } from '@/lib/constants';
 
 import {
   deletePharmaBrand,
@@ -97,7 +97,7 @@ function Menu({ id, ids, isHeader = false }: MenuProps) {
             if (!isHeader) {
               toast.promise(deletePharmaBrand(id as string), {
                 position: 'top-center',
-                success: PHARMA_BRAND_DELETED,
+                success: MESSAGES.PHARMA_BRAND.DELETED,
                 loading: 'Deleting pharma brand',
                 error(error) {
                   const { message } = catchErrors(error as Error);
@@ -109,8 +109,8 @@ function Menu({ id, ids, isHeader = false }: MenuProps) {
             if (isHeader) {
               toast.promise(deletePharmaBrands(ids as string[]), {
                 position: 'top-center',
-                success: PHARMA_BRANDS_DELETED,
                 loading: 'Deleting pharma brands',
+                success: MESSAGES.PHARMA_BRAND.BULK_DELETED,
                 error(error) {
                   const { message } = catchErrors(error as Error);
                   return <span className="text-destructive">{message}</span>;

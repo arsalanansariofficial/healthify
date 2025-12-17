@@ -11,6 +11,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { IconDotsVertical } from '@tabler/icons-react';
 
 import Footer from '@/components/footer';
+import { MESSAGES } from '@/lib/constants';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import useHookForm from '@/hooks/use-hook-form';
@@ -21,10 +22,6 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { pharmaManufacturerSchema } from '@/lib/schemas';
 import { catchErrors, getDate, hasPermission } from '@/lib/utils';
 import { DragHandle, DataTable } from '@/components/ui/data-table';
-import {
-  PHARMA_MANUFACTURER_DELETED,
-  PHARMA_MANUFACTURERS_DELETED
-} from '@/lib/constants';
 
 import {
   deletePharmaManufacturer,
@@ -93,7 +90,7 @@ function Menu({
               toast.promise(deletePharmaManufacturer(id as string), {
                 position: 'top-center',
                 loading: 'Deleting manufacturer',
-                success: PHARMA_MANUFACTURER_DELETED,
+                success: MESSAGES.PHARMA_MANUFACTURER.DELETED,
                 error(error) {
                   const { message } = catchErrors(error as Error);
                   return <span className="text-destructive">{message}</span>;
@@ -105,7 +102,7 @@ function Menu({
               toast.promise(deletePharmaManufacturers(ids as string[]), {
                 position: 'top-center',
                 loading: 'Deleting manufacturers',
-                success: PHARMA_MANUFACTURERS_DELETED,
+                success: MESSAGES.PHARMA_MANUFACTURER.BULK_DELETED,
                 error(error) {
                   const { message } = catchErrors(error as Error);
                   return <span className="text-destructive">{message}</span>;

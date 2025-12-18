@@ -82,11 +82,11 @@
       "target": "api::doctor.doctor",
       "mappedBy": "user"
     },
-    "apppointments": {
+    "appointments": {
       "type": "relation",
       "relation": "oneToMany",
-      "target": "api::apppointment.apppointment",
-      "mappedBy": "patient"
+      "target": "api::appointment.appointment",
+      "mappedBy": "user"
     }
   }
 }

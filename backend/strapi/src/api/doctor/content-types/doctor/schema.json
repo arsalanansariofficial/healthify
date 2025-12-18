@@ -44,10 +44,10 @@
       "target": "api::doctor-schedule.doctor-schedule",
       "mappedBy": "doctor"
     },
-    "apppointments": {
+    "appointments": {
       "type": "relation",
       "relation": "oneToMany",
-      "target": "api::apppointment.apppointment",
+      "target": "api::appointment.appointment",
       "mappedBy": "doctor"
     }
   }

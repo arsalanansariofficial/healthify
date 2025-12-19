@@ -1,10 +1,10 @@
 {
   "kind": "collectionType",
-  "collectionName": "apppointments",
+  "collectionName": "appointments",
   "info": {
-    "singularName": "apppointment",
-    "pluralName": "apppointments",
-    "displayName": "Apppointment"
+    "singularName": "appointment",
+    "pluralName": "appointments",
+    "displayName": "Appointment"
   },
   "options": {
     "draftAndPublish": true
@@ -39,31 +39,21 @@
         "Urgent"
       ]
     },
-    "appointmentStatus": {
-      "type": "enumeration",
-      "required": true,
-      "enum": [
-        "Pending",
-        "Confirmed",
-        "Cancelled",
-        "Completed"
-      ]
-    },
-    "patient": {
-      "type": "relation",
-      "relation": "manyToOne",
-      "target": "plugin::users-permissions.user",
-      "inversedBy": "apppointments"
-    },
     "doctor": {
       "type": "relation",
       "relation": "manyToOne",
       "target": "api::doctor.doctor",
-      "inversedBy": "apppointments"
+      "inversedBy": "appointments"
+    },
+    "user": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "plugin::users-permissions.user",
+      "inversedBy": "appointments"
     },
     "rating": {
       "type": "integer",
-      "min": 1,
+      "min": 0,
       "max": 5
     }
   }

@@ -46,7 +46,7 @@ export function Button({ asChild = false, ...props }: Props) {
   return (
     <Comp
       {...props}
-      data-slot="button"
+      data-slot='button'
       className={cn(
         buttonVariants({
           size: props.size,

@@ -40,7 +40,7 @@ export function FormDescription({ className, ...props }: ComponentProps<'p'>) {
     <p
       {...props}
       id={formDescriptionId}
-      data-slot="form-description"
+      data-slot='form-description'
       className={cn('text-muted-foreground text-sm', className)}
     />
   );
@@ -53,7 +53,7 @@ export function FormItem({ className, ...props }: ComponentProps<'div'>) {
     <FormItemContext.Provider value={{ id }}>
       <div
         {...props}
-        data-slot="form-item"
+        data-slot='form-item'
         className={cn('grid gap-2', className)}
       />
     </FormItemContext.Provider>
@@ -68,7 +68,7 @@ export function FormLabel(props: ComponentProps<typeof LabelPrimitive.Root>) {
       {...props}
       data-error={!!error}
       htmlFor={formItemId}
-      data-slot="form-label"
+      data-slot='form-label'
       className={cn('data-[error=true]:text-destructive', props.className)}
     />
   );
@@ -95,7 +95,7 @@ export function FormMessage({ className, ...props }: ComponentProps<'p'>) {
     <p
       {...props}
       id={formMessageId}
-      data-slot="form-message"
+      data-slot='form-message'
       className={cn('text-destructive text-sm', className)}
     >
       {body}
@@ -112,7 +112,7 @@ export function FormControl({ ...props }: ComponentProps<typeof Slot>) {
       {...props}
       id={formItemId}
       aria-invalid={!!error}
-      data-slot="form-control"
+      data-slot='form-control'
       aria-describedby={
         !error
           ? `${formDescriptionId}`

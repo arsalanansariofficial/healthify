@@ -20,15 +20,15 @@ type PopoverContentProps = React.ComponentProps<typeof Content>;
 type PopoverTriggerProps = React.ComponentProps<typeof Trigger>;
 
 export function Popover(props: PopoverProps) {
-  return <Root data-slot="popover" {...props} />;
+  return <Root data-slot='popover' {...props} />;
 }
 
 export function PopoverAnchor(props: PopoverAnchorProps) {
-  return <Anchor data-slot="popover-anchor" {...props} />;
+  return <Anchor data-slot='popover-anchor' {...props} />;
 }
 
 export function PopoverTrigger(props: PopoverTriggerProps) {
-  return <Trigger data-slot="popover-trigger" {...props} />;
+  return <Trigger data-slot='popover-trigger' {...props} />;
 }
 
 export function PopoverContent(props: PopoverContentProps) {
@@ -40,7 +40,7 @@ export function PopoverContent(props: PopoverContentProps) {
         {...props}
         align={align}
         sideOffset={sideOffset}
-        data-slot="popover-content"
+        data-slot='popover-content'
         className={cn(
           'bg-popover text-popover-foreground data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 z-50 w-72 origin-(--radix-popover-content-transform-origin) rounded-md border p-4 shadow-md outline-hidden',
           props.className

@@ -26,17 +26,17 @@ export default function Info(props: { title: string; message: string }) {
         <EmptyDescription>{props.message}</EmptyDescription>
       </EmptyHeader>
       <EmptyContent>
-        <InputGroup className="sm:w-3/4">
+        <InputGroup className='sm:w-3/4'>
           <Router>
             <InputGroupInput
-              name="search"
-              placeholder="Try searching for pages..."
+              name='search'
+              placeholder='Try searching for pages...'
             />
           </Router>
           <InputGroupAddon>
             <SearchIcon />
           </InputGroupAddon>
-          <InputGroupAddon align="inline-end">
+          <InputGroupAddon align='inline-end'>
             <Kbd>/</Kbd>
           </InputGroupAddon>
         </InputGroup>

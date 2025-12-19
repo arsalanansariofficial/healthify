@@ -85,32 +85,32 @@ export function TableCellViewer<T extends z.ZodType>(props: {
   return (
     <Drawer direction={isMobile ? 'bottom' : 'right'}>
       <DrawerTrigger asChild onClick={e => e.currentTarget.blur()}>
-        <Button variant="link" className="text-foreground px-0">
+        <Button variant='link' className='text-foreground px-0'>
           {props.item.id}
         </Button>
       </DrawerTrigger>
       <DrawerContent>
-        <DrawerHeader className="gap-1">
+        <DrawerHeader className='gap-1'>
           <DrawerTitle>Speciality</DrawerTitle>
           <DrawerDescription>
             You can change the name for the selected speciality
           </DrawerDescription>
         </DrawerHeader>
-        <div className="flex flex-col gap-4 overflow-y-auto px-4 text-sm">
+        <div className='flex flex-col gap-4 overflow-y-auto px-4 text-sm'>
           <Form {...form}>
             <form
-              id="speciality-form"
-              className="space-y-2"
+              id='speciality-form'
+              className='space-y-2'
               onSubmit={form.handleSubmit(handleSubmit)}
             >
               <FormField
-                name="name"
+                name='name'
                 control={form.control}
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Speciality</FormLabel>
                     <FormControl>
-                      <Input {...field} type="name" placeholder="Physician" />
+                      <Input {...field} type='name' placeholder='Physician' />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -121,15 +121,15 @@ export function TableCellViewer<T extends z.ZodType>(props: {
         </div>
         <DrawerFooter>
           <Button
-            type="submit"
+            type='submit'
             disabled={pending}
-            form="speciality-form"
-            className="cursor-pointer"
+            form='speciality-form'
+            className='cursor-pointer'
           >
             {pending ? 'Saving...' : 'Save'}
           </Button>
           <DrawerClose asChild>
-            <Button variant="outline">Done</Button>
+            <Button variant='outline'>Done</Button>
           </DrawerClose>
         </DrawerFooter>
       </DrawerContent>
@@ -231,22 +231,22 @@ export default function Component(props: {
   );
 
   return (
-    <div className="flex h-full flex-col gap-8 lg:mx-auto lg:w-10/12">
-      <form className="grid grid-cols-[1fr_auto_auto] gap-2">
+    <div className='flex h-full flex-col gap-8 lg:mx-auto lg:w-10/12'>
+      <form className='grid grid-cols-[1fr_auto_auto] gap-2'>
         <Input
-          type="text"
-          name="name"
-          id="doctor-name"
-          className="w-full"
-          placeholder="Search doctor..."
+          type='text'
+          name='name'
+          id='doctor-name'
+          className='w-full'
+          placeholder='Search doctor...'
           onChange={e => setQuery(e.target.value.toLowerCase())}
         />
         <Dialog>
           <div>
             <DialogTrigger asChild>
-              <Button className="block w-full">Filter</Button>
+              <Button className='block w-full'>Filter</Button>
             </DialogTrigger>
-            <DialogContent className="sm:max-w-[425px]">
+            <DialogContent className='sm:max-w-[425px]'>
               <DialogHeader>
                 <DialogTitle>Apply Filters</DialogTitle>
                 <DialogDescription>
@@ -254,141 +254,141 @@ export default function Component(props: {
                 </DialogDescription>
               </DialogHeader>
               <form
-                id="filter-form"
-                className="space-y-4"
+                id='filter-form'
+                className='space-y-4'
                 onSubmit={applyFilters}
               >
-                <div className="space-y-2">
-                  <Label htmlFor="doctor-speciality">Speciality</Label>
-                  <Select name="speciality">
+                <div className='space-y-2'>
+                  <Label htmlFor='doctor-speciality'>Speciality</Label>
+                  <Select name='speciality'>
                     <SelectTrigger
-                      id="doctor-speciality"
-                      className="w-full [&_span[data-slot]]:block [&_span[data-slot]]:truncate"
+                      id='doctor-speciality'
+                      className='w-full [&_span[data-slot]]:block [&_span[data-slot]]:truncate'
                     >
-                      <SelectValue placeholder="Select a speciality" />
+                      <SelectValue placeholder='Select a speciality' />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="physician">Physician</SelectItem>
-                      <SelectItem value="dentist">Dentist</SelectItem>
+                      <SelectItem value='physician'>Physician</SelectItem>
+                      <SelectItem value='dentist'>Dentist</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
-                <div className="space-y-2">
-                  <Label htmlFor="doctor-experience">Experience</Label>
-                  <Select name="experience">
+                <div className='space-y-2'>
+                  <Label htmlFor='doctor-experience'>Experience</Label>
+                  <Select name='experience'>
                     <SelectTrigger
-                      id="doctor-experience"
-                      className="w-full [&_span[data-slot]]:block [&_span[data-slot]]:truncate"
+                      id='doctor-experience'
+                      className='w-full [&_span[data-slot]]:block [&_span[data-slot]]:truncate'
                     >
-                      <SelectValue placeholder="Select experience in years" />
+                      <SelectValue placeholder='Select experience in years' />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="1">1 year</SelectItem>
-                      <SelectItem value="2">2 Years</SelectItem>
-                      <SelectItem value="3">3 Years</SelectItem>
-                      <SelectItem value="4">4 Years</SelectItem>
-                      <SelectItem value="5">5 Years</SelectItem>
-                      <SelectItem value="Infinity">
+                      <SelectItem value='1'>1 year</SelectItem>
+                      <SelectItem value='2'>2 Years</SelectItem>
+                      <SelectItem value='3'>3 Years</SelectItem>
+                      <SelectItem value='4'>4 Years</SelectItem>
+                      <SelectItem value='5'>5 Years</SelectItem>
+                      <SelectItem value='Infinity'>
                         More than 5 Years
                       </SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
-                <div className="space-y-2">
-                  <Label htmlFor="doctor-gender">Gender</Label>
-                  <Select name="gender">
+                <div className='space-y-2'>
+                  <Label htmlFor='doctor-gender'>Gender</Label>
+                  <Select name='gender'>
                     <SelectTrigger
-                      id="doctor-gender"
-                      className="w-full [&_span[data-slot]]:block [&_span[data-slot]]:truncate"
+                      id='doctor-gender'
+                      className='w-full [&_span[data-slot]]:block [&_span[data-slot]]:truncate'
                     >
-                      <SelectValue placeholder="Select a gender" />
+                      <SelectValue placeholder='Select a gender' />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="male">Male</SelectItem>
-                      <SelectItem value="female">Female</SelectItem>
+                      <SelectItem value='male'>Male</SelectItem>
+                      <SelectItem value='female'>Female</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
-                <div className="space-y-2">
-                  <Label htmlFor="doctor-time">Time</Label>
-                  <Select name="time">
+                <div className='space-y-2'>
+                  <Label htmlFor='doctor-time'>Time</Label>
+                  <Select name='time'>
                     <SelectTrigger
-                      id="doctor-time"
-                      className="w-full [&_span[data-slot]]:block [&_span[data-slot]]:truncate"
+                      id='doctor-time'
+                      className='w-full [&_span[data-slot]]:block [&_span[data-slot]]:truncate'
                     >
-                      <SelectValue placeholder="Select a time" />
+                      <SelectValue placeholder='Select a time' />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="morning">Morning</SelectItem>
-                      <SelectItem value="evening">Evening</SelectItem>
+                      <SelectItem value='morning'>Morning</SelectItem>
+                      <SelectItem value='evening'>Evening</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
               </form>
               <DialogFooter>
                 <DialogClose asChild>
-                  <Button variant="outline" onClick={resetFilters}>
+                  <Button variant='outline' onClick={resetFilters}>
                     Reset
                   </Button>
                 </DialogClose>
-                <Button type="submit" form="filter-form">
+                <Button type='submit' form='filter-form'>
                   Filter
                 </Button>
               </DialogFooter>
             </DialogContent>
           </div>
         </Dialog>
-        <Button variant="secondary" onClick={resetFilters}>
+        <Button variant='secondary' onClick={resetFilters}>
           Reset
         </Button>
       </form>
-      <ul className="grid grid-cols-[repeat(auto-fill,minmax(15em,1fr))] gap-4">
+      <ul className='grid grid-cols-[repeat(auto-fill,minmax(15em,1fr))] gap-4'>
         {doctors.map(doctor => (
           <li key={doctor.id}>
-            <Card className="rounded-md py-3">
-              <CardContent className="space-y-3 px-3">
+            <Card className='rounded-md py-3'>
+              <CardContent className='space-y-3 px-3'>
                 <Link
                   href={`/doctors/${doctor.id}`}
-                  className="relative block min-h-40 overflow-hidden rounded-md"
+                  className='relative block min-h-40 overflow-hidden rounded-md'
                 >
                   <Image
                     fill
                     priority
                     unoptimized
                     alt={doctor.name as string}
-                    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                    sizes='(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw'
                     src={
                       `${!doctor.hasOAuth ? `${DOMAIN.LOCAL}/api/upload/` : ''}${doctor.image}` ||
                       (UI.DEFAULT_PROFILE_IMAGE as string)
                     }
                   />
                 </Link>
-                <ul className="flex flex-wrap gap-2">
+                <ul className='flex flex-wrap gap-2'>
                   {doctor.timings.map(t => (
                     <li key={t.id}>
                       <Badge
-                        variant="outline"
-                        className="text-xs font-semibold capitalize"
+                        variant='outline'
+                        className='text-xs font-semibold capitalize'
                       >
                         {formatTime(t.time)}
                       </Badge>
                     </li>
                   ))}
                 </ul>
-                <div className="flex items-start justify-between gap-2">
-                  <div className="space-y-3">
-                    <span className="block text-xs leading-none font-semibold capitalize">
+                <div className='flex items-start justify-between gap-2'>
+                  <div className='space-y-3'>
+                    <span className='block text-xs leading-none font-semibold capitalize'>
                       {doctor.gender}
                     </span>
-                    <h2 className="font-serif text-sm leading-none font-semibold capitalize underline underline-offset-2">
+                    <h2 className='font-serif text-sm leading-none font-semibold capitalize underline underline-offset-2'>
                       {doctor.name}
                     </h2>
-                    <ul className="flex flex-wrap gap-2">
+                    <ul className='flex flex-wrap gap-2'>
                       {doctor.UserSpecialities.map(({ speciality }) => (
                         <li key={speciality.name}>
                           <Badge
-                            variant="outline"
-                            className="text-xs font-semibold capitalize"
+                            variant='outline'
+                            className='text-xs font-semibold capitalize'
                           >
                             {speciality.name.toLowerCase()}
                           </Badge>
@@ -397,15 +397,15 @@ export default function Component(props: {
                     </ul>
                   </div>
                   <Badge
-                    variant="secondary"
-                    className="text-xs font-semibold capitalize"
+                    variant='secondary'
+                    className='text-xs font-semibold capitalize'
                   >
                     {doctor.experience} Years
                   </Badge>
                 </div>
-                <Button asChild className="mt-4 block w-full cursor-pointer">
+                <Button asChild className='mt-4 block w-full cursor-pointer'>
                   <Link
-                    className="text-center"
+                    className='text-center'
                     href={`/appointments/${doctor.id}`}
                   >
                     Get Appointment

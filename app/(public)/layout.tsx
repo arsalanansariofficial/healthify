@@ -10,7 +10,7 @@ export default async function Layout({
   if (session && session.expires && session.user) redirect(ROUTES.DASHBOARD);
 
   return (
-    <main className="grid min-h-screen place-items-center px-8 py-4">
+    <main className='grid min-h-screen place-items-center px-8 py-4'>
       {children}
     </main>
   );

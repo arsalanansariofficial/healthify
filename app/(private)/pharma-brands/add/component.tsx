@@ -41,7 +41,7 @@ export default function Component() {
   });
 
   return (
-    <div className="flex h-full flex-col gap-8 lg:mx-auto lg:w-10/12">
+    <div className='flex h-full flex-col gap-8 lg:mx-auto lg:w-10/12'>
       <Card>
         <CardHeader>
           <CardTitle>Add Pharmaceutical Brand</CardTitle>
@@ -53,25 +53,25 @@ export default function Component() {
         <CardContent>
           <Form {...form}>
             <form
-              id="pharma-brand-form"
-              className="space-y-2"
+              id='pharma-brand-form'
+              className='space-y-2'
               onSubmit={form.handleSubmit(handleSubmit)}
             >
               <FormField
-                name="name"
+                name='name'
                 control={form.control}
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Name</FormLabel>
                     <FormControl>
-                      <Input {...field} type="text" placeholder="Lipitor" />
+                      <Input {...field} type='text' placeholder='Lipitor' />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
                 )}
               />
               <FormField
-                name="description"
+                name='description'
                 control={form.control}
                 render={({ field }) => (
                   <FormItem>
@@ -79,7 +79,7 @@ export default function Component() {
                     <FormControl>
                       <Textarea
                         {...field}
-                        placeholder="Just a simple antibiotic..."
+                        placeholder='Just a simple antibiotic...'
                       />
                     </FormControl>
                     <FormMessage />
@@ -91,9 +91,9 @@ export default function Component() {
         </CardContent>
         <CardFooter>
           <Button
-            type="submit"
-            form="pharma-brand-form"
-            className="cursor-pointer"
+            type='submit'
+            form='pharma-brand-form'
+            className='cursor-pointer'
             disabled={form.formState.isLoading}
           >
             {form.formState.isLoading ? 'Saving...' : 'Save'}

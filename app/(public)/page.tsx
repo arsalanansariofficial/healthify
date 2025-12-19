@@ -7,7 +7,7 @@ export default function Page() {
     <section>
       <Link
         href={ROUTES.LOGIN}
-        className="font-serif text-5xl font-semibold hover:underline hover:underline-offset-16"
+        className='font-serif text-5xl font-semibold hover:underline hover:underline-offset-16'
       >
         Healthify
       </Link>

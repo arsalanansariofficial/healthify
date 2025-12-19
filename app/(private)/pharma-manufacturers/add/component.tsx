@@ -41,7 +41,7 @@ export default function Component() {
   });
 
   return (
-    <div className="Manufactures medicines worldwide...x-col gap-8 lg:mx-auto lg:w-10/12">
+    <div className='Manufactures medicines worldwide...x-col gap-8 lg:mx-auto lg:w-10/12'>
       <Card>
         <CardHeader>
           <CardTitle>Add Pharmaceutical Manufacturer</CardTitle>
@@ -53,25 +53,25 @@ export default function Component() {
         <CardContent>
           <Form {...form}>
             <form
-              className="space-y-2"
-              id="pharma-manufacturer-form"
+              className='space-y-2'
+              id='pharma-manufacturer-form'
               onSubmit={form.handleSubmit(handleSubmit)}
             >
               <FormField
-                name="name"
+                name='name'
                 control={form.control}
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Name</FormLabel>
                     <FormControl>
-                      <Input {...field} type="text" placeholder="Pfizer" />
+                      <Input {...field} type='text' placeholder='Pfizer' />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
                 )}
               />
               <FormField
-                name="description"
+                name='description'
                 control={form.control}
                 render={({ field }) => (
                   <FormItem>
@@ -79,7 +79,7 @@ export default function Component() {
                     <FormControl>
                       <Textarea
                         {...field}
-                        placeholder="Manufactures medicines worldwide..."
+                        placeholder='Manufactures medicines worldwide...'
                       />
                     </FormControl>
                     <FormMessage />
@@ -91,9 +91,9 @@ export default function Component() {
         </CardContent>
         <CardFooter>
           <Button
-            type="submit"
-            className="cursor-pointer"
-            form="pharma-manufacturer-form"
+            type='submit'
+            className='cursor-pointer'
+            form='pharma-manufacturer-form'
             disabled={form.formState.isLoading}
           >
             {form.formState.isLoading ? 'Saving...' : 'Save'}

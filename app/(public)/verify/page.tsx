@@ -12,14 +12,14 @@ async function Verify({ token }: { token: string }) {
   return (
     <Suspense
       fallback={
-        <section className="space-y-4 text-center">
-          <p className="text-destructive animate-pulse font-semibold">
+        <section className='space-y-4 text-center'>
+          <p className='text-destructive animate-pulse font-semibold'>
             Verifying...
           </p>
         </section>
       }
     >
-      <section className="space-y-4 text-center">
+      <section className='space-y-4 text-center'>
         <p className={cn('font-semibold', { 'text-destructive': !success })}>
           {message}
         </p>
@@ -42,8 +42,8 @@ export default async function Page({
 
   if (!token) {
     return (
-      <section className="space-y-4 text-center">
-        <p className="text-destructive font-semibold">
+      <section className='space-y-4 text-center'>
+        <p className='text-destructive font-semibold'>
           Missing verification token!
         </p>
         <Button>

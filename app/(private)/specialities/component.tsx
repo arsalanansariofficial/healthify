@@ -68,12 +68,12 @@ function Menu({
   const menuTrigger = (
     <DropdownMenuTrigger asChild>
       <Button
-        size="icon"
-        variant="ghost"
-        className="data-[state=open]:bg-muted text-muted-foreground flex size-8"
+        size='icon'
+        variant='ghost'
+        className='data-[state=open]:bg-muted text-muted-foreground flex size-8'
       >
         <IconDotsVertical />
-        <span className="sr-only">Open menu</span>
+        <span className='sr-only'>Open menu</span>
       </Button>
     </DropdownMenuTrigger>
   );
@@ -82,9 +82,9 @@ function Menu({
     <DropdownMenu>
       {!isHeader && menuTrigger}
       {ids && ids.length > 0 && isHeader && menuTrigger}
-      <DropdownMenuContent align="end" className="w-32">
+      <DropdownMenuContent align='end' className='w-32'>
         <DropdownMenuItem
-          variant="destructive"
+          variant='destructive'
           onClick={async () => {
             if (!isHeader) {
               toast.promise(deleteSpeciality(id as string), {
@@ -93,7 +93,7 @@ function Menu({
                 success: MESSAGES.SPECIALITY.DELETED,
                 error(error) {
                   const { message } = catchErrors(error as Error);
-                  return <span className="text-destructive">{message}</span>;
+                  return <span className='text-destructive'>{message}</span>;
                 }
               });
             }
@@ -105,7 +105,7 @@ function Menu({
                 success: MESSAGES.SPECIALITY.BULK_DELETED,
                 error(error) {
                   const { message } = catchErrors(error as Error);
-                  return <span className="text-destructive">{message}</span>;
+                  return <span className='text-destructive'>{message}</span>;
                 }
               });
             }
@@ -139,32 +139,32 @@ export function TableCellViewer<T extends z.ZodType>(props: {
   return (
     <Drawer direction={isMobile ? 'bottom' : 'right'}>
       <DrawerTrigger asChild onClick={e => e.currentTarget.blur()}>
-        <Button variant="link" className="text-foreground px-0">
+        <Button variant='link' className='text-foreground px-0'>
           {props.item.id}
         </Button>
       </DrawerTrigger>
       <DrawerContent>
-        <DrawerHeader className="gap-1">
+        <DrawerHeader className='gap-1'>
           <DrawerTitle>Speciality</DrawerTitle>
           <DrawerDescription>
             You can change the name for the selected speciality
           </DrawerDescription>
         </DrawerHeader>
-        <div className="flex flex-col gap-4 overflow-y-auto px-4 text-sm">
+        <div className='flex flex-col gap-4 overflow-y-auto px-4 text-sm'>
           <Form {...form}>
             <form
-              id="speciality-form"
-              className="space-y-2"
+              id='speciality-form'
+              className='space-y-2'
               onSubmit={form.handleSubmit(handleSubmit)}
             >
               <FormField
-                name="name"
+                name='name'
                 control={form.control}
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Speciality</FormLabel>
                     <FormControl>
-                      <Input {...field} type="name" placeholder="Physician" />
+                      <Input {...field} type='name' placeholder='Physician' />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -175,15 +175,15 @@ export function TableCellViewer<T extends z.ZodType>(props: {
         </div>
         <DrawerFooter>
           <Button
-            type="submit"
+            type='submit'
             disabled={pending}
-            form="speciality-form"
-            className="cursor-pointer"
+            form='speciality-form'
+            className='cursor-pointer'
           >
             {pending ? 'Saving...' : 'Save'}
           </Button>
           <DrawerClose asChild>
-            <Button variant="outline">Done</Button>
+            <Button variant='outline'>Done</Button>
           </DrawerClose>
         </DrawerFooter>
       </DrawerContent>
@@ -213,7 +213,7 @@ export default function Component(props: {
         enableSorting: false,
         header: ({ table }) => (
           <Checkbox
-            aria-label="Select all"
+            aria-label='Select all'
             onCheckedChange={value => table.toggleAllPageRowsSelected(!!value)}
             checked={
               table.getIsAllPageRowsSelected() ||
@@ -223,7 +223,7 @@ export default function Component(props: {
         ),
         cell: ({ row }) => (
           <Checkbox
-            aria-label="Select row"
+            aria-label='Select row'
             checked={row.getIsSelected()}
             onCheckedChange={value => row.toggleSelected(!!value)}
           />
@@ -277,7 +277,7 @@ export default function Component(props: {
   );
 
   return (
-    <div className="flex h-full flex-col gap-8 lg:mx-auto lg:w-10/12">
+    <div className='flex h-full flex-col gap-8 lg:mx-auto lg:w-10/12'>
       {hasPermission(props.user.permissions, 'view:specialities') && (
         <DataTable
           columns={columns}

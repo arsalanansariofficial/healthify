@@ -30,8 +30,8 @@ export function CalendarDayButton(props: CalendarDayButtonProps) {
     <Button
       ref={ref}
       {...props}
-      size="icon"
-      variant="ghost"
+      size='icon'
+      variant='ghost'
       data-range-end={props.modifiers.range_end}
       data-day={props.day.date.toLocaleDateString()}
       data-range-start={props.modifiers.range_start}
@@ -163,7 +163,7 @@ export function Calendar(props: Props) {
         DayButton: CalendarDayButton,
         WeekNumber: ({ children, ...props }) => (
           <td {...props}>
-            <div className="flex size-(--cell-size) items-center justify-center text-center">
+            <div className='flex size-(--cell-size) items-center justify-center text-center'>
               {children}
             </div>
           </td>
@@ -172,7 +172,7 @@ export function Calendar(props: Props) {
           <div
             {...props}
             ref={rootRef}
-            data-slot="calendar"
+            data-slot='calendar'
             className={cn(className)}
           />
         ),

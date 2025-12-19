@@ -38,7 +38,7 @@ export default function Component() {
   });
 
   return (
-    <div className="flex h-full flex-col gap-8 lg:mx-auto lg:w-10/12">
+    <div className='flex h-full flex-col gap-8 lg:mx-auto lg:w-10/12'>
       <Card>
         <CardHeader>
           <CardTitle>Add permission</CardTitle>
@@ -49,12 +49,12 @@ export default function Component() {
         <CardContent>
           <Form {...form}>
             <form
-              id="permission-form"
-              className="space-y-2"
+              id='permission-form'
+              className='space-y-2'
               onSubmit={form.handleSubmit(handleSubmit)}
             >
               <FormField
-                name="name"
+                name='name'
                 control={form.control}
                 render={({ field }) => (
                   <FormItem>
@@ -62,8 +62,8 @@ export default function Component() {
                     <FormControl>
                       <Input
                         {...field}
-                        type="text"
-                        placeholder="VIEW:DASHBOARD"
+                        type='text'
+                        placeholder='VIEW:DASHBOARD'
                       />
                     </FormControl>
                     <FormMessage />
@@ -75,10 +75,10 @@ export default function Component() {
         </CardContent>
         <CardFooter>
           <Button
-            type="submit"
+            type='submit'
             disabled={pending}
-            form="permission-form"
-            className="cursor-pointer"
+            form='permission-form'
+            className='cursor-pointer'
           >
             {pending ? 'Adding permission...' : 'Add permission'}
           </Button>

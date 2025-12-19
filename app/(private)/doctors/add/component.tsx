@@ -87,7 +87,7 @@ export default function Component({ specialities }: Props) {
   );
 
   return (
-    <div className="flex h-full flex-col gap-8 lg:mx-auto lg:w-10/12">
+    <div className='flex h-full flex-col gap-8 lg:mx-auto lg:w-10/12'>
       <Card>
         <CardHeader>
           <CardTitle>Add Doctor</CardTitle>
@@ -98,19 +98,19 @@ export default function Component({ specialities }: Props) {
         <CardContent>
           <Form {...form}>
             <form
-              id="doctor-form"
-              className="space-y-2"
+              id='doctor-form'
+              className='space-y-2'
               onSubmit={form.handleSubmit(handleSubmit)}
             >
               <FormField
-                name="image"
+                name='image'
                 control={form.control}
                 render={({ field }) => (
                   <FormItem>
                     <FormControl>
-                      <div className="relative grid min-h-80 gap-3 overflow-clip rounded-md border-2 border-dashed">
+                      <div className='relative grid min-h-80 gap-3 overflow-clip rounded-md border-2 border-dashed'>
                         <Label
-                          htmlFor="image"
+                          htmlFor='image'
                           className={cn(
                             'absolute inset-0 z-10 grid place-items-center',
                             { 'opacity-0': image }
@@ -122,15 +122,15 @@ export default function Component({ specialities }: Props) {
                           <Image
                             fill
                             src={imageSrc}
-                            alt="Profile Picture"
-                            className="aspect-video object-cover"
+                            alt='Profile Picture'
+                            className='aspect-video object-cover'
                           />
                         )}
                         <Input
-                          id="image"
-                          type="file"
-                          name="image"
-                          className="hidden"
+                          id='image'
+                          type='file'
+                          name='image'
+                          className='hidden'
                           onChange={e => {
                             const files = e.target.files;
                             if (files?.length) {
@@ -146,7 +146,7 @@ export default function Component({ specialities }: Props) {
                 )}
               />
               <FormField
-                name="name"
+                name='name'
                 control={form.control}
                 render={({ field }) => (
                   <FormItem>
@@ -154,8 +154,8 @@ export default function Component({ specialities }: Props) {
                     <FormControl>
                       <Input
                         {...field}
-                        type="text"
-                        placeholder="Gwen Tennyson"
+                        type='text'
+                        placeholder='Gwen Tennyson'
                       />
                     </FormControl>
                     <FormMessage />
@@ -163,7 +163,7 @@ export default function Component({ specialities }: Props) {
                 )}
               />
               <FormField
-                name="email"
+                name='email'
                 control={form.control}
                 render={({ field }) => (
                   <FormItem>
@@ -171,8 +171,8 @@ export default function Component({ specialities }: Props) {
                     <FormControl>
                       <Input
                         {...field}
-                        type="email"
-                        placeholder="your.name@domain.com"
+                        type='email'
+                        placeholder='your.name@domain.com'
                       />
                     </FormControl>
                     <FormMessage />
@@ -180,7 +180,7 @@ export default function Component({ specialities }: Props) {
                 )}
               />
               <FormField
-                name="password"
+                name='password'
                 control={form.control}
                 render={({ field }) => (
                   <FormItem>
@@ -188,8 +188,8 @@ export default function Component({ specialities }: Props) {
                     <FormControl>
                       <Input
                         {...field}
-                        type="password"
-                        placeholder="Secret@123"
+                        type='password'
+                        placeholder='Secret@123'
                       />
                     </FormControl>
                     <FormMessage />
@@ -197,7 +197,7 @@ export default function Component({ specialities }: Props) {
                 )}
               />
               <FormField
-                name="phone"
+                name='phone'
                 control={form.control}
                 render={({ field }) => (
                   <FormItem>
@@ -205,8 +205,8 @@ export default function Component({ specialities }: Props) {
                     <FormControl>
                       <Input
                         {...field}
-                        type="tel"
-                        placeholder="+919876543210"
+                        type='tel'
+                        placeholder='+919876543210'
                       />
                     </FormControl>
                     <FormMessage />
@@ -214,7 +214,7 @@ export default function Component({ specialities }: Props) {
                 )}
               />
               <FormField
-                name="gender"
+                name='gender'
                 control={form.control}
                 render={({ field }) => (
                   <FormItem>
@@ -224,12 +224,12 @@ export default function Component({ specialities }: Props) {
                         defaultValue={field.value}
                         onValueChange={field.onChange}
                       >
-                        <SelectTrigger className="w-full [&_span[data-slot]]:block [&_span[data-slot]]:truncate">
-                          <SelectValue placeholder="Select a gender" />
+                        <SelectTrigger className='w-full [&_span[data-slot]]:block [&_span[data-slot]]:truncate'>
+                          <SelectValue placeholder='Select a gender' />
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="male">Male</SelectItem>
-                          <SelectItem value="female">Female</SelectItem>
+                          <SelectItem value='male'>Male</SelectItem>
+                          <SelectItem value='female'>Female</SelectItem>
                         </SelectContent>
                       </Select>
                     </FormControl>
@@ -238,7 +238,7 @@ export default function Component({ specialities }: Props) {
                 )}
               />
               <FormField
-                name="experience"
+                name='experience'
                 control={form.control}
                 render={({ field }) => (
                   <FormItem>
@@ -248,8 +248,8 @@ export default function Component({ specialities }: Props) {
                         min={1}
                         max={100}
                         {...field}
-                        type="number"
-                        placeholder="Moradabad"
+                        type='number'
+                        placeholder='Moradabad'
                       />
                     </FormControl>
                     <FormMessage />
@@ -257,20 +257,20 @@ export default function Component({ specialities }: Props) {
                 )}
               />
               <FormField
-                name="city"
+                name='city'
                 control={form.control}
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>City</FormLabel>
                     <FormControl>
-                      <Input {...field} type="text" placeholder="Moradabad" />
+                      <Input {...field} type='text' placeholder='Moradabad' />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
                 )}
               />
               <FormField
-                name="specialities"
+                name='specialities'
                 control={form.control}
                 render={({ field }) => (
                   <FormItem>
@@ -280,7 +280,7 @@ export default function Component({ specialities }: Props) {
                         options={specialities}
                         selectedValues={field.value}
                         setSelectedValues={field.onChange}
-                        placeholder="Select specialities ..."
+                        placeholder='Select specialities ...'
                       />
                     </FormControl>
                     <FormMessage />
@@ -288,7 +288,7 @@ export default function Component({ specialities }: Props) {
                 )}
               />
               <FormField
-                name="daysOfVisit"
+                name='daysOfVisit'
                 control={form.control}
                 render={({ field }) => (
                   <FormItem>
@@ -298,7 +298,7 @@ export default function Component({ specialities }: Props) {
                         options={[...DATES.DAYS]}
                         selectedValues={field.value}
                         setSelectedValues={field.onChange}
-                        placeholder="Select specialities ..."
+                        placeholder='Select specialities ...'
                       />
                     </FormControl>
                     <FormMessage />
@@ -306,17 +306,17 @@ export default function Component({ specialities }: Props) {
                 )}
               />
               <FormField
-                name="timings"
+                name='timings'
                 control={form.control}
                 render={({ field }) => (
                   <FormItem>
                     <FormControl>
-                      <div className="grid gap-0.5">
-                        <div className="flex items-center justify-between">
+                      <div className='grid gap-0.5'>
+                        <div className='flex items-center justify-between'>
                           <Label>Time of visit</Label>
                           <Button
-                            type="button"
-                            variant="ghost"
+                            type='button'
+                            variant='ghost'
                             onClick={() => {
                               field.onChange([
                                 ...(field.value ?? []),
@@ -330,21 +330,21 @@ export default function Component({ specialities }: Props) {
                               ]);
                             }}
                           >
-                            <PlusIcon className="h-4 w-4" />
+                            <PlusIcon className='h-4 w-4' />
                           </Button>
                         </div>
-                        <div className="space-y-2">
-                          <ul className="space-y-2">
+                        <div className='space-y-2'>
+                          <ul className='space-y-2'>
                             {field.value.map((time, index) => (
                               <li
                                 key={time.id}
-                                className="grid grid-cols-[1fr_auto_auto] gap-2"
+                                className='grid grid-cols-[1fr_auto_auto] gap-2'
                               >
                                 <Input
-                                  step="1"
-                                  type="time"
+                                  step='1'
+                                  type='time'
                                   defaultValue={time.time}
-                                  className="bg-background appearance-none [&::-webkit-calendar-picker-indicator]:hidden [&::-webkit-calendar-picker-indicator]:appearance-none"
+                                  className='bg-background appearance-none [&::-webkit-calendar-picker-indicator]:hidden [&::-webkit-calendar-picker-indicator]:appearance-none'
                                   onChange={e => {
                                     const time = field.value.slice();
                                     time[index].time = e.target.value;
@@ -354,7 +354,7 @@ export default function Component({ specialities }: Props) {
                                 <Input
                                   min={1}
                                   {...field}
-                                  type="number"
+                                  type='number'
                                   value={time.duration}
                                   onChange={e => {
                                     const time = field.value.slice();
@@ -363,8 +363,8 @@ export default function Component({ specialities }: Props) {
                                   }}
                                 />
                                 <Button
-                                  type="button"
-                                  variant="ghost"
+                                  type='button'
+                                  variant='ghost'
                                   disabled={!index}
                                   onClick={() => {
                                     if (index) {
@@ -374,7 +374,7 @@ export default function Component({ specialities }: Props) {
                                     }
                                   }}
                                 >
-                                  <TrashIcon className="h-4 w-4" />
+                                  <TrashIcon className='h-4 w-4' />
                                 </Button>
                               </li>
                             ))}
@@ -391,7 +391,7 @@ export default function Component({ specialities }: Props) {
           </Form>
         </CardContent>
         <CardFooter>
-          <Button type="submit" form="doctor-form" disabled={pending}>
+          <Button type='submit' form='doctor-form' disabled={pending}>
             {pending ? 'Saving...' : 'Save'}
           </Button>
         </CardFooter>

@@ -41,7 +41,7 @@ export default function Component() {
   });
 
   return (
-    <div className="flex h-full flex-col gap-8 lg:mx-auto lg:w-10/12">
+    <div className='flex h-full flex-col gap-8 lg:mx-auto lg:w-10/12'>
       <Card>
         <CardHeader>
           <CardTitle>Add Medication Form</CardTitle>
@@ -53,25 +53,25 @@ export default function Component() {
         <CardContent>
           <Form {...form}>
             <form
-              id="form"
-              className="space-y-2"
+              id='form'
+              className='space-y-2'
               onSubmit={form.handleSubmit(handleSubmit)}
             >
               <FormField
-                name="name"
+                name='name'
                 control={form.control}
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Name</FormLabel>
                     <FormControl>
-                      <Input {...field} type="text" placeholder="Tablet" />
+                      <Input {...field} type='text' placeholder='Tablet' />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
                 )}
               />
               <FormField
-                name="description"
+                name='description'
                 control={form.control}
                 render={({ field }) => (
                   <FormItem>
@@ -79,7 +79,7 @@ export default function Component() {
                     <FormControl>
                       <Textarea
                         {...field}
-                        placeholder="Compressed or molded solid preparation containing active ingredients."
+                        placeholder='Compressed or molded solid preparation containing active ingredients.'
                       />
                     </FormControl>
                     <FormMessage />
@@ -91,9 +91,9 @@ export default function Component() {
         </CardContent>
         <CardFooter>
           <Button
-            type="submit"
-            form="form"
-            className="cursor-pointer"
+            type='submit'
+            form='form'
+            className='cursor-pointer'
             disabled={form.formState.isLoading}
           >
             {form.formState.isLoading ? 'Saving...' : 'Save'}

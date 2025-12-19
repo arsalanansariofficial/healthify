@@ -80,12 +80,12 @@ function Menu({
   const menuTrigger = (
     <DropdownMenuTrigger asChild>
       <Button
-        size="icon"
-        variant="ghost"
-        className="data-[state=open]:bg-muted text-muted-foreground flex size-8"
+        size='icon'
+        variant='ghost'
+        className='data-[state=open]:bg-muted text-muted-foreground flex size-8'
       >
         <IconDotsVertical />
-        <span className="sr-only">Open menu</span>
+        <span className='sr-only'>Open menu</span>
       </Button>
     </DropdownMenuTrigger>
   );
@@ -94,7 +94,7 @@ function Menu({
     <DropdownMenu>
       {!isHeader && menuTrigger}
       {ids && ids.length > 0 && isHeader && menuTrigger}
-      <DropdownMenuContent align="end" className="w-32">
+      <DropdownMenuContent align='end' className='w-32'>
         {(status === 'pending' || status === 'cancelled') && (
           <DropdownMenuItem
             onClick={async () => {
@@ -105,7 +105,7 @@ function Menu({
                   loading: 'Processing payment...',
                   error(error) {
                     const { message } = catchErrors(error as Error);
-                    return <span className="text-destructive">{message}</span>;
+                    return <span className='text-destructive'>{message}</span>;
                   }
                 });
               }
@@ -115,7 +115,7 @@ function Menu({
           </DropdownMenuItem>
         )}
         <DropdownMenuItem
-          variant="destructive"
+          variant='destructive'
           onClick={async () => {
             if (!isHeader) {
               toast.promise(deleteMedicationForm(id as string), {
@@ -124,7 +124,7 @@ function Menu({
                 success: MESSAGES.MEMBERSHIP_SUBSCRIPTION.DELETED,
                 error(error) {
                   const { message } = catchErrors(error as Error);
-                  return <span className="text-destructive">{message}</span>;
+                  return <span className='text-destructive'>{message}</span>;
                 }
               });
             }
@@ -136,7 +136,7 @@ function Menu({
                 success: MESSAGES.MEMBERSHIP_SUBSCRIPTION.BULK_DELETED,
                 error(error) {
                   const { message } = catchErrors(error as Error);
-                  return <span className="text-destructive">{message}</span>;
+                  return <span className='text-destructive'>{message}</span>;
                 }
               });
             }
@@ -172,25 +172,25 @@ export function TableCellViewer<T extends z.ZodType>(props: {
   return (
     <Drawer direction={isMobile ? 'bottom' : 'right'}>
       <DrawerTrigger asChild onClick={e => e.currentTarget.blur()}>
-        <Button variant="link" className="text-foreground px-0 capitalize">
+        <Button variant='link' className='text-foreground px-0 capitalize'>
           {props.item.membership.name}
         </Button>
       </DrawerTrigger>
       <DrawerContent>
         <DrawerHeader>
-          <DrawerTitle className="capitalize">{props.item.name}</DrawerTitle>
+          <DrawerTitle className='capitalize'>{props.item.name}</DrawerTitle>
           <DrawerDescription>
             Change the details for the selected membership
           </DrawerDescription>
         </DrawerHeader>
         <Form {...form}>
           <form
-            id="membership-form"
+            id='membership-form'
             onSubmit={form.handleSubmit(handleSubmit)}
-            className="space-y-2 overflow-y-auto p-4 text-sm"
+            className='space-y-2 overflow-y-auto p-4 text-sm'
           >
             <FormField
-              name="name"
+              name='name'
               control={form.control}
               render={({ field }) => (
                 <FormItem>
@@ -198,10 +198,10 @@ export function TableCellViewer<T extends z.ZodType>(props: {
                   <FormControl>
                     <Input
                       {...field}
-                      type="text"
+                      type='text'
                       value={field.value}
-                      placeholder="Tablet"
-                      className="capitalize"
+                      placeholder='Tablet'
+                      className='capitalize'
                     />
                   </FormControl>
                   <FormMessage />
@@ -209,7 +209,7 @@ export function TableCellViewer<T extends z.ZodType>(props: {
               )}
             />
             <FormField
-              name="perks"
+              name='perks'
               control={form.control}
               render={({ field }) => (
                 <FormItem>
@@ -222,8 +222,8 @@ export function TableCellViewer<T extends z.ZodType>(props: {
                             {...field}
                             disabled
                             value={p}
-                            className="capitalize"
-                            placeholder="Limited facilities with a basic plan."
+                            className='capitalize'
+                            placeholder='Limited facilities with a basic plan.'
                           />
                         </li>
                       ))}
@@ -234,7 +234,7 @@ export function TableCellViewer<T extends z.ZodType>(props: {
               )}
             />
             <FormField
-              name="hospitalMemberships"
+              name='hospitalMemberships'
               control={form.control}
               render={({ field }) => (
                 <FormItem>
@@ -247,8 +247,8 @@ export function TableCellViewer<T extends z.ZodType>(props: {
                             {...field}
                             disabled
                             value={hm.name}
-                            className="capitalize"
-                            placeholder="Riverside General Hospital"
+                            className='capitalize'
+                            placeholder='Riverside General Hospital'
                           />
                         </li>
                       ))}
@@ -258,12 +258,12 @@ export function TableCellViewer<T extends z.ZodType>(props: {
                 </FormItem>
               )}
             />
-            <div className="space-y-2">
+            <div className='space-y-2'>
               <Label>Fee</Label>
               <Input
                 disabled
-                placeholder="Rs. 100"
-                className="capitalize"
+                placeholder='Rs. 100'
+                className='capitalize'
                 value={props.item.fee.amount}
               />
             </div>
@@ -271,15 +271,15 @@ export function TableCellViewer<T extends z.ZodType>(props: {
         </Form>
         <DrawerFooter>
           <Button
-            type="submit"
-            form="membership-form"
-            className="cursor-pointer"
+            type='submit'
+            form='membership-form'
+            className='cursor-pointer'
             disabled={form.formState.isLoading}
           >
             {form.formState.isLoading ? 'Saving...' : 'Save'}
           </Button>
           <DrawerClose asChild>
-            <Button variant="outline" asChild>
+            <Button variant='outline' asChild>
               <Link href={`/memberships/${props.item.id}/subscribe`}>
                 Subscribe
               </Link>
@@ -330,7 +330,7 @@ export default function Component(props: {
         enableSorting: false,
         header: ({ table }) => (
           <Checkbox
-            aria-label="Select all"
+            aria-label='Select all'
             onCheckedChange={value => table.toggleAllPageRowsSelected(!!value)}
             checked={
               table.getIsAllPageRowsSelected() ||
@@ -340,7 +340,7 @@ export default function Component(props: {
         ),
         cell: ({ row }) => (
           <Checkbox
-            aria-label="Select row"
+            aria-label='Select row'
             checked={row.getIsSelected()}
             onCheckedChange={value => row.toggleSelected(!!value)}
           />
@@ -364,7 +364,7 @@ export default function Component(props: {
         enableHiding: false,
         accessorKey: 'user',
         cell: ({ row }) => (
-          <span className="capitalize">{row.original.user.name}</span>
+          <span className='capitalize'>{row.original.user.name}</span>
         )
       },
       {
@@ -372,10 +372,10 @@ export default function Component(props: {
         enableHiding: false,
         accessorKey: 'perks',
         cell: ({ row }) => (
-          <ul className="space-y-2">
+          <ul className='space-y-2'>
             {row.original.membership.perks.map((p, i) => (
               <li key={i}>
-                <Badge variant="outline">{p}</Badge>
+                <Badge variant='outline'>{p}</Badge>
               </li>
             ))}
           </ul>
@@ -386,10 +386,10 @@ export default function Component(props: {
         enableHiding: false,
         accessorKey: 'hospitals',
         cell: ({ row }) => (
-          <ul className="space-y-2">
+          <ul className='space-y-2'>
             {row.original.membership.hospitalMemberships.map((hm, i) => (
               <li key={i}>
-                <Badge className="capitalize">{hm.hospital.name}</Badge>
+                <Badge className='capitalize'>{hm.hospital.name}</Badge>
               </li>
             ))}
           </ul>
@@ -411,7 +411,7 @@ export default function Component(props: {
           }
 
           return (
-            <Badge className="capitalize" variant={variant}>
+            <Badge className='capitalize' variant={variant}>
               {row.original.status}
             </Badge>
           );
@@ -422,8 +422,8 @@ export default function Component(props: {
         accessorKey: 'fee',
         enableHiding: false,
         cell: ({ row }) => (
-          <ul className="space-y-2">
-            <Badge variant="secondary" className="capitalize">
+          <ul className='space-y-2'>
+            <Badge variant='secondary' className='capitalize'>
               {row.original.fee.amount}
             </Badge>
           </ul>
@@ -442,7 +442,7 @@ export default function Component(props: {
           return (
             <Menu
               isHeader={true}
-              status="pending"
+              status='pending'
               ids={table
                 .getSelectedRowModel()
                 .rows.map(r => r.original.id.toString())}
@@ -455,7 +455,7 @@ export default function Component(props: {
   );
 
   return (
-    <div className="flex h-full flex-col gap-8 lg:mx-auto lg:w-10/12">
+    <div className='flex h-full flex-col gap-8 lg:mx-auto lg:w-10/12'>
       {hasPermission(props.user.permissions, 'view:users') && (
         <DataTable
           columns={columns}

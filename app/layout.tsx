@@ -22,12 +22,12 @@ export const metadata: Metadata = {
 
 export default async function RootLayout({ children }: Props) {
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html lang='en' suppressHydrationWarning>
       <body
         className={`${serif.variable} ${sans.variable} grid min-h-screen grid-rows-[auto_1fr] font-sans antialiased`}
       >
         <SessionProvider>
-          <ThemeProvider enableSystem attribute="class" defaultTheme="system">
+          <ThemeProvider enableSystem attribute='class' defaultTheme='system'>
             {children}
             <Toaster />
           </ThemeProvider>

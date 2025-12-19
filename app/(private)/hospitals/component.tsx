@@ -80,12 +80,12 @@ function Menu({
   const menuTrigger = (
     <DropdownMenuTrigger asChild>
       <Button
-        size="icon"
-        variant="ghost"
-        className="data-[state=open]:bg-muted text-muted-foreground flex size-8"
+        size='icon'
+        variant='ghost'
+        className='data-[state=open]:bg-muted text-muted-foreground flex size-8'
       >
         <IconDotsVertical />
-        <span className="sr-only">Open menu</span>
+        <span className='sr-only'>Open menu</span>
       </Button>
     </DropdownMenuTrigger>
   );
@@ -94,9 +94,9 @@ function Menu({
     <DropdownMenu>
       {!isHeader && menuTrigger}
       {ids && ids.length > 0 && isHeader && menuTrigger}
-      <DropdownMenuContent align="end" className="w-32">
+      <DropdownMenuContent align='end' className='w-32'>
         <DropdownMenuItem
-          variant="destructive"
+          variant='destructive'
           onClick={async () => {
             if (!isHeader) {
               toast.promise(deleteHospital(id as string), {
@@ -105,7 +105,7 @@ function Menu({
                 success: MESSAGES.HOSPITAL.DELETED,
                 error(error) {
                   const { message } = catchErrors(error as Error);
-                  return <span className="text-destructive">{message}</span>;
+                  return <span className='text-destructive'>{message}</span>;
                 }
               });
             }
@@ -117,7 +117,7 @@ function Menu({
                 success: MESSAGES.HOSPITAL.BULK_DELETED,
                 error(error) {
                   const { message } = catchErrors(error as Error);
-                  return <span className="text-destructive">{message}</span>;
+                  return <span className='text-destructive'>{message}</span>;
                 }
               });
             }
@@ -158,25 +158,25 @@ export function TableCellViewer<T extends z.ZodType>(props: {
   return (
     <Drawer direction={isMobile ? 'bottom' : 'right'}>
       <DrawerTrigger asChild onClick={e => e.currentTarget.blur()}>
-        <Button variant="link" className="text-foreground px-0 capitalize">
+        <Button variant='link' className='text-foreground px-0 capitalize'>
           {props.item.name}
         </Button>
       </DrawerTrigger>
       <DrawerContent>
         <DrawerHeader>
-          <DrawerTitle className="capitalize">{props.item.name}</DrawerTitle>
+          <DrawerTitle className='capitalize'>{props.item.name}</DrawerTitle>
           <DrawerDescription>
             Change the details for the selected hospital
           </DrawerDescription>
         </DrawerHeader>
         <Form {...form}>
           <form
-            id="hospital-form"
+            id='hospital-form'
             onSubmit={form.handleSubmit(handleSubmit)}
-            className="space-y-2 overflow-y-auto p-4 text-sm"
+            className='space-y-2 overflow-y-auto p-4 text-sm'
           >
             <FormField
-              name="name"
+              name='name'
               control={form.control}
               render={({ field }) => (
                 <FormItem>
@@ -184,10 +184,10 @@ export function TableCellViewer<T extends z.ZodType>(props: {
                   <FormControl>
                     <Input
                       {...field}
-                      type="text"
+                      type='text'
                       value={field.value}
-                      className="capitalize"
-                      placeholder="Gwen Tennyson"
+                      className='capitalize'
+                      placeholder='Gwen Tennyson'
                       onChange={({ target: { value } }) =>
                         field.onChange(value || undefined)
                       }
@@ -198,7 +198,7 @@ export function TableCellViewer<T extends z.ZodType>(props: {
               )}
             />
             <FormField
-              name="email"
+              name='email'
               control={form.control}
               render={({ field }) => (
                 <FormItem>
@@ -206,9 +206,9 @@ export function TableCellViewer<T extends z.ZodType>(props: {
                   <FormControl>
                     <Input
                       {...field}
-                      type="email"
+                      type='email'
                       value={field.value}
-                      placeholder="your.name@domain.com"
+                      placeholder='your.name@domain.com'
                       onChange={({ target: { value } }) =>
                         field.onChange(value || undefined)
                       }
@@ -219,20 +219,20 @@ export function TableCellViewer<T extends z.ZodType>(props: {
               )}
             />
             <FormField
-              name="phone"
+              name='phone'
               control={form.control}
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Phone</FormLabel>
                   <FormControl>
-                    <Input {...field} type="tel" placeholder="+919876543210" />
+                    <Input {...field} type='tel' placeholder='+919876543210' />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
             />
             <FormField
-              name="city"
+              name='city'
               control={form.control}
               render={({ field }) => (
                 <FormItem>
@@ -240,10 +240,10 @@ export function TableCellViewer<T extends z.ZodType>(props: {
                   <FormControl>
                     <Input
                       {...field}
-                      type="text"
+                      type='text'
                       value={field.value}
-                      className="capitalize"
-                      placeholder="Moradabad"
+                      className='capitalize'
+                      placeholder='Moradabad'
                       onChange={({ target: { value } }) =>
                         field.onChange(value || undefined)
                       }
@@ -254,19 +254,19 @@ export function TableCellViewer<T extends z.ZodType>(props: {
               )}
             />
             <FormField
-              name="isAffiliated"
+              name='isAffiliated'
               control={form.control}
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Affiliated</FormLabel>
                   <FormControl>
                     <Select value={field.value} onValueChange={field.onChange}>
-                      <SelectTrigger className="w-full">
-                        <SelectValue placeholder="Select a status" />
+                      <SelectTrigger className='w-full'>
+                        <SelectValue placeholder='Select a status' />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="no">No</SelectItem>
-                        <SelectItem value="yes">Yes</SelectItem>
+                        <SelectItem value='no'>No</SelectItem>
+                        <SelectItem value='yes'>Yes</SelectItem>
                       </SelectContent>
                     </Select>
                   </FormControl>
@@ -275,7 +275,7 @@ export function TableCellViewer<T extends z.ZodType>(props: {
               )}
             />
             <FormField
-              name="address"
+              name='address'
               control={form.control}
               render={({ field }) => (
                 <FormItem>
@@ -283,7 +283,7 @@ export function TableCellViewer<T extends z.ZodType>(props: {
                   <FormControl>
                     <Textarea
                       {...field}
-                      placeholder="123 Main Street, Springfield, IL 62704"
+                      placeholder='123 Main Street, Springfield, IL 62704'
                     />
                   </FormControl>
                   <FormMessage />
@@ -291,7 +291,7 @@ export function TableCellViewer<T extends z.ZodType>(props: {
               )}
             />
             <FormField
-              name="doctors"
+              name='doctors'
               control={form.control}
               render={({ field }) => (
                 <FormItem>
@@ -314,15 +314,15 @@ export function TableCellViewer<T extends z.ZodType>(props: {
         </Form>
         <DrawerFooter>
           <Button
-            type="submit"
+            type='submit'
             disabled={form.formState.isLoading}
-            form="hospital-form"
-            className="cursor-pointer"
+            form='hospital-form'
+            className='cursor-pointer'
           >
             {form.formState.isLoading ? 'Saving...' : 'Save'}
           </Button>
           <DrawerClose asChild>
-            <Button variant="outline">Done</Button>
+            <Button variant='outline'>Done</Button>
           </DrawerClose>
         </DrawerFooter>
       </DrawerContent>
@@ -358,7 +358,7 @@ export default function Component(props: {
         enableSorting: false,
         header: ({ table }) => (
           <Checkbox
-            aria-label="Select all"
+            aria-label='Select all'
             onCheckedChange={value => table.toggleAllPageRowsSelected(!!value)}
             checked={
               table.getIsAllPageRowsSelected() ||
@@ -368,7 +368,7 @@ export default function Component(props: {
         ),
         cell: ({ row }) => (
           <Checkbox
-            aria-label="Select row"
+            aria-label='Select row'
             checked={row.getIsSelected()}
             onCheckedChange={value => row.toggleSelected(!!value)}
           />
@@ -390,18 +390,18 @@ export default function Component(props: {
         header: 'Email',
         accessorKey: 'email',
         cell: ({ row }) => (
-          <Badge variant="outline" className="text-muted-foreground">
+          <Badge variant='outline' className='text-muted-foreground'>
             {row.original.email}
           </Badge>
         )
       },
       {
         accessorKey: 'isAffiliated',
-        header: () => <div className="flex justify-center">Affliated</div>,
+        header: () => <div className='flex justify-center'>Affliated</div>,
         cell: ({ row }) => (
           <Switch
             disabled
-            className="mx-auto block"
+            className='mx-auto block'
             checked={
               props.hospitals.find(
                 hospital => row.original.isAffiliated === hospital.isAffiliated
@@ -416,7 +416,7 @@ export default function Component(props: {
                 loading: 'Verifying Email',
                 error(error) {
                   const { message } = catchErrors(error as Error);
-                  return <span className="text-destructive">{message}</span>;
+                  return <span className='text-destructive'>{message}</span>;
                 }
               })
             }
@@ -454,7 +454,7 @@ export default function Component(props: {
   );
 
   return (
-    <div className="flex h-full flex-col gap-8 lg:mx-auto lg:w-10/12">
+    <div className='flex h-full flex-col gap-8 lg:mx-auto lg:w-10/12'>
       {hasPermission(props.user.permissions, 'view:users') && (
         <DataTable
           data={props.hospitals}

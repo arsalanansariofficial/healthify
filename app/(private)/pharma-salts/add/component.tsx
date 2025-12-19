@@ -41,7 +41,7 @@ export default function Component() {
   });
 
   return (
-    <div className="flex h-full flex-col gap-8 lg:mx-auto lg:w-10/12">
+    <div className='flex h-full flex-col gap-8 lg:mx-auto lg:w-10/12'>
       <Card>
         <CardHeader>
           <CardTitle>Add Pharmaceutical Salt</CardTitle>
@@ -52,12 +52,12 @@ export default function Component() {
         <CardContent>
           <Form {...form}>
             <form
-              className="space-y-2"
-              id="pharma-salt-form"
+              className='space-y-2'
+              id='pharma-salt-form'
               onSubmit={form.handleSubmit(handleSubmit)}
             >
               <FormField
-                name="name"
+                name='name'
                 control={form.control}
                 render={({ field }) => (
                   <FormItem>
@@ -65,8 +65,8 @@ export default function Component() {
                     <FormControl>
                       <Input
                         {...field}
-                        type="text"
-                        placeholder="Atorvastatin"
+                        type='text'
+                        placeholder='Atorvastatin'
                       />
                     </FormControl>
                     <FormMessage />
@@ -74,7 +74,7 @@ export default function Component() {
                 )}
               />
               <FormField
-                name="description"
+                name='description'
                 control={form.control}
                 render={({ field }) => (
                   <FormItem>
@@ -82,7 +82,7 @@ export default function Component() {
                     <FormControl>
                       <Textarea
                         {...field}
-                        placeholder="This is an active pharmaceutical ingredient."
+                        placeholder='This is an active pharmaceutical ingredient.'
                       />
                     </FormControl>
                     <FormMessage />
@@ -94,9 +94,9 @@ export default function Component() {
         </CardContent>
         <CardFooter>
           <Button
-            type="submit"
-            form="pharma-salt-form"
-            className="cursor-pointer"
+            type='submit'
+            form='pharma-salt-form'
+            className='cursor-pointer'
             disabled={form.formState.isLoading}
           >
             {form.formState.isLoading ? 'Saving...' : 'Save'}

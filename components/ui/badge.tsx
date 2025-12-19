@@ -39,7 +39,7 @@ export function Badge(props: Props) {
   return (
     <Comp
       {...props}
-      data-slot="badge"
+      data-slot='badge'
       className={cn(badgeVariants({ variant }), className)}
     />
   );

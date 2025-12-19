@@ -51,14 +51,14 @@ export default function Component() {
     if (result?.success) {
       toast(result.message, {
         position: 'top-center',
-        description: <span className="text-foreground">{getDate()}</span>
+        description: <span className='text-foreground'>{getDate()}</span>
       });
     }
 
     if (!result?.success && result?.message) {
-      toast(<h2 className="text-destructive">{result?.message}</h2>, {
+      toast(<h2 className='text-destructive'>{result?.message}</h2>, {
         position: 'top-center',
-        description: <p className="text-destructive">{getDate()}</p>
+        description: <p className='text-destructive'>{getDate()}</p>
       });
     }
 
@@ -67,14 +67,14 @@ export default function Component() {
 
   return (
     <section>
-      <Card className="min-w-sm">
+      <Card className='min-w-sm'>
         <CardHeader>
           <CardTitle>Create your account</CardTitle>
           <CardDescription>
             Enter your details below to create your account
           </CardDescription>
           <CardAction>
-            <Button variant="link">
+            <Button variant='link'>
               <Link href={ROUTES.LOGIN}>Login</Link>
             </Button>
           </CardAction>
@@ -82,12 +82,12 @@ export default function Component() {
         <CardContent>
           <Form {...form}>
             <form
-              id="signup-form"
-              className="space-y-2"
+              id='signup-form'
+              className='space-y-2'
               onSubmit={form.handleSubmit(handleSubmit)}
             >
               <FormField
-                name="name"
+                name='name'
                 control={form.control}
                 render={({ field }) => (
                   <FormItem>
@@ -95,8 +95,8 @@ export default function Component() {
                     <FormControl>
                       <Input
                         {...field}
-                        type="text"
-                        placeholder="Gwen Tennyson"
+                        type='text'
+                        placeholder='Gwen Tennyson'
                       />
                     </FormControl>
                     <FormMessage />
@@ -104,7 +104,7 @@ export default function Component() {
                 )}
               />
               <FormField
-                name="email"
+                name='email'
                 control={form.control}
                 render={({ field }) => (
                   <FormItem>
@@ -112,8 +112,8 @@ export default function Component() {
                     <FormControl>
                       <Input
                         {...field}
-                        type="email"
-                        placeholder="your.name@domain.com"
+                        type='email'
+                        placeholder='your.name@domain.com'
                       />
                     </FormControl>
                     <FormMessage />
@@ -121,7 +121,7 @@ export default function Component() {
                 )}
               />
               <FormField
-                name="password"
+                name='password'
                 control={form.control}
                 render={({ field }) => (
                   <FormItem>
@@ -129,8 +129,8 @@ export default function Component() {
                     <FormControl>
                       <Input
                         {...field}
-                        type="password"
-                        placeholder="Secret@123"
+                        type='password'
+                        placeholder='Secret@123'
                       />
                     </FormControl>
                     <FormMessage />
@@ -140,21 +140,21 @@ export default function Component() {
             </form>
           </Form>
         </CardContent>
-        <CardFooter className="grid gap-2">
+        <CardFooter className='grid gap-2'>
           <Button
-            type="submit"
-            form="signup-form"
+            type='submit'
+            form='signup-form'
             disabled={pending}
-            className="cursor-pointer"
+            className='cursor-pointer'
           >
             {pending ? 'Signing up...' : 'Signup'}
           </Button>
           <Button
-            variant="outline"
-            className="cursor-pointer"
+            variant='outline'
+            className='cursor-pointer'
             onClick={() => signIn('github')}
           >
-            <FontAwesomeIcon icon={faGithub} size="5x" />
+            <FontAwesomeIcon icon={faGithub} size='5x' />
           </Button>
         </CardFooter>
       </Card>

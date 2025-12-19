@@ -177,31 +177,31 @@ export default function Component({ user, specialities }: Props) {
   );
 
   return (
-    <div className="flex h-full flex-col gap-8 lg:mx-auto lg:w-10/12">
+    <div className='flex h-full flex-col gap-8 lg:mx-auto lg:w-10/12'>
       <Tabs defaultValue={role} onValueChange={setRole}>
         <Card>
           <CardHeader>
-            <CardTitle className="capitalize">{user.name}</CardTitle>
+            <CardTitle className='capitalize'>{user.name}</CardTitle>
             <CardDescription>
               Add details for your profile here. Click save when you&apos;re
               done.
             </CardDescription>
             <CardAction>
               <TabsList>
-                <TabsTrigger value="user">User</TabsTrigger>
-                <TabsTrigger value="doctor">Doctor</TabsTrigger>
+                <TabsTrigger value='user'>User</TabsTrigger>
+                <TabsTrigger value='doctor'>Doctor</TabsTrigger>
               </TabsList>
             </CardAction>
           </CardHeader>
           <CardContent>
-            <TabsContent value="user">
+            <TabsContent value='user'>
               <Form {...userForm}>
                 <form
-                  className="space-y-2"
+                  className='space-y-2'
                   onSubmit={userForm.handleSubmit(submitUser)}
                 >
                   <FormField
-                    name="cover"
+                    name='cover'
                     control={userForm.control}
                     render={({ field }) => (
                       <FormItem>
@@ -216,7 +216,7 @@ export default function Component({ user, specialities }: Props) {
                             )}
                           >
                             <Label
-                              htmlFor="cover"
+                              htmlFor='cover'
                               className={cn(
                                 'absolute inset-0 z-10 grid place-items-center opacity-0 hover:opacity-100',
                                 { 'opacity-100': !user.cover }
@@ -229,8 +229,8 @@ export default function Component({ user, specialities }: Props) {
                                 fill
                                 priority
                                 unoptimized
-                                alt="Profile Picture"
-                                className="aspect-video object-cover"
+                                alt='Profile Picture'
+                                className='aspect-video object-cover'
                                 src={
                                   coverSrc ||
                                   `${DOMAIN.LOCAL}/api/upload/${user.cover}`
@@ -238,10 +238,10 @@ export default function Component({ user, specialities }: Props) {
                               />
                             )}
                             <Input
-                              id="cover"
-                              type="file"
-                              name="cover"
-                              className="hidden"
+                              id='cover'
+                              type='file'
+                              name='cover'
+                              className='hidden'
                               onChange={e => {
                                 const files = e.target.files;
                                 if (files?.length) {
@@ -257,14 +257,14 @@ export default function Component({ user, specialities }: Props) {
                     )}
                   />
                   <FormField
-                    name="image"
+                    name='image'
                     control={userForm.control}
                     render={({ field }) => (
                       <FormItem>
                         <FormControl>
-                          <div className="absolute z-10 grid h-20 w-20 translate-x-2 -translate-y-[calc(100%+theme(spacing.4))] gap-3 overflow-clip rounded-md border-2">
+                          <div className='absolute z-10 grid h-20 w-20 translate-x-2 -translate-y-[calc(100%+theme(spacing.4))] gap-3 overflow-clip rounded-md border-2'>
                             <Label
-                              htmlFor="image"
+                              htmlFor='image'
                               className={cn(
                                 'absolute inset-0 z-10 grid place-items-center opacity-0 hover:opacity-100',
                                 { 'opacity-100': !user.image }
@@ -277,8 +277,8 @@ export default function Component({ user, specialities }: Props) {
                                 fill
                                 priority
                                 unoptimized
-                                alt="Profile Picture"
-                                className="aspect-video object-cover"
+                                alt='Profile Picture'
+                                className='aspect-video object-cover'
                                 src={
                                   imageSrc ||
                                   `${!user.hasOAuth ? `${DOMAIN.LOCAL}/api/upload/` : ''}${user.image}`
@@ -286,10 +286,10 @@ export default function Component({ user, specialities }: Props) {
                               />
                             )}
                             <Input
-                              id="image"
-                              type="file"
-                              name="image"
-                              className="hidden"
+                              id='image'
+                              type='file'
+                              name='image'
+                              className='hidden'
                               onChange={e => {
                                 const files = e.target.files;
                                 if (files?.length) {
@@ -305,7 +305,7 @@ export default function Component({ user, specialities }: Props) {
                     )}
                   />
                   <FormField
-                    name="name"
+                    name='name'
                     control={userForm.control}
                     render={({ field }) => (
                       <FormItem>
@@ -313,9 +313,9 @@ export default function Component({ user, specialities }: Props) {
                         <FormControl>
                           <Input
                             {...field}
-                            type="text"
-                            className="capitalize"
-                            placeholder="Gwen Tennyson"
+                            type='text'
+                            className='capitalize'
+                            placeholder='Gwen Tennyson'
                           />
                         </FormControl>
                         <FormMessage />
@@ -323,7 +323,7 @@ export default function Component({ user, specialities }: Props) {
                     )}
                   />
                   <FormField
-                    name="email"
+                    name='email'
                     control={userForm.control}
                     render={({ field }) => (
                       <FormItem>
@@ -331,8 +331,8 @@ export default function Component({ user, specialities }: Props) {
                         <FormControl>
                           <Input
                             {...field}
-                            type="email"
-                            placeholder="your.name@domain.com"
+                            type='email'
+                            placeholder='your.name@domain.com'
                           />
                         </FormControl>
                         <FormMessage />
@@ -340,7 +340,7 @@ export default function Component({ user, specialities }: Props) {
                     )}
                   />
                   <FormField
-                    name="password"
+                    name='password'
                     control={userForm.control}
                     render={({ field }) => (
                       <FormItem>
@@ -348,8 +348,8 @@ export default function Component({ user, specialities }: Props) {
                         <FormControl>
                           <Input
                             {...field}
-                            type="password"
-                            placeholder="Secret@123"
+                            type='password'
+                            placeholder='Secret@123'
                           />
                         </FormControl>
                         <FormMessage />
@@ -357,7 +357,7 @@ export default function Component({ user, specialities }: Props) {
                     )}
                   />
                   <FormField
-                    name="phone"
+                    name='phone'
                     control={userForm.control}
                     render={({ field }) => (
                       <FormItem>
@@ -365,8 +365,8 @@ export default function Component({ user, specialities }: Props) {
                         <FormControl>
                           <Input
                             {...field}
-                            type="tel"
-                            placeholder="+919876543210"
+                            type='tel'
+                            placeholder='+919876543210'
                           />
                         </FormControl>
                         <FormMessage />
@@ -374,7 +374,7 @@ export default function Component({ user, specialities }: Props) {
                     )}
                   />
                   <FormField
-                    name="gender"
+                    name='gender'
                     control={userForm.control}
                     render={({ field }) => (
                       <FormItem>
@@ -384,12 +384,12 @@ export default function Component({ user, specialities }: Props) {
                             defaultValue={field.value}
                             onValueChange={field.onChange}
                           >
-                            <SelectTrigger className="w-full [&_span[data-slot]]:block [&_span[data-slot]]:truncate">
-                              <SelectValue placeholder="Select a gender" />
+                            <SelectTrigger className='w-full [&_span[data-slot]]:block [&_span[data-slot]]:truncate'>
+                              <SelectValue placeholder='Select a gender' />
                             </SelectTrigger>
                             <SelectContent>
-                              <SelectItem value="male">Male</SelectItem>
-                              <SelectItem value="female">Female</SelectItem>
+                              <SelectItem value='male'>Male</SelectItem>
+                              <SelectItem value='female'>Female</SelectItem>
                             </SelectContent>
                           </Select>
                         </FormControl>
@@ -398,7 +398,7 @@ export default function Component({ user, specialities }: Props) {
                     )}
                   />
                   <FormField
-                    name="city"
+                    name='city'
                     control={userForm.control}
                     render={({ field }) => (
                       <FormItem>
@@ -406,9 +406,9 @@ export default function Component({ user, specialities }: Props) {
                         <FormControl>
                           <Input
                             {...field}
-                            type="text"
-                            className="capitalize"
-                            placeholder="Moradabad"
+                            type='text'
+                            className='capitalize'
+                            placeholder='Moradabad'
                           />
                         </FormControl>
                         <FormMessage />
@@ -416,7 +416,7 @@ export default function Component({ user, specialities }: Props) {
                     )}
                   />
                   <Button
-                    type="submit"
+                    type='submit'
                     disabled={
                       !hasFormChanged(defaultUserValues, userForm.watch()) ||
                       userForm.formState.isSubmitting
@@ -427,14 +427,14 @@ export default function Component({ user, specialities }: Props) {
                 </form>
               </Form>
             </TabsContent>
-            <TabsContent value="doctor">
+            <TabsContent value='doctor'>
               <Form {...doctorForm}>
                 <form
-                  className="space-y-2"
+                  className='space-y-2'
                   onSubmit={doctorForm.handleSubmit(submitDoctor)}
                 >
                   <FormField
-                    name="cover"
+                    name='cover'
                     control={doctorForm.control}
                     render={({ field }) => (
                       <FormItem>
@@ -449,7 +449,7 @@ export default function Component({ user, specialities }: Props) {
                             )}
                           >
                             <Label
-                              htmlFor="cover"
+                              htmlFor='cover'
                               className={cn(
                                 'absolute inset-0 z-10 grid place-items-center opacity-0 hover:opacity-100',
                                 { 'opacity-100': !user.cover }
@@ -462,8 +462,8 @@ export default function Component({ user, specialities }: Props) {
                                 fill
                                 priority
                                 unoptimized
-                                alt="Profile Picture"
-                                className="aspect-video object-cover"
+                                alt='Profile Picture'
+                                className='aspect-video object-cover'
                                 src={
                                   coverSrc ||
                                   `${!user.hasOAuth ? `${DOMAIN.LOCAL}/api/upload/` : ''}${user.cover}`
@@ -471,10 +471,10 @@ export default function Component({ user, specialities }: Props) {
                               />
                             )}
                             <Input
-                              id="cover"
-                              type="file"
-                              name="cover"
-                              className="hidden"
+                              id='cover'
+                              type='file'
+                              name='cover'
+                              className='hidden'
                               onChange={e => {
                                 const files = e.target.files;
                                 if (files?.length) {
@@ -490,14 +490,14 @@ export default function Component({ user, specialities }: Props) {
                     )}
                   />
                   <FormField
-                    name="image"
+                    name='image'
                     control={doctorForm.control}
                     render={({ field }) => (
                       <FormItem>
                         <FormControl>
-                          <div className="absolute z-10 grid h-20 w-20 translate-x-2 -translate-y-[calc(100%+theme(spacing.4))] gap-3 overflow-clip rounded-md border-2">
+                          <div className='absolute z-10 grid h-20 w-20 translate-x-2 -translate-y-[calc(100%+theme(spacing.4))] gap-3 overflow-clip rounded-md border-2'>
                             <Label
-                              htmlFor="image"
+                              htmlFor='image'
                               className={cn(
                                 'absolute inset-0 z-10 grid place-items-center opacity-0 hover:opacity-100',
                                 { 'opacity-100': !user.image }
@@ -510,8 +510,8 @@ export default function Component({ user, specialities }: Props) {
                                 fill
                                 priority
                                 unoptimized
-                                alt="Profile Picture"
-                                className="object-image aspect-video"
+                                alt='Profile Picture'
+                                className='object-image aspect-video'
                                 src={
                                   imageSrc ||
                                   `${!user.hasOAuth ? `${DOMAIN.LOCAL}/api/upload/` : ''}${user.image}`
@@ -519,10 +519,10 @@ export default function Component({ user, specialities }: Props) {
                               />
                             )}
                             <Input
-                              id="image"
-                              type="file"
-                              name="image"
-                              className="hidden"
+                              id='image'
+                              type='file'
+                              name='image'
+                              className='hidden'
                               onChange={e => {
                                 const files = e.target.files;
                                 if (files?.length) {
@@ -538,7 +538,7 @@ export default function Component({ user, specialities }: Props) {
                     )}
                   />
                   <FormField
-                    name="name"
+                    name='name'
                     control={doctorForm.control}
                     render={({ field }) => (
                       <FormItem>
@@ -546,9 +546,9 @@ export default function Component({ user, specialities }: Props) {
                         <FormControl>
                           <Input
                             {...field}
-                            type="text"
-                            className="capitalize"
-                            placeholder="Gwen Tennyson"
+                            type='text'
+                            className='capitalize'
+                            placeholder='Gwen Tennyson'
                           />
                         </FormControl>
                         <FormMessage />
@@ -556,7 +556,7 @@ export default function Component({ user, specialities }: Props) {
                     )}
                   />
                   <FormField
-                    name="email"
+                    name='email'
                     control={doctorForm.control}
                     render={({ field }) => (
                       <FormItem>
@@ -564,8 +564,8 @@ export default function Component({ user, specialities }: Props) {
                         <FormControl>
                           <Input
                             {...field}
-                            type="email"
-                            placeholder="your.name@domain.com"
+                            type='email'
+                            placeholder='your.name@domain.com'
                           />
                         </FormControl>
                         <FormMessage />
@@ -573,7 +573,7 @@ export default function Component({ user, specialities }: Props) {
                     )}
                   />
                   <FormField
-                    name="password"
+                    name='password'
                     control={doctorForm.control}
                     render={({ field }) => (
                       <FormItem>
@@ -581,8 +581,8 @@ export default function Component({ user, specialities }: Props) {
                         <FormControl>
                           <Input
                             {...field}
-                            type="password"
-                            placeholder="Secret@123"
+                            type='password'
+                            placeholder='Secret@123'
                           />
                         </FormControl>
                         <FormMessage />
@@ -590,7 +590,7 @@ export default function Component({ user, specialities }: Props) {
                     )}
                   />
                   <FormField
-                    name="phone"
+                    name='phone'
                     control={doctorForm.control}
                     render={({ field }) => (
                       <FormItem>
@@ -598,8 +598,8 @@ export default function Component({ user, specialities }: Props) {
                         <FormControl>
                           <Input
                             {...field}
-                            type="tel"
-                            placeholder="+919876543210"
+                            type='tel'
+                            placeholder='+919876543210'
                           />
                         </FormControl>
                         <FormMessage />
@@ -607,7 +607,7 @@ export default function Component({ user, specialities }: Props) {
                     )}
                   />
                   <FormField
-                    name="gender"
+                    name='gender'
                     control={doctorForm.control}
                     render={({ field }) => (
                       <FormItem>
@@ -617,12 +617,12 @@ export default function Component({ user, specialities }: Props) {
                             defaultValue={field.value}
                             onValueChange={field.onChange}
                           >
-                            <SelectTrigger className="w-full [&_span[data-slot]]:block [&_span[data-slot]]:truncate">
-                              <SelectValue placeholder="Select a gender" />
+                            <SelectTrigger className='w-full [&_span[data-slot]]:block [&_span[data-slot]]:truncate'>
+                              <SelectValue placeholder='Select a gender' />
                             </SelectTrigger>
                             <SelectContent>
-                              <SelectItem value="male">Male</SelectItem>
-                              <SelectItem value="female">Female</SelectItem>
+                              <SelectItem value='male'>Male</SelectItem>
+                              <SelectItem value='female'>Female</SelectItem>
                             </SelectContent>
                           </Select>
                         </FormControl>
@@ -631,7 +631,7 @@ export default function Component({ user, specialities }: Props) {
                     )}
                   />
                   <FormField
-                    name="experience"
+                    name='experience'
                     control={doctorForm.control}
                     render={({ field }) => (
                       <FormItem>
@@ -639,8 +639,8 @@ export default function Component({ user, specialities }: Props) {
                         <FormControl>
                           <Input
                             {...field}
-                            type="number"
-                            placeholder="1 Year"
+                            type='number'
+                            placeholder='1 Year'
                           />
                         </FormControl>
                         <FormMessage />
@@ -648,7 +648,7 @@ export default function Component({ user, specialities }: Props) {
                     )}
                   />
                   <FormField
-                    name="city"
+                    name='city'
                     control={doctorForm.control}
                     render={({ field }) => (
                       <FormItem>
@@ -656,9 +656,9 @@ export default function Component({ user, specialities }: Props) {
                         <FormControl>
                           <Input
                             {...field}
-                            type="text"
-                            className="capitalize"
-                            placeholder="Moradabad"
+                            type='text'
+                            className='capitalize'
+                            placeholder='Moradabad'
                           />
                         </FormControl>
                         <FormMessage />
@@ -666,7 +666,7 @@ export default function Component({ user, specialities }: Props) {
                     )}
                   />
                   <FormField
-                    name="specialities"
+                    name='specialities'
                     control={doctorForm.control}
                     render={({ field }) => (
                       <FormItem>
@@ -676,7 +676,7 @@ export default function Component({ user, specialities }: Props) {
                             options={specialities}
                             selectedValues={field.value}
                             setSelectedValues={field.onChange}
-                            placeholder="Select specialities ..."
+                            placeholder='Select specialities ...'
                           />
                         </FormControl>
                         <FormMessage />
@@ -684,7 +684,7 @@ export default function Component({ user, specialities }: Props) {
                     )}
                   />
                   <FormField
-                    name="daysOfVisit"
+                    name='daysOfVisit'
                     control={doctorForm.control}
                     render={({ field }) => (
                       <FormItem>
@@ -694,7 +694,7 @@ export default function Component({ user, specialities }: Props) {
                             options={[...DATES.DAYS]}
                             selectedValues={field.value}
                             setSelectedValues={field.onChange}
-                            placeholder="Select specialities ..."
+                            placeholder='Select specialities ...'
                           />
                         </FormControl>
                         <FormMessage />
@@ -702,17 +702,17 @@ export default function Component({ user, specialities }: Props) {
                     )}
                   />
                   <FormField
-                    name="timings"
+                    name='timings'
                     control={doctorForm.control}
                     render={({ field }) => (
                       <FormItem>
                         <FormControl>
-                          <div className="grid gap-0.5">
-                            <div className="flex items-center justify-between">
+                          <div className='grid gap-0.5'>
+                            <div className='flex items-center justify-between'>
                               <Label>Timings</Label>
                               <Button
-                                type="button"
-                                variant="ghost"
+                                type='button'
+                                variant='ghost'
                                 onClick={() => {
                                   field.onChange([
                                     ...field.value,
@@ -724,21 +724,21 @@ export default function Component({ user, specialities }: Props) {
                                   ]);
                                 }}
                               >
-                                <PlusIcon className="h-4 w-4" />
+                                <PlusIcon className='h-4 w-4' />
                               </Button>
                             </div>
-                            <div className="space-y-2">
-                              <ul className="space-y-2">
+                            <div className='space-y-2'>
+                              <ul className='space-y-2'>
                                 {field.value.map((time, index) => (
                                   <li
                                     key={time.id}
-                                    className="grid grid-cols-[1fr_auto_auto] gap-2"
+                                    className='grid grid-cols-[1fr_auto_auto] gap-2'
                                   >
                                     <Input
-                                      step="1"
-                                      type="time"
+                                      step='1'
+                                      type='time'
                                       defaultValue={time.time}
-                                      className="bg-background appearance-none [&::-webkit-calendar-picker-indicator]:hidden [&::-webkit-calendar-picker-indicator]:appearance-none"
+                                      className='bg-background appearance-none [&::-webkit-calendar-picker-indicator]:hidden [&::-webkit-calendar-picker-indicator]:appearance-none'
                                       onChange={e => {
                                         const time = field.value.slice();
                                         time[index].time = e.target.value;
@@ -748,7 +748,7 @@ export default function Component({ user, specialities }: Props) {
                                     <Input
                                       min={1}
                                       {...field}
-                                      type="number"
+                                      type='number'
                                       value={time.duration}
                                       onChange={e => {
                                         const time = field.value.slice();
@@ -757,8 +757,8 @@ export default function Component({ user, specialities }: Props) {
                                       }}
                                     />
                                     <Button
-                                      type="button"
-                                      variant="ghost"
+                                      type='button'
+                                      variant='ghost'
                                       disabled={!index}
                                       onClick={() => {
                                         if (index) {
@@ -769,7 +769,7 @@ export default function Component({ user, specialities }: Props) {
                                         }
                                       }}
                                     >
-                                      <TrashIcon className="h-4 w-4" />
+                                      <TrashIcon className='h-4 w-4' />
                                     </Button>
                                   </li>
                                 ))}
@@ -783,7 +783,7 @@ export default function Component({ user, specialities }: Props) {
                     )}
                   />
                   <Button
-                    type="submit"
+                    type='submit'
                     disabled={
                       !hasFormChanged(
                         defaultDoctorValues,

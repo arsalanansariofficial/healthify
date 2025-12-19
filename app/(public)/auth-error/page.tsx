@@ -11,8 +11,8 @@ export default async function Page({
   const { error } = await searchParams;
 
   return (
-    <section className="space-y-4 text-center">
-      <h1 className="text-xl font-bold">{error}</h1>
+    <section className='space-y-4 text-center'>
+      <h1 className='text-xl font-bold'>{error}</h1>
       <Button>
         <Link href={ROUTES.HOME}>Home Page</Link>
       </Button>

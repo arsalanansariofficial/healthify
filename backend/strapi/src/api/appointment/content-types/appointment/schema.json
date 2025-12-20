@@ -55,6 +55,15 @@
       "type": "integer",
       "min": 0,
       "max": 5
+    },
+    "appointmentStatus": {
+      "type": "enumeration",
+      "enum": [
+        "Pending",
+        "Confirmed",
+        "Cancelled",
+        "Completed"
+      ]
     }
   }
 }

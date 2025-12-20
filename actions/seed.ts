@@ -2,9 +2,9 @@
 
 import bcrypt from 'bcrypt-mini';
 
+import { ADMIN, MESSAGES, PERMISSIONS, ROLES } from '@/lib/constants';
 import prisma from '@/lib/prisma';
 import { catchErrors } from '@/lib/utils';
-import { ADMIN, MESSAGES, PERMISSIONS, ROLES } from '@/lib/constants';
 
 export async function seed() {
   try {
@@ -18,9 +18,9 @@ export async function seed() {
         }),
         transaction.user.create({
           data: {
+            email: ADMIN.EMAIL as string,
             emailVerified: new Date(),
             name: ADMIN.NAME as string,
-            email: ADMIN.EMAIL as string,
             password: bcrypt.hashSync(ADMIN.PASSWORD as string, 10)
           }
         })
@@ -28,15 +28,15 @@ export async function seed() {
 
       await Promise.all([
         prisma.userRole.create({
-          data: { userId: user.id, roleId: role.id }
+          data: { roleId: role.id, userId: user.id }
         }),
         prisma.rolePermission.create({
-          data: { roleId: role.id, permissionId: permission.id }
+          data: { permissionId: permission.id, roleId: role.id }
         })
       ]);
     });
 
-    return { success: true, message: MESSAGES.DATABASE.UPDATED };
+    return { message: MESSAGES.DATABASE.UPDATED, success: true };
   } catch (error) {
     return catchErrors(error as Error);
   }

@@ -1,50 +1,21 @@
 'use client';
 
-import z from 'zod';
-import { toast } from 'sonner';
-import { useMemo } from 'react';
-import { User } from 'next-auth';
-import { useForm } from 'react-hook-form';
-import { User as Doctor } from '@prisma/client';
-import { ColumnDef } from '@tanstack/react-table';
-import { Speciality, TimeSlot } from '@prisma/client';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { User as Doctor } from '@prisma/client';
+import { Speciality, TimeSlot } from '@prisma/client';
 import { IconDotsVertical } from '@tabler/icons-react';
+import { ColumnDef } from '@tanstack/react-table';
+import { User } from 'next-auth';
+import { useMemo } from 'react';
+import { useForm } from 'react-hook-form';
+import { toast } from 'sonner';
+import z from 'zod';
 
-import Footer from '@/components/footer';
-import { nameSchema } from '@/lib/schemas';
-import { MESSAGES } from '@/lib/constants';
-import { Input } from '@/components/ui/input';
-import { Button } from '@/components/ui/button';
-import useHookForm from '@/hooks/use-hook-form';
-import { useIsMobile } from '@/hooks/use-mobile';
 import handler from '@/components/display-toast';
+import Footer from '@/components/footer';
+import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
-import { catchErrors, hasPermission } from '@/lib/utils';
 import { DragHandle, DataTable } from '@/components/ui/data-table';
-
-import {
-  deleteSpeciality,
-  updateSpeciality,
-  deleteSpecialities
-} from '@/lib/actions';
-
-import {
-  Form,
-  FormItem,
-  FormField,
-  FormLabel,
-  FormControl,
-  FormMessage
-} from '@/components/ui/form';
-
-import {
-  DropdownMenu,
-  DropdownMenuItem,
-  DropdownMenuContent,
-  DropdownMenuTrigger
-} from '@/components/ui/dropdown-menu';
-
 import {
   Drawer,
   DrawerClose,
@@ -55,6 +26,31 @@ import {
   DrawerContent,
   DrawerDescription
 } from '@/components/ui/drawer';
+import {
+  DropdownMenu,
+  DropdownMenuItem,
+  DropdownMenuContent,
+  DropdownMenuTrigger
+} from '@/components/ui/dropdown-menu';
+import {
+  Form,
+  FormItem,
+  FormField,
+  FormLabel,
+  FormControl,
+  FormMessage
+} from '@/components/ui/form';
+import { Input } from '@/components/ui/input';
+import useHookForm from '@/hooks/use-hook-form';
+import { useIsMobile } from '@/hooks/use-mobile';
+import {
+  deleteSpeciality,
+  updateSpeciality,
+  deleteSpecialities
+} from '@/lib/actions';
+import { MESSAGES } from '@/lib/constants';
+import { nameSchema } from '@/lib/schemas';
+import { catchErrors, hasPermission } from '@/lib/utils';
 
 function Menu({
   id,
@@ -88,25 +84,25 @@ function Menu({
           onClick={async () => {
             if (!isHeader) {
               toast.promise(deleteSpeciality(id as string), {
-                position: 'top-center',
-                loading: 'Deleting speciality',
-                success: MESSAGES.SPECIALITY.DELETED,
                 error(error) {
                   const { message } = catchErrors(error as Error);
                   return <span className='text-destructive'>{message}</span>;
-                }
+                },
+                loading: 'Deleting speciality',
+                position: 'top-center',
+                success: MESSAGES.SPECIALITY.DELETED
               });
             }
 
             if (isHeader) {
               toast.promise(deleteSpecialities(ids as string[]), {
-                position: 'top-center',
-                loading: 'Deleting specialities',
-                success: MESSAGES.SPECIALITY.BULK_DELETED,
                 error(error) {
                   const { message } = catchErrors(error as Error);
                   return <span className='text-destructive'>{message}</span>;
-                }
+                },
+                loading: 'Deleting specialities',
+                position: 'top-center',
+                success: MESSAGES.SPECIALITY.BULK_DELETED
               });
             }
           }}
@@ -123,7 +119,7 @@ export function TableCellViewer<T extends z.ZodType>(props: {
 }) {
   const isMobile = useIsMobile();
 
-  const { pending, handleSubmit } = useHookForm(
+  const { handleSubmit, pending } = useHookForm(
     handler,
     updateSpeciality.bind(null, props.item.id) as (
       data: unknown
@@ -132,8 +128,8 @@ export function TableCellViewer<T extends z.ZodType>(props: {
   );
 
   const form = useForm({
-    resolver: zodResolver(nameSchema),
-    defaultValues: { name: String() }
+    defaultValues: { name: String() },
+    resolver: zodResolver(nameSchema)
   });
 
   return (
@@ -204,11 +200,17 @@ export default function Component(props: {
   const columns = useMemo<ColumnDef<{ id: number; name: string }>[]>(
     () => [
       {
-        id: 'drag',
-        cell: ({ row }) => <DragHandle id={row.original.id} />
+        cell: ({ row }) => <DragHandle id={row.original.id} />,
+        id: 'drag'
       },
       {
-        id: 'select',
+        cell: ({ row }) => (
+          <Checkbox
+            aria-label='Select row'
+            checked={row.getIsSelected()}
+            onCheckedChange={value => row.toggleSelected(!!value)}
+          />
+        ),
         enableHiding: false,
         enableSorting: false,
         header: ({ table }) => (
@@ -221,17 +223,9 @@ export default function Component(props: {
             }
           />
         ),
-        cell: ({ row }) => (
-          <Checkbox
-            aria-label='Select row'
-            checked={row.getIsSelected()}
-            onCheckedChange={value => row.toggleSelected(!!value)}
-          />
-        )
+        id: 'select'
       },
       {
-        id: 'id',
-        header: 'Id',
         accessorKey: 'id',
         cell: ({ row }) => (
           <TableCellViewer
@@ -240,12 +234,11 @@ export default function Component(props: {
               s => s.id === String(row.original.id)
             )}
           />
-        )
+        ),
+        header: 'Id',
+        id: 'id'
       },
       {
-        id: 'name',
-        header: 'Name',
-        enableHiding: false,
         accessorKey: 'name',
         cell: ({ row }) => (
           <span>
@@ -254,10 +247,12 @@ export default function Component(props: {
                 ?.name
             }
           </span>
-        )
+        ),
+        enableHiding: false,
+        header: 'Name',
+        id: 'name'
       },
       {
-        id: 'actions',
         cell: ({ row }) => (
           <Menu isHeader={false} id={row.original.id.toString()} />
         ),
@@ -270,7 +265,8 @@ export default function Component(props: {
                 .rows.map(r => r.original.id.toString())}
             />
           );
-        }
+        },
+        id: 'actions'
       }
     ],
     [props.specialities]

@@ -1,5 +1,5 @@
-import Link from 'next/link';
 import { User } from 'next-auth';
+import Link from 'next/link';
 
 import { hasPermission } from '@/lib/utils';
 
@@ -11,7 +11,7 @@ type Props = {
   ][];
 };
 
-export default function Menu({ user, entries }: Props) {
+export default function Menu({ entries, user }: Props) {
   return (
     <ul className='space-y-4 font-semibold'>
       {entries.map(

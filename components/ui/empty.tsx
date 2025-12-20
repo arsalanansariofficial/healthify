@@ -54,7 +54,7 @@ export function EmptyMedia({
       {...props}
       data-slot='empty-icon'
       data-variant={variant}
-      className={cn(emptyMediaVariants({ variant, className }))}
+      className={cn(emptyMediaVariants({ className, variant }))}
     />
   );
 }

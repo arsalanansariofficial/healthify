@@ -1,27 +1,24 @@
 'use server';
 
-import z from 'zod';
+import { AppointmentStatus, Day, Gender, TimeSlot } from '@prisma/client';
 import bcrypt from 'bcrypt-mini';
 import { revalidatePath } from 'next/cache';
-import { AppointmentStatus, Day, Gender, TimeSlot } from '@prisma/client';
+import z from 'zod';
 
-import prisma from '@/lib/prisma';
-import { DATES } from '@/lib/constants';
-import { ROLES } from '@/constants/roles';
-import { DOMAIN } from '@/constants/domain';
-import { ROUTES } from '@/constants/routes';
+import { generateToken, loginWithCredentials } from '@/actions/auth';
 import { sendEmail } from '@/actions/email';
-import { MESSAGES } from '@/constants/messages';
 import { removeFile, saveFile } from '@/actions/file';
 import { auth, unstable_update as update } from '@/auth';
-import { generateToken, loginWithCredentials } from '@/actions/auth';
-import { catchErrors, isPastByTime, removeDuplicateTimes } from '@/lib/utils';
-
 import {
   ConfirmAppointment,
   CancelAppointment
 } from '@/components/email/appointment/email';
-
+import { DOMAIN } from '@/constants/domain';
+import { MESSAGES } from '@/constants/messages';
+import { ROLES } from '@/constants/roles';
+import { ROUTES } from '@/constants/routes';
+import { DATES } from '@/lib/constants';
+import prisma from '@/lib/prisma';
 import {
   bioSchema,
   userSchema,
@@ -32,6 +29,7 @@ import {
   appointmentSchema,
   doctorProfileSchema
 } from '@/lib/schemas';
+import { catchErrors, isPastByTime, removeDuplicateTimes } from '@/lib/utils';
 
 export async function deleteUser(id: string) {
   await prisma.$transaction(async function (transaction) {
@@ -68,11 +66,11 @@ export async function verifyEmail(email: string) {
     const user = await prisma.$transaction(async function (transaction) {
       const user = await transaction.user.findUnique({ where: { email } });
       if (!user)
-        return { success: false, message: MESSAGES.SYSTEM.INVALID_INPUTS };
+        return { message: MESSAGES.SYSTEM.INVALID_INPUTS, success: false };
 
       await transaction.user.update({
-        where: { email },
-        data: { emailVerified: user.emailVerified ? null : new Date() }
+        data: { emailVerified: user.emailVerified ? null : new Date() },
+        where: { email }
       });
 
       const token = await transaction.token.findUnique({
@@ -83,7 +81,7 @@ export async function verifyEmail(email: string) {
       return user;
     });
 
-    if (!user) return { success: false, message: MESSAGES.USER.NOT_FOUND };
+    if (!user) return { message: MESSAGES.USER.NOT_FOUND, success: false };
     revalidatePath(ROUTES.HOME);
   } catch (error) {
     return catchErrors(error as Error);
@@ -95,43 +93,43 @@ export async function verifyToken(id: string) {
     const result = await prisma.$transaction(async function (transaction) {
       const token = await transaction.token.findUnique({ where: { id } });
       if (!token)
-        return { success: false, message: MESSAGES.SYSTEM.INVALID_INPUTS };
+        return { message: MESSAGES.SYSTEM.INVALID_INPUTS, success: false };
 
       const hasExpired = new Date(token.expires) < new Date();
       if (hasExpired)
-        return { success: false, message: MESSAGES.SYSTEM.INVALID_INPUTS };
+        return { message: MESSAGES.SYSTEM.INVALID_INPUTS, success: false };
 
       const user = await transaction.user.findUnique({
         where: { id: token.userId }
       });
 
       if (!user)
-        return { success: false, message: MESSAGES.SYSTEM.INVALID_INPUTS };
+        return { message: MESSAGES.SYSTEM.INVALID_INPUTS, success: false };
       await transaction.user.update({
-        where: { id: user.id },
-        data: { emailVerified: new Date() }
+        data: { emailVerified: new Date() },
+        where: { id: user.id }
       });
 
       await transaction.token.delete({ where: { id: token.id } });
-      return { user, token, hasExpired };
+      return { hasExpired, token, user };
     });
 
     if (!result?.token) {
-      return { success: false, message: MESSAGES.AUTH.TOKEN_NOT_FOUND };
+      return { message: MESSAGES.AUTH.TOKEN_NOT_FOUND, success: false };
     }
 
     if (!result?.user) {
-      return { success: false, message: MESSAGES.USER.EMAIL_NOT_FOUND };
+      return { message: MESSAGES.USER.EMAIL_NOT_FOUND, success: false };
     }
 
     if (result?.hasExpired) {
-      return { success: false, message: MESSAGES.AUTH.TOKEN_EXPIRED };
+      return { message: MESSAGES.AUTH.TOKEN_EXPIRED, success: false };
     }
 
     return {
-      success: true,
       email: result.user.email,
-      message: MESSAGES.USER.EMAIL_VERIFIED
+      message: MESSAGES.USER.EMAIL_VERIFIED,
+      success: true
     };
   } catch (error) {
     return { email: undefined, ...catchErrors(error as Error) };
@@ -144,12 +142,12 @@ export async function updatePassword({
 }: z.infer<typeof loginSchema>) {
   const result = loginSchema.safeParse({ email, password });
   if (!result.success)
-    return { success: false, message: MESSAGES.SYSTEM.INVALID_INPUTS };
+    return { message: MESSAGES.SYSTEM.INVALID_INPUTS, success: false };
 
   try {
     await prisma.user.update({
-      where: { email },
-      data: { password: bcrypt.hashSync(password, 10) }
+      data: { password: bcrypt.hashSync(password, 10) },
+      where: { email }
     });
   } catch (error) {
     return catchErrors(error as Error);
@@ -161,13 +159,13 @@ export async function updatePassword({
 export async function forgetPassword({ email }: z.infer<typeof emailSchema>) {
   const result = emailSchema.safeParse({ email });
   if (!result.success)
-    return { success: false, message: MESSAGES.SYSTEM.INVALID_INPUTS };
+    return { message: MESSAGES.SYSTEM.INVALID_INPUTS, success: false };
 
   try {
     const user = await prisma.user.findUnique({ where: { email } });
 
     if (!user) {
-      return { email, success: false, message: MESSAGES.USER.EMAIL_NOT_FOUND };
+      return { email, message: MESSAGES.USER.EMAIL_NOT_FOUND, success: false };
     }
 
     const token = await generateToken(user.id as string);
@@ -178,8 +176,8 @@ export async function forgetPassword({ email }: z.infer<typeof emailSchema>) {
     );
 
     if (!emailSent)
-      return { success: false, message: MESSAGES.USER.EMAIL_BOUNCED };
-    return { email, success: true, message: MESSAGES.USER.CONFIRM_EMAIL };
+      return { message: MESSAGES.USER.EMAIL_BOUNCED, success: false };
+    return { email, message: MESSAGES.USER.CONFIRM_EMAIL, success: true };
   } catch (error) {
     return catchErrors(error as Error);
   }
@@ -188,7 +186,7 @@ export async function forgetPassword({ email }: z.infer<typeof emailSchema>) {
 export async function updateUser(id: string, data: z.infer<typeof userSchema>) {
   const result = userSchema.safeParse(data);
   if (!result.success)
-    return { success: false, message: MESSAGES.SYSTEM.INVALID_INPUTS };
+    return { message: MESSAGES.SYSTEM.INVALID_INPUTS, success: false };
 
   try {
     const user = await prisma.$transaction(async function (transaction) {
@@ -201,25 +199,25 @@ export async function updateUser(id: string, data: z.infer<typeof userSchema>) {
       }
 
       if (email && email !== user?.email && existingUser)
-        return { success: false, message: MESSAGES.SYSTEM.INVALID_INPUTS };
+        return { message: MESSAGES.SYSTEM.INVALID_INPUTS, success: false };
 
       return await prisma.user.update({
-        where: { id },
         data: {
-          name: result.data.name,
           email: result.data.email,
-          password: password ? bcrypt.hashSync(password, 10) : undefined,
-          emailVerified: result.data.emailVerified === 'yes' ? new Date() : null
-        }
+          emailVerified: result.data.emailVerified === 'yes' ? new Date() : null,
+          name: result.data.name,
+          password: password ? bcrypt.hashSync(password, 10) : undefined
+        },
+        where: { id }
       });
     });
 
     if (!user) {
-      return { success: false, message: MESSAGES.USER.EMAIL_REGISTERED };
+      return { message: MESSAGES.USER.EMAIL_REGISTERED, success: false };
     }
 
     revalidatePath(ROUTES.HOME);
-    return { success: true, message: MESSAGES.USER.PROFILE_UPDATED };
+    return { message: MESSAGES.USER.PROFILE_UPDATED, success: true };
   } catch (error) {
     return catchErrors(error as Error);
   }
@@ -233,41 +231,41 @@ export async function updateUserProfile(
     const session = await auth();
 
     if (!session?.user) {
-      return { success: false, message: MESSAGES.AUTH.UNAUTHORIZED };
+      return { message: MESSAGES.AUTH.UNAUTHORIZED, success: false };
     }
 
     const result = userProfileSchema.safeParse(data);
 
     if (!result.success) {
-      return { success: false, message: MESSAGES.SYSTEM.INVALID_INPUTS };
+      return { message: MESSAGES.SYSTEM.INVALID_INPUTS, success: false };
     }
 
     const user = await prisma.user.findUnique({
-      where: { id: userId },
       select: {
         city: true,
-        email: true,
-        phone: true,
-        image: true,
         cover: true,
+        email: true,
+        emailVerified: true,
         gender: true,
-        emailVerified: true
-      }
+        image: true,
+        phone: true
+      },
+      where: { id: userId }
     });
 
     const image = result.data.image && result.data.image[0];
     const cover = result.data.cover && result.data.cover[0];
-    const { email, city, phone, password, gender } = result.data;
+    const { city, email, gender, password, phone } = result.data;
 
-    if (!user) return { success: false, message: MESSAGES.USER.NOT_FOUND };
+    if (!user) return { message: MESSAGES.USER.NOT_FOUND, success: false };
 
     const emailExists = await prisma.user.findUnique({
-      where: { email },
-      select: { email: true }
+      select: { email: true },
+      where: { email }
     });
 
     if (email !== user.email && emailExists) {
-      return { success: false, message: MESSAGES.USER.EMAIL_REGISTERED };
+      return { message: MESSAGES.USER.EMAIL_REGISTERED, success: false };
     }
 
     const updated = await prisma.$transaction(async function (transaction) {
@@ -280,18 +278,18 @@ export async function updateUserProfile(
       if (cover?.size) coverName = await saveFile(cover);
 
       const updated = await transaction.user.update({
-        where: { id: userId },
         data: {
-          image: imageName,
-          cover: coverName,
-          name: result.data.name,
-          email: email !== user.email ? email : undefined,
           city: city && city !== user.city ? city : undefined,
-          phone: phone && phone !== user.phone ? phone : undefined,
-          password: password ? bcrypt.hashSync(password, 10) : undefined,
+          cover: coverName,
+          email: email !== user.email ? email : undefined,
           gender:
-            gender && gender !== user.gender ? (gender as Gender) : undefined
-        }
+            gender && gender !== user.gender ? (gender as Gender) : undefined,
+          image: imageName,
+          name: result.data.name,
+          password: password ? bcrypt.hashSync(password, 10) : undefined,
+          phone: phone && phone !== user.phone ? phone : undefined
+        },
+        where: { id: userId }
       });
 
       const [role] = await Promise.all([
@@ -302,7 +300,7 @@ export async function updateUserProfile(
       ]);
 
       await transaction.userRole.create({
-        data: { userId, roleId: role?.id as string }
+        data: { roleId: role?.id as string, userId }
       });
 
       return updated;
@@ -319,7 +317,7 @@ export async function updateUserProfile(
       user: { ...session?.user, cover: updated.cover, image: updated.image }
     });
 
-    return { success: true, message: MESSAGES.USER.PROFILE_UPDATED };
+    return { message: MESSAGES.USER.PROFILE_UPDATED, success: true };
   } catch (error) {
     return catchErrors(error as Error);
   }
@@ -330,22 +328,21 @@ export async function updateBio(id: string, data: z.infer<typeof bioSchema>) {
     const result = bioSchema.safeParse(data);
 
     if (!result.success) {
-      return { success: false, message: MESSAGES.SYSTEM.INVALID_INPUTS };
+      return { message: MESSAGES.SYSTEM.INVALID_INPUTS, success: false };
     }
 
     const user = await prisma.user.findUnique({
-      where: { id },
-      select: { bio: true }
+      select: { bio: true },
+      where: { id }
     });
 
     if (!user) {
-      return { success: false, message: MESSAGES.AUTH.UNAUTHORIZED };
+      return { message: MESSAGES.AUTH.UNAUTHORIZED, success: false };
     }
 
     if (user.bio) await removeFile(user.bio);
 
     await prisma.user.update({
-      where: { id },
       data: {
         bio: await saveFile(
           new File(
@@ -354,10 +351,11 @@ export async function updateBio(id: string, data: z.infer<typeof bioSchema>) {
             { type: 'text/md' }
           )
         )
-      }
+      },
+      where: { id }
     });
 
-    return { success: true, message: MESSAGES.USER.PROFILE_UPDATED };
+    return { message: MESSAGES.USER.PROFILE_UPDATED, success: true };
   } catch (error) {
     return catchErrors(error as Error);
   }
@@ -371,52 +369,52 @@ export async function updateDoctorProfile(
     const session = await auth();
 
     if (!session?.user) {
-      return { success: false, message: MESSAGES.AUTH.UNAUTHORIZED };
+      return { message: MESSAGES.AUTH.UNAUTHORIZED, success: false };
     }
 
     const result = doctorProfileSchema.safeParse(data);
 
     if (!result.success) {
-      return { success: false, message: MESSAGES.SYSTEM.INVALID_INPUTS };
+      return { message: MESSAGES.SYSTEM.INVALID_INPUTS, success: false };
     }
 
     const user = await prisma.user.findUnique({
-      where: { id: doctorId },
       select: {
         city: true,
-        email: true,
-        phone: true,
-        image: true,
         cover: true,
-        gender: true,
+        email: true,
+        emailVerified: true,
         experience: true,
-        emailVerified: true
-      }
+        gender: true,
+        image: true,
+        phone: true
+      },
+      where: { id: doctorId }
     });
 
     const {
       city,
-      email,
-      phone,
-      gender,
-      timings,
-      password,
-      experience,
       daysOfVisit,
-      specialities
+      email,
+      experience,
+      gender,
+      password,
+      phone,
+      specialities,
+      timings
     } = result.data;
 
     const image = result.data.image && result.data.image[0];
     const cover = result.data.cover && result.data.cover[0];
-    if (!user) return { success: false, message: MESSAGES.USER.NOT_FOUND };
+    if (!user) return { message: MESSAGES.USER.NOT_FOUND, success: false };
 
     const emailExists = await prisma.user.findUnique({
-      where: { email },
-      select: { email: true }
+      select: { email: true },
+      where: { email }
     });
 
     if (email !== user.email && emailExists) {
-      return { success: false, message: MESSAGES.USER.EMAIL_REGISTERED };
+      return { message: MESSAGES.USER.EMAIL_REGISTERED, success: false };
     }
 
     const updated = await prisma.$transaction(async function (transaction) {
@@ -429,25 +427,25 @@ export async function updateDoctorProfile(
       if (cover?.size) coverName = await saveFile(cover);
 
       const updated = await transaction.user.update({
-        where: { id: doctorId },
         data: {
-          image: imageName,
-          cover: coverName,
-          name: result.data.name,
-          email: email !== user.email ? email : undefined,
           city: city && city !== user.city ? city : undefined,
-          phone: phone && phone !== user.phone ? phone : undefined,
-          gender: gender && gender !== user.gender ? gender : undefined,
-          password: password ? bcrypt.hashSync(password, 10) : undefined,
+          cover: coverName,
+          daysOfVisit:
+            daysOfVisit && daysOfVisit.length
+              ? (daysOfVisit as Day[])
+              : undefined,
+          email: email !== user.email ? email : undefined,
           experience:
             experience && experience !== user.experience
               ? experience
               : undefined,
-          daysOfVisit:
-            daysOfVisit && daysOfVisit.length
-              ? (daysOfVisit as Day[])
-              : undefined
-        }
+          gender: gender && gender !== user.gender ? gender : undefined,
+          image: imageName,
+          name: result.data.name,
+          password: password ? bcrypt.hashSync(password, 10) : undefined,
+          phone: phone && phone !== user.phone ? phone : undefined
+        },
+        where: { id: doctorId }
       });
 
       if (specialities && specialities.length) {
@@ -456,22 +454,22 @@ export async function updateDoctorProfile(
         });
 
         await transaction.userSpeciality.createMany({
-          data: specialities.map(s => ({ userId: doctorId, specialityId: s }))
+          data: specialities.map(s => ({ specialityId: s, userId: doctorId }))
         });
       }
 
       if (timings && timings.length) {
         await transaction.timeSlot.deleteMany({ where: { userId: doctorId } });
         await transaction.user.update({
-          where: { id: doctorId },
           data: {
             timings: {
               create: removeDuplicateTimes(timings)?.map(t => ({
-                time: t.time,
-                duration: t.duration
+                duration: t.duration,
+                time: t.time
               })) as TimeSlot[]
             }
-          }
+          },
+          where: { id: doctorId }
         });
       }
 
@@ -485,7 +483,7 @@ export async function updateDoctorProfile(
       ]);
 
       await transaction.userRole.create({
-        data: { userId: doctorId, roleId: role?.id as string }
+        data: { roleId: role?.id as string, userId: doctorId }
       });
 
       return updated;
@@ -502,7 +500,7 @@ export async function updateDoctorProfile(
       user: { ...session?.user, cover: updated.cover, image: updated.image }
     });
 
-    return { success: false, message: MESSAGES.USER.PROFILE_UPDATED };
+    return { message: MESSAGES.USER.PROFILE_UPDATED, success: false };
   } catch (error) {
     return catchErrors(error as Error);
   }
@@ -511,7 +509,7 @@ export async function updateDoctorProfile(
 export async function addDoctor(data: z.infer<typeof doctorSchema>) {
   const result = doctorSchema.safeParse(data);
   if (!result.success)
-    return { success: false, message: MESSAGES.SYSTEM.INVALID_INPUTS };
+    return { message: MESSAGES.SYSTEM.INVALID_INPUTS, success: false };
 
   const timings = result.data.timings;
   const specialities = result.data.specialities;
@@ -523,7 +521,7 @@ export async function addDoctor(data: z.infer<typeof doctorSchema>) {
     });
 
     if (user)
-      return { success: false, message: MESSAGES.USER.EMAIL_REGISTERED };
+      return { message: MESSAGES.USER.EMAIL_REGISTERED, success: false };
 
     await prisma.$transaction(async function (transaction) {
       let fileName;
@@ -535,19 +533,19 @@ export async function addDoctor(data: z.infer<typeof doctorSchema>) {
 
       const user = await transaction.user.create({
         data: {
+          city: result.data.city,
+          daysOfVisit: (result.data.daysOfVisit as Day[]) || undefined,
+          email: result.data.email,
+          experience: result.data.experience,
+          gender: result.data.gender,
           image: fileName,
           name: result.data.name,
-          city: result.data.city,
-          email: result.data.email,
-          phone: result.data.phone,
-          gender: result.data.gender,
-          experience: result.data.experience,
-          daysOfVisit: (result.data.daysOfVisit as Day[]) || undefined,
           password: bcrypt.hashSync(result.data.password as string, 10),
+          phone: result.data.phone,
           timings: {
             create: removeDuplicateTimes(timings)?.map(t => ({
-              time: t.time,
-              duration: t.duration
+              duration: t.duration,
+              time: t.time
             })) as TimeSlot[]
           }
         }
@@ -555,12 +553,12 @@ export async function addDoctor(data: z.infer<typeof doctorSchema>) {
 
       if (specialities.length) {
         await transaction.userSpeciality.createMany({
-          data: specialities.map(s => ({ userId: user.id, specialityId: s }))
+          data: specialities.map(s => ({ specialityId: s, userId: user.id }))
         });
       }
 
       await transaction.userRole.create({
-        data: { userId: user.id, roleId: role?.id as string }
+        data: { roleId: role?.id as string, userId: user.id }
       });
     });
   } catch (error) {
@@ -579,13 +577,13 @@ export async function getAppointment(
 ) {
   const result = appointmentSchema.safeParse(data);
   if (!result.success)
-    return { success: false, message: MESSAGES.SYSTEM.INVALID_INPUTS };
+    return { message: MESSAGES.SYSTEM.INVALID_INPUTS, success: false };
 
   try {
     const session = await auth();
 
     if (!session?.user?.id) {
-      return { success: false, message: MESSAGES.USER.NOT_FOUND };
+      return { message: MESSAGES.USER.NOT_FOUND, success: false };
     }
 
     const time = await prisma.timeSlot.findUnique({
@@ -602,39 +600,39 @@ export async function getAppointment(
       )
     ) {
       return {
-        success: false,
-        message: MESSAGES.APPOINTMENT.INVALID_TIME_SLOT
+        message: MESSAGES.APPOINTMENT.INVALID_TIME_SLOT,
+        success: false
       };
     }
 
     if (
       await prisma.appointment.findFirst({
         where: {
-          doctorId,
           date: result.data.date,
+          doctorId,
           patientId: session.user.id,
           timeSlotId: result.data.time
         }
       })
     ) {
-      return { success: false, message: MESSAGES.APPOINTMENT.EXISTS };
+      return { message: MESSAGES.APPOINTMENT.EXISTS, success: false };
     }
 
     await prisma.appointment.create({
       data: {
-        doctorId,
-        name: result.data.name,
         city: result.data.city,
         date: result.data.date,
+        doctorId,
         email: result.data.email,
-        phone: result.data.phone,
+        name: result.data.name,
         notes: result.data.notes,
         patientId: session.user.id,
+        phone: result.data.phone,
         timeSlotId: result.data.time
       }
     });
 
-    return { success: true, message: MESSAGES.APPOINTMENT.CREATED };
+    return { message: MESSAGES.APPOINTMENT.CREATED, success: true };
   } catch (error) {
     return catchErrors(error as Error);
   }
@@ -645,16 +643,16 @@ export async function updateAppointmentStatus(id: string, status: string) {
     const session = await auth();
 
     if (!session?.user?.id) {
-      return { success: false, message: MESSAGES.USER.NOT_FOUND };
+      return { message: MESSAGES.USER.NOT_FOUND, success: false };
     }
 
     const appointment = await prisma.appointment.findUnique({
-      where: { id },
-      select: { date: true, timeSlot: { select: { time: true } } }
+      select: { date: true, timeSlot: { select: { time: true } } },
+      where: { id }
     });
 
     if (!appointment) {
-      return { success: false, message: MESSAGES.APPOINTMENT.NOT_FOUND };
+      return { message: MESSAGES.APPOINTMENT.NOT_FOUND, success: false };
     }
 
     const isInFuture = isPastByTime(
@@ -665,31 +663,31 @@ export async function updateAppointmentStatus(id: string, status: string) {
 
     if (!isInFuture) {
       return {
-        success: false,
-        message: MESSAGES.APPOINTMENT.ACTION_RESTRICTED
+        message: MESSAGES.APPOINTMENT.ACTION_RESTRICTED,
+        success: false
       };
     }
 
     const updated = await prisma.$transaction(async function (transaction) {
       return await transaction.appointment.update({
-        where: { id },
         data: { status: status as AppointmentStatus },
         select: {
           date: true,
           doctor: { select: { email: true, name: true } },
           patient: { select: { email: true, name: true } },
-          timeSlot: { select: { time: true, duration: true } }
-        }
+          timeSlot: { select: { duration: true, time: true } }
+        },
+        where: { id }
       });
     });
 
     const data = {
       data: {
-        time: updated.timeSlot.time,
         date: updated.date.toString(),
         doctorName: updated.doctor.name as string,
+        duration: updated.timeSlot.duration.toString(),
         patientName: updated.patient.name as string,
-        duration: updated.timeSlot.duration.toString()
+        time: updated.timeSlot.time
       }
     };
 
@@ -725,11 +723,11 @@ export async function updateAppointmentStatus(id: string, status: string) {
 
     revalidatePath('/');
     return {
-      success: true,
       message:
         status === AppointmentStatus.confirmed
           ? MESSAGES.APPOINTMENT.CONFIRMED
-          : MESSAGES.APPOINTMENT.CANCELLED
+          : MESSAGES.APPOINTMENT.CANCELLED,
+      success: true
     };
   } catch (error) {
     return catchErrors(error as Error);

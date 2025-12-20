@@ -1,12 +1,12 @@
-import bcrypt from 'bcrypt-mini';
-import GitHub from 'next-auth/providers/github';
-import { Permission, Role } from '@prisma/client';
-import NextAuth, { NextAuthConfig } from 'next-auth';
 import { PrismaAdapter } from '@auth/prisma-adapter';
+import { Permission, Role } from '@prisma/client';
+import bcrypt from 'bcrypt-mini';
+import NextAuth, { NextAuthConfig } from 'next-auth';
 import Credentials from 'next-auth/providers/credentials';
+import GitHub from 'next-auth/providers/github';
 
-import prisma from '@/lib/prisma';
 import { DATES, O_AUTH, ROLES, ROUTES } from '@/lib/constants';
+import prisma from '@/lib/prisma';
 
 declare module 'next-auth' {
   interface User {
@@ -20,7 +20,6 @@ declare module 'next-auth' {
 }
 
 export const authConfig = {
-  trustHost: true,
   providers: [
     GitHub({
       clientId: O_AUTH.GITHUB.GITHUB_CLIENT_ID as string,
@@ -41,59 +40,15 @@ export const authConfig = {
         return user;
       }
     })
-  ]
+  ],
+  trustHost: true
 } satisfies NextAuthConfig;
 
 export const { auth, handlers, signIn, signOut, unstable_update } = NextAuth({
   ...authConfig,
   adapter: PrismaAdapter(prisma),
-  pages: { signIn: ROUTES.LOGIN, error: ROUTES.AUTH_ERROR },
-  session: { strategy: 'jwt', maxAge: DATES.EXPIRES_AT as number },
-  events: {
-    async linkAccount({ user }) {
-      const existingUser = await prisma.user.update({
-        where: { id: user.id },
-        select: { UserRoles: true },
-        data: { hasOAuth: true, emailVerified: new Date() }
-      });
-
-      if (!existingUser?.UserRoles.length) {
-        const defaultRole = await prisma.role.findUnique({
-          select: { id: true },
-          where: { name: ROLES.USER as string }
-        });
-
-        await prisma.userRole.create({
-          data: {
-            userId: user?.id as string,
-            roleId: defaultRole?.id as string
-          }
-        });
-      }
-    }
-  },
   callbacks: {
-    async signIn({ user, account }) {
-      if (account?.provider !== 'credentials') return true;
-
-      const existingUser = await prisma.user.findUnique({
-        where: { id: user.id }
-      });
-
-      return !existingUser?.emailVerified ? false : true;
-    },
-    async session({ session, token }) {
-      session.user.id = token.id as string;
-      session.user.roles = token.roles as Role[];
-      session.user.image = token.image as string;
-      session.user.cover = token.cover as string;
-      session.user.city = token.city as string | undefined;
-      session.user.phone = token.phone as string | undefined;
-      session.user.permissions = token.permissions as Permission[];
-      session.user.hasOAuth = token.hasOAuth as boolean | undefined;
-      return session;
-    },
-    async jwt({ token, user, session, trigger, account }) {
+    async jwt({ account, session, token, trigger, user }) {
       if (user) {
         if (!user.roles || !user.permissions) {
           const roles = (
@@ -127,8 +82,8 @@ export const { auth, handlers, signIn, signOut, unstable_update } = NextAuth({
           token.hasOAuth =
             (
               await prisma.user.findUnique({
-                where: { id: user.id },
-                select: { hasOAuth: true }
+                select: { hasOAuth: true },
+                where: { id: user.id }
               })
             )?.hasOAuth || false;
         }
@@ -146,6 +101,51 @@ export const { auth, handlers, signIn, signOut, unstable_update } = NextAuth({
       }
 
       return token;
+    },
+    async session({ session, token }) {
+      session.user.id = token.id as string;
+      session.user.roles = token.roles as Role[];
+      session.user.image = token.image as string;
+      session.user.cover = token.cover as string;
+      session.user.city = token.city as string | undefined;
+      session.user.phone = token.phone as string | undefined;
+      session.user.permissions = token.permissions as Permission[];
+      session.user.hasOAuth = token.hasOAuth as boolean | undefined;
+      return session;
+    },
+    async signIn({ account, user }) {
+      if (account?.provider !== 'credentials') return true;
+
+      const existingUser = await prisma.user.findUnique({
+        where: { id: user.id }
+      });
+
+      return !existingUser?.emailVerified ? false : true;
     }
-  }
+  },
+  events: {
+    async linkAccount({ user }) {
+      const existingUser = await prisma.user.update({
+        data: { emailVerified: new Date(), hasOAuth: true },
+        select: { UserRoles: true },
+        where: { id: user.id }
+      });
+
+      if (!existingUser?.UserRoles.length) {
+        const defaultRole = await prisma.role.findUnique({
+          select: { id: true },
+          where: { name: ROLES.USER as string }
+        });
+
+        await prisma.userRole.create({
+          data: {
+            roleId: defaultRole?.id as string,
+            userId: user?.id as string
+          }
+        });
+      }
+    }
+  },
+  pages: { error: ROUTES.AUTH_ERROR, signIn: ROUTES.LOGIN },
+  session: { maxAge: DATES.EXPIRES_AT as number, strategy: 'jwt' }
 });

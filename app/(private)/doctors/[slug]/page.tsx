@@ -1,12 +1,12 @@
+import { MDXRemote } from 'next-mdx-remote/rsc';
 import Image from 'next/image';
 import { notFound } from 'next/navigation';
-import { MDXRemote } from 'next-mdx-remote/rsc';
 
 import { auth } from '@/auth';
+import Footer from '@/components/footer';
+import { DOMAIN } from '@/lib/constants';
 import prisma from '@/lib/prisma';
 import { getDate } from '@/lib/utils';
-import { DOMAIN } from '@/lib/constants';
-import Footer from '@/components/footer';
 
 type Props = { params: Promise<{ slug: string }> };
 

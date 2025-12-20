@@ -1,13 +1,13 @@
 'use server';
 
-import z from 'zod';
 import { revalidatePath } from 'next/cache';
+import z from 'zod';
 
-import prisma from '@/lib/prisma';
-import { catchErrors } from '@/lib/utils';
-import { ROUTES } from '@/constants/routes';
-import { hospitalSchema } from '@/lib/schemas';
 import { MESSAGES } from '@/constants/messages';
+import { ROUTES } from '@/constants/routes';
+import prisma from '@/lib/prisma';
+import { hospitalSchema } from '@/lib/schemas';
+import { catchErrors } from '@/lib/utils';
 
 export async function deleteHospital(id: string) {
   await prisma.hospital.delete({ where: { id } });
@@ -22,18 +22,18 @@ export async function deleteHospitals(ids: string[]) {
 export async function addHospital(data: z.infer<typeof hospitalSchema>) {
   const result = hospitalSchema.safeParse(data);
   if (!result.success)
-    return { success: false, message: MESSAGES.SYSTEM.INVALID_INPUTS };
+    return { message: MESSAGES.SYSTEM.INVALID_INPUTS, success: false };
 
   try {
     await prisma.hospital.create({
       data: {
         ...result.data,
-        isAffiliated: result.data.isAffiliated === 'yes',
-        doctors: { connect: result.data.doctors.map(d => ({ id: d })) }
+        doctors: { connect: result.data.doctors.map(d => ({ id: d })) },
+        isAffiliated: result.data.isAffiliated === 'yes'
       }
     });
 
-    return { success: true, message: MESSAGES.HOSPITAL.ADDED };
+    return { message: MESSAGES.HOSPITAL.ADDED, success: true };
   } catch (error) {
     return catchErrors(error as Error);
   }
@@ -45,20 +45,20 @@ export async function updateHospital(
 ) {
   const result = hospitalSchema.safeParse(data);
   if (!result.success)
-    return { success: false, message: MESSAGES.SYSTEM.INVALID_INPUTS };
+    return { message: MESSAGES.SYSTEM.INVALID_INPUTS, success: false };
 
   try {
     await prisma.hospital.update({
-      where: { id },
       data: {
         ...result.data,
-        isAffiliated: result.data.isAffiliated === 'yes',
-        doctors: { set: [], connect: result.data.doctors.map(d => ({ id: d })) }
-      }
+        doctors: { connect: result.data.doctors.map(d => ({ id: d })), set: [] },
+        isAffiliated: result.data.isAffiliated === 'yes'
+      },
+      where: { id }
     });
 
     revalidatePath(ROUTES.HOME);
-    return { success: true, message: MESSAGES.HOSPITAL.UPDATED };
+    return { message: MESSAGES.HOSPITAL.UPDATED, success: true };
   } catch (error) {
     return catchErrors(error as Error);
   }

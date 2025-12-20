@@ -1,7 +1,5 @@
 'use client';
 
-import { Group, CheckIcon, ChevronUpIcon, ChevronDownIcon } from 'lucide-react';
-
 import {
   Item,
   Root,
@@ -18,6 +16,7 @@ import {
   ScrollUpButton,
   ScrollDownButton
 } from '@radix-ui/react-select';
+import { Group, CheckIcon, ChevronUpIcon, ChevronDownIcon } from 'lucide-react';
 
 import { cn } from '@/lib/utils';
 
@@ -100,7 +99,7 @@ export function SelectScrollUpButton(props: SelectScrollUpProps) {
   );
 }
 
-export function SelectItem({ className, children, ...props }: SelectItemProps) {
+export function SelectItem({ children, className, ...props }: SelectItemProps) {
   return (
     <Item
       {...props}

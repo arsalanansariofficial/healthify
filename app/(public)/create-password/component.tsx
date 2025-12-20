@@ -1,23 +1,23 @@
 'use client';
 
-import { useForm } from 'react-hook-form';
-import useHookForm from '@/hooks/use-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { useForm } from 'react-hook-form';
 
+import handler from '@/components/display-toast';
+import { Button } from '@/components/ui/button';
 import * as CN from '@/components/ui/card';
 import * as RHF from '@/components/ui/form';
-import { loginSchema } from '@/lib/schemas';
 import { Input } from '@/components/ui/input';
+import useHookForm from '@/hooks/use-hook-form';
 import { updatePassword } from '@/lib/actions';
-import { Button } from '@/components/ui/button';
-import handler from '@/components/display-toast';
+import { loginSchema } from '@/lib/schemas';
 
 export default function Component({ email }: { email: string }) {
-  const { pending, handleSubmit } = useHookForm(handler, updatePassword);
+  const { handleSubmit, pending } = useHookForm(handler, updatePassword);
 
   const form = useForm({
-    resolver: zodResolver(loginSchema),
-    defaultValues: { email, password: String() }
+    defaultValues: { email, password: String() },
+    resolver: zodResolver(loginSchema)
   });
 
   return (

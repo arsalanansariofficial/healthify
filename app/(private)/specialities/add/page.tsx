@@ -1,25 +1,11 @@
 'use client';
 
-import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { useForm } from 'react-hook-form';
 
-import Footer from '@/components/footer';
-import { nameSchema } from '@/lib/schemas';
-import { addSpeciality } from '@/lib/actions';
-import { Input } from '@/components/ui/input';
-import { Button } from '@/components/ui/button';
-import useHookForm from '@/hooks/use-hook-form';
 import handler from '@/components/display-toast';
-
-import {
-  Form,
-  FormItem,
-  FormField,
-  FormLabel,
-  FormControl,
-  FormMessage
-} from '@/components/ui/form';
-
+import Footer from '@/components/footer';
+import { Button } from '@/components/ui/button';
 import {
   Card,
   CardTitle,
@@ -28,13 +14,25 @@ import {
   CardContent,
   CardDescription
 } from '@/components/ui/card';
+import {
+  Form,
+  FormItem,
+  FormField,
+  FormLabel,
+  FormControl,
+  FormMessage
+} from '@/components/ui/form';
+import { Input } from '@/components/ui/input';
+import useHookForm from '@/hooks/use-hook-form';
+import { addSpeciality } from '@/lib/actions';
+import { nameSchema } from '@/lib/schemas';
 
 export default function Page() {
-  const { pending, handleSubmit } = useHookForm(handler, addSpeciality);
+  const { handleSubmit, pending } = useHookForm(handler, addSpeciality);
 
   const form = useForm({
-    resolver: zodResolver(nameSchema),
-    defaultValues: { name: String() }
+    defaultValues: { name: String() },
+    resolver: zodResolver(nameSchema)
   });
 
   return (

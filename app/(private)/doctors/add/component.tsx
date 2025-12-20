@@ -1,24 +1,15 @@
 'use client';
 
-import Image from 'next/image';
-import { User } from 'next-auth';
-import { useForm } from 'react-hook-form';
-import { useCallback, useState } from 'react';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { FileIcon, PlusIcon, TrashIcon } from 'lucide-react';
+import { User } from 'next-auth';
+import Image from 'next/image';
+import { useCallback, useState } from 'react';
+import { useForm } from 'react-hook-form';
 
-import { DATES } from '@/lib/constants';
-import Footer from '@/components/footer';
-import { addDoctor } from '@/lib/actions';
-import { doctorSchema } from '@/lib/schemas';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Button } from '@/components/ui/button';
-import useHookForm from '@/hooks/use-hook-form';
 import handler from '@/components/display-toast';
-import { arrayBufferToBase64, cn } from '@/lib/utils';
-import MultiSelect from '@/components/ui/multi-select';
-
+import Footer from '@/components/footer';
+import { Button } from '@/components/ui/button';
 import {
   Card,
   CardTitle,
@@ -27,7 +18,6 @@ import {
   CardContent,
   CardDescription
 } from '@/components/ui/card';
-
 import {
   Form,
   FormItem,
@@ -36,7 +26,9 @@ import {
   FormMessage,
   FormControl
 } from '@/components/ui/form';
-
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import MultiSelect from '@/components/ui/multi-select';
 import {
   Select,
   SelectItem,
@@ -44,6 +36,11 @@ import {
   SelectContent,
   SelectTrigger
 } from '@/components/ui/select';
+import useHookForm from '@/hooks/use-hook-form';
+import { addDoctor } from '@/lib/actions';
+import { DATES } from '@/lib/constants';
+import { doctorSchema } from '@/lib/schemas';
+import { arrayBufferToBase64, cn } from '@/lib/utils';
 
 export type Props = {
   user: User;
@@ -53,21 +50,21 @@ export type Props = {
 export default function Component({ specialities }: Props) {
   const [image, setImage] = useState<File>();
   const [imageSrc, setImageSrc] = useState<string | null>(null);
-  const { pending, handleSubmit } = useHookForm(handler, addDoctor);
+  const { handleSubmit, pending } = useHookForm(handler, addDoctor);
 
   const form = useForm({
-    resolver: zodResolver(doctorSchema),
     defaultValues: {
+      city: String(),
+      daysOfVisit: [],
+      email: String(),
       experience: 0,
       name: String(),
-      city: String(),
-      email: String(),
-      daysOfVisit: [],
+      password: String(),
       phone: String(),
       specialities: [],
-      password: String(),
-      timings: [{ id: '1', time: '10:00:00', duration: 1 }]
-    }
+      timings: [{ duration: 1, id: '1', time: '10:00:00' }]
+    },
+    resolver: zodResolver(doctorSchema)
   });
 
   const handleFileChange = useCallback(
@@ -322,10 +319,10 @@ export default function Component({ specialities }: Props) {
                                 ...(field.value ?? []),
                                 {
                                   duration: 1,
-                                  time: '10:00:00',
                                   id: Math.floor(
                                     10000 + Math.random() * 90000
-                                  ).toString()
+                                  ).toString(),
+                                  time: '10:00:00'
                                 }
                               ]);
                             }}

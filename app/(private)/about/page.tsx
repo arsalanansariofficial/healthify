@@ -1,19 +1,19 @@
-import path from 'path';
 import { readFile } from 'fs/promises';
 import { notFound } from 'next/navigation';
+import path from 'path';
 
-import { auth } from '@/auth';
-import prisma from '@/lib/prisma';
-import { DIRECTORIES } from '@/lib/constants';
 import Component from '@/app/(private)/about/component';
+import { auth } from '@/auth';
+import { DIRECTORIES } from '@/lib/constants';
+import prisma from '@/lib/prisma';
 
 export default async function Page() {
   const session = await auth();
   if (!session?.user) notFound();
 
   const user = await prisma.user.findUnique({
-    where: { id: session?.user?.id },
-    select: { id: true, bio: true, name: true }
+    select: { bio: true, id: true, name: true },
+    where: { id: session?.user?.id }
   });
 
   if (!user) notFound();

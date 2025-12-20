@@ -1,37 +1,15 @@
 'use client';
 
-import { User } from 'next-auth';
-import { Role } from '@prisma/client';
-import { useForm } from 'react-hook-form';
-import { useCallback, useMemo } from 'react';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { Role } from '@prisma/client';
+import { User } from 'next-auth';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
+import { useCallback, useMemo } from 'react';
+import { useForm } from 'react-hook-form';
 
+import handler from '@/components/display-toast';
 import Footer from '@/components/footer';
 import { Button } from '@/components/ui/button';
-import useHookForm from '@/hooks/use-hook-form';
-import handler from '@/components/display-toast';
-import { assignPermissions } from '@/lib/actions';
-import { rolePermissionsSchema } from '@/lib/schemas';
-import MultiSelect from '@/components/ui/multi-select';
-
-import {
-  Form,
-  FormItem,
-  FormField,
-  FormLabel,
-  FormControl,
-  FormMessage
-} from '@/components/ui/form';
-
-import {
-  Select,
-  SelectItem,
-  SelectValue,
-  SelectContent,
-  SelectTrigger
-} from '@/components/ui/select';
-
 import {
   Card,
   CardTitle,
@@ -40,6 +18,25 @@ import {
   CardContent,
   CardDescription
 } from '@/components/ui/card';
+import {
+  Form,
+  FormItem,
+  FormField,
+  FormLabel,
+  FormControl,
+  FormMessage
+} from '@/components/ui/form';
+import MultiSelect from '@/components/ui/multi-select';
+import {
+  Select,
+  SelectItem,
+  SelectValue,
+  SelectContent,
+  SelectTrigger
+} from '@/components/ui/select';
+import useHookForm from '@/hooks/use-hook-form';
+import { assignPermissions } from '@/lib/actions';
+import { rolePermissionsSchema } from '@/lib/schemas';
 
 export default function Component(props: {
   user: User;
@@ -57,18 +54,18 @@ export default function Component(props: {
     [props.role, props.roles]
   );
 
-  const { pending, handleSubmit } = useHookForm(
+  const { handleSubmit, pending } = useHookForm(
     handler,
     assignPermissions,
     true
   );
 
   const form = useForm({
-    resolver: zodResolver(rolePermissionsSchema),
     defaultValues: {
-      permissions: props.assigned,
-      name: props.roles.some(r => r.name === role) ? role : props.roles[0].name
-    }
+      name: props.roles.some(r => r.name === role) ? role : props.roles[0].name,
+      permissions: props.assigned
+    },
+    resolver: zodResolver(rolePermissionsSchema)
   });
 
   const updateParam = useCallback(

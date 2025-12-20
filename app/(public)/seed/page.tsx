@@ -1,10 +1,7 @@
 'use client';
 
-import { seed } from '@/lib/actions';
-import { Button } from '@/components/ui/button';
-import useHookForm from '@/hooks/use-hook-form';
 import handler from '@/components/display-toast';
-
+import { Button } from '@/components/ui/button';
 import {
   Empty,
   EmptyTitle,
@@ -12,6 +9,8 @@ import {
   EmptyContent,
   EmptyDescription
 } from '@/components/ui/empty';
+import useHookForm from '@/hooks/use-hook-form';
+import { seed } from '@/lib/actions';
 
 export default function Page() {
   const { handleSubmit, pending } = useHookForm(handler, seed);

@@ -1,52 +1,16 @@
 'use client';
 
-import z from 'zod';
-import Image from 'next/image';
-import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useCallback, useMemo, useState } from 'react';
-import { FileIcon, PlusIcon, TrashIcon } from 'lucide-react';
 import { Role, Speciality, TimeSlot, User } from '@prisma/client';
+import { FileIcon, PlusIcon, TrashIcon } from 'lucide-react';
+import Image from 'next/image';
+import { useCallback, useMemo, useState } from 'react';
+import { useForm } from 'react-hook-form';
+import z from 'zod';
 
-import Footer from '@/components/footer';
-import { DATES } from '@/lib/constants';
-import { DOMAIN } from '@/lib/constants';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Button } from '@/components/ui/button';
-import useHookForm from '@/hooks/use-hook-form';
 import handler from '@/components/display-toast';
-import MultiSelect from '@/components/ui/multi-select';
-import { doctorProfileSchema, userProfileSchema } from '@/lib/schemas';
-import { updateDoctorProfile, updateUserProfile } from '@/lib/actions';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-
-import {
-  cn,
-  hasRole,
-  shortId,
-  capitalize,
-  hasFormChanged,
-  arrayBufferToBase64
-} from '@/lib/utils';
-
-import {
-  Form,
-  FormItem,
-  FormField,
-  FormLabel,
-  FormControl,
-  FormMessage
-} from '@/components/ui/form';
-
-import {
-  Select,
-  SelectItem,
-  SelectValue,
-  SelectContent,
-  SelectTrigger
-} from '@/components/ui/select';
-
+import Footer from '@/components/footer';
+import { Button } from '@/components/ui/button';
 import {
   Card,
   CardTitle,
@@ -55,6 +19,38 @@ import {
   CardContent,
   CardDescription
 } from '@/components/ui/card';
+import {
+  Form,
+  FormItem,
+  FormField,
+  FormLabel,
+  FormControl,
+  FormMessage
+} from '@/components/ui/form';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import MultiSelect from '@/components/ui/multi-select';
+import {
+  Select,
+  SelectItem,
+  SelectValue,
+  SelectContent,
+  SelectTrigger
+} from '@/components/ui/select';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import useHookForm from '@/hooks/use-hook-form';
+import { updateDoctorProfile, updateUserProfile } from '@/lib/actions';
+import { DATES } from '@/lib/constants';
+import { DOMAIN } from '@/lib/constants';
+import { doctorProfileSchema, userProfileSchema } from '@/lib/schemas';
+import {
+  cn,
+  hasRole,
+  shortId,
+  capitalize,
+  hasFormChanged,
+  arrayBufferToBase64
+} from '@/lib/utils';
 
 type Props = {
   specialities: { value: string; label: string }[];
@@ -78,7 +74,7 @@ type Props = {
   };
 };
 
-export default function Component({ user, specialities }: Props) {
+export default function Component({ specialities, user }: Props) {
   const isDoctor = useMemo(
     () =>
       hasRole(
@@ -90,14 +86,14 @@ export default function Component({ user, specialities }: Props) {
 
   const defaultUserValues = useMemo<z.infer<typeof userProfileSchema>>(
     () => ({
-      password: String(),
-      name: user.name || String(),
-      email: user.email || String(),
-      phone: user.phone || String(),
-      image: user.image || String(),
-      cover: user.cover || String(),
       city: user.city ? capitalize(user.city) : String(),
-      gender: (user.gender as 'male' | 'female') || String()
+      cover: user.cover || String(),
+      email: user.email || String(),
+      gender: (user.gender as 'male' | 'female') || String(),
+      image: user.image || String(),
+      name: user.name || String(),
+      password: String(),
+      phone: user.phone || String()
     }),
     [
       user.city,
@@ -113,13 +109,13 @@ export default function Component({ user, specialities }: Props) {
   const defaultDoctorValues = useMemo<z.infer<typeof doctorProfileSchema>>(
     () => ({
       ...defaultUserValues,
+      daysOfVisit: user.daysOfVisit || [],
       experience: user.experience || 0,
       gender: (user.gender as 'male' | 'female') || String(),
-      daysOfVisit: user.daysOfVisit || [],
       specialities: user.UserSpecialities.map(us => us.speciality.id),
       timings: user.timings.length
         ? user.timings
-        : [{ id: '1', time: '10:00:00', duration: 1 }]
+        : [{ duration: 1, id: '1', time: '10:00:00' }]
     }),
     [
       user.gender,

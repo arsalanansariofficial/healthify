@@ -1,7 +1,5 @@
 'use client';
 
-import { useMemo } from 'react';
-
 import {
   Root,
   Anchor,
@@ -9,6 +7,7 @@ import {
   Trigger,
   Content
 } from '@radix-ui/react-popover';
+import { useMemo } from 'react';
 
 import { cn } from '@/lib/utils';
 

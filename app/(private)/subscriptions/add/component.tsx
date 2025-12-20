@@ -1,21 +1,13 @@
 'use client';
 
-import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
 import { RenewalType } from '@prisma/client';
 import { PlusIcon, TrashIcon } from 'lucide-react';
-import { zodResolver } from '@hookform/resolvers/zod';
+import { useForm } from 'react-hook-form';
 
-import { cn } from '@/lib/utils';
-import Footer from '@/components/footer';
-import { Input } from '@/components/ui/input';
-import { addMembership } from '@/lib/actions';
-import { Label } from '@/components/ui/label';
-import { Button } from '@/components/ui/button';
-import useHookForm from '@/hooks/use-hook-form';
 import handler from '@/components/display-toast';
-import { membershipSchema } from '@/lib/schemas';
-import { Textarea } from '@/components/ui/textarea';
-
+import Footer from '@/components/footer';
+import { Button } from '@/components/ui/button';
 import {
   Card,
   CardTitle,
@@ -25,7 +17,6 @@ import {
   CardContent,
   CardDescription
 } from '@/components/ui/card';
-
 import {
   Form,
   FormItem,
@@ -34,7 +25,8 @@ import {
   FormMessage,
   FormControl
 } from '@/components/ui/form';
-
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import {
   Select,
   SelectItem,
@@ -42,17 +34,22 @@ import {
   SelectContent,
   SelectTrigger
 } from '@/components/ui/select';
+import { Textarea } from '@/components/ui/textarea';
+import useHookForm from '@/hooks/use-hook-form';
+import { addMembership } from '@/lib/actions';
+import { membershipSchema } from '@/lib/schemas';
+import { cn } from '@/lib/utils';
 
 export default function Component() {
   const { handleSubmit } = useHookForm(handler, addMembership);
   const form = useForm({
-    resolver: zodResolver(membershipSchema),
     defaultValues: {
       fees: [],
-      perks: [],
+      hospitalMemberships: [],
       name: String(),
-      hospitalMemberships: []
-    }
+      perks: []
+    },
+    resolver: zodResolver(membershipSchema)
   });
 
   return (
@@ -101,12 +98,12 @@ export default function Component() {
                               field.onChange([
                                 ...field.value,
                                 {
-                                  city: String(),
-                                  name: String(),
-                                  email: String(),
-                                  phone: String(),
                                   address: String(),
-                                  isAffiliated: 'no'
+                                  city: String(),
+                                  email: String(),
+                                  isAffiliated: 'no',
+                                  name: String(),
+                                  phone: String()
                                 }
                               ]);
                             }}

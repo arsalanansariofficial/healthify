@@ -1,7 +1,7 @@
 import { notFound } from 'next/navigation';
 
-import { auth } from '@/auth';
 import Component from '@/app/(private)/pharma-salts/add/component';
+import { auth } from '@/auth';
 
 export default async function Page() {
   const session = await auth();

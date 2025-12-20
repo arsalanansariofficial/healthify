@@ -1,17 +1,11 @@
 'use client';
 
-import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { useForm } from 'react-hook-form';
 
-import Footer from '@/components/footer';
-import { Input } from '@/components/ui/input';
-import { Button } from '@/components/ui/button';
-import useHookForm from '@/hooks/use-hook-form';
 import handler from '@/components/display-toast';
-import { Textarea } from '@/components/ui/textarea';
-import { addPharmaManufacturer } from '@/lib/actions';
-import { pharmaManufacturerSchema } from '@/lib/schemas';
-
+import Footer from '@/components/footer';
+import { Button } from '@/components/ui/button';
 import {
   Card,
   CardTitle,
@@ -20,7 +14,6 @@ import {
   CardContent,
   CardDescription
 } from '@/components/ui/card';
-
 import {
   Form,
   FormItem,
@@ -29,15 +22,20 @@ import {
   FormMessage,
   FormControl
 } from '@/components/ui/form';
+import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
+import useHookForm from '@/hooks/use-hook-form';
+import { addPharmaManufacturer } from '@/lib/actions';
+import { pharmaManufacturerSchema } from '@/lib/schemas';
 
 export default function Component() {
   const { handleSubmit } = useHookForm(handler, addPharmaManufacturer);
   const form = useForm({
-    resolver: zodResolver(pharmaManufacturerSchema),
     defaultValues: {
-      name: String(),
-      description: String()
-    }
+      description: String(),
+      name: String()
+    },
+    resolver: zodResolver(pharmaManufacturerSchema)
   });
 
   return (

@@ -1,8 +1,6 @@
 'use server';
 
-import { capitalize } from 'moderndash';
 import { AppointmentStatus } from '@prisma/client';
-
 import {
   isPast,
   subWeeks,
@@ -16,10 +14,11 @@ import {
   startOfMonth,
   isWithinInterval
 } from 'date-fns';
+import { capitalize } from 'moderndash';
 
-import prisma from '@/lib/prisma';
 import { DATES } from '@/constants/date';
 import { ROLES } from '@/constants/roles';
+import prisma from '@/lib/prisma';
 import { formatChange } from '@/lib/utils';
 
 export async function getMonthlyUserData(
@@ -46,17 +45,17 @@ export async function getMonthlyAppointmentData(
   year: number = new Date().getFullYear()
 ) {
   const appointments = await prisma.appointment.findMany({
-    select: { date: true, status: true, doctorId: true },
+    select: { date: true, doctorId: true, status: true },
     where: {
-      patientId: userId,
       date: {
-        lt: endOfYear(new Date(year, 11, 31)),
-        gte: startOfYear(new Date(year, 0, 1))
-      }
+        gte: startOfYear(new Date(year, 0, 1)),
+        lt: endOfYear(new Date(year, 11, 31))
+      },
+      patientId: userId
     }
   });
 
-  const data = DATES.MONTHS.map(month => ({ month, appointments: 0 }));
+  const data = DATES.MONTHS.map(month => ({ appointments: 0, month }));
 
   appointments.forEach(appointment => {
     data[appointment.date.getMonth()].appointments++;
@@ -95,24 +94,24 @@ export async function getDashboardCards() {
   );
 
   const appointmentsThisWeek = appointments.filter(a =>
-    isWithinInterval(a.date, { start: thisWeekStart, end: thisWeekEnd })
+    isWithinInterval(a.date, { end: thisWeekEnd, start: thisWeekStart })
   );
 
   const appointmentsPrevWeek = appointments.filter(a =>
-    isWithinInterval(a.date, { start: prevWeekStart, end: prevWeekEnd })
+    isWithinInterval(a.date, { end: prevWeekEnd, start: prevWeekStart })
   );
 
   const doctorsPrevMonth = doctors.filter(d =>
     isWithinInterval(d.createdAt, {
-      start: prevMonthStart,
-      end: prevMonthEnd
+      end: prevMonthEnd,
+      start: prevMonthStart
     })
   );
 
   const doctorsThisMonth = doctors.filter(d =>
     isWithinInterval(d.createdAt, {
-      start: thisMonthStart,
-      end: thisMonthEnd
+      end: thisMonthEnd,
+      start: thisMonthStart
     })
   );
 
@@ -158,33 +157,33 @@ export async function getDashboardCards() {
   return [
     {
       action: appointmentChange,
-      summary: 'Week over week comparison',
       description: 'Appointments This Week',
       subtitle: 'Appointments scheduled this week',
+      summary: 'Week over week comparison',
       title: appointmentsThisWeek.length.toString()
     },
     {
       action: doctorChange,
       description: 'Active Doctors',
-      title: doctors.length.toString(),
+      subtitle: `${doctors.length} doctors currently registered`,
       summary: 'Change since last month',
-      subtitle: `${doctors.length} doctors currently registered`
+      title: doctors.length.toString()
     },
     {
       action: pendingChange,
-      summary: 'Pending bookings trend',
       description: 'Pending Appointments',
-      title: pendingAppointments.length.toString(),
-      subtitle: `${pendingAppointments.length} awaiting confirmation`
+      subtitle: `${pendingAppointments.length} awaiting confirmation`,
+      summary: 'Pending bookings trend',
+      title: pendingAppointments.length.toString()
     },
     {
       action: cityChange,
       description: 'Cities Served',
-      title: cities.size.toString(),
-      summary: 'Change in service coverage',
       subtitle: Array.from(cities)
         .map(c => capitalize(c as string))
-        .join(', ')
+        .join(', '),
+      summary: 'Change in service coverage',
+      title: cities.size.toString()
     }
   ];
 }
@@ -193,8 +192,8 @@ export async function getUserDashboardCards(userId: string) {
   const [specialities, appointments, doctors] = await Promise.all([
     prisma.speciality.findMany({ select: { name: true } }),
     prisma.appointment.findMany({
-      where: { patientId: userId },
-      select: { date: true, status: true }
+      select: { date: true, status: true },
+      where: { patientId: userId }
     }),
     prisma.user.findMany({
       select: { name: true },
@@ -212,38 +211,38 @@ export async function getUserDashboardCards(userId: string) {
 
   return [
     {
-      description: 'Available Doctors',
-      title: doctors.length.toString(),
-      summary: 'Available for consultation',
-      subtitle: `${doctors.length} medical professional${doctors.length !== 1 ? 's' : String()}`,
       action: doctors.length
         ? `+${((doctors.length / doctors.length) * 100).toFixed(0)}%`
-        : '+0%'
+        : '+0%',
+      description: 'Available Doctors',
+      subtitle: `${doctors.length} medical professional${doctors.length !== 1 ? 's' : String()}`,
+      summary: 'Available for consultation',
+      title: doctors.length.toString()
     },
     {
-      title: completed.length.toString(),
-      description: 'Completed Appointments',
-      summary: 'Track your healthcare history',
-      subtitle: `${completed.length} appointment${completed.length !== 1 ? 's' : ''} completed`,
       action: completed.length
         ? `+${((completed.length / (appointments.length || 1)) * 100).toFixed(0)}%`
-        : '+0%'
+        : '+0%',
+      description: 'Completed Appointments',
+      subtitle: `${completed.length} appointment${completed.length !== 1 ? 's' : ''} completed`,
+      summary: 'Track your healthcare history',
+      title: completed.length.toString()
     },
     {
-      description: 'Available Specialties',
-      title: specialities.length.toString(),
-      summary: 'More expertise now available',
       action: specialities.length ? `+${specialities.length}` : '+0',
-      subtitle: specialities.map(s => capitalize(s.name)).join(', ')
+      description: 'Available Specialties',
+      subtitle: specialities.map(s => capitalize(s.name)).join(', '),
+      summary: 'More expertise now available',
+      title: specialities.length.toString()
     },
     {
-      title: upcoming.length.toString(),
-      description: 'Upcoming Appointments',
-      summary: 'Stay prepared for your next visit',
-      subtitle: `You have ${upcoming.length} upcoming appointment${upcoming.length !== 1 ? 's' : String()}`,
       action: upcoming.length
         ? `+${((upcoming.length / (appointments.length || 1)) * 100).toFixed(0)}%`
-        : '+0%'
+        : '+0%',
+      description: 'Upcoming Appointments',
+      subtitle: `You have ${upcoming.length} upcoming appointment${upcoming.length !== 1 ? 's' : String()}`,
+      summary: 'Stay prepared for your next visit',
+      title: upcoming.length.toString()
     }
   ];
 }

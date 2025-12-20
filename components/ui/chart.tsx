@@ -1,13 +1,5 @@
 'use client';
 
-import { Legend, ResponsiveContainer, Tooltip } from 'recharts';
-
-import {
-  Payload,
-  NameType,
-  ValueType
-} from 'recharts/types/component/DefaultTooltipContent';
-
 import {
   useId,
   useMemo,
@@ -18,10 +10,16 @@ import {
   CSSProperties,
   ComponentProps
 } from 'react';
+import { Legend, ResponsiveContainer, Tooltip } from 'recharts';
+import {
+  Payload,
+  NameType,
+  ValueType
+} from 'recharts/types/component/DefaultTooltipContent';
 
 import { cn } from '@/lib/utils';
 
-const THEMES = { light: '', dark: '.dark' } as const;
+const THEMES = { dark: '.dark', light: '' } as const;
 export const ChartLegend = Legend;
 export const ChartTooltip = Tooltip;
 export const ChartContext = createContext<ChartContextProps | null>(null);
@@ -98,7 +96,7 @@ export function ChartContainer(props: ChartContainerProps) {
   );
 }
 
-export function ChartStyle({ id, config }: ChartStyleProps) {
+export function ChartStyle({ config, id }: ChartStyleProps) {
   const colorConfig = Object.entries(config).filter(
     ([, config]) => config.theme || config.color
   );
@@ -211,7 +209,7 @@ export function ChartLegendContent(props: CharLegendContentProps) {
 
 export function ChartTooltipContent(props: ChartTooltipContentProps) {
   const { config } = useChart();
-  const { indicator = 'dot', hideLabel = false, hideIndicator = false } = props;
+  const { hideIndicator = false, hideLabel = false, indicator = 'dot' } = props;
 
   const tooltipLabel = useMemo(() => {
     if (hideLabel || !props.payload?.length) return null;
@@ -288,10 +286,10 @@ export function ChartTooltipContent(props: ChartTooltipContentProps) {
                           'shrink-0 rounded-[2px] border-(--color-border) bg-(--color-bg)',
                           {
                             'h-2.5 w-2.5': indicator === 'dot',
-                            'w-1': indicator === 'line',
+                            'my-0.5': nestLabel && indicator === 'dashed',
                             'w-0 border-[1.5px] border-dashed bg-transparent':
                               indicator === 'dashed',
-                            'my-0.5': nestLabel && indicator === 'dashed'
+                            'w-1': indicator === 'line'
                           }
                         )}
                         style={

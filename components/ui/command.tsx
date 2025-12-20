@@ -1,9 +1,7 @@
 'use client';
 
-import { SearchIcon } from 'lucide-react';
 import { Command as CommandPrimitive } from 'cmdk';
-
-import { cn } from '@/lib/utils';
+import { SearchIcon } from 'lucide-react';
 
 import {
   Dialog,
@@ -12,6 +10,7 @@ import {
   DialogContent,
   DialogDescription
 } from '@/components/ui/dialog';
+import { cn } from '@/lib/utils';
 
 type CommandProps = React.ComponentProps<typeof CommandPrimitive>;
 type CommandListProps = React.ComponentProps<typeof CommandPrimitive.List>;
@@ -137,9 +136,9 @@ export function Command(props: CommandProps) {
 
 export function CommandDialog(props: CommandDialogProps) {
   const {
+    description = 'Search for a command to run...',
     showCloseButton = true,
-    title = 'Command Palette',
-    description = 'Search for a command to run...'
+    title = 'Command Palette'
   } = props;
 
   return (

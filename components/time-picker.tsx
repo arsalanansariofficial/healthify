@@ -1,7 +1,7 @@
 'use client';
 
-import { useCallback, useMemo } from 'react';
 import { format, parse, setHours, setMinutes } from 'date-fns';
+import { useCallback, useMemo } from 'react';
 
 import {
   Select,
@@ -17,7 +17,7 @@ type Props = {
   onChange: (value: string) => void;
 };
 
-export function TimePicker({ value, onChange, label }: Props) {
+export function TimePicker({ label, onChange, value }: Props) {
   const date = useMemo(() => {
     if (!value) return new Date(2024, 0, 1, 12, 0, 0);
     return parse(value, 'HH:mm:ss', new Date());

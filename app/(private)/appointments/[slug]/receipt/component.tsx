@@ -1,11 +1,11 @@
 'use client';
 
-import jsPDF from 'jspdf';
-import { useTheme } from 'next-themes';
-import { useEffect, useRef } from 'react';
 import * as htmlToImage from 'html-to-image';
-import { usePathname } from 'next/navigation';
+import jsPDF from 'jspdf';
 import { ArrowDown, Printer } from 'lucide-react';
+import { useTheme } from 'next-themes';
+import { usePathname } from 'next/navigation';
+import { useEffect, useRef } from 'react';
 
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
@@ -29,7 +29,7 @@ type Props = {
 
 export default function Page({ appointment }: Props) {
   const pathname = usePathname();
-  const { theme, setTheme } = useTheme();
+  const { setTheme, theme } = useTheme();
   const receiptRef = useRef<HTMLDivElement>(null);
   const originalTheme = useRef<string | null>(null);
 
@@ -52,9 +52,9 @@ export default function Page({ appointment }: Props) {
     const dataUrl = await htmlToImage.toPng(element);
 
     const pdf = new jsPDF({
-      unit: 'px',
       format: 'a4',
-      orientation: 'portrait'
+      orientation: 'portrait',
+      unit: 'px'
     });
 
     const y = 16;

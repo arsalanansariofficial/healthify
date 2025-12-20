@@ -1,9 +1,10 @@
 'use client';
 
 import { User } from 'next-auth';
+
 import Menu from '@/components/menu';
-import { SIDEBAR } from '@/lib/constants';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { SIDEBAR } from '@/lib/constants';
 
 export default function Sidebar({ user }: { user: User }) {
   return (

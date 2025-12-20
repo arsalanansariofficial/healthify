@@ -3,16 +3,8 @@
 import { Check, ChevronsUpDown, X } from 'lucide-react';
 import { useState, useRef, useEffect, useMemo, useCallback } from 'react';
 
-import { cn } from '@/lib/utils';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger
-} from '@/components/ui/popover';
-
 import {
   Command,
   CommandItem,
@@ -20,6 +12,12 @@ import {
   CommandEmpty,
   CommandInput
 } from '@/components/ui/command';
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger
+} from '@/components/ui/popover';
+import { cn } from '@/lib/utils';
 
 type MultiSelectProps = {
   placeholder?: string;

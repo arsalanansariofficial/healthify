@@ -2,15 +2,15 @@ export const SIDEBAR = new Map([
   [
     { label: 'Doctors', permission: 'view:doctors' },
     [
-      { label: 'View', url: '/doctors', permission: 'view:doctors' },
-      { label: 'Add', url: '/doctors/add', permission: 'add:doctor' }
+      { label: 'View', permission: 'view:doctors', url: '/doctors' },
+      { label: 'Add', permission: 'add:doctor', url: '/doctors/add' }
     ]
   ],
   [
     { label: 'Memberships', permission: 'view:memberships' },
     [
-      { label: 'View', url: '/memberships', permission: 'view:memberships' },
-      { label: 'Add', url: '/memberships/add', permission: 'add:membership' }
+      { label: 'View', permission: 'view:memberships', url: '/memberships' },
+      { label: 'Add', permission: 'add:membership', url: '/memberships/add' }
     ]
   ],
   [
@@ -18,35 +18,35 @@ export const SIDEBAR = new Map([
     [
       {
         label: 'View',
-        url: '/subscriptions',
-        permission: 'view:subscriptions'
+        permission: 'view:subscriptions',
+        url: '/subscriptions'
       },
       {
         label: 'Add',
-        url: '/subscriptions/add',
-        permission: 'add:subscription'
+        permission: 'add:subscription',
+        url: '/subscriptions/add'
       }
     ]
   ],
   [
     { label: 'Hospitals', permission: 'view:hospitals' },
     [
-      { label: 'View', url: '/hospitals', permission: 'view:hospitals' },
-      { label: 'Add', url: '/hospitals/add', permission: 'add:hospital' }
+      { label: 'View', permission: 'view:hospitals', url: '/hospitals' },
+      { label: 'Add', permission: 'add:hospital', url: '/hospitals/add' }
     ]
   ],
   [
     { label: 'Departments', permission: 'view:departments' },
     [
-      { label: 'View', url: '/departments', permission: 'view:departments' },
-      { label: 'Add', url: '/departments/add', permission: 'add:department' }
+      { label: 'View', permission: 'view:departments', url: '/departments' },
+      { label: 'Add', permission: 'add:department', url: '/departments/add' }
     ]
   ],
   [
     { label: 'Facilities', permission: 'view:facilities' },
     [
-      { label: 'View', url: '/facilities', permission: 'view:facilities' },
-      { label: 'Add', url: '/facilities/add', permission: 'add:facility' }
+      { label: 'View', permission: 'view:facilities', url: '/facilities' },
+      { label: 'Add', permission: 'add:facility', url: '/facilities/add' }
     ]
   ],
   [
@@ -54,13 +54,13 @@ export const SIDEBAR = new Map([
     [
       {
         label: 'View',
-        url: '/pharma-brands',
-        permission: 'view:pharma-brands'
+        permission: 'view:pharma-brands',
+        url: '/pharma-brands'
       },
       {
         label: 'Add',
-        url: '/pharma-brands/add',
-        permission: 'add:pharma-brand'
+        permission: 'add:pharma-brand',
+        url: '/pharma-brands/add'
       }
     ]
   ],
@@ -69,13 +69,13 @@ export const SIDEBAR = new Map([
     [
       {
         label: 'View',
-        url: '/pharma-codes',
-        permission: 'view:pharma-codes'
+        permission: 'view:pharma-codes',
+        url: '/pharma-codes'
       },
       {
         label: 'Add',
-        url: '/pharma-codes/add',
-        permission: 'add:pharma-code'
+        permission: 'add:pharma-code',
+        url: '/pharma-codes/add'
       }
     ]
   ],
@@ -84,13 +84,13 @@ export const SIDEBAR = new Map([
     [
       {
         label: 'View',
-        url: '/pharma-salts',
-        permission: 'view:pharma-salts'
+        permission: 'view:pharma-salts',
+        url: '/pharma-salts'
       },
       {
         label: 'Add',
-        url: '/pharma-salts/add',
-        permission: 'add:pharma-salt'
+        permission: 'add:pharma-salt',
+        url: '/pharma-salts/add'
       }
     ]
   ],
@@ -99,13 +99,13 @@ export const SIDEBAR = new Map([
     [
       {
         label: 'View',
-        url: '/medication-forms',
-        permission: 'view:medication-forms'
+        permission: 'view:medication-forms',
+        url: '/medication-forms'
       },
       {
         label: 'Add',
-        url: '/medication-forms/add',
-        permission: 'add:medication-form'
+        permission: 'add:medication-form',
+        url: '/medication-forms/add'
       }
     ]
   ],
@@ -114,46 +114,46 @@ export const SIDEBAR = new Map([
     [
       {
         label: 'View',
-        url: '/pharma-manufacturers',
-        permission: 'view:pharma-manufacturers'
+        permission: 'view:pharma-manufacturers',
+        url: '/pharma-manufacturers'
       },
       {
         label: 'Add',
-        url: '/pharma-manufacturers/add',
-        permission: 'add:pharma-manufacturer'
+        permission: 'add:pharma-manufacturer',
+        url: '/pharma-manufacturers/add'
       }
     ]
   ],
   [
     { label: 'Appointments', permission: 'view:appointments' },
-    [{ label: 'View', url: '/appointments', permission: 'view:appointments' }]
+    [{ label: 'View', permission: 'view:appointments', url: '/appointments' }]
   ],
   [
     { label: 'Specialities', permission: 'view:specialities' },
     [
-      { label: 'View', url: '/specialities', permission: 'view:specialities' },
-      { label: 'Add', url: '/specialities/add', permission: 'add:speciality' }
+      { label: 'View', permission: 'view:specialities', url: '/specialities' },
+      { label: 'Add', permission: 'add:speciality', url: '/specialities/add' }
     ]
   ],
   [
     { label: 'Users', permission: 'view:users' },
-    [{ url: '/users', label: 'View', permission: 'view:users' }]
+    [{ label: 'View', permission: 'view:users', url: '/users' }]
   ],
   [
     { label: 'Roles', permission: 'view:roles' },
     [
-      { label: 'Add', url: '/roles/add', permission: 'add:role' },
-      { label: 'Assign', url: '/roles/assign', permission: 'assign:roles' }
+      { label: 'Add', permission: 'add:role', url: '/roles/add' },
+      { label: 'Assign', permission: 'assign:roles', url: '/roles/assign' }
     ]
   ],
   [
-    { permission: 'view:permissions', label: 'Permissions' },
+    { label: 'Permissions', permission: 'view:permissions' },
     [
-      { label: 'Add', url: '/permissions/add', permission: 'add:permission' },
+      { label: 'Add', permission: 'add:permission', url: '/permissions/add' },
       {
         label: 'Assign',
-        url: '/permissions/assign',
-        permission: 'assign:permissions'
+        permission: 'assign:permissions',
+        url: '/permissions/assign'
       }
     ]
   ]

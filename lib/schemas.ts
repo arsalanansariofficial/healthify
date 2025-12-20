@@ -1,5 +1,5 @@
-import z from 'zod';
 import { Gender, RenewalType, SubscriptionStatus } from '@prisma/client';
+import z from 'zod';
 
 import { DATES } from '@/lib/constants';
 
@@ -107,10 +107,10 @@ const image = z.object({
 const timings = z.object({
   timings: z.array(
     z.object({
-      id: z.string().min(1, { message: 'Id should be valid.' }),
       duration: z
         .number()
         .positive({ message: 'Duration must be a positive number' }),
+      id: z.string().min(1, { message: 'Id should be valid.' }),
       time: z.string().regex(/^([01]\d|2[0-3]):([0-5]\d):([0-5]\d)$/, {
         message: 'Invalid time format. Expected HH:MM:SS (24-hour format)'
       })
@@ -185,13 +185,13 @@ export const userProfileSchema = name
   );
 
 export const hospitalSchema = z.object({
-  city: city.shape.city,
-  email: email.shape.email,
-  phone: phone.shape.phone,
-  doctors: z.array(z.string()),
-  isAffiliated: emailVerified.shape.emailVerified,
   address: z.union([z.literal(String()), name.shape.name]),
-  name: z.string().min(5, { message: 'Name should be atleast 5 characters.' })
+  city: city.shape.city,
+  doctors: z.array(z.string()),
+  email: email.shape.email,
+  isAffiliated: emailVerified.shape.emailVerified,
+  name: z.string().min(5, { message: 'Name should be atleast 5 characters.' }),
+  phone: phone.shape.phone
 });
 
 export const facilitySchema = name;
@@ -199,21 +199,21 @@ export const departmentSchema = name;
 
 export const pharmaCodeSchema = z.object({
   code: name.shape.name,
-  frequency: experience.shape.experience,
   description: z.union([
     z.literal(String()),
     z
       .string()
       .min(10, { message: 'Description should be atleast 10 characters' })
-  ])
+  ]),
+  frequency: experience.shape.experience
 });
 
 export const pharmaManufacturerSchema = z.object({
-  name: name.shape.name,
   description: z.union([
     z.literal(String()),
     pharmaCodeSchema.shape.description
-  ])
+  ]),
+  name: name.shape.name
 });
 
 export const pharmaSaltSchema = pharmaManufacturerSchema;
@@ -221,20 +221,20 @@ export const pharmaBrandSchema = pharmaManufacturerSchema;
 export const medicationFormSchema = pharmaManufacturerSchema;
 
 export const membershipSchema = z.object({
-  hospitalMemberships: z.array(hospitalSchema),
-  perks: z.array(z.string().min(10, 'Should be atleast 10 characters.')),
-  name: z.string().min(5, { message: 'Name should be atleast 5 characters.' }),
   fees: z.array(
     z.object({
-      renewalType: z.nativeEnum(RenewalType),
-      amount: z.number().positive({ message: 'Should be a positive number.' })
+      amount: z.number().positive({ message: 'Should be a positive number.' }),
+      renewalType: z.nativeEnum(RenewalType)
     })
-  )
+  ),
+  hospitalMemberships: z.array(hospitalSchema),
+  name: z.string().min(5, { message: 'Name should be atleast 5 characters.' }),
+  perks: z.array(z.string().min(10, 'Should be atleast 10 characters.'))
 });
 
 export const membershipSubscriptionSchema = z.object({
   feeId: z.string(),
   membershipId: z.string(),
-  users: z.array(z.string()),
-  status: z.nativeEnum(SubscriptionStatus)
+  status: z.nativeEnum(SubscriptionStatus),
+  users: z.array(z.string())
 });

@@ -1,48 +1,16 @@
 'use client';
 
+import { zodResolver } from '@hookform/resolvers/zod';
+import { Day, TimeSlot, User } from '@prisma/client';
 import { format } from 'date-fns';
-import { useForm } from 'react-hook-form';
 import { CalendarIcon } from 'lucide-react';
 import { User as AuthUser } from 'next-auth';
-import { Day, TimeSlot, User } from '@prisma/client';
-import { zodResolver } from '@hookform/resolvers/zod';
+import { useForm } from 'react-hook-form';
 
-import { DATES } from '@/lib/constants';
-import Footer from '@/components/footer';
-import { formatTime } from '@/lib/utils';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { getAppointment } from '@/lib/actions';
-import useHookForm from '@/hooks/use-hook-form';
-import { Button } from '@/components/ui/button';
 import handler from '@/components/display-toast';
-import { appointmentSchema } from '@/lib/schemas';
+import Footer from '@/components/footer';
+import { Button } from '@/components/ui/button';
 import { Calendar } from '@/components/ui/calendar';
-import { Textarea } from '@/components/ui/textarea';
-
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger
-} from '@/components/ui/popover';
-
-import {
-  Select,
-  SelectItem,
-  SelectValue,
-  SelectContent,
-  SelectTrigger
-} from '@/components/ui/select';
-
-import {
-  Form,
-  FormItem,
-  FormField,
-  FormLabel,
-  FormControl,
-  FormMessage
-} from '@/components/ui/form';
-
 import {
   Card,
   CardTitle,
@@ -51,29 +19,57 @@ import {
   CardContent,
   CardDescription
 } from '@/components/ui/card';
+import {
+  Form,
+  FormItem,
+  FormField,
+  FormLabel,
+  FormControl,
+  FormMessage
+} from '@/components/ui/form';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger
+} from '@/components/ui/popover';
+import {
+  Select,
+  SelectItem,
+  SelectValue,
+  SelectContent,
+  SelectTrigger
+} from '@/components/ui/select';
+import { Textarea } from '@/components/ui/textarea';
+import useHookForm from '@/hooks/use-hook-form';
+import { getAppointment } from '@/lib/actions';
+import { DATES } from '@/lib/constants';
+import { appointmentSchema } from '@/lib/schemas';
+import { formatTime } from '@/lib/utils';
 
 export default function Component({
-  user,
-  doctor
+  doctor,
+  user
 }: {
   doctor: User & { timings: TimeSlot[] };
   user: AuthUser;
 }) {
-  const { pending, handleSubmit } = useHookForm(
+  const { handleSubmit, pending } = useHookForm(
     handler,
     getAppointment.bind(null, doctor.id) as (data: unknown) => Promise<unknown>
   );
 
   const form = useForm({
-    resolver: zodResolver(appointmentSchema),
     defaultValues: {
-      time: String(),
-      date: new Date(),
       city: user.city || String(),
+      date: new Date(),
+      email: user.email || String(),
       name: user.name || String(),
       phone: user.phone || String(),
-      email: user.email || String()
-    }
+      time: String()
+    },
+    resolver: zodResolver(appointmentSchema)
   });
 
   return (

@@ -28,5 +28,5 @@ export default function useHookForm<T, R>(
     [action, error, handler, router, updateClient]
   );
 
-  return { pending, handleSubmit };
+  return { handleSubmit, pending };
 }

@@ -1,9 +1,9 @@
+import { User } from 'next-auth';
 import { notFound } from 'next/navigation';
 
-import { auth } from '@/auth';
-import { User } from 'next-auth';
-import prisma from '@/lib/prisma';
 import Component from '@/app/(private)/appointments/[slug]/component';
+import { auth } from '@/auth';
+import prisma from '@/lib/prisma';
 
 type Props = { params: Promise<{ slug: string }> };
 
@@ -14,8 +14,8 @@ export default async function Page({ params }: Props) {
   if (!slug) notFound();
 
   const doctor = await prisma.user.findUnique({
-    where: { id: slug },
-    include: { timings: true }
+    include: { timings: true },
+    where: { id: slug }
   });
 
   if (!doctor) notFound();

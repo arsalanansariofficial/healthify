@@ -1,29 +1,6 @@
 'use client';
 
-import z from 'zod';
-import Link from 'next/link';
-import { toast } from 'sonner';
-import { useMemo } from 'react';
-import { User } from 'next-auth';
-import { useForm } from 'react-hook-form';
-import { ColumnDef } from '@tanstack/react-table';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { IconDotsVertical } from '@tabler/icons-react';
-
-import Footer from '@/components/footer';
-import { MESSAGES } from '@/lib/constants';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Button } from '@/components/ui/button';
-import useHookForm from '@/hooks/use-hook-form';
-import { useIsMobile } from '@/hooks/use-mobile';
-import handler from '@/components/display-toast';
-import { membershipSchema } from '@/lib/schemas';
-import { Checkbox } from '@/components/ui/checkbox';
-import { catchErrors, hasPermission } from '@/lib/utils';
-import { Badge, BadgeVariant } from '@/components/ui/badge';
-import { DragHandle, DataTable } from '@/components/ui/data-table';
-
 import {
   Fee,
   Prisma,
@@ -31,30 +8,21 @@ import {
   SubscriptionStatus,
   MembershipTransaction
 } from '@prisma/client';
+import { IconDotsVertical } from '@tabler/icons-react';
+import { ColumnDef } from '@tanstack/react-table';
+import { User } from 'next-auth';
+import Link from 'next/link';
+import { useMemo } from 'react';
+import { useForm } from 'react-hook-form';
+import { toast } from 'sonner';
+import z from 'zod';
 
-import {
-  payForMembership,
-  deleteMedicationForm,
-  updateMedicationForm,
-  deleteMedicationForms
-} from '@/lib/actions';
-
-import {
-  Form,
-  FormItem,
-  FormField,
-  FormLabel,
-  FormMessage,
-  FormControl
-} from '@/components/ui/form';
-
-import {
-  DropdownMenu,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-  DropdownMenuContent
-} from '@/components/ui/dropdown-menu';
-
+import handler from '@/components/display-toast';
+import Footer from '@/components/footer';
+import { Badge, BadgeVariant } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Checkbox } from '@/components/ui/checkbox';
+import { DragHandle, DataTable } from '@/components/ui/data-table';
 import {
   Drawer,
   DrawerClose,
@@ -65,12 +33,39 @@ import {
   DrawerTrigger,
   DrawerDescription
 } from '@/components/ui/drawer';
+import {
+  DropdownMenu,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+  DropdownMenuContent
+} from '@/components/ui/dropdown-menu';
+import {
+  Form,
+  FormItem,
+  FormField,
+  FormLabel,
+  FormMessage,
+  FormControl
+} from '@/components/ui/form';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import useHookForm from '@/hooks/use-hook-form';
+import { useIsMobile } from '@/hooks/use-mobile';
+import {
+  payForMembership,
+  deleteMedicationForm,
+  updateMedicationForm,
+  deleteMedicationForms
+} from '@/lib/actions';
+import { MESSAGES } from '@/lib/constants';
+import { membershipSchema } from '@/lib/schemas';
+import { catchErrors, hasPermission } from '@/lib/utils';
 
 function Menu({
   id,
   ids,
-  status,
-  isHeader = false
+  isHeader = false,
+  status
 }: {
   id?: string;
   ids?: string[];
@@ -100,13 +95,13 @@ function Menu({
             onClick={async () => {
               if (!isHeader) {
                 toast.promise(payForMembership(id as string), {
-                  position: 'top-center',
-                  success: MESSAGES.PAYMENT.PROCESSED,
-                  loading: 'Processing payment...',
                   error(error) {
                     const { message } = catchErrors(error as Error);
                     return <span className='text-destructive'>{message}</span>;
-                  }
+                  },
+                  loading: 'Processing payment...',
+                  position: 'top-center',
+                  success: MESSAGES.PAYMENT.PROCESSED
                 });
               }
             }}
@@ -119,25 +114,25 @@ function Menu({
           onClick={async () => {
             if (!isHeader) {
               toast.promise(deleteMedicationForm(id as string), {
-                position: 'top-center',
-                loading: 'Deleting subscription',
-                success: MESSAGES.MEMBERSHIP_SUBSCRIPTION.DELETED,
                 error(error) {
                   const { message } = catchErrors(error as Error);
                   return <span className='text-destructive'>{message}</span>;
-                }
+                },
+                loading: 'Deleting subscription',
+                position: 'top-center',
+                success: MESSAGES.MEMBERSHIP_SUBSCRIPTION.DELETED
               });
             }
 
             if (isHeader) {
               toast.promise(deleteMedicationForms(ids as string[]), {
-                position: 'top-center',
-                loading: 'Deleting subscriptions',
-                success: MESSAGES.MEMBERSHIP_SUBSCRIPTION.BULK_DELETED,
                 error(error) {
                   const { message } = catchErrors(error as Error);
                   return <span className='text-destructive'>{message}</span>;
-                }
+                },
+                loading: 'Deleting subscriptions',
+                position: 'top-center',
+                success: MESSAGES.MEMBERSHIP_SUBSCRIPTION.BULK_DELETED
               });
             }
           }}
@@ -154,12 +149,12 @@ export function TableCellViewer<T extends z.ZodType>(props: {
 }) {
   const isMobile = useIsMobile();
   const form = useForm({
-    resolver: zodResolver(membershipSchema),
     defaultValues: {
-      perks: props.item.membership.perks,
+      fees: [props.item.fee],
       hospitalMemberships: props.item.membership.hospitalMemberships,
-      fees: [props.item.fee]
-    }
+      perks: props.item.membership.perks
+    },
+    resolver: zodResolver(membershipSchema)
   });
 
   const { handleSubmit } = useHookForm(
@@ -321,11 +316,17 @@ export default function Component(props: {
   >(
     () => [
       {
-        id: 'drag',
-        cell: ({ row }) => <DragHandle id={row.original.id} />
+        cell: ({ row }) => <DragHandle id={row.original.id} />,
+        id: 'drag'
       },
       {
-        id: 'select',
+        cell: ({ row }) => (
+          <Checkbox
+            aria-label='Select row'
+            checked={row.getIsSelected()}
+            onCheckedChange={value => row.toggleSelected(!!value)}
+          />
+        ),
         enableHiding: false,
         enableSorting: false,
         header: ({ table }) => (
@@ -338,17 +339,9 @@ export default function Component(props: {
             }
           />
         ),
-        cell: ({ row }) => (
-          <Checkbox
-            aria-label='Select row'
-            checked={row.getIsSelected()}
-            onCheckedChange={value => row.toggleSelected(!!value)}
-          />
-        )
+        id: 'select'
       },
       {
-        header: 'Name',
-        enableHiding: false,
         accessorKey: 'name',
         cell: ({ row }) => (
           <TableCellViewer
@@ -357,19 +350,19 @@ export default function Component(props: {
               m => m.id === String(row.original.id)
             )}
           />
-        )
+        ),
+        enableHiding: false,
+        header: 'Name'
       },
       {
-        header: 'User',
-        enableHiding: false,
         accessorKey: 'user',
         cell: ({ row }) => (
           <span className='capitalize'>{row.original.user.name}</span>
-        )
+        ),
+        enableHiding: false,
+        header: 'User'
       },
       {
-        header: 'Perks',
-        enableHiding: false,
         accessorKey: 'perks',
         cell: ({ row }) => (
           <ul className='space-y-2'>
@@ -379,11 +372,11 @@ export default function Component(props: {
               </li>
             ))}
           </ul>
-        )
+        ),
+        enableHiding: false,
+        header: 'Perks'
       },
       {
-        header: 'Hospitals',
-        enableHiding: false,
         accessorKey: 'hospitals',
         cell: ({ row }) => (
           <ul className='space-y-2'>
@@ -393,11 +386,11 @@ export default function Component(props: {
               </li>
             ))}
           </ul>
-        )
+        ),
+        enableHiding: false,
+        header: 'Hospitals'
       },
       {
-        header: 'Status',
-        enableHiding: false,
         accessorKey: 'status',
         cell: ({ row }) => {
           let variant: BadgeVariant = 'default';
@@ -415,22 +408,23 @@ export default function Component(props: {
               {row.original.status}
             </Badge>
           );
-        }
+        },
+        enableHiding: false,
+        header: 'Status'
       },
       {
-        header: 'Fee',
         accessorKey: 'fee',
-        enableHiding: false,
         cell: ({ row }) => (
           <ul className='space-y-2'>
             <Badge variant='secondary' className='capitalize'>
               {row.original.fee.amount}
             </Badge>
           </ul>
-        )
+        ),
+        enableHiding: false,
+        header: 'Fee'
       },
       {
-        id: 'actions',
         cell: ({ row }) => (
           <Menu
             isHeader={false}
@@ -448,7 +442,8 @@ export default function Component(props: {
                 .rows.map(r => r.original.id.toString())}
             />
           );
-        }
+        },
+        id: 'actions'
       }
     ],
     [props.subscriptions]

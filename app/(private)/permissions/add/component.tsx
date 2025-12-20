@@ -1,25 +1,11 @@
 'use client';
 
-import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { useForm } from 'react-hook-form';
 
-import Footer from '@/components/footer';
-import { Input } from '@/components/ui/input';
-import { addPermission } from '@/lib/actions';
-import { Button } from '@/components/ui/button';
-import useHookForm from '@/hooks/use-hook-form';
 import handler from '@/components/display-toast';
-import { permissionSchema } from '@/lib/schemas';
-
-import {
-  Form,
-  FormItem,
-  FormField,
-  FormLabel,
-  FormControl,
-  FormMessage
-} from '@/components/ui/form';
-
+import Footer from '@/components/footer';
+import { Button } from '@/components/ui/button';
 import {
   Card,
   CardTitle,
@@ -28,13 +14,25 @@ import {
   CardContent,
   CardDescription
 } from '@/components/ui/card';
+import {
+  Form,
+  FormItem,
+  FormField,
+  FormLabel,
+  FormControl,
+  FormMessage
+} from '@/components/ui/form';
+import { Input } from '@/components/ui/input';
+import useHookForm from '@/hooks/use-hook-form';
+import { addPermission } from '@/lib/actions';
+import { permissionSchema } from '@/lib/schemas';
 
 export default function Component() {
-  const { pending, handleSubmit } = useHookForm(handler, addPermission);
+  const { handleSubmit, pending } = useHookForm(handler, addPermission);
 
   const form = useForm({
-    resolver: zodResolver(permissionSchema),
-    defaultValues: { name: String() }
+    defaultValues: { name: String() },
+    resolver: zodResolver(permissionSchema)
   });
 
   return (

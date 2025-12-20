@@ -1,22 +1,17 @@
 'use client';
 
-import Link from 'next/link';
-import { useState } from 'react';
-import { User } from 'next-auth';
-import { useTheme } from 'next-themes';
-import { Moon, Sun } from 'lucide-react';
-import { signOut } from 'next-auth/react';
 import { faGithub } from '@fortawesome/free-brands-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { Moon, Sun } from 'lucide-react';
+import { User } from 'next-auth';
+import { signOut } from 'next-auth/react';
+import { useTheme } from 'next-themes';
+import Link from 'next/link';
+import { useState } from 'react';
 
-import { cn } from '@/lib/utils';
 import Menu from '@/components/menu';
-import { ROUTES, UI } from '@/lib/constants';
-import { Input } from '@/components/ui/input';
-import { Button } from '@/components/ui/button';
-import { DOMAIN, SIDEBAR } from '@/lib/constants';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-
+import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
   DropdownMenuItem,
@@ -26,9 +21,13 @@ import {
   DropdownMenuTrigger,
   DropdownMenuSeparator
 } from '@/components/ui/dropdown-menu';
+import { Input } from '@/components/ui/input';
+import { ROUTES, UI } from '@/lib/constants';
+import { DOMAIN, SIDEBAR } from '@/lib/constants';
+import { cn } from '@/lib/utils';
 
 export default function Header({ user }: { user: User }) {
-  const { theme, setTheme } = useTheme();
+  const { setTheme, theme } = useTheme();
   const [hasMenu, setHasMenu] = useState(false);
 
   return (

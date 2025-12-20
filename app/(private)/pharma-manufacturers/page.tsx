@@ -1,8 +1,8 @@
 import { notFound } from 'next/navigation';
 
+import Component from '@/app/(private)/pharma-manufacturers/component';
 import { auth } from '@/auth';
 import prisma from '@/lib/prisma';
-import Component from '@/app/(private)/pharma-manufacturers/component';
 
 export default async function Page() {
   const session = await auth();

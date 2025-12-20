@@ -1,9 +1,10 @@
-import { auth } from '@/auth';
-import { ROUTES } from '@/lib/constants';
-import Header from '@/components/header';
-import Sidebar from '@/components/sidebar';
-import Session from '@/components/session';
 import { redirect } from 'next/navigation';
+
+import { auth } from '@/auth';
+import Header from '@/components/header';
+import Session from '@/components/session';
+import Sidebar from '@/components/sidebar';
+import { ROUTES } from '@/lib/constants';
 
 export default async function Layout({
   children

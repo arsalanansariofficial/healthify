@@ -3,15 +3,7 @@
 import { Check } from 'lucide-react';
 import { useState, useRef, useEffect, useMemo } from 'react';
 
-import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
-
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger
-} from '@/components/ui/popover';
-
 import {
   Command,
   CommandEmpty,
@@ -19,6 +11,12 @@ import {
   CommandItem,
   CommandList
 } from '@/components/ui/command';
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger
+} from '@/components/ui/popover';
+import { cn } from '@/lib/utils';
 
 type CmdProps = {
   selected: string;

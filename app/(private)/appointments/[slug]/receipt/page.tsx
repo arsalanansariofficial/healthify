@@ -1,8 +1,8 @@
-import { notFound } from 'next/navigation';
 import { AppointmentStatus } from '@prisma/client';
+import { notFound } from 'next/navigation';
 
-import prisma from '@/lib/prisma';
 import Component from '@/app/(private)/appointments/[slug]/receipt/component';
+import prisma from '@/lib/prisma';
 
 type Props = { params: Promise<{ slug: string }> };
 
@@ -10,14 +10,9 @@ export default async function Page(props: Props) {
   const { slug } = await props.params;
 
   const appointment = await prisma.appointment.findUnique({
-    where: { id: slug },
     select: {
-      id: true,
-      date: true,
       city: true,
-      status: true,
-      patient: { select: { name: true } },
-      timeSlot: { select: { time: true } },
+      date: true,
       doctor: {
         select: {
           name: true,
@@ -26,8 +21,13 @@ export default async function Page(props: Props) {
             select: { speciality: { select: { name: true } } }
           }
         }
-      }
-    }
+      },
+      id: true,
+      patient: { select: { name: true } },
+      status: true,
+      timeSlot: { select: { time: true } }
+    },
+    where: { id: slug }
   });
 
   if (!appointment || appointment.status !== AppointmentStatus.confirmed) {

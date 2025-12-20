@@ -1,26 +1,25 @@
 'use server';
 
-import z from 'zod';
-import { addDays } from 'date-fns';
-import { revalidatePath } from 'next/cache';
-
-import prisma from '@/lib/prisma';
-import { DATES } from '@/constants/date';
-import { catchErrors } from '@/lib/utils';
-import { ROUTES } from '@/constants/routes';
-import { MESSAGES } from '@/constants/messages';
-import { membershipSchema, membershipSubscriptionSchema } from '@/lib/schemas';
-
 import {
   PaymentMethod,
   PaymentStatus,
   SubscriptionStatus
 } from '@prisma/client';
+import { addDays } from 'date-fns';
+import { revalidatePath } from 'next/cache';
+import z from 'zod';
+
+import { DATES } from '@/constants/date';
+import { MESSAGES } from '@/constants/messages';
+import { ROUTES } from '@/constants/routes';
+import prisma from '@/lib/prisma';
+import { membershipSchema, membershipSubscriptionSchema } from '@/lib/schemas';
+import { catchErrors } from '@/lib/utils';
 
 export async function addMembership(data: z.infer<typeof membershipSchema>) {
   const result = membershipSchema.safeParse(data);
   if (!result.success)
-    return { success: false, message: MESSAGES.SYSTEM.INVALID_INPUTS };
+    return { message: MESSAGES.SYSTEM.INVALID_INPUTS, success: false };
 
   try {
     await prisma.membership.create({
@@ -42,7 +41,7 @@ export async function addMembership(data: z.infer<typeof membershipSchema>) {
     });
 
     revalidatePath(ROUTES.HOME);
-    return { success: true, message: MESSAGES.MEMBERSHIP.ADDED };
+    return { message: MESSAGES.MEMBERSHIP.ADDED, success: true };
   } catch (error) {
     return catchErrors(error as Error);
   }
@@ -53,19 +52,19 @@ export async function subscribeMembership(
 ) {
   const result = membershipSubscriptionSchema.safeParse(data);
   if (!result.success)
-    return { success: false, message: MESSAGES.SYSTEM.INVALID_INPUTS };
+    return { message: MESSAGES.SYSTEM.INVALID_INPUTS, success: false };
 
   try {
     await prisma.membershipSubscription.createMany({
       data: result.data.users.map(u => ({
-        userId: u,
         feeId: result.data.feeId,
-        membershipId: result.data.membershipId
+        membershipId: result.data.membershipId,
+        userId: u
       }))
     });
 
     revalidatePath(ROUTES.HOME);
-    return { success: true, message: MESSAGES.MEMBERSHIP_SUBSCRIPTION.ADDED };
+    return { message: MESSAGES.MEMBERSHIP_SUBSCRIPTION.ADDED, success: true };
   } catch (error) {
     return catchErrors(error as Error);
   }
@@ -74,12 +73,12 @@ export async function subscribeMembership(
 export async function payForMembership(id: string) {
   try {
     const subscription = await prisma.membershipSubscription.findUnique({
-      where: { id },
-      select: { fee: { select: { amount: true, renewalType: true } } }
+      select: { fee: { select: { amount: true, renewalType: true } } },
+      where: { id }
     });
 
     if (!subscription)
-      return { success: false, message: MESSAGES.SYSTEM.INVALID_INPUTS };
+      return { message: MESSAGES.SYSTEM.INVALID_INPUTS, success: false };
 
     let expiresAt;
 
@@ -92,23 +91,23 @@ export async function payForMembership(id: string) {
     }
 
     await prisma.membershipSubscription.update({
-      where: { id },
-      select: { fee: { select: { renewalType: true } }, updatedAt: true },
       data: {
         status: SubscriptionStatus.active,
         transactions: {
           create: {
+            amount: subscription.fee.amount as number,
             expiresAt,
             method: PaymentMethod.cash,
-            status: PaymentStatus.completed,
-            amount: subscription.fee.amount as number
+            status: PaymentStatus.completed
           }
         }
-      }
+      },
+      select: { fee: { select: { renewalType: true } }, updatedAt: true },
+      where: { id }
     });
 
     revalidatePath(ROUTES.HOME);
-    return { success: true, message: MESSAGES.MEMBERSHIP_SUBSCRIPTION.ADDED };
+    return { message: MESSAGES.MEMBERSHIP_SUBSCRIPTION.ADDED, success: true };
   } catch (error) {
     return catchErrors(error as Error);
   }

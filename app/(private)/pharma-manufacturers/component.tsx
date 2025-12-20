@@ -1,50 +1,20 @@
 'use client';
 
-import z from 'zod';
-import { toast } from 'sonner';
-import { useMemo } from 'react';
-import { User } from 'next-auth';
-import { useForm } from 'react-hook-form';
-import { ColumnDef } from '@tanstack/react-table';
-import { PharmaManufacturer } from '@prisma/client';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { PharmaManufacturer } from '@prisma/client';
 import { IconDotsVertical } from '@tabler/icons-react';
+import { ColumnDef } from '@tanstack/react-table';
+import { User } from 'next-auth';
+import { useMemo } from 'react';
+import { useForm } from 'react-hook-form';
+import { toast } from 'sonner';
+import z from 'zod';
 
-import Footer from '@/components/footer';
-import { MESSAGES } from '@/lib/constants';
-import { Input } from '@/components/ui/input';
-import { Button } from '@/components/ui/button';
-import useHookForm from '@/hooks/use-hook-form';
-import { useIsMobile } from '@/hooks/use-mobile';
 import handler from '@/components/display-toast';
-import { Textarea } from '@/components/ui/textarea';
+import Footer from '@/components/footer';
+import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
-import { pharmaManufacturerSchema } from '@/lib/schemas';
-import { catchErrors, getDate, hasPermission } from '@/lib/utils';
 import { DragHandle, DataTable } from '@/components/ui/data-table';
-
-import {
-  deletePharmaManufacturer,
-  deletePharmaManufacturers,
-  updatePharmaManufacturer
-} from '@/lib/actions';
-
-import {
-  Form,
-  FormItem,
-  FormField,
-  FormLabel,
-  FormMessage,
-  FormControl
-} from '@/components/ui/form';
-
-import {
-  DropdownMenu,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-  DropdownMenuContent
-} from '@/components/ui/dropdown-menu';
-
 import {
   Drawer,
   DrawerClose,
@@ -55,6 +25,32 @@ import {
   DrawerTrigger,
   DrawerDescription
 } from '@/components/ui/drawer';
+import {
+  DropdownMenu,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+  DropdownMenuContent
+} from '@/components/ui/dropdown-menu';
+import {
+  Form,
+  FormItem,
+  FormField,
+  FormLabel,
+  FormMessage,
+  FormControl
+} from '@/components/ui/form';
+import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
+import useHookForm from '@/hooks/use-hook-form';
+import { useIsMobile } from '@/hooks/use-mobile';
+import {
+  deletePharmaManufacturer,
+  deletePharmaManufacturers,
+  updatePharmaManufacturer
+} from '@/lib/actions';
+import { MESSAGES } from '@/lib/constants';
+import { pharmaManufacturerSchema } from '@/lib/schemas';
+import { catchErrors, getDate, hasPermission } from '@/lib/utils';
 
 function Menu({
   id,
@@ -88,25 +84,25 @@ function Menu({
           onClick={async () => {
             if (!isHeader) {
               toast.promise(deletePharmaManufacturer(id as string), {
-                position: 'top-center',
-                loading: 'Deleting manufacturer',
-                success: MESSAGES.PHARMA_MANUFACTURER.DELETED,
                 error(error) {
                   const { message } = catchErrors(error as Error);
                   return <span className='text-destructive'>{message}</span>;
-                }
+                },
+                loading: 'Deleting manufacturer',
+                position: 'top-center',
+                success: MESSAGES.PHARMA_MANUFACTURER.DELETED
               });
             }
 
             if (isHeader) {
               toast.promise(deletePharmaManufacturers(ids as string[]), {
-                position: 'top-center',
-                loading: 'Deleting manufacturers',
-                success: MESSAGES.PHARMA_MANUFACTURER.BULK_DELETED,
                 error(error) {
                   const { message } = catchErrors(error as Error);
                   return <span className='text-destructive'>{message}</span>;
-                }
+                },
+                loading: 'Deleting manufacturers',
+                position: 'top-center',
+                success: MESSAGES.PHARMA_MANUFACTURER.BULK_DELETED
               });
             }
           }}
@@ -123,11 +119,11 @@ export function TableCellViewer<T extends z.ZodType>(props: {
 }) {
   const isMobile = useIsMobile();
   const form = useForm({
-    resolver: zodResolver(pharmaManufacturerSchema),
     defaultValues: {
-      name: props.item.name,
-      description: props.item.description
-    }
+      description: props.item.description,
+      name: props.item.name
+    },
+    resolver: zodResolver(pharmaManufacturerSchema)
   });
 
   const { handleSubmit } = useHookForm(
@@ -226,11 +222,17 @@ export default function Component(props: {
   >(
     () => [
       {
-        id: 'drag',
-        cell: ({ row }) => <DragHandle id={row.original.id} />
+        cell: ({ row }) => <DragHandle id={row.original.id} />,
+        id: 'drag'
       },
       {
-        id: 'select',
+        cell: ({ row }) => (
+          <Checkbox
+            aria-label='Select row'
+            checked={row.getIsSelected()}
+            onCheckedChange={value => row.toggleSelected(!!value)}
+          />
+        ),
         enableHiding: false,
         enableSorting: false,
         header: ({ table }) => (
@@ -243,17 +245,9 @@ export default function Component(props: {
             }
           />
         ),
-        cell: ({ row }) => (
-          <Checkbox
-            aria-label='Select row'
-            checked={row.getIsSelected()}
-            onCheckedChange={value => row.toggleSelected(!!value)}
-          />
-        )
+        id: 'select'
       },
       {
-        header: 'Name',
-        enableHiding: false,
         accessorKey: 'name',
         cell: ({ row }) => (
           <TableCellViewer
@@ -262,23 +256,24 @@ export default function Component(props: {
               m => m.id === String(row.original.id)
             )}
           />
-        )
+        ),
+        enableHiding: false,
+        header: 'Name'
       },
       {
-        enableHiding: false,
-        header: 'Description',
         accessorKey: 'description',
         cell: ({ row }) => (
           <span className='line-clamp-1'>{row.original.description}</span>
-        )
+        ),
+        enableHiding: false,
+        header: 'Description'
       },
       {
         accessorKey: 'createdAt',
-        header: () => <div>Created At</div>,
-        cell: ({ row }) => getDate(row.original.createdAt)
+        cell: ({ row }) => getDate(row.original.createdAt),
+        header: () => <div>Created At</div>
       },
       {
-        id: 'actions',
         cell: ({ row }) => (
           <Menu isHeader={false} id={row.original.id.toString()} />
         ),
@@ -291,7 +286,8 @@ export default function Component(props: {
                 .rows.map(r => r.original.id.toString())}
             />
           );
-        }
+        },
+        id: 'actions'
       }
     ],
     [props.manufacturers]

@@ -1,62 +1,23 @@
 'use client';
 
-import z from 'zod';
-import { toast } from 'sonner';
-import { useMemo } from 'react';
-import { User } from 'next-auth';
-import { useForm } from 'react-hook-form';
-import { ColumnDef } from '@tanstack/react-table';
-import { User as PrismaUser } from '@prisma/client';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { User as PrismaUser } from '@prisma/client';
 import { IconDotsVertical } from '@tabler/icons-react';
+import { ColumnDef } from '@tanstack/react-table';
+import { User } from 'next-auth';
+import { useMemo } from 'react';
+import { useForm } from 'react-hook-form';
+import { toast } from 'sonner';
+import z from 'zod';
 
 import Chart from '@/components/chart';
+import handler from '@/components/display-toast';
 import Footer from '@/components/footer';
-import { userSchema } from '@/lib/schemas';
-import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Switch } from '@/components/ui/switch';
-import useHookForm from '@/hooks/use-hook-form';
-import { useIsMobile } from '@/hooks/use-mobile';
-import handler from '@/components/display-toast';
-import { Checkbox } from '@/components/ui/checkbox';
 import { ChartConfig } from '@/components/ui/chart';
-import { MESSAGES } from '@/lib/constants';
-import { catchErrors, getDate, hasPermission } from '@/lib/utils';
+import { Checkbox } from '@/components/ui/checkbox';
 import { DragHandle, DataTable } from '@/components/ui/data-table';
-
-import {
-  deleteUser,
-  updateUser,
-  deleteUsers,
-  verifyEmail
-} from '@/lib/actions';
-
-import {
-  Form,
-  FormItem,
-  FormField,
-  FormLabel,
-  FormMessage,
-  FormControl
-} from '@/components/ui/form';
-
-import {
-  Select,
-  SelectItem,
-  SelectValue,
-  SelectContent,
-  SelectTrigger
-} from '@/components/ui/select';
-
-import {
-  DropdownMenu,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-  DropdownMenuContent
-} from '@/components/ui/dropdown-menu';
-
 import {
   Drawer,
   DrawerClose,
@@ -67,6 +28,40 @@ import {
   DrawerTrigger,
   DrawerDescription
 } from '@/components/ui/drawer';
+import {
+  DropdownMenu,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+  DropdownMenuContent
+} from '@/components/ui/dropdown-menu';
+import {
+  Form,
+  FormItem,
+  FormField,
+  FormLabel,
+  FormMessage,
+  FormControl
+} from '@/components/ui/form';
+import { Input } from '@/components/ui/input';
+import {
+  Select,
+  SelectItem,
+  SelectValue,
+  SelectContent,
+  SelectTrigger
+} from '@/components/ui/select';
+import { Switch } from '@/components/ui/switch';
+import useHookForm from '@/hooks/use-hook-form';
+import { useIsMobile } from '@/hooks/use-mobile';
+import {
+  deleteUser,
+  updateUser,
+  deleteUsers,
+  verifyEmail
+} from '@/lib/actions';
+import { MESSAGES } from '@/lib/constants';
+import { userSchema } from '@/lib/schemas';
+import { catchErrors, getDate, hasPermission } from '@/lib/utils';
 
 function Menu({
   id,
@@ -100,25 +95,25 @@ function Menu({
           onClick={async () => {
             if (!isHeader) {
               toast.promise(deleteUser(id as string), {
-                position: 'top-center',
-                loading: 'Deleting user',
-                success: MESSAGES.USER.DELETED,
                 error(error) {
                   const { message } = catchErrors(error as Error);
                   return <span className='text-destructive'>{message}</span>;
-                }
+                },
+                loading: 'Deleting user',
+                position: 'top-center',
+                success: MESSAGES.USER.DELETED
               });
             }
 
             if (isHeader) {
               toast.promise(deleteUsers(ids as string[]), {
-                position: 'top-center',
-                loading: 'Deleting users',
-                success: MESSAGES.USER.BULK_DELETED,
                 error(error) {
                   const { message } = catchErrors(error as Error);
                   return <span className='text-destructive'>{message}</span>;
-                }
+                },
+                loading: 'Deleting users',
+                position: 'top-center',
+                success: MESSAGES.USER.BULK_DELETED
               });
             }
           }}
@@ -138,7 +133,7 @@ export function TableCellViewer<T extends z.ZodType>(props: {
   const isMobile = useIsMobile();
   const form = useForm({ resolver: zodResolver(userSchema) });
 
-  const { pending, handleSubmit } = useHookForm(
+  const { handleSubmit, pending } = useHookForm(
     handler,
     updateUser.bind(null, props.item.id) as (data: unknown) => Promise<unknown>
   );
@@ -305,11 +300,17 @@ export default function Component(props: {
   >(
     () => [
       {
-        id: 'drag',
-        cell: ({ row }) => <DragHandle id={row.original.id} />
+        cell: ({ row }) => <DragHandle id={row.original.id} />,
+        id: 'drag'
       },
       {
-        id: 'select',
+        cell: ({ row }) => (
+          <Checkbox
+            aria-label='Select row'
+            checked={row.getIsSelected()}
+            onCheckedChange={value => row.toggleSelected(!!value)}
+          />
+        ),
         enableHiding: false,
         enableSorting: false,
         header: ({ table }) => (
@@ -322,17 +323,9 @@ export default function Component(props: {
             }
           />
         ),
-        cell: ({ row }) => (
-          <Checkbox
-            aria-label='Select row'
-            checked={row.getIsSelected()}
-            onCheckedChange={value => row.toggleSelected(!!value)}
-          />
-        )
+        id: 'select'
       },
       {
-        header: 'Name',
-        enableHiding: false,
         accessorKey: 'name',
         cell: ({ row }) => (
           <TableCellViewer
@@ -341,19 +334,20 @@ export default function Component(props: {
             chartConfig={props.chartConfig}
             item={props.users.find(u => u.email === row.original.email)}
           />
-        )
+        ),
+        enableHiding: false,
+        header: 'Name'
       },
       {
-        header: 'Email',
         accessorKey: 'email',
         cell: ({ row }) => (
           <Badge variant='outline' className='text-muted-foreground'>
             {row.original.email}
           </Badge>
-        )
+        ),
+        header: 'Email'
       },
       {
-        header: () => <div className='flex justify-center'>Email Verified</div>,
         accessorKey: 'emailVerified',
         cell: ({ row }) => (
           <Switch
@@ -367,25 +361,25 @@ export default function Component(props: {
             }
             onCheckedChange={async () =>
               toast.promise(verifyEmail(row.original.email), {
-                success: 'Done',
-                position: 'top-center',
-                loading: 'Verifying Email',
                 error(error) {
                   const { message } = catchErrors(error as Error);
                   return <span className='text-destructive'>{message}</span>;
-                }
+                },
+                loading: 'Verifying Email',
+                position: 'top-center',
+                success: 'Done'
               })
             }
           />
-        )
+        ),
+        header: () => <div className='flex justify-center'>Email Verified</div>
       },
       {
         accessorKey: 'createdAt',
-        header: () => <div>Created At</div>,
-        cell: ({ row }) => getDate(row.original.createdAt)
+        cell: ({ row }) => getDate(row.original.createdAt),
+        header: () => <div>Created At</div>
       },
       {
-        id: 'actions',
         cell: ({ row }) => (
           <Menu isHeader={false} id={row.original.id.toString()} />
         ),
@@ -398,7 +392,8 @@ export default function Component(props: {
                 .rows.map(r => r.original.id.toString())}
             />
           );
-        }
+        },
+        id: 'actions'
       }
     ],
     [props.chartConfig, props.chartData, props.users]

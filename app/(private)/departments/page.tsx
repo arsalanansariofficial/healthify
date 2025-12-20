@@ -12,9 +12,9 @@ export default async function Page() {
 
   return (
     <Component
-      user={session.user}
       departments={departments}
       key={departments.map(d => d.updatedAt).toString()}
+      user={session.user}
     />
   );
 }

@@ -19,11 +19,11 @@ export function Empty({ className, ...props }: React.ComponentProps<'div'>) {
   return (
     <div
       {...props}
-      data-slot='empty'
       className={cn(
         'flex min-w-0 flex-1 flex-col items-center justify-center gap-6 rounded-lg border-dashed p-6 text-center text-balance md:p-12',
         className
       )}
+      data-slot='empty'
     />
   );
 }
@@ -35,11 +35,11 @@ export function EmptyHeader({
   return (
     <div
       {...props}
-      data-slot='empty-header'
       className={cn(
         'flex max-w-sm flex-col items-center gap-2 text-center',
         className
       )}
+      data-slot='empty-header'
     />
   );
 }
@@ -52,9 +52,9 @@ export function EmptyMedia({
   return (
     <div
       {...props}
+      className={cn(emptyMediaVariants({ className, variant }))}
       data-slot='empty-icon'
       data-variant={variant}
-      className={cn(emptyMediaVariants({ className, variant }))}
     />
   );
 }
@@ -66,8 +66,8 @@ export function EmptyTitle({
   return (
     <div
       {...props}
-      data-slot='empty-title'
       className={cn('text-lg font-medium tracking-tight', className)}
+      data-slot='empty-title'
     />
   );
 }
@@ -79,11 +79,11 @@ export function EmptyDescription({
   return (
     <div
       {...props}
-      data-slot='empty-description'
       className={cn(
         'text-muted-foreground [&>a:hover]:text-primary text-sm/relaxed [&>a]:underline [&>a]:underline-offset-4',
         className
       )}
+      data-slot='empty-description'
     />
   );
 }
@@ -95,11 +95,11 @@ export function EmptyContent({
   return (
     <div
       {...props}
-      data-slot='empty-content'
       className={cn(
         'flex w-full max-w-sm min-w-0 flex-col items-center gap-4 text-sm text-balance',
         className
       )}
+      data-slot='empty-content'
     />
   );
 }

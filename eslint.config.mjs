@@ -12,6 +12,7 @@ const eslintConfig = [
   {
     plugins: { perfectionist: perfectionistPlugin },
     rules: {
+      'perfectionist/sort-enums': ['error', { order: 'asc', type: 'natural' }],
       'perfectionist/sort-exports': [
         'error',
         { order: 'asc', type: 'natural' }
@@ -19,6 +20,13 @@ const eslintConfig = [
       'perfectionist/sort-imports': [
         'error',
         { order: 'asc', type: 'natural' }
+      ],
+      'perfectionist/sort-jsx-props': [
+        'error',
+        {
+          order: 'asc',
+          type: 'natural'
+        }
       ],
       'perfectionist/sort-objects': ['error', { order: 'asc', type: 'natural' }]
     }

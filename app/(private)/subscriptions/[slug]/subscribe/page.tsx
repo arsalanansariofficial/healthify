@@ -31,6 +31,6 @@ export default async function Page({
   if (!users.length) notFound();
 
   return (
-    <Component users={users} user={session.user} membership={membership} />
+    <Component membership={membership} user={session.user} users={users} />
   );
 }

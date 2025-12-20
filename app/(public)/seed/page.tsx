@@ -28,10 +28,10 @@ export default function Page() {
         </EmptyHeader>
         <EmptyContent>
           <Button
-            type='submit'
+            className='w-full cursor-pointer'
             disabled={pending}
             onClick={handleSubmit}
-            className='w-full cursor-pointer'
+            type='submit'
           >
             {pending ? 'Seeding...' : 'Seed database'}
           </Button>

@@ -13,7 +13,6 @@ import {
   CardContent,
   CardDescription
 } from '@/components/ui/card';
-import { ChartConfig } from '@/components/ui/chart';
 import {
   getDashboardCards,
   getMonthlyUserData,
@@ -22,14 +21,6 @@ import {
 } from '@/lib/actions';
 import prisma from '@/lib/prisma';
 import { hasPermission } from '@/lib/utils';
-
-const chartConfig = {
-  users: { color: 'var(--primary)', label: 'Users' }
-} satisfies ChartConfig;
-
-const userChartConfig = {
-  appointments: { color: 'var(--primary)', label: 'Appointments' }
-} satisfies ChartConfig;
 
 export default async function Page() {
   const session = await auth();
@@ -49,14 +40,14 @@ export default async function Page() {
 
   return (
     <div
-      key={users.length}
       className='flex h-full flex-col gap-8 lg:mx-auto lg:w-10/12'
+      key={users.length}
     >
       {hasPermission(user.permissions, 'view:stats-cards') && (
         <section className='@container/main'>
           <div className='grid grid-cols-1 gap-4 *:data-[slot=card]:bg-gradient-to-t *:data-[slot=card]:shadow-xs @xl/main:grid-cols-2'>
             {cardsData.map((card, index) => (
-              <Card key={index} className='@container/card'>
+              <Card className='@container/card' key={index}>
                 <CardHeader>
                   <CardDescription>{card.description}</CardDescription>
                   <CardTitle className='text-2xl font-semibold tabular-nums @[250px]/card:text-3xl'>
@@ -85,10 +76,12 @@ export default async function Page() {
           </CardHeader>
           <CardContent>
             <Chart
-              dataKey='users'
-              data={chartData}
+              chartConfig={{
+                users: { color: 'var(--primary)', label: 'Users' }
+              }}
               className='max-h-80 w-full'
-              chartConfig={chartConfig}
+              data={chartData}
+              dataKey='users'
             />
           </CardContent>
         </Card>
@@ -97,7 +90,7 @@ export default async function Page() {
         <section className='@container/main'>
           <div className='grid grid-cols-1 gap-4 *:data-[slot=card]:bg-gradient-to-t *:data-[slot=card]:shadow-xs @xl/main:grid-cols-2'>
             {userCardsData.map((card, index) => (
-              <Card key={index} className='@container/card'>
+              <Card className='@container/card' key={index}>
                 <CardHeader>
                   <CardDescription>{card.description}</CardDescription>
                   <CardTitle className='text-2xl font-semibold tabular-nums @[250px]/card:text-3xl'>
@@ -126,10 +119,12 @@ export default async function Page() {
           </CardHeader>
           <CardContent>
             <Chart
-              dataKey='appointments'
-              data={userChartData}
+              chartConfig={{
+                appointments: { color: 'var(--primary)', label: 'Appointments' }
+              }}
               className='max-h-80 w-full'
-              chartConfig={userChartConfig}
+              data={userChartData}
+              dataKey='appointments'
             />
           </CardContent>
         </Card>

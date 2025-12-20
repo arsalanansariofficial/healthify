@@ -50,12 +50,12 @@ export default function CmdSelect(props: CmdProps) {
   }, []);
 
   return (
-    <Popover open={open} onOpenChange={setOpen}>
+    <Popover onOpenChange={setOpen} open={open}>
       <PopoverTrigger asChild>
         <Button
+          className='w-full items-center justify-between px-2 pb-2'
           ref={triggerRef}
           variant='outline'
-          className='w-full items-center justify-between px-2 pb-2'
         >
           {props.selected ? (
             <span className='truncate font-normal'>
@@ -69,15 +69,15 @@ export default function CmdSelect(props: CmdProps) {
         </Button>
       </PopoverTrigger>
       <PopoverContent
-        className='p-0'
         align='start'
+        className='p-0'
         style={{ width: triggerWidth }}
       >
         <Command>
           <CommandInput
-            value={inputValue}
-            placeholder='Search...'
             onValueChange={setInputValue}
+            placeholder='Search...'
+            value={inputValue}
           />
           <CommandList>
             {filteredOptions.length === 0 && (

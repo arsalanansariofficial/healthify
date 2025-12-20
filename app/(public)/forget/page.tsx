@@ -44,20 +44,20 @@ export default function Page() {
         <EmptyContent>
           <Form {...form}>
             <form
-              id='reset-form'
               className='space-y-2'
+              id='reset-form'
               onSubmit={form.handleSubmit(handleSubmit)}
             >
               <FormField
-                name='email'
                 control={form.control}
+                name='email'
                 render={({ field }) => (
                   <FormItem>
                     <FormControl>
                       <Input
                         {...field}
-                        type='email'
                         placeholder='your.name@domain.com'
+                        type='email'
                       />
                     </FormControl>
                     <FormMessage />
@@ -65,10 +65,10 @@ export default function Page() {
                 )}
               />
               <Button
-                type='submit'
-                form='reset-form'
-                disabled={pending}
                 className='cursor-pointer'
+                disabled={pending}
+                form='reset-form'
+                type='submit'
               >
                 {pending ? 'Sending...' : 'Send token'}
               </Button>

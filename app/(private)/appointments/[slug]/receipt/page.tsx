@@ -4,9 +4,9 @@ import { notFound } from 'next/navigation';
 import Component from '@/app/(private)/appointments/[slug]/receipt/component';
 import prisma from '@/lib/prisma';
 
-type Props = { params: Promise<{ slug: string }> };
-
-export default async function Page(props: Props) {
+export default async function Page(props: {
+  params: Promise<{ slug: string }>;
+}) {
   const { slug } = await props.params;
 
   const appointment = await prisma.appointment.findUnique({

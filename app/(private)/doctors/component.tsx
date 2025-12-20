@@ -81,7 +81,7 @@ export function TableCellViewer<T extends z.ZodType>(props: {
   return (
     <Drawer direction={isMobile ? 'bottom' : 'right'}>
       <DrawerTrigger asChild onClick={e => e.currentTarget.blur()}>
-        <Button variant='link' className='text-foreground px-0'>
+        <Button className='text-foreground px-0' variant='link'>
           {props.item.id}
         </Button>
       </DrawerTrigger>
@@ -95,18 +95,18 @@ export function TableCellViewer<T extends z.ZodType>(props: {
         <div className='flex flex-col gap-4 overflow-y-auto px-4 text-sm'>
           <Form {...form}>
             <form
-              id='speciality-form'
               className='space-y-2'
+              id='speciality-form'
               onSubmit={form.handleSubmit(handleSubmit)}
             >
               <FormField
-                name='name'
                 control={form.control}
+                name='name'
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Speciality</FormLabel>
                     <FormControl>
-                      <Input {...field} type='name' placeholder='Physician' />
+                      <Input {...field} placeholder='Physician' type='name' />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -117,10 +117,10 @@ export function TableCellViewer<T extends z.ZodType>(props: {
         </div>
         <DrawerFooter>
           <Button
-            type='submit'
+            className='cursor-pointer'
             disabled={pending}
             form='speciality-form'
-            className='cursor-pointer'
+            type='submit'
           >
             {pending ? 'Saving...' : 'Save'}
           </Button>
@@ -230,12 +230,12 @@ export default function Component(props: {
     <div className='flex h-full flex-col gap-8 lg:mx-auto lg:w-10/12'>
       <form className='grid grid-cols-[1fr_auto_auto] gap-2'>
         <Input
-          type='text'
-          name='name'
-          id='doctor-name'
           className='w-full'
-          placeholder='Search doctor...'
+          id='doctor-name'
+          name='name'
           onChange={e => setQuery(e.target.value.toLowerCase())}
+          placeholder='Search doctor...'
+          type='text'
         />
         <Dialog>
           <div>
@@ -250,16 +250,16 @@ export default function Component(props: {
                 </DialogDescription>
               </DialogHeader>
               <form
-                id='filter-form'
                 className='space-y-4'
+                id='filter-form'
                 onSubmit={applyFilters}
               >
                 <div className='space-y-2'>
                   <Label htmlFor='doctor-speciality'>Speciality</Label>
                   <Select name='speciality'>
                     <SelectTrigger
-                      id='doctor-speciality'
                       className='w-full [&_span[data-slot]]:block [&_span[data-slot]]:truncate'
+                      id='doctor-speciality'
                     >
                       <SelectValue placeholder='Select a speciality' />
                     </SelectTrigger>
@@ -273,8 +273,8 @@ export default function Component(props: {
                   <Label htmlFor='doctor-experience'>Experience</Label>
                   <Select name='experience'>
                     <SelectTrigger
-                      id='doctor-experience'
                       className='w-full [&_span[data-slot]]:block [&_span[data-slot]]:truncate'
+                      id='doctor-experience'
                     >
                       <SelectValue placeholder='Select experience in years' />
                     </SelectTrigger>
@@ -294,8 +294,8 @@ export default function Component(props: {
                   <Label htmlFor='doctor-gender'>Gender</Label>
                   <Select name='gender'>
                     <SelectTrigger
-                      id='doctor-gender'
                       className='w-full [&_span[data-slot]]:block [&_span[data-slot]]:truncate'
+                      id='doctor-gender'
                     >
                       <SelectValue placeholder='Select a gender' />
                     </SelectTrigger>
@@ -309,8 +309,8 @@ export default function Component(props: {
                   <Label htmlFor='doctor-time'>Time</Label>
                   <Select name='time'>
                     <SelectTrigger
-                      id='doctor-time'
                       className='w-full [&_span[data-slot]]:block [&_span[data-slot]]:truncate'
+                      id='doctor-time'
                     >
                       <SelectValue placeholder='Select a time' />
                     </SelectTrigger>
@@ -323,18 +323,18 @@ export default function Component(props: {
               </form>
               <DialogFooter>
                 <DialogClose asChild>
-                  <Button variant='outline' onClick={resetFilters}>
+                  <Button onClick={resetFilters} variant='outline'>
                     Reset
                   </Button>
                 </DialogClose>
-                <Button type='submit' form='filter-form'>
+                <Button form='filter-form' type='submit'>
                   Filter
                 </Button>
               </DialogFooter>
             </DialogContent>
           </div>
         </Dialog>
-        <Button variant='secondary' onClick={resetFilters}>
+        <Button onClick={resetFilters} variant='secondary'>
           Reset
         </Button>
       </form>
@@ -344,27 +344,27 @@ export default function Component(props: {
             <Card className='rounded-md py-3'>
               <CardContent className='space-y-3 px-3'>
                 <Link
-                  href={`/doctors/${doctor.id}`}
                   className='relative block min-h-40 overflow-hidden rounded-md'
+                  href={`/doctors/${doctor.id}`}
                 >
                   <Image
+                    alt={doctor.name as string}
                     fill
                     priority
-                    unoptimized
-                    alt={doctor.name as string}
                     sizes='(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw'
                     src={
                       `${!doctor.hasOAuth ? `${DOMAIN.LOCAL}/api/upload/` : ''}${doctor.image}` ||
                       (UI.DEFAULT_PROFILE_IMAGE as string)
                     }
+                    unoptimized
                   />
                 </Link>
                 <ul className='flex flex-wrap gap-2'>
                   {doctor.timings.map(t => (
                     <li key={t.id}>
                       <Badge
-                        variant='outline'
                         className='text-xs font-semibold capitalize'
+                        variant='outline'
                       >
                         {formatTime(t.time)}
                       </Badge>
@@ -383,8 +383,8 @@ export default function Component(props: {
                       {doctor.UserSpecialities.map(({ speciality }) => (
                         <li key={speciality.name}>
                           <Badge
-                            variant='outline'
                             className='text-xs font-semibold capitalize'
+                            variant='outline'
                           >
                             {speciality.name.toLowerCase()}
                           </Badge>
@@ -393,8 +393,8 @@ export default function Component(props: {
                     </ul>
                   </div>
                   <Badge
-                    variant='secondary'
                     className='text-xs font-semibold capitalize'
+                    variant='secondary'
                   >
                     {doctor.experience} Years
                   </Badge>

@@ -47,21 +47,21 @@ export default function Component() {
         <CardContent>
           <Form {...form}>
             <form
-              id='permission-form'
               className='space-y-2'
+              id='permission-form'
               onSubmit={form.handleSubmit(handleSubmit)}
             >
               <FormField
-                name='name'
                 control={form.control}
+                name='name'
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Name</FormLabel>
                     <FormControl>
                       <Input
                         {...field}
-                        type='text'
                         placeholder='VIEW:DASHBOARD'
+                        type='text'
                       />
                     </FormControl>
                     <FormMessage />
@@ -73,10 +73,10 @@ export default function Component() {
         </CardContent>
         <CardFooter>
           <Button
-            type='submit'
+            className='cursor-pointer'
             disabled={pending}
             form='permission-form'
-            className='cursor-pointer'
+            type='submit'
           >
             {pending ? 'Adding permission...' : 'Add permission'}
           </Button>

@@ -29,8 +29,6 @@ export default async function Page() {
 
   return (
     <Component
-      user={session?.user as User}
-      key={appointments.map(s => s.updatedAt).toString()}
       appointments={appointments.map(apt => ({
         ...apt,
         date: getDate(apt.date.toString()),
@@ -38,6 +36,8 @@ export default async function Page() {
         patient: apt.name,
         time: apt.timeSlot.time
       }))}
+      key={appointments.map(s => s.updatedAt).toString()}
+      user={session?.user as User}
     />
   );
 }

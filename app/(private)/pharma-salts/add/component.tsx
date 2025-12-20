@@ -55,16 +55,16 @@ export default function Component() {
               onSubmit={form.handleSubmit(handleSubmit)}
             >
               <FormField
-                name='name'
                 control={form.control}
+                name='name'
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Name</FormLabel>
                     <FormControl>
                       <Input
                         {...field}
-                        type='text'
                         placeholder='Atorvastatin'
+                        type='text'
                       />
                     </FormControl>
                     <FormMessage />
@@ -72,8 +72,8 @@ export default function Component() {
                 )}
               />
               <FormField
-                name='description'
                 control={form.control}
+                name='description'
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Description</FormLabel>
@@ -92,10 +92,10 @@ export default function Component() {
         </CardContent>
         <CardFooter>
           <Button
-            type='submit'
-            form='pharma-salt-form'
             className='cursor-pointer'
             disabled={form.formState.isLoading}
+            form='pharma-salt-form'
+            type='submit'
           >
             {form.formState.isLoading ? 'Saving...' : 'Save'}
           </Button>

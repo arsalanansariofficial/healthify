@@ -64,9 +64,9 @@ function Menu({
   const menuTrigger = (
     <DropdownMenuTrigger asChild>
       <Button
+        className='data-[state=open]:bg-muted text-muted-foreground flex size-8'
         size='icon'
         variant='ghost'
-        className='data-[state=open]:bg-muted text-muted-foreground flex size-8'
       >
         <IconDotsVertical />
         <span className='sr-only'>Open menu</span>
@@ -80,7 +80,6 @@ function Menu({
       {ids && ids.length > 0 && isHeader && menuTrigger}
       <DropdownMenuContent align='end' className='w-32'>
         <DropdownMenuItem
-          variant='destructive'
           onClick={async () => {
             if (!isHeader) {
               toast.promise(deleteMedicationForm(id as string), {
@@ -106,6 +105,7 @@ function Menu({
               });
             }
           }}
+          variant='destructive'
         >
           Delete
         </DropdownMenuItem>
@@ -136,7 +136,7 @@ export function TableCellViewer<T extends z.ZodType>(props: {
   return (
     <Drawer direction={isMobile ? 'bottom' : 'right'}>
       <DrawerTrigger asChild onClick={e => e.currentTarget.blur()}>
-        <Button variant='link' className='text-foreground px-0 capitalize'>
+        <Button className='text-foreground px-0 capitalize' variant='link'>
           {props.item.name}
         </Button>
       </DrawerTrigger>
@@ -149,23 +149,23 @@ export function TableCellViewer<T extends z.ZodType>(props: {
         </DrawerHeader>
         <Form {...form}>
           <form
+            className='space-y-2 overflow-y-auto p-4 text-sm'
             id='form'
             onSubmit={form.handleSubmit(handleSubmit)}
-            className='space-y-2 overflow-y-auto p-4 text-sm'
           >
             <FormField
-              name='name'
               control={form.control}
+              name='name'
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Name</FormLabel>
                   <FormControl>
                     <Input
                       {...field}
+                      className='capitalize'
+                      placeholder='Tablet'
                       type='text'
                       value={field.value}
-                      placeholder='Tablet'
-                      className='capitalize'
                     />
                   </FormControl>
                   <FormMessage />
@@ -173,16 +173,16 @@ export function TableCellViewer<T extends z.ZodType>(props: {
               )}
             />
             <FormField
-              name='description'
               control={form.control}
+              name='description'
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Description</FormLabel>
                   <FormControl>
                     <Textarea
                       {...field}
-                      value={field.value}
                       placeholder='Compressed or molded solid preparation containing active ingredients.'
+                      value={field.value}
                     />
                   </FormControl>
                   <FormMessage />
@@ -193,10 +193,10 @@ export function TableCellViewer<T extends z.ZodType>(props: {
         </Form>
         <DrawerFooter>
           <Button
-            form='form'
-            type='submit'
             className='cursor-pointer'
             disabled={form.formState.isLoading}
+            form='form'
+            type='submit'
           >
             {form.formState.isLoading ? 'Saving...' : 'Save'}
           </Button>
@@ -240,11 +240,11 @@ export default function Component(props: {
         header: ({ table }) => (
           <Checkbox
             aria-label='Select all'
-            onCheckedChange={value => table.toggleAllPageRowsSelected(!!value)}
             checked={
               table.getIsAllPageRowsSelected() ||
               (table.getIsSomePageRowsSelected() && 'indeterminate')
             }
+            onCheckedChange={value => table.toggleAllPageRowsSelected(!!value)}
           />
         ),
         id: 'select'
@@ -253,8 +253,8 @@ export default function Component(props: {
         accessorKey: 'name',
         cell: ({ row }) => (
           <TableCellViewer
-            key={Date.now()}
             item={props.forms.find(m => m.id === String(row.original.id))}
+            key={Date.now()}
           />
         ),
         enableHiding: false,
@@ -275,15 +275,15 @@ export default function Component(props: {
       },
       {
         cell: ({ row }) => (
-          <Menu isHeader={false} id={row.original.id.toString()} />
+          <Menu id={row.original.id.toString()} isHeader={false} />
         ),
         header: ({ table }) => {
           return (
             <Menu
-              isHeader={true}
               ids={table
                 .getSelectedRowModel()
                 .rows.map(r => r.original.id.toString())}
+              isHeader={true}
             />
           );
         },

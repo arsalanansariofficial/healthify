@@ -11,9 +11,9 @@ export default async function Page() {
 
   return (
     <Component
+      key={salts.map(c => c.updatedAt).toString()}
       salts={salts}
       user={session.user}
-      key={salts.map(c => c.updatedAt).toString()}
     />
   );
 }

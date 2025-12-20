@@ -8,11 +8,11 @@ export function Label(props: React.ComponentProps<typeof Root>) {
   return (
     <Root
       {...props}
-      data-slot='label'
       className={cn(
         'flex items-center gap-2 text-sm leading-none font-medium select-none group-data-[disabled=true]:pointer-events-none group-data-[disabled=true]:opacity-50 peer-disabled:cursor-not-allowed peer-disabled:opacity-50',
         props.className
       )}
+      data-slot='label'
     />
   );
 }

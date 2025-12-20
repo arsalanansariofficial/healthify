@@ -32,13 +32,13 @@ export default function Component({ email }: { email: string }) {
         <CN.CardContent>
           <RHF.Form {...form}>
             <form
-              id='reset-form'
               className='space-y-2'
+              id='reset-form'
               onSubmit={form.handleSubmit(handleSubmit)}
             >
               <RHF.FormField
-                name='password'
                 control={form.control}
+                name='password'
                 render={({ field }) => (
                   <RHF.FormItem>
                     <RHF.FormLabel className='flex items-center justify-between'>
@@ -47,8 +47,8 @@ export default function Component({ email }: { email: string }) {
                     <RHF.FormControl>
                       <Input
                         {...field}
-                        type='password'
                         placeholder='Secret@123'
+                        type='password'
                       />
                     </RHF.FormControl>
                     <RHF.FormMessage />
@@ -60,10 +60,10 @@ export default function Component({ email }: { email: string }) {
         </CN.CardContent>
         <CN.CardFooter>
           <Button
-            type='submit'
-            form='reset-form'
-            disabled={pending}
             className='w-full cursor-pointer'
+            disabled={pending}
+            form='reset-form'
+            type='submit'
           >
             {pending ? 'Updating password...' : 'Reset password'}
           </Button>

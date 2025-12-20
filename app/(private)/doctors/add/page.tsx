@@ -9,11 +9,11 @@ export default async function Page() {
 
   return (
     <Component
-      user={session?.user as User}
       specialities={(await prisma.speciality.findMany()).map(s => ({
         label: s.name,
         value: s.id
       }))}
+      user={session?.user as User}
     />
   );
 }

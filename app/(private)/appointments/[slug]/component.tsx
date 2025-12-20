@@ -84,31 +84,31 @@ export default function Component({
         <CardContent>
           <Form {...form}>
             <form
-              id='appointment-form'
               className='space-y-2'
+              id='appointment-form'
               onSubmit={form.handleSubmit(handleSubmit)}
             >
               <div className='space-y-2'>
                 <Label htmlFor='doctor-name'>Doctor</Label>
                 <Input
-                  readOnly
-                  type='text'
                   name='doctor-name'
                   placeholder='Gwen Tennyson'
+                  readOnly
+                  type='text'
                   value={doctor.name as string}
                 />
               </div>
               <FormField
-                name='name'
                 control={form.control}
+                name='name'
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Name</FormLabel>
                     <FormControl>
                       <Input
                         {...field}
-                        type='text'
                         placeholder='Gwen Tennyson'
+                        type='text'
                       />
                     </FormControl>
                     <FormMessage />
@@ -116,16 +116,16 @@ export default function Component({
                 )}
               />
               <FormField
-                name='email'
                 control={form.control}
+                name='email'
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Email</FormLabel>
                     <FormControl>
                       <Input
                         {...field}
-                        type='email'
                         placeholder='your.name@domain.com'
+                        type='email'
                       />
                     </FormControl>
                     <FormMessage />
@@ -133,16 +133,16 @@ export default function Component({
                 )}
               />
               <FormField
-                name='phone'
                 control={form.control}
+                name='phone'
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Phone</FormLabel>
                     <FormControl>
                       <Input
                         {...field}
-                        type='tel'
                         placeholder='+919876543210'
+                        type='tel'
                       />
                     </FormControl>
                     <FormMessage />
@@ -150,21 +150,21 @@ export default function Component({
                 )}
               />
               <FormField
-                name='city'
                 control={form.control}
+                name='city'
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>City</FormLabel>
                     <FormControl>
-                      <Input {...field} type='text' placeholder='Moradabad' />
+                      <Input {...field} placeholder='Moradabad' type='text' />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
                 )}
               />
               <FormField
-                name='date'
                 control={form.control}
+                name='date'
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Day</FormLabel>
@@ -172,9 +172,9 @@ export default function Component({
                       <Popover>
                         <PopoverTrigger asChild>
                           <Button
-                            variant='outline'
-                            data-empty={!field.value}
                             className='data-[empty=true]:text-muted-foreground flex justify-between text-left font-normal'
+                            data-empty={!field.value}
+                            variant='outline'
                           >
                             {field.value && format(field.value, 'PPP')}
                             {!field.value && <span>Pick a date</span>}
@@ -183,13 +183,6 @@ export default function Component({
                         </PopoverTrigger>
                         <PopoverContent className='w-auto p-0'>
                           <Calendar
-                            mode='single'
-                            selected={field.value}
-                            onSelect={field.onChange}
-                            hidden={{
-                              after: DATES.MAX_DATE as Date,
-                              before: DATES.MIN_DATE as Date
-                            }}
                             disabled={date =>
                               !doctor.daysOfVisit.includes(
                                 date.toLocaleDateString('en-US', {
@@ -197,6 +190,13 @@ export default function Component({
                                 }) as Day
                               )
                             }
+                            hidden={{
+                              after: DATES.MAX_DATE as Date,
+                              before: DATES.MIN_DATE as Date
+                            }}
+                            mode='single'
+                            onSelect={field.onChange}
+                            selected={field.value}
                           />
                         </PopoverContent>
                       </Popover>
@@ -206,8 +206,8 @@ export default function Component({
                 )}
               />
               <FormField
-                name='time'
                 control={form.control}
+                name='time'
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Time</FormLabel>
@@ -219,9 +219,9 @@ export default function Component({
                         <SelectContent>
                           {doctor.timings.map(time => (
                             <SelectItem
+                              className='capitalize'
                               key={time.id}
                               value={time.id}
-                              className='capitalize'
                             >
                               {formatTime(time.time)}
                             </SelectItem>
@@ -234,8 +234,8 @@ export default function Component({
                 )}
               />
               <FormField
-                name='notes'
                 control={form.control}
+                name='notes'
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Notes</FormLabel>
@@ -253,7 +253,7 @@ export default function Component({
           </Form>
         </CardContent>
         <CardFooter>
-          <Button type='submit' form='appointment-form' disabled={pending}>
+          <Button disabled={pending} form='appointment-form' type='submit'>
             {pending ? 'Saving...' : 'Save'}
           </Button>
         </CardFooter>

@@ -51,7 +51,10 @@ export async function updateHospital(
     await prisma.hospital.update({
       data: {
         ...result.data,
-        doctors: { connect: result.data.doctors.map(d => ({ id: d })), set: [] },
+        doctors: {
+          connect: result.data.doctors.map(d => ({ id: d })),
+          set: []
+        },
         isAffiliated: result.data.isAffiliated === 'yes'
       },
       where: { id }

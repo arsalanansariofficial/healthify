@@ -64,9 +64,9 @@ function Menu({
   const menuTrigger = (
     <DropdownMenuTrigger asChild>
       <Button
+        className='data-[state=open]:bg-muted text-muted-foreground flex size-8'
         size='icon'
         variant='ghost'
-        className='data-[state=open]:bg-muted text-muted-foreground flex size-8'
       >
         <IconDotsVertical />
         <span className='sr-only'>Open menu</span>
@@ -80,7 +80,6 @@ function Menu({
       {ids && ids.length > 0 && isHeader && menuTrigger}
       <DropdownMenuContent align='end' className='w-32'>
         <DropdownMenuItem
-          variant='destructive'
           onClick={async () => {
             if (!isHeader) {
               toast.promise(deleteSpeciality(id as string), {
@@ -106,6 +105,7 @@ function Menu({
               });
             }
           }}
+          variant='destructive'
         >
           Delete
         </DropdownMenuItem>
@@ -135,7 +135,7 @@ export function TableCellViewer<T extends z.ZodType>(props: {
   return (
     <Drawer direction={isMobile ? 'bottom' : 'right'}>
       <DrawerTrigger asChild onClick={e => e.currentTarget.blur()}>
-        <Button variant='link' className='text-foreground px-0'>
+        <Button className='text-foreground px-0' variant='link'>
           {props.item.id}
         </Button>
       </DrawerTrigger>
@@ -149,18 +149,18 @@ export function TableCellViewer<T extends z.ZodType>(props: {
         <div className='flex flex-col gap-4 overflow-y-auto px-4 text-sm'>
           <Form {...form}>
             <form
-              id='speciality-form'
               className='space-y-2'
+              id='speciality-form'
               onSubmit={form.handleSubmit(handleSubmit)}
             >
               <FormField
-                name='name'
                 control={form.control}
+                name='name'
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Speciality</FormLabel>
                     <FormControl>
-                      <Input {...field} type='name' placeholder='Physician' />
+                      <Input {...field} placeholder='Physician' type='name' />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -171,10 +171,10 @@ export function TableCellViewer<T extends z.ZodType>(props: {
         </div>
         <DrawerFooter>
           <Button
-            type='submit'
+            className='cursor-pointer'
             disabled={pending}
             form='speciality-form'
-            className='cursor-pointer'
+            type='submit'
           >
             {pending ? 'Saving...' : 'Save'}
           </Button>
@@ -216,11 +216,11 @@ export default function Component(props: {
         header: ({ table }) => (
           <Checkbox
             aria-label='Select all'
-            onCheckedChange={value => table.toggleAllPageRowsSelected(!!value)}
             checked={
               table.getIsAllPageRowsSelected() ||
               (table.getIsSomePageRowsSelected() && 'indeterminate')
             }
+            onCheckedChange={value => table.toggleAllPageRowsSelected(!!value)}
           />
         ),
         id: 'select'
@@ -229,10 +229,10 @@ export default function Component(props: {
         accessorKey: 'id',
         cell: ({ row }) => (
           <TableCellViewer
-            key={Date.now()}
             item={props.specialities.find(
               s => s.id === String(row.original.id)
             )}
+            key={Date.now()}
           />
         ),
         header: 'Id',
@@ -254,15 +254,15 @@ export default function Component(props: {
       },
       {
         cell: ({ row }) => (
-          <Menu isHeader={false} id={row.original.id.toString()} />
+          <Menu id={row.original.id.toString()} isHeader={false} />
         ),
         header: ({ table }) => {
           return (
             <Menu
-              isHeader={true}
               ids={table
                 .getSelectedRowModel()
                 .rows.map(r => r.original.id.toString())}
+              isHeader={true}
             />
           );
         },

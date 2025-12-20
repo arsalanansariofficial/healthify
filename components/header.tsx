@@ -36,8 +36,8 @@ export default function Header({ user }: { user: User }) {
         <div className='grid grid-cols-[1fr_auto] gap-4'>
           <div className='grid grid-flow-col grid-cols-[auto_1fr] items-center gap-4'>
             <Link
-              href={ROUTES.DASHBOARD}
               className='hover:bg-accent relative hidden aspect-square rounded-md p-4 lg:block'
+              href={ROUTES.DASHBOARD}
             >
               <span className='absolute top-1/2 left-1/2 mt-0.5 ml-0.5 grid min-w-5 -translate-x-1/2 -translate-y-1/2 -rotate-45 gap-1'>
                 <span className='bg-primary h-1 w-full rounded-md'></span>
@@ -45,8 +45,8 @@ export default function Header({ user }: { user: User }) {
               </span>
             </Link>
             <button
-              onClick={() => setHasMenu(hasMenu => !hasMenu)}
               className='hover:bg-accent grid aspect-square place-items-center rounded-md p-2 lg:hidden'
+              onClick={() => setHasMenu(hasMenu => !hasMenu)}
             >
               <span className={cn('grid min-w-5 gap-1', { 'gap-0': hasMenu })}>
                 <span
@@ -65,14 +65,14 @@ export default function Header({ user }: { user: User }) {
             </button>
             <nav className='hidden grid-flow-col gap-4 justify-self-start lg:grid'>
               <Link
-                href='/docs'
                 className='hover:bg-accent rounded-md px-2 py-1 font-semibold'
+                href='/docs'
               >
                 Docs
               </Link>
               <Link
-                href='/components'
                 className='hover:bg-accent rounded-md px-2 py-1 font-semibold'
+                href='/components'
               >
                 Components
               </Link>
@@ -80,10 +80,10 @@ export default function Header({ user }: { user: User }) {
           </div>
           <div className='grid grid-flow-col items-center gap-4'>
             <Input
-              type='text'
+              className='placeholder:text-muted-foreground hidden placeholder:font-semibold md:block'
               name='search'
               placeholder='Search...'
-              className='placeholder:text-muted-foreground hidden placeholder:font-semibold md:block'
+              type='text'
             />
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
@@ -93,9 +93,9 @@ export default function Header({ user }: { user: User }) {
                   />
                   <AvatarFallback className='bg-transparent'>
                     <FontAwesomeIcon
-                      size='lg'
-                      icon={faGithub}
                       className='h-5 w-5'
+                      icon={faGithub}
+                      size='lg'
                     />
                   </AvatarFallback>
                 </Avatar>
@@ -117,11 +117,11 @@ export default function Header({ user }: { user: User }) {
               </DropdownMenuContent>
             </DropdownMenu>
             <Button
-              size='icon'
-              variant='ghost'
               onClick={() => {
                 return theme === 'light' ? setTheme('dark') : setTheme('light');
               }}
+              size='icon'
+              variant='ghost'
             >
               <Sun className='h-[1.2rem] w-[1.2rem] scale-0 -rotate-90 transition-all dark:scale-100 dark:rotate-0' />
               <Moon className='absolute h-[1.2rem] w-[1.2rem] scale-100 rotate-0 transition-all dark:scale-0 dark:rotate-90' />
@@ -137,7 +137,7 @@ export default function Header({ user }: { user: User }) {
         )}
       >
         <div className='h-full'>
-          <Menu user={user} entries={Array.from(SIDEBAR.entries())} />
+          <Menu entries={Array.from(SIDEBAR.entries())} user={user} />
         </div>
       </nav>
     </>

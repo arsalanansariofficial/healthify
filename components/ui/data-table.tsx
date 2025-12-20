@@ -103,8 +103,8 @@ export function DragHandle({ id }: { id: number }) {
       size='icon'
       {...listeners}
       {...attributes}
-      variant='ghost'
       className='text-muted-foreground size-7 hover:bg-transparent'
+      variant='ghost'
     >
       <IconGripVertical className='text-muted-foreground size-3' />
       <span className='sr-only'>Drag to reorder</span>
@@ -120,10 +120,10 @@ export function DraggableRow<T extends z.ZodType>(props: DraggableRowProps<T>) {
 
   return (
     <TableRow
-      data-state={row.getIsSelected() && 'selected'}
-      data-dragging={isDragging}
-      ref={setNodeRef}
       className='relative z-0 data-[dragging=true]:z-10 data-[dragging=true]:opacity-80'
+      data-dragging={isDragging}
+      data-state={row.getIsSelected() && 'selected'}
+      ref={setNodeRef}
       style={{
         transform: CSS.Transform.toString(transform),
         transition: transition
@@ -222,8 +222,8 @@ export function DataTable<T extends z.ZodType>(props: DataTableProps<T>) {
 
   return (
     <Tabs
-      defaultValue='outline'
       className='w-full flex-col justify-start gap-6'
+      defaultValue='outline'
     >
       <div className='flex justify-between gap-2'>
         <div className='grid auto-cols-auto grid-flow-col gap-2'>
@@ -234,13 +234,13 @@ export function DataTable<T extends z.ZodType>(props: DataTableProps<T>) {
               return (
                 <TimePicker
                   key={filter.id}
-                  value={value as string}
                   onChange={val =>
                     setFilterValues(prev => ({
                       ...prev,
                       [filter.id]: val
                     }))
                   }
+                  value={value as string}
                 />
               );
             }
@@ -250,9 +250,9 @@ export function DataTable<T extends z.ZodType>(props: DataTableProps<T>) {
                 <Popover key={filter.id}>
                   <PopoverTrigger asChild>
                     <Button
-                      variant='outline'
-                      data-empty={!value}
                       className='data-[empty=true]:text-muted-foreground flex justify-between text-left font-normal'
+                      data-empty={!value}
+                      variant='outline'
                     >
                       {value && format(value, 'PPP')}
                       {!value && <span>Pick a date</span>}
@@ -262,17 +262,15 @@ export function DataTable<T extends z.ZodType>(props: DataTableProps<T>) {
                   <PopoverContent className='w-auto p-0'>
                     <Calendar
                       mode='single'
-                      selected={value as Date}
                       onSelect={value =>
                         setFilterValues(prev => ({
                           ...prev,
                           [filter.id]: getDate(value?.toString())
                         }))
                       }
+                      selected={value as Date}
                     />
                     <Button
-                      size='sm'
-                      variant='ghost'
                       className='w-full text-red-500'
                       onClick={() =>
                         setFilterValues(prev => ({
@@ -280,6 +278,8 @@ export function DataTable<T extends z.ZodType>(props: DataTableProps<T>) {
                           [filter.id]: ''
                         }))
                       }
+                      size='sm'
+                      variant='ghost'
                     >
                       Clear
                     </Button>
@@ -290,17 +290,17 @@ export function DataTable<T extends z.ZodType>(props: DataTableProps<T>) {
 
             return (
               <Input
+                className='max-w-sm'
                 key={filter.id}
                 name={filter.id}
-                className='max-w-sm'
-                placeholder={filter.placeholder}
-                value={(filterValues[filter.id] as string) ?? ''}
                 onChange={e =>
                   setFilterValues(prev => ({
                     ...prev,
                     [filter.id]: e.target.value
                   }))
                 }
+                placeholder={filter.placeholder}
+                value={(filterValues[filter.id] as string) ?? ''}
               />
             );
           })}
@@ -308,7 +308,7 @@ export function DataTable<T extends z.ZodType>(props: DataTableProps<T>) {
         <div className='flex items-center gap-2'>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant='outline' size='sm' className='h-full'>
+              <Button className='h-full' size='sm' variant='outline'>
                 <IconLayoutColumns />
                 <span className='hidden lg:inline'>Customize Columns</span>
                 <span className='lg:hidden'>Columns</span>
@@ -326,9 +326,9 @@ export function DataTable<T extends z.ZodType>(props: DataTableProps<T>) {
                 .map(column => {
                   return (
                     <DropdownMenuCheckboxItem
-                      key={column.id}
-                      className='capitalize'
                       checked={column.getIsVisible()}
+                      className='capitalize'
+                      key={column.id}
                       onCheckedChange={value =>
                         column.toggleVisibility(!!value)
                       }
@@ -342,16 +342,16 @@ export function DataTable<T extends z.ZodType>(props: DataTableProps<T>) {
         </div>
       </div>
       <TabsContent
-        value='outline'
         className='relative flex flex-col gap-4 overflow-auto'
+        value='outline'
       >
         <div className='overflow-hidden rounded-lg border'>
           <DndContext
-            id={sortableId}
-            sensors={sensors}
-            onDragEnd={handleDragEnd}
             collisionDetection={closestCenter}
+            id={sortableId}
             modifiers={[restrictToVerticalAxis]}
+            onDragEnd={handleDragEnd}
+            sensors={sensors}
           >
             <Table>
               <TableHeader className='bg-muted sticky top-0 z-10'>
@@ -359,7 +359,7 @@ export function DataTable<T extends z.ZodType>(props: DataTableProps<T>) {
                   <TableRow key={headerGroup.id}>
                     {headerGroup.headers.map(header => {
                       return (
-                        <TableHead key={header.id} colSpan={header.colSpan}>
+                        <TableHead colSpan={header.colSpan} key={header.id}>
                           {!header.isPlaceholder &&
                             flexRender(
                               header.column.columnDef.header,
@@ -403,16 +403,16 @@ export function DataTable<T extends z.ZodType>(props: DataTableProps<T>) {
           </div>
           <div className='flex w-full items-center gap-8 lg:w-fit'>
             <div className='hidden items-center gap-2 lg:flex'>
-              <Label htmlFor='rows-per-page' className='text-sm font-medium'>
+              <Label className='text-sm font-medium' htmlFor='rows-per-page'>
                 Rows per page
               </Label>
               <Select
-                value={`${table.getState().pagination.pageSize}`}
                 onValueChange={value => {
                   table.setPageSize(Number(value));
                 }}
+                value={`${table.getState().pagination.pageSize}`}
               >
-                <SelectTrigger size='sm' className='w-20' id='rows-per-page'>
+                <SelectTrigger className='w-20' id='rows-per-page' size='sm'>
                   <SelectValue
                     placeholder={table.getState().pagination.pageSize}
                   />
@@ -432,40 +432,40 @@ export function DataTable<T extends z.ZodType>(props: DataTableProps<T>) {
             </div>
             <div className='ml-auto flex items-center gap-2 lg:ml-0'>
               <Button
-                variant='outline'
                 className='hidden h-8 w-8 p-0 lg:flex'
                 disabled={!table.getCanPreviousPage()}
                 onClick={() => table.setPageIndex(0)}
+                variant='outline'
               >
                 <span className='sr-only'>Go to first page</span>
                 <IconChevronsLeft />
               </Button>
               <Button
-                size='icon'
-                variant='outline'
                 className='size-8'
                 disabled={!table.getCanPreviousPage()}
                 onClick={() => table.previousPage()}
+                size='icon'
+                variant='outline'
               >
                 <span className='sr-only'>Go to previous page</span>
                 <IconChevronLeft />
               </Button>
               <Button
-                size='icon'
-                variant='outline'
                 className='size-8'
                 disabled={!table.getCanNextPage()}
                 onClick={() => table.nextPage()}
+                size='icon'
+                variant='outline'
               >
                 <span className='sr-only'>Go to next page</span>
                 <IconChevronRight />
               </Button>
               <Button
-                size='icon'
-                variant='outline'
                 className='hidden size-8 lg:flex'
                 disabled={!table.getCanNextPage()}
                 onClick={() => table.setPageIndex(table.getPageCount() - 1)}
+                size='icon'
+                variant='outline'
               >
                 <span className='sr-only'>Go to last page</span>
                 <IconChevronsRight />

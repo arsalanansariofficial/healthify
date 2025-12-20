@@ -1,6 +1,6 @@
 'use client';
 
-import { AppointmentStatus } from '@prisma/client';
+import { Appointment, AppointmentStatus } from '@prisma/client';
 import { IconDotsVertical } from '@tabler/icons-react';
 import { ColumnDef } from '@tanstack/react-table';
 import { Check, Printer, X } from 'lucide-react';
@@ -17,10 +17,10 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { DataTable, DragHandle } from '@/components/ui/data-table';
 import {
   Drawer,
-  DrawerClose,
   DrawerTitle,
   DrawerFooter,
   DrawerHeader,
+  DrawerClose,
   DrawerContent,
   DrawerTrigger,
   DrawerDescription
@@ -49,19 +49,6 @@ import {
   hasPermission
 } from '@/lib/utils';
 
-type TableSchema = { id: number } & Omit<Appointment, 'id'>;
-type MenuProps = { id?: string; ids?: string[]; isHeader: boolean };
-type TCVProps<T extends z.ZodType> = { user: User; item: z.infer<T> };
-type Props = { user: User; appointments: (Appointment & { doctor: string })[] };
-
-type Appointment = {
-  id: string;
-  date: string;
-  time: string;
-  patient: string;
-  status: AppointmentStatus;
-};
-
 function findItem<T extends { id: string | string }>(
   items: T[],
   id: number | string
@@ -69,13 +56,21 @@ function findItem<T extends { id: string | string }>(
   return items.find(item => String(item.id) === String(id));
 }
 
-function Menu({ id, ids, isHeader = false }: MenuProps) {
+function Menu({
+  id,
+  ids,
+  isHeader = false
+}: {
+  id?: string;
+  ids?: string[];
+  isHeader: boolean;
+}) {
   const menuTrigger = (
     <DropdownMenuTrigger asChild>
       <Button
+        className='data-[state=open]:bg-muted text-muted-foreground flex size-8'
         size='icon'
         variant='ghost'
-        className='data-[state=open]:bg-muted text-muted-foreground flex size-8'
       >
         <IconDotsVertical />
         <span className='sr-only'>Open menu</span>
@@ -89,7 +84,6 @@ function Menu({ id, ids, isHeader = false }: MenuProps) {
       {ids && ids.length > 0 && isHeader && menuTrigger}
       <DropdownMenuContent align='end' className='w-32'>
         <DropdownMenuItem
-          variant='destructive'
           onClick={async () => {
             if (!isHeader) {
               toast.promise(deleteSpeciality(id as string), {
@@ -115,6 +109,7 @@ function Menu({ id, ids, isHeader = false }: MenuProps) {
               });
             }
           }}
+          variant='destructive'
         >
           Delete
         </DropdownMenuItem>
@@ -123,7 +118,10 @@ function Menu({ id, ids, isHeader = false }: MenuProps) {
   );
 }
 
-export function TableCellViewer<T extends z.ZodType>(props: TCVProps<T>) {
+export function TableCellViewer<T extends z.ZodType>(props: {
+  user: User;
+  item: z.infer<T>;
+}) {
   const isMobile = useIsMobile();
   const { date, status, time } = props.item;
   const isInFuture = isPastByTime(
@@ -153,7 +151,7 @@ export function TableCellViewer<T extends z.ZodType>(props: TCVProps<T>) {
   return (
     <Drawer direction={isMobile ? 'bottom' : 'right'}>
       <DrawerTrigger asChild onClick={e => e.currentTarget.blur()}>
-        <Button variant='link' className='text-foreground px-0'>
+        <Button className='text-foreground px-0' variant='link'>
           {props.item.id.slice(-5)}
         </Button>
       </DrawerTrigger>
@@ -165,63 +163,63 @@ export function TableCellViewer<T extends z.ZodType>(props: TCVProps<T>) {
           </DrawerDescription>
         </DrawerHeader>
         <div className='flex flex-col gap-4 overflow-y-auto px-4 text-sm'>
-          <form id='appointment-form' className='space-y-2'>
+          <form className='space-y-2' id='appointment-form'>
             <div className='space-y-2'>
               <Label htmlFor='patient-name'>Patient</Label>
               <Input
+                defaultValue={props.item.patient}
                 disabled
-                readOnly
-                type='text'
                 id='patient-name'
                 name='patient-name'
                 placeholder='Gwen Tennyson'
-                defaultValue={props.item.patient}
+                readOnly
+                type='text'
               />
             </div>
             <div className='space-y-2'>
               <Label htmlFor='doctor-name'>Doctor</Label>
               <Input
+                defaultValue={props.item.doctor}
                 disabled
-                readOnly
-                type='text'
                 id='doctor-name'
                 name='doctor-name'
                 placeholder='Gwen Tennyson'
-                defaultValue={props.item.doctor}
+                readOnly
+                type='text'
               />
             </div>
             <div className='space-y-2'>
               <Label htmlFor='date'>Date</Label>
               <Input
+                defaultValue={getDate(props.item.date, false)}
                 disabled
                 id='date'
                 name='date'
-                type='text'
                 placeholder='Aug 1 2025'
-                defaultValue={getDate(props.item.date, false)}
+                type='text'
               />
             </div>
             <div className='space-y-2'>
               <Label htmlFor='time'>Time</Label>
               <Input
+                defaultValue={formatTime(props.item.time)}
                 disabled
                 id='time'
                 name='time'
-                type='text'
                 placeholder='10:00:00'
-                defaultValue={formatTime(props.item.time)}
+                type='text'
               />
             </div>
             <div className='space-y-2'>
               <Label htmlFor='status'>Status</Label>
               <Input
+                className='capitalize'
+                defaultValue={props.item.status}
                 disabled
                 id='status'
-                type='text'
                 name='status'
-                className='capitalize'
                 placeholder='Confirmed'
-                defaultValue={props.item.status}
+                type='text'
               />
             </div>
           </form>
@@ -233,12 +231,12 @@ export function TableCellViewer<T extends z.ZodType>(props: TCVProps<T>) {
                 status === AppointmentStatus.confirmed) &&
               hasPermission(props.user.permissions, 'cancel:appointment') && (
                 <Button
+                  className='cursor-pointer'
+                  disabled={validating || cancelling}
+                  form='appointment-form'
+                  onClick={cancelAppointment}
                   type='submit'
                   variant='outline'
-                  form='appointment-form'
-                  className='cursor-pointer'
-                  onClick={cancelAppointment}
-                  disabled={validating || cancelling}
                 >
                   {!isMobile && (
                     <span>{cancelling ? 'Cancelling...' : 'Cancel'}</span>
@@ -250,11 +248,11 @@ export function TableCellViewer<T extends z.ZodType>(props: TCVProps<T>) {
               status === AppointmentStatus.pending &&
               hasPermission(props.user.permissions, 'confirm:appointment') && (
                 <Button
-                  type='submit'
-                  form='appointment-form'
                   className='cursor-pointer'
-                  onClick={confirmAppointment}
                   disabled={validating || cancelling}
+                  form='appointment-form'
+                  onClick={confirmAppointment}
+                  type='submit'
                 >
                   {!isMobile && (
                     <span>{validating ? 'Saving...' : 'Confirm'}</span>
@@ -266,9 +264,9 @@ export function TableCellViewer<T extends z.ZodType>(props: TCVProps<T>) {
               hasPermission(props.user.permissions, 'view:receipt') && (
                 <Button
                   asChild
-                  type='submit'
-                  form='appointment-form'
                   className='cursor-pointer'
+                  form='appointment-form'
+                  type='submit'
                 >
                   <Link href={`/appointments/${props.item.id}/receipt`}>
                     {!isMobile && <span>View Receipt</span>}
@@ -286,8 +284,16 @@ export function TableCellViewer<T extends z.ZodType>(props: TCVProps<T>) {
   );
 }
 
-export default function Component(props: Props) {
-  const columns: ColumnDef<TableSchema>[] = [
+export default function Component(props: {
+  user: User;
+  appointments: (Appointment & {
+    date: string;
+    time: string;
+    doctor: string;
+    patient: string;
+  })[];
+}) {
+  const columns: ColumnDef<{ id: number } & Omit<Appointment, 'id'>>[] = [
     {
       cell({ row }) {
         return <DragHandle id={row.original.id} />;
@@ -308,11 +314,11 @@ export default function Component(props: Props) {
         return (
           <Checkbox
             aria-label='Select all'
-            onCheckedChange={value => table.toggleAllPageRowsSelected(!!value)}
             checked={
               table.getIsAllPageRowsSelected() ||
               (table.getIsSomePageRowsSelected() && 'indeterminate')
             }
+            onCheckedChange={value => table.toggleAllPageRowsSelected(!!value)}
           />
         );
       },
@@ -323,9 +329,9 @@ export default function Component(props: Props) {
       cell({ row }) {
         return (
           <TableCellViewer
+            item={findItem(props.appointments, row.original.id)}
             key={Date.now()}
             user={props.user}
-            item={findItem(props.appointments, row.original.id)}
           />
         );
       },
@@ -400,15 +406,15 @@ export default function Component(props: Props) {
     },
     {
       cell({ row }) {
-        return <Menu isHeader={false} id={row.original.id.toString()} />;
+        return <Menu id={row.original.id.toString()} isHeader={false} />;
       },
       header({ table }) {
         return (
           <Menu
-            isHeader={true}
             ids={table
               .getSelectedRowModel()
               .rows.map(r => r.original.id.toString())}
+            isHeader={true}
           />
         );
       },

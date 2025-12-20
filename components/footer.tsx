@@ -13,8 +13,8 @@ export default function Footer() {
       <p className='text-muted-foreground space-x-1 text-center text-xs leading-5 capitalize'>
         <span>Created By</span>
         <Link
-          href={SOCIAL.WEBSITE as string}
           className='text-muted-foreground hover:text-foreground'
+          href={SOCIAL.WEBSITE as string}
         >
           Arsalan Ansari
         </Link>
@@ -22,42 +22,42 @@ export default function Footer() {
       <ul className='mx-auto flex max-w-fit gap-2'>
         <li>
           <a
-            title='Email'
-            target='_blank'
+            className='text-muted-foreground hover:text-foreground grid'
             href={SOCIAL.EMAIL as string}
-            className='text-muted-foreground hover:text-foreground grid'
+            target='_blank'
+            title='Email'
           >
-            <FontAwesomeIcon size='sm' icon={faEnvelope} />
+            <FontAwesomeIcon icon={faEnvelope} size='sm' />
           </a>
         </li>
         <li>
           <a
-            title='GitHub'
-            target='_blank'
+            className='text-muted-foreground hover:text-foreground grid'
             href={SOCIAL.GITHUB as string}
-            className='text-muted-foreground hover:text-foreground grid'
-          >
-            <FontAwesomeIcon size='sm' icon={faGithub} />
-          </a>
-        </li>
-        <li>
-          <a
-            title='LinkedIn'
             target='_blank'
-            href={SOCIAL.LINKEDIN as string}
-            className='text-muted-foreground hover:text-foreground grid'
+            title='GitHub'
           >
-            <FontAwesomeIcon size='sm' icon={faLinkedin} />
+            <FontAwesomeIcon icon={faGithub} size='sm' />
           </a>
         </li>
         <li>
           <a
+            className='text-muted-foreground hover:text-foreground grid'
+            href={SOCIAL.LINKEDIN as string}
+            target='_blank'
+            title='LinkedIn'
+          >
+            <FontAwesomeIcon icon={faLinkedin} size='sm' />
+          </a>
+        </li>
+        <li>
+          <a
+            className='text-muted-foreground hover:text-foreground grid'
+            href={SOCIAL.WHATSAPP as string}
             target='_blank'
             title='WhatsApp'
-            href={SOCIAL.WHATSAPP as string}
-            className='text-muted-foreground hover:text-foreground grid'
           >
-            <FontAwesomeIcon size='sm' icon={faWhatsapp} />
+            <FontAwesomeIcon icon={faWhatsapp} size='sm' />
           </a>
         </li>
       </ul>

@@ -96,19 +96,19 @@ export default function Component(props: {
               onSubmit={form.handleSubmit(handleSubmit)}
             >
               <FormField
-                name='name'
                 control={form.control}
+                name='name'
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Role</FormLabel>
                     <FormControl>
                       <Select
                         name='role'
-                        value={field.value}
                         onValueChange={role => {
                           field.onChange(role);
                           updateParam('role', role);
                         }}
+                        value={field.value}
                       >
                         <SelectTrigger className='w-full'>
                           <SelectValue placeholder='Select a role' />
@@ -127,17 +127,17 @@ export default function Component(props: {
                 )}
               />
               <FormField
-                name='permissions'
                 control={form.control}
+                name='permissions'
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Role</FormLabel>
                     <FormControl>
                       <MultiSelect
                         options={props.permissions}
+                        placeholder='Select permissions...'
                         selectedValues={field.value}
                         setSelectedValues={field.onChange}
-                        placeholder='Select permissions...'
                       />
                     </FormControl>
                     <FormMessage />
@@ -149,10 +149,10 @@ export default function Component(props: {
         </CardContent>
         <CardFooter>
           <Button
-            type='submit'
-            disabled={pending}
             className='cursor-pointer'
+            disabled={pending}
             form='role-permissions-form'
+            type='submit'
           >
             {pending ? 'Assigning permissions...' : 'Assign permissions'}
           </Button>

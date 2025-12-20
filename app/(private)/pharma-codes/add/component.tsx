@@ -52,39 +52,39 @@ export default function Component() {
         <CardContent>
           <Form {...form}>
             <form
-              id='rx-form'
               className='space-y-2'
+              id='rx-form'
               onSubmit={form.handleSubmit(handleSubmit)}
             >
               <FormField
-                name='frequency'
                 control={form.control}
+                name='frequency'
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Frequency</FormLabel>
                     <FormControl>
-                      <Input {...field} type='number' placeholder='1 tablet' />
+                      <Input {...field} placeholder='1 tablet' type='number' />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
                 )}
               />
               <FormField
-                name='code'
                 control={form.control}
+                name='code'
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Code</FormLabel>
                     <FormControl>
-                      <Input {...field} min={1} type='text' placeholder='Q4H' />
+                      <Input {...field} min={1} placeholder='Q4H' type='text' />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
                 )}
               />
               <FormField
-                name='description'
                 control={form.control}
+                name='description'
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Description</FormLabel>
@@ -103,10 +103,10 @@ export default function Component() {
         </CardContent>
         <CardFooter>
           <Button
-            type='submit'
-            form='rx-form'
             className='cursor-pointer'
             disabled={form.formState.isLoading}
+            form='rx-form'
+            type='submit'
           >
             {form.formState.isLoading ? 'Saving...' : 'Save'}
           </Button>

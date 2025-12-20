@@ -38,9 +38,9 @@ export function FormDescription({ className, ...props }: ComponentProps<'p'>) {
   return (
     <p
       {...props}
-      id={formDescriptionId}
-      data-slot='form-description'
       className={cn('text-muted-foreground text-sm', className)}
+      data-slot='form-description'
+      id={formDescriptionId}
     />
   );
 }
@@ -52,8 +52,8 @@ export function FormItem({ className, ...props }: ComponentProps<'div'>) {
     <FormItemContext.Provider value={{ id }}>
       <div
         {...props}
-        data-slot='form-item'
         className={cn('grid gap-2', className)}
+        data-slot='form-item'
       />
     </FormItemContext.Provider>
   );
@@ -65,10 +65,10 @@ export function FormLabel(props: ComponentProps<typeof LabelPrimitive.Root>) {
   return (
     <Label
       {...props}
-      data-error={!!error}
-      htmlFor={formItemId}
-      data-slot='form-label'
       className={cn('data-[error=true]:text-destructive', props.className)}
+      data-error={!!error}
+      data-slot='form-label'
+      htmlFor={formItemId}
     />
   );
 }
@@ -93,9 +93,9 @@ export function FormMessage({ className, ...props }: ComponentProps<'p'>) {
   return (
     <p
       {...props}
-      id={formMessageId}
-      data-slot='form-message'
       className={cn('text-destructive text-sm', className)}
+      data-slot='form-message'
+      id={formMessageId}
     >
       {body}
     </p>
@@ -109,14 +109,14 @@ export function FormControl({ ...props }: ComponentProps<typeof Slot>) {
   return (
     <Slot
       {...props}
-      id={formItemId}
-      aria-invalid={!!error}
-      data-slot='form-control'
       aria-describedby={
         !error
           ? `${formDescriptionId}`
           : `${formDescriptionId} ${formMessageId}`
       }
+      aria-invalid={!!error}
+      data-slot='form-control'
+      id={formItemId}
     />
   );
 }

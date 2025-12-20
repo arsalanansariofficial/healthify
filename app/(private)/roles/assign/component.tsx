@@ -66,13 +66,13 @@ export default function Component({
         <CardContent>
           <Form {...form}>
             <form
-              id='roles-form'
               className='space-y-2'
+              id='roles-form'
               onSubmit={form.handleSubmit(handleSubmit)}
             >
               <FormField
-                name='name'
                 control={form.control}
+                name='name'
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Name</FormLabel>
@@ -84,8 +84,8 @@ export default function Component({
                 )}
               />
               <FormField
-                name='email'
                 control={form.control}
+                name='email'
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Email</FormLabel>
@@ -97,8 +97,8 @@ export default function Component({
                 )}
               />
               <FormField
-                name='roles'
                 control={form.control}
+                name='roles'
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Roles</FormLabel>
@@ -118,10 +118,10 @@ export default function Component({
         </CardContent>
         <CardFooter>
           <Button
-            type='submit'
-            form='roles-form'
-            disabled={pending}
             className='cursor-pointer'
+            disabled={pending}
+            form='roles-form'
+            type='submit'
           >
             {pending ? 'Adding roles...' : 'Add roles'}
           </Button>

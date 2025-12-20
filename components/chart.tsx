@@ -29,18 +29,18 @@ export default function Chart(props: Props) {
   );
 
   return (
-    <ChartContainer config={props.chartConfig} className={props.className}>
+    <ChartContainer className={props.className} config={props.chartConfig}>
       <BarChart accessibilityLayer data={props.data}>
         <CartesianGrid vertical={false} />
         <XAxis
-          tickMargin={10}
-          tickLine={false}
           axisLine={false}
           dataKey={props.xAxisKey}
+          tickLine={false}
+          tickMargin={10}
         />
         <ChartTooltip content={<ChartTooltipContent />} />
         <ChartLegend content={<ChartLegendContent payload={[]} />} />
-        <Bar radius={4} dataKey={props.dataKey} fill={color} />
+        <Bar dataKey={props.dataKey} fill={color} radius={4} />
       </BarChart>
     </ChartContainer>
   );

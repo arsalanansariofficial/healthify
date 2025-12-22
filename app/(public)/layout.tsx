@@ -1,6 +1,7 @@
 import { redirect } from 'next/navigation';
 
 import { auth } from '@/auth';
+import { Toaster } from '@/components/ui/sonner';
 import { ROUTES } from '@/lib/constants';
 
 export default async function Layout({
@@ -10,8 +11,11 @@ export default async function Layout({
   if (session && session.expires && session.user) redirect(ROUTES.DASHBOARD);
 
   return (
-    <main className='grid min-h-screen place-items-center px-8 py-4'>
-      {children}
-    </main>
+    <>
+      <main className='grid min-h-screen place-items-center px-8 py-4'>
+        {children}
+      </main>
+      <Toaster />
+    </>
   );
 }

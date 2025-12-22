@@ -4,6 +4,7 @@ import { auth } from '@/auth';
 import Header from '@/components/header';
 import Session from '@/components/session';
 import Sidebar from '@/components/sidebar';
+import { Toaster } from '@/components/ui/sonner';
 import { ROUTES } from '@/lib/constants';
 
 export default async function Layout({
@@ -15,10 +16,11 @@ export default async function Layout({
   return (
     <Session expires={session.expires}>
       <Header user={session.user} />
-      <main className='row-start-2 overflow-x-auto px-8 py-4 lg:grid lg:grid-cols-[auto_1fr] lg:gap-12 lg:overflow-x-visible'>
+      <main className='min-h-screen overflow-x-auto px-8 py-4 lg:grid lg:grid-cols-[auto_1fr] lg:gap-12 lg:overflow-x-visible'>
         <Sidebar user={session.user} />
         {children}
       </main>
+      <Toaster />
     </Session>
   );
 }

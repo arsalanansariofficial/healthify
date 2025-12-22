@@ -1,14 +1,12 @@
 'use client';
 
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Hospital, User as PrismaUser } from '@prisma/client';
+import { Prisma, User as PrismaUser } from '@prisma/client';
 import { IconDotsVertical } from '@tabler/icons-react';
 import { ColumnDef } from '@tanstack/react-table';
 import { User } from 'next-auth';
-import { useMemo } from 'react';
 import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
-import z from 'zod';
 
 import handler from '@/components/display-toast';
 import Footer from '@/components/footer';
@@ -62,6 +60,8 @@ import {
 import { MESSAGES } from '@/lib/constants';
 import { hospitalSchema } from '@/lib/schemas';
 import { capitalize, catchErrors, getDate, hasPermission } from '@/lib/utils';
+
+type Row = Prisma.HospitalGetPayload<{ include: { doctors: true } }>;
 
 function Menu({
   id,
@@ -125,14 +125,11 @@ function Menu({
   );
 }
 
-export function TableCellViewer<T extends z.ZodType>(props: {
-  item: z.infer<T>;
-  users: PrismaUser[];
-}) {
+export function TableCellViewer(props: { item: Row; users: PrismaUser[] }) {
   const isMobile = useIsMobile();
   const form = useForm({
     defaultValues: {
-      address: props.item.address,
+      address: props.item.address || String(),
       city: props.item.city,
       doctors: props.item.doctors.map((d: PrismaUser) => d.id),
       email: props.item.email,
@@ -328,131 +325,117 @@ export function TableCellViewer<T extends z.ZodType>(props: {
 export default function Component(props: {
   user: User;
   users: PrismaUser[];
-  hospitals: Hospital[];
+  hospitals: Row[];
 }) {
-  const columns = useMemo<
-    ColumnDef<{
-      id: number;
-      name: string;
-      email: string;
-      header: string;
-      createdAt: string;
-      city: string | null;
-      users: PrismaUser[];
-      isAffiliated: boolean;
-    }>[]
-  >(
-    () => [
-      {
-        cell: ({ row }) => <DragHandle id={row.original.id} />,
-        id: 'drag'
-      },
-      {
-        cell: ({ row }) => (
-          <Checkbox
-            aria-label='Select row'
-            checked={row.getIsSelected()}
-            onCheckedChange={value => row.toggleSelected(!!value)}
-          />
-        ),
-        enableHiding: false,
-        enableSorting: false,
-        header: ({ table }) => (
-          <Checkbox
-            aria-label='Select all'
-            checked={
-              table.getIsAllPageRowsSelected() ||
-              (table.getIsSomePageRowsSelected() && 'indeterminate')
-            }
-            onCheckedChange={value => table.toggleAllPageRowsSelected(!!value)}
-          />
-        ),
-        id: 'select'
-      },
-      {
-        accessorKey: 'name',
-        cell: ({ row }) => (
-          <TableCellViewer
-            item={props.hospitals.find(h => h.email === row.original.email)}
-            key={Date.now()}
-            users={props.users}
-          />
-        ),
-        enableHiding: false,
-        header: 'Name'
-      },
-      {
-        accessorKey: 'email',
-        cell: ({ row }) => (
-          <Badge className='text-muted-foreground' variant='outline'>
-            {row.original.email}
-          </Badge>
-        ),
-        header: 'Email'
-      },
-      {
-        accessorKey: 'isAffiliated',
-        cell: ({ row }) => (
-          <Switch
-            checked={
-              props.hospitals.find(
-                hospital => row.original.isAffiliated === hospital.isAffiliated
-              )?.isAffiliated
-                ? true
-                : false
-            }
-            className='mx-auto block'
-            disabled
-            onCheckedChange={async () =>
-              toast.promise(verifyEmail(row.original.email), {
-                error(error) {
-                  const { message } = catchErrors(error as Error);
-                  return <span className='text-destructive'>{message}</span>;
-                },
-                loading: 'Verifying Email',
-                position: 'top-center',
-                success: 'Done'
-              })
-            }
-          />
-        ),
-        header: () => <div className='flex justify-center'>Affliated</div>
-      },
-      {
-        accessorKey: 'city',
-        cell: ({ row }) => capitalize(row.original.city || String()),
-        header: () => <div>City</div>
-      },
-      {
-        accessorKey: 'createdAt',
-        cell: ({ row }) => getDate(row.original.createdAt),
-        header: () => <div>Created At</div>
-      },
-      {
-        cell: ({ row }) => (
-          <Menu id={row.original.id.toString()} isHeader={false} />
-        ),
-        header: ({ table }) => {
-          return (
-            <Menu
-              ids={table
-                .getSelectedRowModel()
-                .rows.map(r => r.original.id.toString())}
-              isHeader={true}
-            />
-          );
-        },
-        id: 'actions'
-      }
-    ],
-    [props.hospitals, props.users]
-  );
-
   return (
     <div className='flex h-full flex-col gap-8 lg:mx-auto lg:w-10/12'>
       {hasPermission(props.user.permissions, 'view:users') && (
         <DataTable
-          columns={columns}
+          columns={
+            [
+              {
+                cell: ({ row }) => <DragHandle id={row.original.id} />,
+                id: 'drag'
+              },
+              {
+                cell: ({ row }) => (
+                  <Checkbox
+                    aria-label='Select row'
+                    checked={row.getIsSelected()}
+                    onCheckedChange={value => row.toggleSelected(!!value)}
+                  />
+                ),
+                enableHiding: false,
+                enableSorting: false,
+                header: ({ table }) => (
+                  <Checkbox
+                    aria-label='Select all'
+                    checked={
+                      table.getIsAllPageRowsSelected() ||
+                      (table.getIsSomePageRowsSelected() && 'indeterminate')
+                    }
+                    onCheckedChange={value =>
+                      table.toggleAllPageRowsSelected(!!value)
+                    }
+                  />
+                ),
+                id: 'select'
+              },
+              {
+                accessorKey: 'name',
+                cell: ({ row }) => (
+                  <TableCellViewer
+                    item={row.original}
+                    key={Date.now()}
+                    users={props.users}
+                  />
+                ),
+                enableHiding: false,
+                header: 'Name'
+              },
+              {
+                accessorKey: 'email',
+                cell: ({ row }) => (
+                  <Badge className='text-muted-foreground' variant='outline'>
+                    {row.original.email}
+                  </Badge>
+                ),
+                header: 'Email'
+              },
+              {
+                accessorKey: 'isAffiliated',
+                cell: ({ row }) => (
+                  <Switch
+                    checked={row.original.isAffiliated ? true : false}
+                    className='mx-auto block'
+                    disabled
+                    onCheckedChange={async () =>
+                      toast.promise(verifyEmail(row.original.email), {
+                        error(error) {
+                          const { message } = catchErrors(error as Error);
+                          return (
+                            <span className='text-destructive'>{message}</span>
+                          );
+                        },
+                        loading: 'Verifying Email',
+                        position: 'top-center',
+                        success: 'Done'
+                      })
+                    }
+                  />
+                ),
+                header: () => (
+                  <div className='flex justify-center'>Affliated</div>
+                )
+              },
+              {
+                accessorKey: 'city',
+                cell: ({ row }) => capitalize(row.original.city || String()),
+                header: () => <div>City</div>
+              },
+              {
+                accessorKey: 'createdAt',
+                cell: ({ row }) => getDate(row.original.createdAt.toString()),
+                header: () => <div>Created At</div>
+              },
+              {
+                cell: ({ row }) => (
+                  <Menu id={row.original.id.toString()} isHeader={false} />
+                ),
+                header: ({ table }) => {
+                  return (
+                    <Menu
+                      ids={table
+                        .getSelectedRowModel()
+                        .rows.map(r => r.original.id.toString())}
+                      isHeader={true}
+                    />
+                  );
+                },
+                id: 'actions'
+              }
+            ] as ColumnDef<Row>[]
+          }
           data={props.hospitals}
           filterConfig={[
             { id: 'name', placeholder: 'Name...' },

@@ -7,7 +7,6 @@ import { Check, Printer, X } from 'lucide-react';
 import { User } from 'next-auth';
 import Link from 'next/link';
 import { toast } from 'sonner';
-import z from 'zod';
 
 import handler from '@/components/display-toast';
 import Footer from '@/components/footer';
@@ -49,12 +48,14 @@ import {
   hasPermission
 } from '@/lib/utils';
 
-function findItem<T extends { id: string | string }>(
-  items: T[],
-  id: number | string
-) {
-  return items.find(item => String(item.id) === String(id));
-}
+type Row = {
+  id: string;
+  date: string;
+  time: string;
+  doctor: string;
+  patient: string;
+  status: AppointmentStatus;
+};
 
 function Menu({
   id,
@@ -118,10 +119,7 @@ function Menu({
   );
 }
 
-export function TableCellViewer<T extends z.ZodType>(props: {
-  user: User;
-  item: z.infer<T>;
-}) {
+function TableCellViewer(props: { user: User; item: Row }) {
   const isMobile = useIsMobile();
   const { date, status, time } = props.item;
   const isInFuture = isPastByTime(
@@ -136,7 +134,7 @@ export function TableCellViewer<T extends z.ZodType>(props: {
       null,
       props.item.id,
       AppointmentStatus.confirmed
-    ) as (data: unknown) => Promise<unknown>
+    )
   );
 
   const { handleSubmit: cancelAppointment, pending: cancelling } = useHookForm(
@@ -145,7 +143,7 @@ export function TableCellViewer<T extends z.ZodType>(props: {
       null,
       props.item.id,
       AppointmentStatus.cancelled
-    ) as (data: unknown) => Promise<unknown>
+    )
   );
 
   return (
@@ -167,6 +165,7 @@ export function TableCellViewer<T extends z.ZodType>(props: {
             <div className='space-y-2'>
               <Label htmlFor='patient-name'>Patient</Label>
               <Input
+                className='capitalize'
                 defaultValue={props.item.patient}
                 disabled
                 id='patient-name'
@@ -179,6 +178,7 @@ export function TableCellViewer<T extends z.ZodType>(props: {
             <div className='space-y-2'>
               <Label htmlFor='doctor-name'>Doctor</Label>
               <Input
+                className='capitalize'
                 defaultValue={props.item.doctor}
                 disabled
                 id='doctor-name'
@@ -191,6 +191,7 @@ export function TableCellViewer<T extends z.ZodType>(props: {
             <div className='space-y-2'>
               <Label htmlFor='date'>Date</Label>
               <Input
+                className='capitalize'
                 defaultValue={getDate(props.item.date, false)}
                 disabled
                 id='date'
@@ -202,6 +203,7 @@ export function TableCellViewer<T extends z.ZodType>(props: {
             <div className='space-y-2'>
               <Label htmlFor='time'>Time</Label>
               <Input
+                className='capitalize'
                 defaultValue={formatTime(props.item.time)}
                 disabled
                 id='time'
@@ -286,147 +288,137 @@ export function TableCellViewer<T extends z.ZodType>(props: {
 
 export default function Component(props: {
   user: User;
-  appointments: (Appointment & {
-    date: string;
-    time: string;
-    doctor: string;
-    patient: string;
-  })[];
+  appointments: (Appointment & Row)[];
 }) {
-  const columns: ColumnDef<{ id: number } & Omit<Appointment, 'id'>>[] = [
-    {
-      cell({ row }) {
-        return <DragHandle id={row.original.id} />;
-      },
-      id: 'drag'
-    },
-    {
-      cell: ({ row }) => (
-        <Checkbox
-          aria-label='Select row'
-          checked={row.getIsSelected()}
-          onCheckedChange={value => row.toggleSelected(!!value)}
-        />
-      ),
-      enableHiding: false,
-      enableSorting: false,
-      header({ table }) {
-        return (
-          <Checkbox
-            aria-label='Select all'
-            checked={
-              table.getIsAllPageRowsSelected() ||
-              (table.getIsSomePageRowsSelected() && 'indeterminate')
-            }
-            onCheckedChange={value => table.toggleAllPageRowsSelected(!!value)}
-          />
-        );
-      },
-      id: 'select'
-    },
-    {
-      accessorKey: 'id',
-      cell({ row }) {
-        return (
-          <TableCellViewer
-            item={findItem(props.appointments, row.original.id)}
-            key={Date.now()}
-            user={props.user}
-          />
-        );
-      },
-      enableHiding: false,
-      header: 'Id',
-      id: 'id'
-    },
-    {
-      accessorKey: 'doctor',
-      cell({ row }) {
-        return (
-          <span>{findItem(props.appointments, row.original.id)?.doctor}</span>
-        );
-      },
-      enableHiding: false,
-      header: 'Doctor',
-      id: 'doctor'
-    },
-    {
-      accessorKey: 'patient',
-      cell({ row }) {
-        return (
-          <span>{findItem(props.appointments, row.original.id)?.patient}</span>
-        );
-      },
-      enableHiding: false,
-      header: 'Patient',
-      id: 'patient'
-    },
-    {
-      accessorKey: 'time',
-      cell({ row }) {
-        const time = findItem(props.appointments, row.original.id)?.time;
-        return <span>{formatTime(time as string)}</span>;
-      },
-      header: 'Time',
-      id: 'time'
-    },
-    {
-      accessorKey: 'status',
-      cell({ row }) {
-        let variant: BadgeVariant = 'default';
-        const status = findItem(props.appointments, row.original.id)?.status;
-
-        if (status === AppointmentStatus.pending) variant = 'outline';
-        if (status === AppointmentStatus.confirmed) variant = 'secondary';
-        if (status === AppointmentStatus.cancelled) variant = 'destructive';
-
-        return (
-          <Badge className='capitalize' variant={variant}>
-            {status}
-          </Badge>
-        );
-      },
-      header: 'Status',
-      id: 'status'
-    },
-    {
-      accessorKey: 'date',
-      cell({ row }) {
-        return (
-          <span>
-            {getDate(
-              findItem(props.appointments, row.original.id)?.date,
-              false
-            )}
-          </span>
-        );
-      },
-      header: 'Date',
-      id: 'date'
-    },
-    {
-      cell({ row }) {
-        return <Menu id={row.original.id.toString()} isHeader={false} />;
-      },
-      header({ table }) {
-        return (
-          <Menu
-            ids={table
-              .getSelectedRowModel()
-              .rows.map(r => r.original.id.toString())}
-            isHeader={true}
-          />
-        );
-      },
-      id: 'actions'
-    }
-  ];
-
   return (
     <div className='flex h-full flex-col gap-8 lg:mx-auto lg:w-10/12'>
       {hasPermission(props.user.permissions, 'view:appointments') && (
         <DataTable
-          columns={columns}
+          columns={
+            [
+              {
+                cell({ row }) {
+                  return <DragHandle id={row.original.id} />;
+                },
+                id: 'drag'
+              },
+              {
+                cell: ({ row }) => (
+                  <Checkbox
+                    aria-label='Select row'
+                    checked={row.getIsSelected()}
+                    onCheckedChange={value => row.toggleSelected(!!value)}
+                  />
+                ),
+                enableHiding: false,
+                enableSorting: false,
+                header({ table }) {
+                  return (
+                    <Checkbox
+                      aria-label='Select all'
+                      checked={
+                        table.getIsAllPageRowsSelected() ||
+                        (table.getIsSomePageRowsSelected() && 'indeterminate')
+                      }
+                      onCheckedChange={value =>
+                        table.toggleAllPageRowsSelected(!!value)
+                      }
+                    />
+                  );
+                },
+                id: 'select'
+              },
+              {
+                accessorKey: 'id',
+                cell({ row }) {
+                  return (
+                    <TableCellViewer
+                      item={row.original}
+                      key={Date.now()}
+                      user={props.user}
+                    />
+                  );
+                },
+                enableHiding: false,
+                header: 'Id',
+                id: 'id'
+              },
+              {
+                accessorKey: 'doctor',
+                cell({ row }) {
+                  return <span>{row.original.doctor}</span>;
+                },
+                enableHiding: false,
+                header: 'Doctor',
+                id: 'doctor'
+              },
+              {
+                accessorKey: 'patient',
+                cell({ row }) {
+                  return <span>{row.original.patient}</span>;
+                },
+                enableHiding: false,
+                header: 'Patient',
+                id: 'patient'
+              },
+              {
+                accessorKey: 'time',
+                cell({ row }) {
+                  const time = row.original.time;
+                  return <span>{formatTime(time as string)}</span>;
+                },
+                header: 'Time',
+                id: 'time'
+              },
+              {
+                accessorKey: 'status',
+                cell({ row }) {
+                  let variant: BadgeVariant = 'default';
+                  const status = row.original.status;
+
+                  if (status === AppointmentStatus.pending) variant = 'outline';
+                  if (status === AppointmentStatus.confirmed)
+                    variant = 'secondary';
+                  if (status === AppointmentStatus.cancelled)
+                    variant = 'destructive';
+
+                  return (
+                    <Badge className='capitalize' variant={variant}>
+                      {status}
+                    </Badge>
+                  );
+                },
+                header: 'Status',
+                id: 'status'
+              },
+              {
+                accessorKey: 'date',
+                cell({ row }) {
+                  return <span>{getDate(row.original.date, false)}</span>;
+                },
+                header: 'Date',
+                id: 'date'
+              },
+              {
+                cell({ row }) {
+                  return (
+                    <Menu id={row.original.id.toString()} isHeader={false} />
+                  );
+                },
+                header({ table }) {
+                  return (
+                    <Menu
+                      ids={table
+                        .getSelectedRowModel()
+                        .rows.map(r => r.original.id.toString())}
+                      isHeader={true}
+                    />
+                  );
+                },
+                id: 'actions'
+              }
+            ] as ColumnDef<Appointment & Row>[]
+          }
           data={props.appointments}
           filterConfig={[
             { id: 'patient', placeholder: 'Patient' },

@@ -95,7 +95,7 @@ type DataTableProps<T extends z.ZodType> = {
   }[];
 };
 
-export function DragHandle({ id }: { id: number }) {
+export function DragHandle({ id }: { id: string }) {
   const { attributes, listeners } = useSortable({ id });
 
   return (

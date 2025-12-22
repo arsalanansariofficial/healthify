@@ -1,18 +1,11 @@
 'use client';
 
 import { zodResolver } from '@hookform/resolvers/zod';
-import {
-  Fee,
-  Prisma,
-  User as PrismaUser,
-  SubscriptionStatus,
-  MembershipTransaction
-} from '@prisma/client';
+import { Prisma, SubscriptionStatus } from '@prisma/client';
 import { IconDotsVertical } from '@tabler/icons-react';
 import { ColumnDef } from '@tanstack/react-table';
 import { User } from 'next-auth';
 import Link from 'next/link';
-import { useMemo } from 'react';
 import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
 import z from 'zod';
@@ -60,6 +53,17 @@ import {
 import { MESSAGES } from '@/lib/constants';
 import { membershipSchema } from '@/lib/schemas';
 import { catchErrors, hasPermission } from '@/lib/utils';
+
+type Row = Prisma.MembershipSubscriptionGetPayload<{
+  include: {
+    fee: true;
+    user: true;
+    transactions: true;
+    membership: {
+      include: { hospitalMemberships: { include: { hospital: true } } };
+    };
+  };
+}>;
 
 function Menu({
   id,
@@ -286,174 +290,151 @@ export function TableCellViewer<T extends z.ZodType>(props: {
   );
 }
 
-export default function Component(props: {
-  user: User;
-  subscriptions: Prisma.MembershipSubscriptionGetPayload<{
-    include: {
-      fee: true;
-      user: true;
-      transactions: true;
-      membership: {
-        include: { hospitalMemberships: { include: { hospital: true } } };
-      };
-    };
-  }>[];
-}) {
-  const columns = useMemo<
-    ColumnDef<{
-      fee: Fee;
-      id: number;
-      name: string;
-      header: string;
-      user: PrismaUser;
-      createdAt: string;
-      status: SubscriptionStatus;
-      transactions: MembershipTransaction[];
-      membership: Prisma.MembershipGetPayload<{
-        include: { hospitalMemberships: { include: { hospital: true } } };
-      }>;
-    }>[]
-  >(
-    () => [
-      {
-        cell: ({ row }) => <DragHandle id={row.original.id} />,
-        id: 'drag'
-      },
-      {
-        cell: ({ row }) => (
-          <Checkbox
-            aria-label='Select row'
-            checked={row.getIsSelected()}
-            onCheckedChange={value => row.toggleSelected(!!value)}
-          />
-        ),
-        enableHiding: false,
-        enableSorting: false,
-        header: ({ table }) => (
-          <Checkbox
-            aria-label='Select all'
-            checked={
-              table.getIsAllPageRowsSelected() ||
-              (table.getIsSomePageRowsSelected() && 'indeterminate')
-            }
-            onCheckedChange={value => table.toggleAllPageRowsSelected(!!value)}
-          />
-        ),
-        id: 'select'
-      },
-      {
-        accessorKey: 'name',
-        cell: ({ row }) => (
-          <TableCellViewer
-            item={props.subscriptions.find(
-              m => m.id === String(row.original.id)
-            )}
-            key={Date.now()}
-          />
-        ),
-        enableHiding: false,
-        header: 'Name'
-      },
-      {
-        accessorKey: 'user',
-        cell: ({ row }) => (
-          <span className='capitalize'>{row.original.user.name}</span>
-        ),
-        enableHiding: false,
-        header: 'User'
-      },
-      {
-        accessorKey: 'perks',
-        cell: ({ row }) => (
-          <ul className='space-y-2'>
-            {row.original.membership.perks.map((p, i) => (
-              <li key={i}>
-                <Badge variant='outline'>{p}</Badge>
-              </li>
-            ))}
-          </ul>
-        ),
-        enableHiding: false,
-        header: 'Perks'
-      },
-      {
-        accessorKey: 'hospitals',
-        cell: ({ row }) => (
-          <ul className='space-y-2'>
-            {row.original.membership.hospitalMemberships.map((hm, i) => (
-              <li key={i}>
-                <Badge className='capitalize'>{hm.hospital.name}</Badge>
-              </li>
-            ))}
-          </ul>
-        ),
-        enableHiding: false,
-        header: 'Hospitals'
-      },
-      {
-        accessorKey: 'status',
-        cell: ({ row }) => {
-          let variant: BadgeVariant = 'default';
-
-          if (row.original.status === SubscriptionStatus.pending) {
-            variant = 'outline';
-          }
-
-          if (row.original.status === SubscriptionStatus.cancelled) {
-            variant = 'destructive';
-          }
-
-          return (
-            <Badge className='capitalize' variant={variant}>
-              {row.original.status}
-            </Badge>
-          );
-        },
-        enableHiding: false,
-        header: 'Status'
-      },
-      {
-        accessorKey: 'fee',
-        cell: ({ row }) => (
-          <ul className='space-y-2'>
-            <Badge className='capitalize' variant='secondary'>
-              {row.original.fee.amount}
-            </Badge>
-          </ul>
-        ),
-        enableHiding: false,
-        header: 'Fee'
-      },
-      {
-        cell: ({ row }) => (
-          <Menu
-            id={row.original.id.toString()}
-            isHeader={false}
-            status={row.original.status}
-          />
-        ),
-        header: ({ table }) => {
-          return (
-            <Menu
-              ids={table
-                .getSelectedRowModel()
-                .rows.map(r => r.original.id.toString())}
-              isHeader={true}
-              status='pending'
-            />
-          );
-        },
-        id: 'actions'
-      }
-    ],
-    [props.subscriptions]
-  );
-
+export default function Component(props: { user: User; subscriptions: Row[] }) {
   return (
     <div className='flex h-full flex-col gap-8 lg:mx-auto lg:w-10/12'>
       {hasPermission(props.user.permissions, 'view:users') && (
         <DataTable
-          columns={columns}
+          columns={
+            [
+              {
+                cell: ({ row }) => <DragHandle id={row.original.id} />,
+                id: 'drag'
+              },
+              {
+                cell: ({ row }) => (
+                  <Checkbox
+                    aria-label='Select row'
+                    checked={row.getIsSelected()}
+                    onCheckedChange={value => row.toggleSelected(!!value)}
+                  />
+                ),
+                enableHiding: false,
+                enableSorting: false,
+                header: ({ table }) => (
+                  <Checkbox
+                    aria-label='Select all'
+                    checked={
+                      table.getIsAllPageRowsSelected() ||
+                      (table.getIsSomePageRowsSelected() && 'indeterminate')
+                    }
+                    onCheckedChange={value =>
+                      table.toggleAllPageRowsSelected(!!value)
+                    }
+                  />
+                ),
+                id: 'select'
+              },
+              {
+                accessorKey: 'name',
+                cell: ({ row }) => (
+                  <TableCellViewer
+                    item={props.subscriptions.find(
+                      m => m.id === String(row.original.id)
+                    )}
+                    key={Date.now()}
+                  />
+                ),
+                enableHiding: false,
+                header: 'Name'
+              },
+              {
+                accessorKey: 'user',
+                cell: ({ row }) => (
+                  <span className='capitalize'>{row.original.user.name}</span>
+                ),
+                enableHiding: false,
+                header: 'User'
+              },
+              {
+                accessorKey: 'perks',
+                cell: ({ row }) => (
+                  <ul className='space-y-2'>
+                    {row.original.membership.perks.map((p, i) => (
+                      <li key={i}>
+                        <Badge variant='outline'>{p}</Badge>
+                      </li>
+                    ))}
+                  </ul>
+                ),
+                enableHiding: false,
+                header: 'Perks'
+              },
+              {
+                accessorKey: 'hospitals',
+                cell: ({ row }) => (
+                  <ul className='space-y-2'>
+                    {row.original.membership.hospitalMemberships.map(
+                      (hm, i) => (
+                        <li key={i}>
+                          <Badge className='capitalize'>
+                            {hm.hospital.name}
+                          </Badge>
+                        </li>
+                      )
+                    )}
+                  </ul>
+                ),
+                enableHiding: false,
+                header: 'Hospitals'
+              },
+              {
+                accessorKey: 'status',
+                cell: ({ row }) => {
+                  let variant: BadgeVariant = 'default';
+
+                  if (row.original.status === SubscriptionStatus.pending) {
+                    variant = 'outline';
+                  }
+
+                  if (row.original.status === SubscriptionStatus.cancelled) {
+                    variant = 'destructive';
+                  }
+
+                  return (
+                    <Badge className='capitalize' variant={variant}>
+                      {row.original.status}
+                    </Badge>
+                  );
+                },
+                enableHiding: false,
+                header: 'Status'
+              },
+              {
+                accessorKey: 'fee',
+                cell: ({ row }) => (
+                  <ul className='space-y-2'>
+                    <Badge className='capitalize' variant='secondary'>
+                      {row.original.fee.amount}
+                    </Badge>
+                  </ul>
+                ),
+                enableHiding: false,
+                header: 'Fee'
+              },
+              {
+                cell: ({ row }) => (
+                  <Menu
+                    id={row.original.id.toString()}
+                    isHeader={false}
+                    status={row.original.status}
+                  />
+                ),
+                header: ({ table }) => {
+                  return (
+                    <Menu
+                      ids={table
+                        .getSelectedRowModel()
+                        .rows.map(r => r.original.id.toString())}
+                      isHeader={true}
+                      status='pending'
+                    />
+                  );
+                },
+                id: 'actions'
+              }
+            ] as ColumnDef<Row>[]
+          }
           data={props.subscriptions}
           filterConfig={[{ id: 'name', placeholder: 'Name...' }]}
         />

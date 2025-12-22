@@ -5,10 +5,8 @@ import { User as PrismaUser } from '@prisma/client';
 import { IconDotsVertical } from '@tabler/icons-react';
 import { ColumnDef } from '@tanstack/react-table';
 import { User } from 'next-auth';
-import { useMemo } from 'react';
 import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
-import z from 'zod';
 
 import Chart from '@/components/chart';
 import handler from '@/components/display-toast';
@@ -125,8 +123,8 @@ function Menu({
   );
 }
 
-export function TableCellViewer<T extends z.ZodType>(props: {
-  item: z.infer<T>;
+export function TableCellViewer(props: {
+  item: PrismaUser;
   chartConfig: ChartConfig;
   chartData: { month: string; users: number }[];
 }) {
@@ -288,122 +286,122 @@ export default function Component(props: {
     description: string;
   }[];
 }) {
-  const columns = useMemo<
-    ColumnDef<{
-      id: number;
-      name: string;
-      email: string;
-      header: string;
-      createdAt: string;
-      emailVerified: string;
-    }>[]
-  >(
-    () => [
-      {
-        cell: ({ row }) => <DragHandle id={row.original.id} />,
-        id: 'drag'
-      },
-      {
-        cell: ({ row }) => (
-          <Checkbox
-            aria-label='Select row'
-            checked={row.getIsSelected()}
-            onCheckedChange={value => row.toggleSelected(!!value)}
-          />
-        ),
-        enableHiding: false,
-        enableSorting: false,
-        header: ({ table }) => (
-          <Checkbox
-            aria-label='Select all'
-            checked={
-              table.getIsAllPageRowsSelected() ||
-              (table.getIsSomePageRowsSelected() && 'indeterminate')
-            }
-            onCheckedChange={value => table.toggleAllPageRowsSelected(!!value)}
-          />
-        ),
-        id: 'select'
-      },
-      {
-        accessorKey: 'name',
-        cell: ({ row }) => (
-          <TableCellViewer
-            chartConfig={props.chartConfig}
-            chartData={props.chartData}
-            item={props.users.find(u => u.email === row.original.email)}
-            key={Date.now()}
-          />
-        ),
-        enableHiding: false,
-        header: 'Name'
-      },
-      {
-        accessorKey: 'email',
-        cell: ({ row }) => (
-          <Badge className='text-muted-foreground' variant='outline'>
-            {row.original.email}
-          </Badge>
-        ),
-        header: 'Email'
-      },
-      {
-        accessorKey: 'emailVerified',
-        cell: ({ row }) => (
-          <Switch
-            checked={
-              props.users.find(user => row.original.email === user.email)
-                ?.emailVerified
-                ? true
-                : false
-            }
-            className='mx-auto block'
-            id='verify-email'
-            onCheckedChange={async () =>
-              toast.promise(verifyEmail(row.original.email), {
-                error(error) {
-                  const { message } = catchErrors(error as Error);
-                  return <span className='text-destructive'>{message}</span>;
-                },
-                loading: 'Verifying Email',
-                position: 'top-center',
-                success: 'Done'
-              })
-            }
-          />
-        ),
-        header: () => <div className='flex justify-center'>Email Verified</div>
-      },
-      {
-        accessorKey: 'createdAt',
-        cell: ({ row }) => getDate(row.original.createdAt),
-        header: () => <div>Created At</div>
-      },
-      {
-        cell: ({ row }) => (
-          <Menu id={row.original.id.toString()} isHeader={false} />
-        ),
-        header: ({ table }) => {
-          return (
-            <Menu
-              ids={table
-                .getSelectedRowModel()
-                .rows.map(r => r.original.id.toString())}
-              isHeader={true}
-            />
-          );
-        },
-        id: 'actions'
-      }
-    ],
-    [props.chartConfig, props.chartData, props.users]
-  );
-
   return (
     <div className='flex h-full flex-col gap-8 lg:mx-auto lg:w-10/12'>
       {hasPermission(props.user.permissions, 'view:users') && (
         <DataTable
-          columns={columns}
+          columns={
+            [
+              {
+                cell: ({ row }) => <DragHandle id={row.original.id} />,
+                id: 'drag'
+              },
+              {
+                cell: ({ row }) => (
+                  <Checkbox
+                    aria-label='Select row'
+                    checked={row.getIsSelected()}
+                    onCheckedChange={value => row.toggleSelected(!!value)}
+                  />
+                ),
+                enableHiding: false,
+                enableSorting: false,
+                header: ({ table }) => (
+                  <Checkbox
+                    aria-label='Select all'
+                    checked={
+                      table.getIsAllPageRowsSelected() ||
+                      (table.getIsSomePageRowsSelected() && 'indeterminate')
+                    }
+                    onCheckedChange={value =>
+                      table.toggleAllPageRowsSelected(!!value)
+                    }
+                  />
+                ),
+                id: 'select'
+              },
+              {
+                accessorKey: 'name',
+                cell: ({ row }) => (
+                  <TableCellViewer
+                    chartConfig={props.chartConfig}
+                    chartData={props.chartData}
+                    item={row.original}
+                    key={Date.now()}
+                  />
+                ),
+                enableHiding: false,
+                header: 'Name'
+              },
+              {
+                accessorKey: 'email',
+                cell: ({ row }) => (
+                  <Badge className='text-muted-foreground' variant='outline'>
+                    {row.original.email}
+                  </Badge>
+                ),
+                header: 'Email'
+              },
+              {
+                accessorKey: 'emailVerified',
+                cell: ({ row }) => (
+                  <Switch
+                    checked={
+                      props.users.find(
+                        user => row.original.email === user.email
+                      )?.emailVerified
+                        ? true
+                        : false
+                    }
+                    className='mx-auto block'
+                    id='verify-email'
+                    onCheckedChange={async () =>
+                      toast.promise(
+                        verifyEmail(row.original.email || String()),
+                        {
+                          error(error) {
+                            const { message } = catchErrors(error as Error);
+                            return (
+                              <span className='text-destructive'>
+                                {message}
+                              </span>
+                            );
+                          },
+                          loading: 'Verifying Email',
+                          position: 'top-center',
+                          success: 'Done'
+                        }
+                      )
+                    }
+                  />
+                ),
+                header: () => (
+                  <div className='flex justify-center'>Email Verified</div>
+                )
+              },
+              {
+                accessorKey: 'createdAt',
+                cell: ({ row }) => getDate(row.original.createdAt.toString()),
+                header: () => <div>Created At</div>
+              },
+              {
+                cell: ({ row }) => (
+                  <Menu id={row.original.id.toString()} isHeader={false} />
+                ),
+                header: ({ table }) => {
+                  return (
+                    <Menu
+                      ids={table
+                        .getSelectedRowModel()
+                        .rows.map(r => r.original.id.toString())}
+                      isHeader={true}
+                    />
+                  );
+                },
+                id: 'actions'
+              }
+            ] as ColumnDef<PrismaUser>[]
+          }
           data={props.users}
           filterConfig={[
             { id: 'name', placeholder: 'Name...' },

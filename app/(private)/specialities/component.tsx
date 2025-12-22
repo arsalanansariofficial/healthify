@@ -6,10 +6,8 @@ import { Speciality, TimeSlot } from '@prisma/client';
 import { IconDotsVertical } from '@tabler/icons-react';
 import { ColumnDef } from '@tanstack/react-table';
 import { User } from 'next-auth';
-import { useMemo } from 'react';
 import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
-import z from 'zod';
 
 import handler from '@/components/display-toast';
 import Footer from '@/components/footer';
@@ -114,9 +112,7 @@ function Menu({
   );
 }
 
-export function TableCellViewer<T extends z.ZodType>(props: {
-  item: z.infer<T>;
-}) {
+export function TableCellViewer(props: { item: Speciality }) {
   const isMobile = useIsMobile();
 
   const { handleSubmit, pending } = useHookForm(
@@ -197,86 +193,73 @@ export default function Component(props: {
     }[];
   })[];
 }) {
-  const columns = useMemo<ColumnDef<{ id: number; name: string }>[]>(
-    () => [
-      {
-        cell: ({ row }) => <DragHandle id={row.original.id} />,
-        id: 'drag'
-      },
-      {
-        cell: ({ row }) => (
-          <Checkbox
-            aria-label='Select row'
-            checked={row.getIsSelected()}
-            onCheckedChange={value => row.toggleSelected(!!value)}
-          />
-        ),
-        enableHiding: false,
-        enableSorting: false,
-        header: ({ table }) => (
-          <Checkbox
-            aria-label='Select all'
-            checked={
-              table.getIsAllPageRowsSelected() ||
-              (table.getIsSomePageRowsSelected() && 'indeterminate')
-            }
-            onCheckedChange={value => table.toggleAllPageRowsSelected(!!value)}
-          />
-        ),
-        id: 'select'
-      },
-      {
-        accessorKey: 'id',
-        cell: ({ row }) => (
-          <TableCellViewer
-            item={props.specialities.find(
-              s => s.id === String(row.original.id)
-            )}
-            key={Date.now()}
-          />
-        ),
-        header: 'Id',
-        id: 'id'
-      },
-      {
-        accessorKey: 'name',
-        cell: ({ row }) => (
-          <span>
-            {
-              props.specialities.find(s => s.id === String(row.original.id))
-                ?.name
-            }
-          </span>
-        ),
-        enableHiding: false,
-        header: 'Name',
-        id: 'name'
-      },
-      {
-        cell: ({ row }) => (
-          <Menu id={row.original.id.toString()} isHeader={false} />
-        ),
-        header: ({ table }) => {
-          return (
-            <Menu
-              ids={table
-                .getSelectedRowModel()
-                .rows.map(r => r.original.id.toString())}
-              isHeader={true}
-            />
-          );
-        },
-        id: 'actions'
-      }
-    ],
-    [props.specialities]
-  );
-
   return (
     <div className='flex h-full flex-col gap-8 lg:mx-auto lg:w-10/12'>
       {hasPermission(props.user.permissions, 'view:specialities') && (
         <DataTable
-          columns={columns}
+          columns={
+            [
+              {
+                cell: ({ row }) => <DragHandle id={row.original.id} />,
+                id: 'drag'
+              },
+              {
+                cell: ({ row }) => (
+                  <Checkbox
+                    aria-label='Select row'
+                    checked={row.getIsSelected()}
+                    onCheckedChange={value => row.toggleSelected(!!value)}
+                  />
+                ),
+                enableHiding: false,
+                enableSorting: false,
+                header: ({ table }) => (
+                  <Checkbox
+                    aria-label='Select all'
+                    checked={
+                      table.getIsAllPageRowsSelected() ||
+                      (table.getIsSomePageRowsSelected() && 'indeterminate')
+                    }
+                    onCheckedChange={value =>
+                      table.toggleAllPageRowsSelected(!!value)
+                    }
+                  />
+                ),
+                id: 'select'
+              },
+              {
+                accessorKey: 'id',
+                cell: ({ row }) => (
+                  <TableCellViewer item={row.original} key={Date.now()} />
+                ),
+                header: 'Id',
+                id: 'id'
+              },
+              {
+                accessorKey: 'name',
+                cell: ({ row }) => <span>{row.original.name}</span>,
+                enableHiding: false,
+                header: 'Name',
+                id: 'name'
+              },
+              {
+                cell: ({ row }) => (
+                  <Menu id={row.original.id.toString()} isHeader={false} />
+                ),
+                header: ({ table }) => {
+                  return (
+                    <Menu
+                      ids={table
+                        .getSelectedRowModel()
+                        .rows.map(r => r.original.id.toString())}
+                      isHeader={true}
+                    />
+                  );
+                },
+                id: 'actions'
+              }
+            ] as ColumnDef<Speciality>[]
+          }
           data={props.specialities}
           filterConfig={[{ id: 'name', placeholder: 'Name' }]}
         />

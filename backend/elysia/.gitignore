@@ -1,0 +1,41 @@
+# vercel
+package-lock.json
+**/*.tar.gz
+**/*.trace
+**/*.zip
+**/*.tgz
+**/*.log
+**/*.bun
+.vercel
+
+# local env files
+.env.development.local
+.env.production.local
+.env.test.local
+.env.local
+
+# misc
+.VSCodeCounter
+.DS_Store
+.vscode
+*.pem
+
+# debug
+yarn-debug.log*
+yarn-error.log*
+npm-debug.log*
+
+# dependencies
+/node_modules
+.pnp.js
+/.pnp
+
+# next.js
+/.next/
+/out/
+
+# testing
+/coverage
+
+# production
+/build

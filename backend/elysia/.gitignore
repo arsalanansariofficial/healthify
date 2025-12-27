@@ -13,6 +13,7 @@ package-lock.json
 .env.production.local
 .env.test.local
 .env.local
+.env
 
 # misc
 .VSCodeCounter

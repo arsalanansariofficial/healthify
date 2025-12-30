@@ -76,7 +76,7 @@ export default function Component() {
                     <FormLabel>Description</FormLabel>
                     <FormControl>
                       <Textarea
-                        {...field}
+                        {...{ ...field, value: field.value as string }}
                         placeholder='Compressed or molded solid preparation containing active ingredients.'
                       />
                     </FormControl>

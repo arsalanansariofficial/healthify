@@ -66,6 +66,7 @@ export default function Component({
       date: new Date(),
       email: user.email || String(),
       name: user.name || String(),
+      notes: String(),
       phone: user.phone || String(),
       time: String()
     },
@@ -241,7 +242,7 @@ export default function Component({
                     <FormLabel>Notes</FormLabel>
                     <FormControl>
                       <Textarea
-                        {...field}
+                        {...{ ...field, value: field.value as string }}
                         placeholder='Any prior medical history or symptoms...'
                       />
                     </FormControl>

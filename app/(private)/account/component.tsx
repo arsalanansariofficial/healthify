@@ -402,7 +402,7 @@ export default function Component({
                         <FormLabel>City</FormLabel>
                         <FormControl>
                           <Input
-                            {...field}
+                            {...{ ...field, value: field.value as string }}
                             className='capitalize'
                             placeholder='Moradabad'
                             type='text'
@@ -577,7 +577,7 @@ export default function Component({
                         <FormLabel>Password</FormLabel>
                         <FormControl>
                           <Input
-                            {...field}
+                            {...{ ...field, value: field.value as string }}
                             placeholder='Secret@123'
                             type='password'
                           />
@@ -635,7 +635,8 @@ export default function Component({
                         <FormLabel>Experience</FormLabel>
                         <FormControl>
                           <Input
-                            {...field}
+                            {...{ ...field, value: field.value as number }}
+                            onChange={e => field.onChange(e.target.value)}
                             placeholder='1 Year'
                             type='number'
                           />
@@ -652,7 +653,7 @@ export default function Component({
                         <FormLabel>City</FormLabel>
                         <FormControl>
                           <Input
-                            {...field}
+                            {...{ ...field, value: field.value as string }}
                             className='capitalize'
                             placeholder='Moradabad'
                             type='text'

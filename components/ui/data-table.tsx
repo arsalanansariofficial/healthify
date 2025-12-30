@@ -47,7 +47,6 @@ import { format } from 'date-fns';
 import { CalendarIcon } from 'lucide-react';
 import React, { useId, useState, useMemo, useEffect } from 'react';
 import { useDebounce } from 'use-debounce';
-import { z } from 'zod';
 
 import { TimePicker } from '@/components/time-picker';
 import { Button } from '@/components/ui/button';
@@ -83,18 +82,6 @@ import {
 import { Tabs, TabsContent } from '@/components/ui/tabs';
 import { getDate } from '@/lib/utils';
 
-type DraggableRowProps<T extends z.ZodType> = { row: Row<z.infer<T>> };
-
-type DataTableProps<T extends z.ZodType> = {
-  data: z.infer<T>[];
-  columns: ColumnDef<z.infer<T>>[];
-  filterConfig: {
-    id: string;
-    placeholder: string;
-    type?: 'text' | 'number' | 'date' | 'time';
-  }[];
-};
-
 export function DragHandle({ id }: { id: string }) {
   const { attributes, listeners } = useSortable({ id });
 
@@ -112,7 +99,7 @@ export function DragHandle({ id }: { id: string }) {
   );
 }
 
-export function DraggableRow<T extends z.ZodType>(props: DraggableRowProps<T>) {
+export function DraggableRow<T extends { id: string }>(props: { row: Row<T> }) {
   const { row } = props;
   const { isDragging, setNodeRef, transform, transition } = useSortable({
     id: row.original.id
@@ -138,7 +125,15 @@ export function DraggableRow<T extends z.ZodType>(props: DraggableRowProps<T>) {
   );
 }
 
-export function DataTable<T extends z.ZodType>(props: DataTableProps<T>) {
+export function DataTable<T extends { id: string }>(props: {
+  data: T[];
+  columns: ColumnDef<T>[];
+  filterConfig: {
+    id: string;
+    placeholder: string;
+    type?: 'text' | 'number' | 'date' | 'time';
+  }[];
+}) {
   const sortableId = useId();
   const [data, setData] = useState(() => props.data);
 

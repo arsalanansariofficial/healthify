@@ -7,6 +7,7 @@ import { ColumnDef } from '@tanstack/react-table';
 import { User } from 'next-auth';
 import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
+import z from 'zod';
 
 import handler from '@/components/display-toast';
 import Footer from '@/components/footer';
@@ -58,7 +59,7 @@ import {
   deleteHospitals
 } from '@/lib/actions';
 import { MESSAGES } from '@/lib/constants';
-import { hospitalSchema } from '@/lib/schemas';
+import { hospitalSchema, yesNo } from '@/lib/schemas';
 import { capitalize, catchErrors, getDate, hasPermission } from '@/lib/utils';
 
 type Row = Prisma.HospitalGetPayload<{ include: { doctors: true } }>;
@@ -177,12 +178,8 @@ export function TableCellViewer(props: { item: Row; users: PrismaUser[] }) {
                     <Input
                       {...field}
                       className='capitalize'
-                      onChange={({ target: { value } }) =>
-                        field.onChange(value || undefined)
-                      }
                       placeholder='Gwen Tennyson'
                       type='text'
-                      value={field.value}
                     />
                   </FormControl>
                   <FormMessage />
@@ -198,12 +195,8 @@ export function TableCellViewer(props: { item: Row; users: PrismaUser[] }) {
                   <FormControl>
                     <Input
                       {...field}
-                      onChange={({ target: { value } }) =>
-                        field.onChange(value || undefined)
-                      }
                       placeholder='your.name@domain.com'
                       type='email'
-                      value={field.value}
                     />
                   </FormControl>
                   <FormMessage />
@@ -233,12 +226,8 @@ export function TableCellViewer(props: { item: Row; users: PrismaUser[] }) {
                     <Input
                       {...field}
                       className='capitalize'
-                      onChange={({ target: { value } }) =>
-                        field.onChange(value || undefined)
-                      }
                       placeholder='Moradabad'
                       type='text'
-                      value={field.value}
                     />
                   </FormControl>
                   <FormMessage />
@@ -252,7 +241,10 @@ export function TableCellViewer(props: { item: Row; users: PrismaUser[] }) {
                 <FormItem>
                   <FormLabel>Affiliated</FormLabel>
                   <FormControl>
-                    <Select onValueChange={field.onChange} value={field.value}>
+                    <Select
+                      onValueChange={field.onChange}
+                      value={field.value as z.infer<typeof yesNo>}
+                    >
                       <SelectTrigger className='w-full'>
                         <SelectValue placeholder='Select a status' />
                       </SelectTrigger>

@@ -5,6 +5,7 @@ import { RenewalType, User } from '@prisma/client';
 import { PlusIcon, TrashIcon } from 'lucide-react';
 import { capitalize } from 'moderndash';
 import { useForm } from 'react-hook-form';
+import z from 'zod';
 
 import handler from '@/components/display-toast';
 import Footer from '@/components/footer';
@@ -39,7 +40,7 @@ import {
 import { Textarea } from '@/components/ui/textarea';
 import useHookForm from '@/hooks/use-hook-form';
 import { addMembership } from '@/lib/actions';
-import { membershipSchema } from '@/lib/schemas';
+import { membershipSchema, yesNo } from '@/lib/schemas';
 import { cn } from '@/lib/utils';
 
 export default function Component({ doctors }: { doctors: User[] }) {
@@ -158,15 +159,16 @@ export default function Component({ doctors }: { doctors: User[] }) {
                                           })}
                                           onChange={e => {
                                             const value = field.value.slice();
-                                            value[index].name = e.target.value;
+                                            value[index].hospital.name =
+                                              e.target.value;
                                             field.onChange(value);
                                           }}
                                           placeholder='Riverside Hospital'
-                                          value={hm.name}
+                                          value={hm.hospital.name}
                                         />
-                                        {error?.name && (
+                                        {error?.hospital?.name && (
                                           <span className='text-destructive text-sm'>
-                                            {error.name.message}
+                                            {error.hospital.name.message}
                                           </span>
                                         )}
                                       </li>
@@ -180,15 +182,16 @@ export default function Component({ doctors }: { doctors: User[] }) {
                                           })}
                                           onChange={e => {
                                             const value = field.value.slice();
-                                            value[index].email = e.target.value;
+                                            value[index].hospital.email =
+                                              e.target.value;
                                             field.onChange(value);
                                           }}
                                           placeholder='riverside@healthify.com'
-                                          value={hm.email}
+                                          value={hm.hospital.email}
                                         />
-                                        {error?.email && (
+                                        {error?.hospital?.email && (
                                           <span className='text-destructive text-sm'>
-                                            {error.email.message}
+                                            {error?.hospital.email.message}
                                           </span>
                                         )}
                                       </li>
@@ -202,15 +205,16 @@ export default function Component({ doctors }: { doctors: User[] }) {
                                           })}
                                           onChange={e => {
                                             const value = field.value.slice();
-                                            value[index].city = e.target.value;
+                                            value[index].hospital.city =
+                                              e.target.value;
                                             field.onChange(value);
                                           }}
                                           placeholder='Moradabad'
-                                          value={hm.city}
+                                          value={hm.hospital.city}
                                         />
-                                        {error?.city && (
+                                        {error?.hospital?.city && (
                                           <span className='text-destructive text-sm'>
-                                            {error.city.message}
+                                            {error.hospital.city.message}
                                           </span>
                                         )}
                                       </li>
@@ -224,28 +228,34 @@ export default function Component({ doctors }: { doctors: User[] }) {
                                           })}
                                           onChange={e => {
                                             const value = field.value.slice();
-                                            value[index].phone = e.target.value;
+                                            value[index].hospital.phone =
+                                              e.target.value;
                                             field.onChange(value);
                                           }}
                                           placeholder='+919876543210'
                                           type='tel'
-                                          value={hm.phone}
+                                          value={hm.hospital.phone}
                                         />
-                                        {error?.phone && (
+                                        {error?.hospital?.phone && (
                                           <span className='text-destructive text-sm'>
-                                            {error.phone.message}
+                                            {error.hospital.phone.message}
                                           </span>
                                         )}
                                       </li>
                                       <li className='space-y-2'>
                                         <Label>Affiliated</Label>
                                         <Select
-                                          defaultValue={hm.isAffiliated}
+                                          defaultValue={
+                                            hm.hospital.isAffiliated as z.infer<
+                                              typeof yesNo
+                                            >
+                                          }
                                           onValueChange={(
                                             type: 'yes' | 'no'
                                           ) => {
                                             const value = field.value.slice();
-                                            value[index].isAffiliated = type;
+                                            value[index].hospital.isAffiliated =
+                                              type;
                                             field.onChange(value);
                                           }}
                                         >
@@ -261,9 +271,12 @@ export default function Component({ doctors }: { doctors: User[] }) {
                                             </SelectItem>
                                           </SelectContent>
                                         </Select>
-                                        {error?.isAffiliated && (
+                                        {error?.hospital?.isAffiliated && (
                                           <span className='text-destructive text-sm'>
-                                            {error.isAffiliated.message}
+                                            {
+                                              error.hospital.isAffiliated
+                                                .message
+                                            }
                                           </span>
                                         )}
                                       </li>
@@ -277,16 +290,19 @@ export default function Component({ doctors }: { doctors: User[] }) {
                                           })}
                                           onChange={e => {
                                             const value = field.value.slice();
-                                            value[index].address =
+                                            value[index].hospital.address =
                                               e.target.value;
                                             field.onChange(value);
                                           }}
                                           placeholder='123 Main Street, Springfield, IL 62704'
-                                          value={hm.address}
+                                          value={hm.hospital.address}
                                         />
-                                        {error?.isAffiliated && (
+                                        {error?.hospital?.isAffiliated && (
                                           <span className='text-destructive text-sm'>
-                                            {error.isAffiliated.message}
+                                            {
+                                              error.hospital.isAffiliated
+                                                .message
+                                            }
                                           </span>
                                         )}
                                       </li>
@@ -299,19 +315,23 @@ export default function Component({ doctors }: { doctors: User[] }) {
                                           }))}
                                           placeholder='Select doctors...'
                                           selectedValues={
-                                            field.value[index].doctors
+                                            field.value[index].hospital.doctors
                                           }
                                           setSelectedValues={doctors => {
                                             const newHospitals =
                                               field.value.slice();
-                                            newHospitals[index].doctors =
-                                              doctors;
+                                            newHospitals[
+                                              index
+                                            ].hospital.doctors = doctors;
                                             field.onChange(newHospitals);
                                           }}
                                         />
-                                        {error?.isAffiliated && (
+                                        {error?.hospital?.isAffiliated && (
                                           <span className='text-destructive text-sm'>
-                                            {error.isAffiliated.message}
+                                            {
+                                              error.hospital.isAffiliated
+                                                .message
+                                            }
                                           </span>
                                         )}
                                       </li>
@@ -463,7 +483,8 @@ export default function Component({ doctors }: { doctors: User[] }) {
                                       field.onChange(value);
                                     }}
                                     placeholder='100 Rupees'
-                                    value={fee.amount}
+                                    type='number'
+                                    value={fee.amount as number}
                                   />
                                   {error?.amount && (
                                     <span className='text-destructive text-sm'>

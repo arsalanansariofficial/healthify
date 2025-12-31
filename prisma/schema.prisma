@@ -267,7 +267,7 @@ model Fee {
   updatedAt   DateTime    @updatedAt
   createdAt   DateTime    @default(now())
 
-  membershipId String
+  membershipId String @db.ObjectId
 
   membership Membership @relation(fields: [membershipId], references: [id], onDelete: Cascade)
 

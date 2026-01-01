@@ -332,11 +332,9 @@ export default function Component(props: {
                 accessorKey: 'id',
                 cell({ row }) {
                   return (
-                    <TableCellViewer
-                      item={row.original}
-                      key={Date.now()}
-                      user={props.user}
-                    />
+                    <Link href={`/appointments/${row.original.id}`}>
+                      {row.original.id.slice(-5)}
+                    </Link>
                   );
                 },
                 enableHiding: false,
@@ -346,7 +344,9 @@ export default function Component(props: {
               {
                 accessorKey: 'doctor',
                 cell({ row }) {
-                  return <span>{row.original.doctor}</span>;
+                  return (
+                    <span className='capitalize'>{row.original.doctor}</span>
+                  );
                 },
                 enableHiding: false,
                 header: 'Doctor',
@@ -355,7 +355,9 @@ export default function Component(props: {
               {
                 accessorKey: 'patient',
                 cell({ row }) {
-                  return <span>{row.original.patient}</span>;
+                  return (
+                    <span className='capitalize'>{row.original.patient}</span>
+                  );
                 },
                 enableHiding: false,
                 header: 'Patient',

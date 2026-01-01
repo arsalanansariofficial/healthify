@@ -1,5 +1,5 @@
 import { User } from 'next-auth';
-import { notFound } from 'next/navigation';
+import { redirect } from 'next/navigation';
 
 import Component from '@/app/(private)/appointments/[slug]/component';
 import { auth } from '@/auth';
@@ -13,14 +13,14 @@ export default async function Page({
   const session = await auth();
   const { slug } = await params;
 
-  if (!slug) notFound();
+  if (!slug) redirect('/not-found');
 
-  const doctor = await prisma.user.findUnique({
-    include: { timings: true },
+  const appointment = await prisma.appointment.findUnique({
+    include: { timeSlot: true },
     where: { id: slug }
   });
 
-  if (!doctor) notFound();
+  if (!appointment) redirect('/not-found');
 
-  return <Component doctor={doctor} user={session?.user as User} />;
+  return <Component appointment={appointment} user={session?.user as User} />;
 }

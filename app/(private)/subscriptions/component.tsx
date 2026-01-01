@@ -417,7 +417,7 @@ export default function Component(props: { user: User; subscriptions: Row[] }) {
                 cell: ({ row }) => (
                   <ul className='space-y-2'>
                     <Badge className='capitalize' variant='secondary'>
-                      {row.original.fee.amount}
+                      Rs. {row.original.fee.amount}
                     </Badge>
                   </ul>
                 ),

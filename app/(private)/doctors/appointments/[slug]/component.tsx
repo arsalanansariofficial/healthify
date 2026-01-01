@@ -1,13 +1,15 @@
 'use client';
 
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Prisma } from '@prisma/client';
+import { Day, TimeSlot, User } from '@prisma/client';
+import { CalendarIcon } from 'lucide-react';
 import { User as AuthUser } from 'next-auth';
 import { useForm } from 'react-hook-form';
 
 import handler from '@/components/display-toast';
 import Footer from '@/components/footer';
 import { Button } from '@/components/ui/button';
+import { Calendar } from '@/components/ui/calendar';
 import {
   Card,
   CardTitle,
@@ -26,34 +28,46 @@ import {
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger
+} from '@/components/ui/popover';
+import {
+  Select,
+  SelectItem,
+  SelectValue,
+  SelectContent,
+  SelectTrigger
+} from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import useHookForm from '@/hooks/use-hook-form';
 import { getAppointment } from '@/lib/actions';
+import { DATES } from '@/lib/constants';
 import { appointmentSchema } from '@/lib/schemas';
-import { getDate } from '@/lib/utils';
+import { formatTime, getDate } from '@/lib/utils';
 
 export default function Component({
-  appointment
+  doctor,
+  user
 }: {
-  appointment: Prisma.AppointmentGetPayload<{ include: { timeSlot: true } }>;
+  doctor: User & { timings: TimeSlot[] };
   user: AuthUser;
 }) {
   const { handleSubmit, pending } = useHookForm(
     handler,
-    getAppointment.bind(null, appointment.id) as (
-      data: unknown
-    ) => Promise<unknown>
+    getAppointment.bind(null, doctor.id) as (data: unknown) => Promise<unknown>
   );
 
   const form = useForm({
     defaultValues: {
-      city: appointment.city,
-      date: appointment.date,
-      email: appointment.email,
-      name: appointment.name,
-      notes: appointment.notes || String(),
-      phone: appointment.phone,
-      time: appointment.timeSlot.time
+      city: user.city || String(),
+      date: new Date(),
+      email: user.email || String(),
+      name: user.name || String(),
+      notes: String(),
+      phone: user.phone || String(),
+      time: String()
     },
     resolver: zodResolver(appointmentSchema)
   });
@@ -64,7 +78,7 @@ export default function Component({
         <CardHeader>
           <CardTitle>Get Appointment</CardTitle>
           <CardDescription>
-            Enter the details below to book an appointment with the appointment.
+            Enter the details below to book an appointment with the doctor.
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -77,12 +91,12 @@ export default function Component({
               <div className='space-y-2'>
                 <Label htmlFor='doctor-name'>Doctor</Label>
                 <Input
-                  className='capitalize'
                   name='doctor-name'
+                  className='capitalize'
                   placeholder='Gwen Tennyson'
                   readOnly
                   type='text'
-                  value={appointment.name as string}
+                  value={doctor.name as string}
                 />
               </div>
               <FormField
@@ -162,13 +176,38 @@ export default function Component({
                   <FormItem>
                     <FormLabel>Date</FormLabel>
                     <FormControl>
-                      <Input
-                        {...{
-                          ...field,
-                          value: getDate(field.value.toString(), false, false)
-                        }}
-                        placeholder='January 01, 2025'
-                      />
+                      <Popover>
+                        <PopoverTrigger asChild>
+                          <Button
+                            className='data-[empty=true]:text-muted-foreground flex justify-between text-left font-normal'
+                            data-empty={!field.value}
+                            variant='outline'
+                          >
+                            {field.value &&
+                              getDate(field.value.toString(), false, false)}
+                            {!field.value && <span>Pick a date</span>}
+                            <CalendarIcon />
+                          </Button>
+                        </PopoverTrigger>
+                        <PopoverContent className='w-auto p-0'>
+                          <Calendar
+                            disabled={date =>
+                              !doctor.daysOfVisit.includes(
+                                date.toLocaleDateString('en-US', {
+                                  weekday: 'long'
+                                }) as Day
+                              )
+                            }
+                            hidden={{
+                              after: DATES.MAX_DATE as Date,
+                              before: DATES.MIN_DATE as Date
+                            }}
+                            mode='single'
+                            onSelect={field.onChange}
+                            selected={field.value}
+                          />
+                        </PopoverContent>
+                      </Popover>
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -181,7 +220,22 @@ export default function Component({
                   <FormItem>
                     <FormLabel>Time</FormLabel>
                     <FormControl>
-                      <Input {...field} placeholder='10:00 AM' />
+                      <Select onValueChange={field.onChange}>
+                        <SelectTrigger className='w-full [&_span[data-slot]]:block [&_span[data-slot]]:truncate'>
+                          <SelectValue placeholder='Select a time' />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {doctor.timings.map(time => (
+                            <SelectItem
+                              className='capitalize'
+                              key={time.id}
+                              value={time.id}
+                            >
+                              {formatTime(time.time)}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
                     </FormControl>
                     <FormMessage />
                   </FormItem>

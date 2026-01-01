@@ -279,26 +279,33 @@ export default function Component(props: { user: User; memberships: Row[] }) {
               },
               {
                 accessorKey: 'fee',
-                cell: ({ row }: { row: { original: { fees: Fee[] } } }) => (
-                  <ul className='space-y-2'>
-                    {row.original.fees.map((f, i) => (
-                      <li className='flex items-center gap-2' key={i}>
-                        <Badge className='capitalize' variant='secondary'>
-                          {f.renewalType}
-                        </Badge>
-                        <Badge className='capitalize' variant='secondary'>
-                          Rs. {f.amount}
-                        </Badge>
-                      </li>
-                    ))}
-                  </ul>
-                ),
+                cell: ({ row }) => {
+                  if (!row.original.fees.length) {
+                    return <Badge>Free</Badge>;
+                  }
+
+                  return (
+                    <ul className='space-y-2'>
+                      {row.original.fees.map((f, i) => (
+                        <li className='flex items-center gap-2' key={i}>
+                          <Badge className='capitalize' variant='secondary'>
+                            {f.renewalType}
+                          </Badge>
+                          <Badge className='capitalize' variant='secondary'>
+                            Rs. {f.amount}
+                          </Badge>
+                        </li>
+                      ))}
+                    </ul>
+                  );
+                },
                 enableHiding: false,
                 header: 'Fee'
               },
               {
                 accessorKey: 'createdAt',
-                cell: ({ row }) => getDate(row.original.createdAt.toString()),
+                cell: ({ row }) =>
+                  getDate(row.original.createdAt.toString(), false, false),
                 header: () => <div>Created At</div>
               },
               {

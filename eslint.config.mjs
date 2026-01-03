@@ -1,15 +1,18 @@
-import { FlatCompat } from '@eslint/eslintrc';
+import nextCoreWebVitals from 'eslint-config-next/core-web-vitals';
+import nextTypescript from 'eslint-config-next/typescript';
 import perfectionistPlugin from 'eslint-plugin-perfectionist';
-import { dirname } from 'path';
-import { fileURLToPath } from 'url';
-
-const compat = new FlatCompat({
-  baseDirectory: dirname(fileURLToPath(import.meta.url))
-});
 
 const eslintConfig = [
-  ...compat.extends('next/core-web-vitals', 'next/typescript'),
+  ...nextCoreWebVitals,
+  ...nextTypescript,
   {
+    ignores: [
+      'out/**',
+      '.next/**',
+      'build/**',
+      'next-env.d.ts',
+      'node_modules/**'
+    ],
     plugins: { perfectionist: perfectionistPlugin },
     rules: {
       'perfectionist/sort-enums': ['error', { order: 'asc', type: 'natural' }],

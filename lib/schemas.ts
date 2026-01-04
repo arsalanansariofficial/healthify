@@ -1,5 +1,5 @@
 import { Gender, RenewalType, SubscriptionStatus } from '@prisma/client';
-import { z } from 'zod';
+import { z, ZodType } from 'zod';
 
 import { DATES } from '@/lib/constants';
 
@@ -7,6 +7,7 @@ export const yesNo = z.enum(['yes', 'no']);
 const email = z.email().trim().toLowerCase();
 const password = (min = 1) => z.string().trim().min(min);
 const text = (min = 1) => z.string().trim().min(min).toLowerCase();
+const empty = <T extends ZodType>(type: T) => z.union([z.literal(''), type]);
 
 const phone = z
   .string()
@@ -115,14 +116,14 @@ export const hospitalSchema = z.object({
 });
 
 export const userProfileSchema = z.object({
-  city: text().nullish(),
+  city: empty(text(5)),
   cover: optionalFileField,
-  email: email,
-  gender: z.enum(Gender),
+  email,
+  gender: empty(z.enum(Gender)),
   image: optionalFileField,
   name: text(),
-  password: password(1),
-  phone: phone
+  password: empty(password(1)),
+  phone: empty(phone)
 });
 
 export const membershipSchema = z.object({

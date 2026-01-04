@@ -1,7 +1,7 @@
 'use client';
 
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Prisma, Role } from '@prisma/client';
+import { Gender, Prisma, Role } from '@prisma/client';
 import { PlusIcon, TrashIcon } from 'lucide-react';
 import { useMemo, useState } from 'react';
 import { useForm, useWatch } from 'react-hook-form';
@@ -72,7 +72,7 @@ export default function Component({
       city: user.city ? capitalize(user.city) : String(),
       cover: user.cover || String(),
       email: user.email || String(),
-      gender: (user.gender as 'male' | 'female') || String(),
+      gender: (user.gender as Gender) || String(),
       image: user.image || String(),
       name: user.name || String(),
       password: String(),

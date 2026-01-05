@@ -1,5 +1,11 @@
 import { Elysia } from 'elysia';
 
-const app = new Elysia().get('/', () => ({ message: 'Hello World.' }));
+import { env } from '@/config/env';
+import user from '@/routes/user';
 
-app.listen(3000);
+const app = new Elysia();
+
+app.get('/', () => ({ message: 'Hello World.' }));
+app.use(user);
+
+app.listen(env.PORT);

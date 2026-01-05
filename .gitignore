@@ -45,6 +45,7 @@ db
 # ide files
 .idea
 .vscode
+.VSCodeCounter
 
 # public
 public

@@ -13,8 +13,9 @@ import {
 import { cn } from '@/lib/utils';
 
 interface CoverUploadProps {
-  maxSize?: number;
   accept?: string;
+  maxSize?: number;
+  imageUrl?: string;
   className?: string;
   onImageChange?: (file: File | null) => void;
 }
@@ -22,13 +23,27 @@ interface CoverUploadProps {
 export default function CoverUpload({
   accept = 'image/*',
   className,
+  imageUrl,
   maxSize = 5 * 1024 * 1024,
   onImageChange
 }: CoverUploadProps) {
+  const defaultCoverImage: FileMetadata = {
+    id: 'default-cover',
+    name: 'cover-image.jpg',
+    size: 2048000,
+    type: 'image/jpeg',
+    url: imageUrl || String()
+  };
+
   const [imageLoading, setImageLoading] = useState(true);
   const [uploadProgress, setUploadProgress] = useState(0);
   const [isUploading, setIsUploading] = useState(false);
-  const [coverImage, setCoverImage] = useState<FileWithPreview | null>();
+
+  const [coverImage, setCoverImage] = useState<FileWithPreview | null>({
+    file: defaultCoverImage,
+    id: defaultCoverImage.id,
+    preview: defaultCoverImage.url
+  });
   const hasImage = coverImage && coverImage.preview;
 
   const [
@@ -89,7 +104,7 @@ export default function CoverUpload({
   return (
     <div
       className={cn(
-        'group border-border relative overflow-hidden rounded-xl border transition-all duration-200',
+        'group border-border relative cursor-pointer overflow-hidden rounded-xl border transition-all duration-200',
         isDragging
           ? 'border-primary bg-primary/5 border-dashed'
           : hasImage
@@ -124,6 +139,7 @@ export default function CoverUpload({
               onError={() => setImageLoading(false)}
               onLoad={() => setImageLoading(false)}
               src={coverImage.preview as string}
+              unoptimized
             />
           </div>
           <div className='absolute inset-0 bg-black/0 transition-all duration-200 group-hover:bg-black/40' />

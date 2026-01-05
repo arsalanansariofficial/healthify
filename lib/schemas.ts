@@ -1,165 +1,132 @@
 import { Gender, RenewalType, SubscriptionStatus } from '@prisma/client';
-import { z, ZodType } from 'zod';
+import { z } from 'zod';
 
+import { TIME_REG_EX, PHONE_REG_EX } from '@/constants/regex';
 import { DATES } from '@/lib/constants';
-
-export const yesNo = z.enum(['yes', 'no']);
-const email = z.email().trim().toLowerCase();
-const password = (min = 1) => z.string().trim().min(min);
-const text = (min = 1) => z.string().trim().min(min).toLowerCase();
-const empty = <T extends ZodType>(type: T) => z.union([z.literal(''), type]);
-
-const phone = z
-  .string()
-  .trim()
-  .toLowerCase()
-  .regex(/^\+?\d{10,15}$/);
-
-const optionalFileField = z
-  .any()
-  .refine(val => {
-    if (typeof val === 'string') return true;
-    if (!val || !val.length) return true;
-    return val[0]?.name?.length >= 5;
-  })
-  .nullish();
-
-const timingSchema = z.object({
-  duration: z.number().positive(),
-  id: z.string().trim(),
-  time: z
-    .string()
-    .trim()
-    .toLowerCase()
-    .regex(/^([01]\d|2[0-3]):([0-5]\d):([0-5]\d)$/)
-});
-
-const baseDoctorSchema = {
-  city: text().nullish(),
-  cover: optionalFileField,
-  daysOfVisit: z.array(text()).min(1),
-  email: email,
-  emailVerified: yesNo.nullish(),
-  experience: z.coerce.number().min(1),
-  gender: z.enum(Gender),
-  image: optionalFileField,
-  name: text(),
-  phone: phone,
-  specialities: z.array(text()).min(1),
-  timings: z.array(timingSchema)
-};
+import { schema } from '@/lib/utils';
 
 export const loginSchema = z.object({
-  email: email,
-  password: password()
+  email: schema(z.email()),
+  password: schema(z.string(), { lowerCase: false })
 });
 
 export const rolePermissionsSchema = z.object({
-  name: text(),
-  permissions: z.array(text())
-});
-
-export const doctorSchema = z.object({
-  ...baseDoctorSchema,
-  password: password()
-});
-
-export const doctorProfileSchema = z.object({
-  ...baseDoctorSchema,
-  password: password().nullish()
+  name: schema(z.string(), { min: 5 }),
+  permissions: z.array(schema(z.string()))
 });
 
 const pharmaBaseSchema = z.object({
-  description: text(10).nullish(),
-  name: text()
+  description: schema(z.string(), { empty: true, min: 10 }),
+  name: schema(z.string(), { min: 5 })
 });
 
 export const signupSchema = z.object({
-  email: email,
-  name: text(),
-  password: password()
+  email: schema(z.email()),
+  name: schema(z.string(), { min: 5 }),
+  password: schema(z.string(), { lowerCase: false })
 });
 
 export const userRolesSchema = z.object({
-  email: email,
-  name: text(),
-  roles: z.array(text()).min(1)
+  email: schema(z.email()),
+  name: schema(z.string(), { min: 5 }),
+  roles: z.array(schema(z.string())).min(1)
 });
 
 export const pharmaCodeSchema = z.object({
-  code: text(),
-  description: text(10).nullish(),
-  frequency: z.coerce.number().min(1)
+  code: schema(z.string()),
+  description: schema(z.string(), { empty: true, min: 10 }),
+  frequency: schema(z.coerce.number(), { min: 1 })
 });
 
 export const userSchema = z.object({
-  email: email,
-  emailVerified: yesNo.nullish(),
-  name: text(),
-  password: password()
+  email: schema(z.email()),
+  emailVerified: schema(z.enum(['yes', 'no'])),
+  name: schema(z.string(), { min: 5 }),
+  password: schema(z.string(), { lowerCase: false })
 });
+
 export const membershipSubscriptionSchema = z.object({
-  feeId: z.string().trim(),
-  membershipId: z.string().trim(),
-  status: z.enum(SubscriptionStatus),
-  users: z.array(z.string().trim())
+  feeId: schema(z.string()),
+  membershipId: schema(z.string()),
+  status: schema(z.enum(SubscriptionStatus)),
+  users: z.array(schema(z.string()))
 });
 
 export const hospitalSchema = z.object({
-  address: text(),
-  city: text(),
-  doctors: z.array(z.string().trim().toLowerCase()),
-  email: email,
-  isAffiliated: yesNo.nullish(),
-  name: text(5),
-  phone: phone
+  address: schema(z.string()),
+  city: schema(z.string()),
+  doctors: z.array(schema(z.string())),
+  email: schema(z.email()),
+  isAffiliated: schema(z.enum(['yes', 'no'])),
+  name: schema(z.string(), { min: 5 }),
+  phone: schema(z.string(), { regex: PHONE_REG_EX as RegExp })
 });
 
 export const userProfileSchema = z.object({
-  city: empty(text(5)),
-  cover: optionalFileField,
-  email,
-  gender: empty(z.enum(Gender)),
-  image: optionalFileField,
-  name: text(),
-  password: empty(password(1)),
-  phone: empty(phone)
+  city: schema(z.string(), { empty: true, min: 5 }),
+  cover: z.union([schema(z.string()), z.file()]),
+  email: schema(z.email()),
+  gender: schema(z.enum(Gender), { empty: true }),
+  image: z.union([schema(z.string()), z.file()]),
+  name: schema(z.string(), { min: 5 }),
+  password: schema(z.string(), { empty: true, lowerCase: false }),
+  phone: schema(z.string(), { empty: true, regex: PHONE_REG_EX as RegExp })
 });
 
 export const membershipSchema = z.object({
   fees: z.array(
     z.object({
-      amount: z.number().positive().nullish(),
-      renewalType: z.enum(RenewalType)
+      amount: schema(z.number().positive().optional()),
+      renewalType: schema(z.enum(RenewalType))
     })
   ),
-  hospitalMemberships: z.array(
-    z.object({
-      hospital: hospitalSchema
-    })
-  ),
-  name: text(5),
-  perks: z.array(text(10))
+  hospitalMemberships: z.array(schema(z.object({ hospital: hospitalSchema }))),
+  name: schema(z.string(), { min: 5 }),
+  perks: z.array(schema(z.string(), { min: 10 }))
 });
 
 export const appointmentSchema = z.object({
-  city: text(),
-  date: z
-    .date()
-    .min(DATES.MIN_DATE as Date, {
-      message: `Date must be greater than ${DATES.MIN_DATE}`
-    })
-    .max(DATES.MAX_DATE as Date, {
-      message: `Date must be less than ${DATES.MAX_DATE}`
-    }),
-  email: email,
-  name: text(),
-  notes: text(10).nullish(),
-  phone: phone,
-  time: text()
+  city: schema(z.string()),
+  date: schema(
+    z
+      .date()
+      .min(DATES.MIN_DATE as Date, {
+        message: `Date must be greater than ${DATES.MIN_DATE}`
+      })
+      .max(DATES.MAX_DATE as Date, {
+        message: `Date must be less than ${DATES.MAX_DATE}`
+      })
+  ),
+  email: schema(z.email()),
+  name: schema(z.string(), { min: 5 }),
+  notes: schema(z.string(), { min: 10 }),
+  phone: schema(z.string(), { regex: PHONE_REG_EX as RegExp }),
+  time: schema(z.string())
 });
 
-export const nameSchema = z.object({ name: text() });
+export const doctorSchema = z.object({
+  city: schema(z.string(), { empty: true, min: 5 }),
+  cover: z.union([schema(z.string()), z.file()]),
+  daysOfVisit: z.array(schema(z.string())).min(1),
+  email: schema(z.email()),
+  emailVerified: schema(z.enum(['yes', 'no'])),
+  experience: schema(z.coerce.number(), { min: 1 }),
+  gender: z.enum(Gender),
+  image: z.union([schema(z.string()), z.file()]),
+  name: schema(z.string(), { min: 5 }),
+  password: schema(z.string(), { lowerCase: false }),
+  phone: schema(z.string(), { regex: PHONE_REG_EX as RegExp }),
+  specialities: z.array(schema(z.string())).min(1),
+  timings: z.array(
+    z.object({
+      duration: schema(z.number().positive()),
+      id: schema(z.string()),
+      time: schema(z.string(), { regex: TIME_REG_EX as RegExp })
+    })
+  )
+});
+
+export const nameSchema = z.object({ name: schema(z.string(), { min: 5 }) });
 
 export const roleSchema = nameSchema;
 export const seedSchema = z.object({});
@@ -170,8 +137,14 @@ export const permissionSchema = nameSchema;
 
 export const pharmaSaltSchema = pharmaBaseSchema;
 export const pharmaBrandSchema = pharmaBaseSchema;
-export const bioSchema = z.object({ bio: text(10) });
 
 export const medicationFormSchema = pharmaBaseSchema;
-export const emailSchema = z.object({ email: email });
 export const pharmaManufacturerSchema = pharmaBaseSchema;
+
+export const emailSchema = z.object({ email: schema(z.email()) });
+export const bioSchema = z.object({ bio: schema(z.string(), { min: 10 }) });
+
+export const doctorProfileSchema = doctorSchema.extend({
+  emailVerified: schema(z.enum(['yes', 'no'])).optional(),
+  password: schema(z.string(), { empty: true, lowerCase: false })
+});

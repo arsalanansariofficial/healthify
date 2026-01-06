@@ -126,42 +126,6 @@ export default function Component({
     resolver: zodResolver(doctorProfileSchema)
   });
 
-  const watchedUserValues = {
-    city: useWatch({ control: userForm.control, name: 'city' }),
-    cover: useWatch({ control: userForm.control, name: 'cover' }),
-    email: useWatch({ control: userForm.control, name: 'email' }),
-    gender: useWatch({ control: userForm.control, name: 'gender' }),
-    image: useWatch({ control: userForm.control, name: 'image' }),
-    name: useWatch({ control: userForm.control, name: 'name' }),
-    password: useWatch({ control: userForm.control, name: 'password' }),
-    phone: useWatch({ control: userForm.control, name: 'phone' })
-  };
-
-  const watchedDoctorValues = {
-    city: useWatch({ control: doctorForm.control, name: 'city' }),
-    cover: useWatch({ control: doctorForm.control, name: 'cover' }),
-    daysOfVisit: useWatch({ control: doctorForm.control, name: 'daysOfVisit' }),
-    email: useWatch({ control: doctorForm.control, name: 'email' }),
-    emailVerified: useWatch({
-      control: doctorForm.control,
-      name: 'emailVerified'
-    }),
-    experience: useWatch({
-      control: doctorForm.control,
-      name: 'experience'
-    }) as number,
-    gender: useWatch({ control: doctorForm.control, name: 'gender' }),
-    image: useWatch({ control: doctorForm.control, name: 'image' }),
-    name: useWatch({ control: doctorForm.control, name: 'name' }),
-    password: useWatch({ control: doctorForm.control, name: 'password' }),
-    phone: useWatch({ control: doctorForm.control, name: 'phone' }),
-    specialities: useWatch({
-      control: doctorForm.control,
-      name: 'specialities'
-    }),
-    timings: useWatch({ control: doctorForm.control, name: 'timings' })
-  };
-
   const { handleSubmit: submitUser } = useHookForm(
     handler,
     updateUserProfile.bind(null, user.id) as (
@@ -179,7 +143,7 @@ export default function Component({
   );
 
   return (
-    <div className='h-full space-y-8 lg:mx-auto lg:w-10/12'>
+    <div className='grid h-full gap-8 lg:mx-auto lg:w-10/12'>
       <Tabs defaultValue={role} onValueChange={setRole}>
         <Card>
           <CardHeader>
@@ -337,8 +301,12 @@ export default function Component({
                   />
                   <Button
                     disabled={
-                      !hasFormChanged(defaultUserValues, watchedUserValues) ||
-                      userForm.formState.isSubmitting
+                      !hasFormChanged(
+                        defaultUserValues,
+                        useWatch({
+                          control: userForm.control
+                        })
+                      ) || userForm.formState.isSubmitting
                     }
                     type='submit'
                   >
@@ -574,7 +542,7 @@ export default function Component({
                                         field.onChange(time);
                                       }}
                                       type='number'
-                                      value={time.duration}
+                                      value={time.duration as number}
                                     />
                                     <Button
                                       disabled={!index}
@@ -606,7 +574,9 @@ export default function Component({
                     disabled={
                       !hasFormChanged(
                         defaultDoctorValues,
-                        watchedDoctorValues
+                        useWatch({
+                          control: doctorForm.control
+                        })
                       ) || doctorForm.formState.isSubmitting
                     }
                     type='submit'

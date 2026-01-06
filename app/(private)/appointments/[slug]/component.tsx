@@ -25,17 +25,18 @@ import {
   FormMessage
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import useHookForm from '@/hooks/use-hook-form';
 import { getAppointment } from '@/lib/actions';
 import { appointmentSchema } from '@/lib/schemas';
-import { getDate } from '@/lib/utils';
+import { formatTime, getDate } from '@/lib/utils';
 
 export default function Component({
   appointment
 }: {
-  appointment: Prisma.AppointmentGetPayload<{ include: { timeSlot: true } }>;
+  appointment: Prisma.AppointmentGetPayload<{
+    include: { timeSlot: true; doctor: true };
+  }>;
   user: AuthUser;
 }) {
   const { handleSubmit, pending } = useHookForm(
@@ -49,11 +50,12 @@ export default function Component({
     defaultValues: {
       city: appointment.city,
       date: appointment.date,
+      doctor: appointment.doctor.name || String(),
       email: appointment.email,
       name: appointment.name,
       notes: appointment.notes || String(),
       phone: appointment.phone,
-      time: appointment.timeSlot.time
+      time: formatTime(appointment.timeSlot.time)
     },
     resolver: zodResolver(appointmentSchema)
   });
@@ -74,17 +76,25 @@ export default function Component({
               id='appointment-form'
               onSubmit={form.handleSubmit(handleSubmit)}
             >
-              <div className='space-y-2'>
-                <Label htmlFor='doctor-name'>Doctor</Label>
-                <Input
-                  className='capitalize'
-                  name='doctor-name'
-                  placeholder='Gwen Tennyson'
-                  readOnly
-                  type='text'
-                  value={appointment.name as string}
-                />
-              </div>
+              <FormField
+                control={form.control}
+                name='doctor'
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Doctor</FormLabel>
+                    <FormControl>
+                      <Input
+                        {...field}
+                        className='capitalize'
+                        disabled
+                        placeholder='Gwen Tennyson'
+                        type='text'
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
               <FormField
                 control={form.control}
                 name='name'
@@ -95,6 +105,7 @@ export default function Component({
                       <Input
                         {...field}
                         className='capitalize'
+                        disabled
                         placeholder='Gwen Tennyson'
                         type='text'
                       />
@@ -112,6 +123,7 @@ export default function Component({
                     <FormControl>
                       <Input
                         {...field}
+                        disabled
                         placeholder='your.name@domain.com'
                         type='email'
                       />
@@ -129,6 +141,7 @@ export default function Component({
                     <FormControl>
                       <Input
                         {...field}
+                        disabled
                         placeholder='+919876543210'
                         type='tel'
                       />
@@ -147,6 +160,7 @@ export default function Component({
                       <Input
                         {...field}
                         className='capitalize'
+                        disabled
                         placeholder='Moradabad'
                         type='text'
                       />
@@ -163,11 +177,10 @@ export default function Component({
                     <FormLabel>Date</FormLabel>
                     <FormControl>
                       <Input
-                        {...{
-                          ...field,
-                          value: getDate(field.value.toString(), false, false)
-                        }}
+                        {...field}
+                        disabled
                         placeholder='January 01, 2025'
+                        value={getDate(field.value.toString(), false, false)}
                       />
                     </FormControl>
                     <FormMessage />
@@ -181,7 +194,7 @@ export default function Component({
                   <FormItem>
                     <FormLabel>Time</FormLabel>
                     <FormControl>
-                      <Input {...field} placeholder='10:00 AM' />
+                      <Input {...field} disabled placeholder='10:00 AM' />
                     </FormControl>
                     <FormMessage />
                   </FormItem>

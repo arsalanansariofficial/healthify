@@ -16,7 +16,7 @@ export default async function Page({
   if (!slug) redirect('/not-found');
 
   const appointment = await prisma.appointment.findUnique({
-    include: { timeSlot: true },
+    include: { doctor: true, timeSlot: true },
     where: { id: slug }
   });
 

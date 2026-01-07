@@ -39,7 +39,7 @@ enum AppointmentStatus {
   pending
   confirmed
   cancelled
-  completed
+  done
 }
 
 enum PaymentStatus {
@@ -432,12 +432,10 @@ model Appointment {
   createdAt  DateTime          @default(now())
   status     AppointmentStatus @default(pending)
 
-  doctorId       String  @db.ObjectId
-  patientId      String  @db.ObjectId
-  timeSlotId     String  @db.ObjectId
-  hospitalId     String? @db.ObjectId
-  prescriptionId String? @db.ObjectId
-  benificiaryId  String? @db.ObjectId
+  doctorId      String  @db.ObjectId
+  patientId     String  @db.ObjectId
+  timeSlotId    String  @db.ObjectId
+  benificiaryId String? @db.ObjectId
 
   timeSlot    TimeSlot     @relation(fields: [timeSlotId], references: [id], onDelete: Cascade)
   benificiary Benificiary? @relation(fields: [benificiaryId], references: [id], onDelete: Cascade)

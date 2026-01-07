@@ -27,6 +27,7 @@
     "@eslint/js": "^10.0.1",
     "@types/better-sqlite3": "^7.6.13",
     "bun-types": "latest",
+    "dotenv": "^17.4.2",
     "eslint": "^10.7.0",
     "eslint-plugin-perfectionist": "^5.10.0",
     "globals": "^17.7.0",

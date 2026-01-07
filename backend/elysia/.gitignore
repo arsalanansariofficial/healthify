@@ -35,8 +35,14 @@ npm-debug.log*
 /.next/
 /out/
 
+# prisma
+/generated/prisma
+
 # testing
 /coverage
 
 # production
 /build
+
+# database
+*.db

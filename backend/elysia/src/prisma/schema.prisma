@@ -6,3 +6,36 @@ generator client {
 datasource db {
   provider = "sqlite"
 }
+
+enum Gender {
+  male
+  female
+}
+
+model User {
+  id         String    @id @default(uuid())
+  email      String    @unique
+  verifiedAt DateTime?
+  password   String
+  name       String
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  profile UserProfile?
+}
+
+model UserProfile {
+  phoneNumber String? @unique
+  userId      String  @id
+  imageUrl    String?
+  coverUrl    String?
+  bio         String?
+  address     String?
+  gender      Gender
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}

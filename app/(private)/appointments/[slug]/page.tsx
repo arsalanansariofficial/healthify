@@ -15,12 +15,31 @@ export default async function Page({
 
   if (!slug) redirect('/not-found');
 
-  const appointment = await prisma.appointment.findUnique({
-    include: { doctor: true, timeSlot: true },
-    where: { id: slug }
-  });
+  const [appointment, hospitals, facilities] = await Promise.all([
+    prisma.appointment.findUnique({
+      include: {
+        appointmentHospitals: true,
+        benificiary: true,
+        doctor: true,
+        facilities: true,
+        patient: true,
+        prescriptions: true,
+        timeSlot: true
+      },
+      where: { id: slug }
+    }),
+    prisma.hospital.findMany(),
+    prisma.facility.findMany()
+  ]);
 
   if (!appointment) redirect('/not-found');
 
-  return <Component appointment={appointment} user={session?.user as User} />;
+  return (
+    <Component
+      appointment={appointment}
+      facilities={facilities}
+      hospitals={hospitals}
+      user={session?.user as User}
+    />
+  );
 }

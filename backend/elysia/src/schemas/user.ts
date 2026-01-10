@@ -20,7 +20,7 @@ export const userSchema = z.object({
     .trim()
     .toLowerCase(),
   email: z.email('Email should be valid.').trim().toLowerCase(),
-  verifiedAt: z.date().optional(),
+  verifiedAt: z.date().nullish(),
   createdAt: z.date(),
   updatedAt: z.date(),
   id: z.string()

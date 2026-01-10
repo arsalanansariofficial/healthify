@@ -50,7 +50,7 @@ export function hasRole(roles: User['roles'], name: string) {
 }
 
 export function getImageUrl(hasOAuth: boolean, image?: string | null) {
-  return `${!hasOAuth ? `${DOMAIN.LOCAL}/api/upload/` : ''}${image || UI.DEFAULT_PROFILE_IMAGE}`;
+  return `${!hasOAuth ? `${DOMAIN.LOCAL}/api/upload` : ''}${image ? `/${image}` : UI.DEFAULT_PROFILE_IMAGE}`;
 }
 
 export function hasPermission(permissions: User['permissions'], name: string) {

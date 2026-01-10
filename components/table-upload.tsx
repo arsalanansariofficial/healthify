@@ -59,7 +59,7 @@ interface TableUploadProps {
   multiple?: boolean;
   className?: string;
   simulateUpload?: boolean;
-  onFilesChange?: (files: FileWithPreview[]) => void;
+  onFilesChange?: (files: File[]) => void;
 }
 
 export default function TableUpload({
@@ -160,7 +160,9 @@ export default function TableUpload({
   }, [simulateUpload]);
 
   useEffect(() => {
-    onFilesChange?.(uploadFiles);
+    if (uploadFiles.length) {
+      onFilesChange?.(uploadFiles.map(f => f.file as File));
+    }
   }, [onFilesChange, uploadFiles]);
 
   const removeUploadFile = (fileId: string) => {
@@ -230,16 +232,14 @@ export default function TableUpload({
         <div className='flex flex-col items-center gap-4'>
           <div
             className={cn(
-              'bg-muted flex h-12 w-12 items-center justify-center rounded-full transition-colors',
+              'bg-muted flex h-12 w-12 cursor-pointer items-center justify-center rounded-full transition-colors',
               isDragging
                 ? 'border-primary bg-primary/10'
                 : 'border-muted-foreground/25'
             )}
+            onClick={openFileDialog}
           >
-            <Upload
-              className='text-muted-foreground h-5 w-5 cursor-pointer'
-              onClick={openFileDialog}
-            />
+            <Upload className='text-muted-foreground h-5 w-5 cursor-pointer' />
           </div>
           <p className='text-muted-foreground text-xs'>
             Maximum file size: {formatBytes(maxSize)}, Maximum files:

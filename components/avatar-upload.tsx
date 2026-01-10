@@ -5,13 +5,13 @@ import Image from 'next/image';
 import { useEffect } from 'react';
 
 import { Button } from '@/components/ui/button';
-import { useFileUpload, type FileWithPreview } from '@/hooks/use-file-upload';
+import { useFileUpload } from '@/hooks/use-file-upload';
 import { cn } from '@/lib/utils';
 
 interface AvatarUploadProps {
   maxSize?: number;
   className?: string;
-  onFileChange?: (file: FileWithPreview | null) => void;
+  onFileChange?: (file: File) => void;
   defaultAvatar?: string;
 }
 
@@ -44,7 +44,7 @@ export default function AvatarUpload({
 
   useEffect(() => {
     if (currentFile?.file) {
-      onFileChange?.(currentFile);
+      onFileChange?.(currentFile.file as File);
     }
   }, [currentFile, onFileChange]);
 

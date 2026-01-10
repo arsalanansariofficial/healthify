@@ -36,17 +36,18 @@ import {
 } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import useHookForm from '@/hooks/use-hook-form';
-import { getAppointment } from '@/lib/actions';
+import { updateAppointment } from '@/lib/actions';
 import { appointmentSummarySchema } from '@/lib/schemas';
-import { formatTime, getDate } from '@/lib/utils';
+import { capitalize, formatTime, getDate } from '@/lib/utils';
 
 export default function Component({
   appointment,
   facilities,
   hospitals
 }: {
-  facilities: Facility[];
+  user: AuthUser;
   hospitals: Hospital[];
+  facilities: Facility[];
   appointment: Prisma.AppointmentGetPayload<{
     include: {
       doctor: true;
@@ -58,14 +59,8 @@ export default function Component({
       appointmentHospitals: true;
     };
   }>;
-  user: AuthUser;
 }) {
-  const { handleSubmit, pending } = useHookForm(
-    handler,
-    getAppointment.bind(null, appointment.id) as (
-      data: unknown
-    ) => Promise<unknown>
-  );
+  const { handleSubmit, pending } = useHookForm(handler, updateAppointment);
 
   const form = useForm({
     defaultValues: {
@@ -80,7 +75,7 @@ export default function Component({
       facilities: appointment.facilities.map(f => f.id),
       isReferred: appointment.isReferred ? 'yes' : 'no',
       name: appointment.name,
-      notes: appointment.notes || String(),
+      notes: capitalize(appointment.notes || String()),
       patientId: appointment.patient.id,
       phone: appointment.phone,
       prescriptions: appointment.prescriptions.map(p => p.id),
@@ -104,7 +99,7 @@ export default function Component({
         <CardContent>
           <Form {...form}>
             <form
-              className='space-y-2'
+              className='space-y-4 lg:grid lg:grid-cols-2 lg:gap-4'
               id='appointment-form'
               onSubmit={form.handleSubmit(handleSubmit)}
             >
@@ -381,14 +376,12 @@ export default function Component({
                 control={form.control}
                 name='notes'
                 render={({ field }) => (
-                  <FormItem>
+                  <FormItem className='lg:col-span-2'>
                     <FormLabel>Notes</FormLabel>
                     <FormControl>
                       <Textarea
-                        className='capitalize'
                         {...field}
                         placeholder='Any prior medical history or symptoms...'
-                        value={appointment.notes || String()}
                       />
                     </FormControl>
                     <FormMessage />
@@ -399,10 +392,13 @@ export default function Component({
                 control={form.control}
                 name='reports'
                 render={({ field }) => (
-                  <FormItem>
+                  <FormItem className='lg:col-span-2'>
                     <FormLabel>Reports</FormLabel>
                     <FormControl>
-                      <TableUpload onFilesChange={field.onChange} />
+                      <TableUpload
+                        onFilesChange={field.onChange}
+                        simulateUpload={false}
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>

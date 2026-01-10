@@ -1,3 +1,4 @@
+export * from '@/actions/appointment';
 export * from '@/actions/auth';
 export * from '@/actions/dashboard';
 export * from '@/actions/department';

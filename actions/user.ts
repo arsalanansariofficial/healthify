@@ -254,9 +254,7 @@ export async function updateUserProfile(
       where: { id: userId }
     });
 
-    const image = result.data.image && result.data.image[0];
-    const cover = result.data.cover && result.data.cover[0];
-    const { city, email, gender, password, phone } = result.data;
+    const { city, cover, email, gender, image, password, phone } = result.data;
 
     if (!user) return { message: MESSAGES.USER.NOT_FOUND, success: false };
 
@@ -397,18 +395,18 @@ export async function updateDoctorProfile(
 
     const {
       city,
+      cover,
       daysOfVisit,
       email,
       experience,
       gender,
+      image,
       password,
       phone,
       specialities,
       timings
     } = result.data;
 
-    const image = result.data.image && result.data.image[0];
-    const cover = result.data.cover && result.data.cover[0];
     if (!user) return { message: MESSAGES.USER.NOT_FOUND, success: false };
 
     const emailExists = await prisma.user.findUnique({
@@ -521,20 +519,21 @@ export async function updateDoctorProfile(
 
 export async function addDoctor(data: z.infer<typeof doctorSchema>) {
   const result = doctorSchema.safeParse(data);
-  if (!result.success)
-    return { message: MESSAGES.SYSTEM.INVALID_INPUTS, success: false };
 
-  const timings = result.data.timings;
-  const specialities = result.data.specialities;
-  const image = result.data.image && result.data.image[0];
+  if (!result.success) {
+    return { message: MESSAGES.SYSTEM.INVALID_INPUTS, success: false };
+  }
+
+  const { image, specialities, timings } = result.data;
 
   try {
     const user = await prisma.user.findUnique({
       where: { email: result.data.email }
     });
 
-    if (user)
+    if (user) {
       return { message: MESSAGES.USER.EMAIL_REGISTERED, success: false };
+    }
 
     await prisma.$transaction(async function (transaction) {
       let fileName;

@@ -1,26 +1,20 @@
 'use server';
 
-import { DOMAIN } from '@/lib/constants';
+import { mkdir, unlink, writeFile } from 'fs/promises';
+import path from 'path';
+
+import { DIRECTORIES } from '@/lib/constants';
+
+const dir = path.join(process.cwd(), DIRECTORIES.PUBLIC as string);
 
 export async function removeFile(slug: string) {
-  const result = await fetch(`${DOMAIN.LOCAL}/api/upload/${slug}`, {
-    method: 'DELETE'
-  });
-
-  const response = await result.json();
-  if (!response.success) throw new Error(response.message);
+  await unlink(path.join(dir, slug));
 }
 
 export async function saveFile(file: File) {
-  const formData = new FormData();
-  formData.append('file', file);
-
-  const result = await fetch(`${DOMAIN.LOCAL}/api/upload`, {
-    body: formData,
-    method: 'POST'
-  });
-
-  const response = await result.json();
-  if (!response.success) throw new Error(response.message);
-  return response.file as string;
+  await mkdir(dir, { recursive: true });
+  await writeFile(
+    path.join(dir, file.name),
+    Buffer.from(await file.arrayBuffer())
+  );
 }

@@ -10,7 +10,7 @@ import {
   type FileMetadata,
   type FileWithPreview
 } from '@/hooks/use-file-upload';
-import { cn } from '@/lib/utils';
+import { cn, ext } from '@/lib/utils';
 
 interface CoverUploadProps {
   accept?: string;
@@ -116,7 +116,8 @@ export default function CoverUpload({
         className='sr-only'
         onChange={e => {
           if (onImageChange && e.target.files && e.target.files.length) {
-            onImageChange(e.target.files[0]);
+            const file = e.target.files[0];
+            onImageChange(new File([file], ext(file), file));
             handleFileChange(e);
           }
         }}

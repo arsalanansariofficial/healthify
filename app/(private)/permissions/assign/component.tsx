@@ -110,12 +110,16 @@ export default function Component(props: {
                         }}
                         value={field.value}
                       >
-                        <SelectTrigger className='w-full'>
+                        <SelectTrigger className='w-full capitalize'>
                           <SelectValue placeholder='Select a role' />
                         </SelectTrigger>
                         <SelectContent>
                           {props.roles.map(role => (
-                            <SelectItem key={role.id} value={role.name}>
+                            <SelectItem
+                              className='capitalize'
+                              key={role.id}
+                              value={role.name}
+                            >
                               {role.name}
                             </SelectItem>
                           ))}

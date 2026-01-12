@@ -93,6 +93,7 @@ export default function AvatarUpload({
           className='absolute end-0 top-0 size-6 rounded-full'
           onClick={handleRemove}
           size='icon'
+          type='button'
           variant='outline'
         >
           <X className='size-3.5' />

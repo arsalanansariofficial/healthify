@@ -260,11 +260,21 @@ export default function TableUpload({
               Files ({uploadFiles.length})
             </h3>
             <div className='flex gap-2'>
-              <Button onClick={openFileDialog} size='sm' variant='outline'>
+              <Button
+                onClick={openFileDialog}
+                size='sm'
+                type='button'
+                variant='outline'
+              >
                 <CloudUpload />
                 Add files
               </Button>
-              <Button onClick={clearFiles} size='sm' variant='outline'>
+              <Button
+                onClick={clearFiles}
+                size='sm'
+                type='button'
+                variant='outline'
+              >
                 <Trash2 />
                 Remove all
               </Button>
@@ -353,6 +363,7 @@ export default function TableUpload({
                             asChild
                             className='size-8'
                             size='icon'
+                            type='button'
                             variant='secondary'
                           >
                             <Link href={fileItem.preview} target='_blank'>
@@ -365,6 +376,7 @@ export default function TableUpload({
                             className='text-destructive/80 hover:text-destructive size-8'
                             onClick={() => retryUpload(fileItem.id)}
                             size='icon'
+                            type='button'
                             variant='secondary'
                           >
                             <RefreshCwIcon className='size-3.5' />
@@ -374,6 +386,7 @@ export default function TableUpload({
                             className='size-8'
                             onClick={() => removeUploadFile(fileItem.id)}
                             size='icon'
+                            type='button'
                             variant='secondary'
                           >
                             <Trash2 className='size-3.5' />

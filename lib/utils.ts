@@ -11,7 +11,7 @@ import { titleCase } from 'moderndash';
 import { AuthError, User } from 'next-auth';
 import { twMerge } from 'tailwind-merge';
 
-import { DOMAIN, MESSAGES, SMTP, UI } from '@/lib/constants';
+import { DOMAIN, FILES, MESSAGES, SMTP, UI } from '@/lib/constants';
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -137,6 +137,25 @@ export function catchAuthError(error: Error) {
   }
 
   throw error;
+}
+
+export function getFilePreview(
+  attribute: string,
+  url = String(),
+  size = FILES.FILE.MAX_SIZE,
+  type = FILES.FILE.TYPE
+) {
+  return {
+    file: {
+      id: attribute,
+      name: `${attribute}.jpg`,
+      size,
+      type,
+      url
+    },
+    id: attribute,
+    preview: url
+  };
 }
 
 export function catchErrors(error: Error) {

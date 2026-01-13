@@ -34,6 +34,7 @@ import {
   TableHeader
 } from '@/components/ui/table';
 import { DOMAIN } from '@/constants/domain';
+import { FILES } from '@/constants/file';
 import {
   formatBytes,
   useFileUpload,
@@ -41,7 +42,7 @@ import {
   type FileWithPreview
 } from '@/hooks/use-file-upload';
 import { toAbsoluteUrl } from '@/lib/helpers';
-import { cn, ext } from '@/lib/utils';
+import { cn, getFilePreview } from '@/lib/utils';
 
 import { Badge } from './ui/badge';
 
@@ -63,31 +64,26 @@ interface TableUploadProps {
 }
 
 export default function TableUpload({
-  accept = '*',
+  accept = FILES.FILE.ACCEPT,
   className,
   files = [],
   maxFiles = 10,
-  maxSize = 50 * 1024 * 1024,
+  maxSize = FILES.FILE.MAX_SIZE,
   multiple = true,
   onFilesChange,
   simulateUpload = true
 }: TableUploadProps) {
-  const defaultFiles = files.map(file => ({
-    id: 'default-doc-1',
-    name: 'document.pdf',
-    size: 529254,
-    type: 'application/pdf',
-    url: toAbsoluteUrl(`${DOMAIN.LOCAL}/api/upload/${file}`)
+  const defaultFiles = files.map(f => ({
+    ...getFilePreview(
+      f,
+      toAbsoluteUrl(`${DOMAIN.LOCAL}/api/upload/${f}`),
+      FILES.FILE.MAX_SIZE,
+      'application/pdf'
+    )
   }));
 
-  const defaultUploadFiles: FileUploadItem[] = defaultFiles.map(file => ({
-    file: {
-      name: file.name,
-      size: file.size,
-      type: file.type
-    } as File,
-    id: file.id,
-    preview: file.url,
+  const defaultUploadFiles: FileUploadItem[] = defaultFiles.map(f => ({
+    ...f,
     progress: 100,
     status: 'completed' as const
   }));
@@ -104,13 +100,12 @@ export default function TableUpload({
       handleDragLeave,
       handleDragOver,
       handleDrop,
-      handleFileChange,
       openFileDialog,
       removeFile
     }
   ] = useFileUpload({
     accept,
-    initialFiles: defaultFiles,
+    initialFiles: defaultFiles.map(f => f.file),
     maxFiles,
     maxSize,
     multiple,
@@ -136,6 +131,12 @@ export default function TableUpload({
       setUploadFiles(newUploadFiles);
     }
   });
+
+  useEffect(() => {
+    if (uploadFiles.length) {
+      onFilesChange?.(uploadFiles.map(f => f.file as File));
+    }
+  }, [onFilesChange, uploadFiles]);
 
   useEffect(() => {
     if (!simulateUpload) return;
@@ -223,18 +224,7 @@ export default function TableUpload({
         onDragOver={handleDragOver}
         onDrop={handleDrop}
       >
-        <input
-          {...getInputProps()}
-          className='sr-only'
-          onChange={e => {
-            if (onFilesChange && e.target.files && e.target.files.length) {
-              onFilesChange(
-                Array.from(e.target.files).map(f => new File([f], ext(f), f))
-              );
-              handleFileChange(e);
-            }
-          }}
-        />
+        <input {...getInputProps()} className='sr-only' />
         <div className='flex flex-col items-center gap-4'>
           <div
             className={cn(

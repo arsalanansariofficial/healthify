@@ -2,58 +2,44 @@
 
 import { CloudUpload, ImageIcon, Upload, XIcon } from 'lucide-react';
 import Image from 'next/image';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 import { Button } from '@/components/ui/button';
-import {
-  useFileUpload,
-  type FileMetadata,
-  type FileWithPreview
-} from '@/hooks/use-file-upload';
-import { cn, ext } from '@/lib/utils';
+import { FILES } from '@/constants/file';
+import { useFileUpload, type FileWithPreview } from '@/hooks/use-file-upload';
+import { cn, getFilePreview } from '@/lib/utils';
 
-interface CoverUploadProps {
+export default function CoverUpload({
+  accept = FILES.COVER.ACCEPT,
+  className,
+  imageUrl,
+  maxSize = FILES.COVER.MAX_SIZE,
+  onImageChange
+}: {
   accept?: string;
   maxSize?: number;
   imageUrl?: string;
   className?: string;
   onImageChange?: (file: File | null) => void;
-}
-
-export default function CoverUpload({
-  accept = 'image/*',
-  className,
-  imageUrl,
-  maxSize = 5 * 1024 * 1024,
-  onImageChange
-}: CoverUploadProps) {
-  const defaultCoverImage: FileMetadata = {
-    id: 'default-cover',
-    name: 'cover-image.jpg',
-    size: 2048000,
-    type: 'image/jpeg',
-    url: imageUrl || String()
-  };
-
+}) {
+  const [isUploading, setIsUploading] = useState(false);
   const [imageLoading, setImageLoading] = useState(true);
   const [uploadProgress, setUploadProgress] = useState(0);
-  const [isUploading, setIsUploading] = useState(false);
-  const [coverImage, setCoverImage] = useState<FileWithPreview | null>({
-    file: defaultCoverImage,
-    id: defaultCoverImage.id,
-    preview: defaultCoverImage.url
-  });
+
+  const [coverImage, setCoverImage] = useState<FileWithPreview | null>(
+    getFilePreview('cover', imageUrl)
+  );
+
   const hasImage = coverImage && coverImage.preview;
 
   const [
-    { isDragging },
+    { files, isDragging },
     {
       getInputProps,
       handleDragEnter,
       handleDragLeave,
       handleDragOver,
       handleDrop,
-      handleFileChange,
       openFileDialog
     }
   ] = useFileUpload({
@@ -71,6 +57,10 @@ export default function CoverUpload({
       }
     }
   });
+
+  useEffect(() => {
+    if (files.length) onImageChange?.(files[0].file as File);
+  }, [files, onImageChange]);
 
   const simulateUpload = () => {
     const interval = setInterval(() => {
@@ -111,17 +101,7 @@ export default function CoverUpload({
       onDragOver={handleDragOver}
       onDrop={handleDrop}
     >
-      <input
-        {...getInputProps()}
-        className='sr-only -z-10'
-        onChange={e => {
-          if (onImageChange && e.target.files && e.target.files.length) {
-            const file = e.target.files[0];
-            onImageChange(new File([file], ext(file), file));
-            handleFileChange(e);
-          }
-        }}
-      />
+      <input {...getInputProps()} className='sr-only -z-10' />
       {hasImage && (
         <div className='relative h-full w-full'>
           {imageLoading && (

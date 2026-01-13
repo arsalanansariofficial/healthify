@@ -2,35 +2,27 @@ import type { Cookie } from 'elysia/cookies';
 
 import bcrypt from 'bcryptjs';
 
-import type { UserPayload, User } from '@/types/user';
+import type { UserPayload } from '@/types/user';
 
-import { usersResponseSchema, userResponseSchema } from '@/schemas/user';
 import { generateToken, verifyToken } from '@/lib/token';
-import { tokens, users } from '@/db/db';
+import { prisma } from '@/lib/prisma';
 import { env } from '@/config/env';
 
 export async function create(payload: UserPayload, jwt?: Cookie<unknown>) {
-  const user: User = {
-    ...payload,
-    password: await bcrypt.hash(payload.password, 8),
-    id: crypto.randomUUID(),
-    updatedAt: new Date(),
-    createdAt: new Date()
-  };
+  const user = await prisma.user.create({
+    data: { ...payload, password: await bcrypt.hash(payload.password, 8) },
+    omit: { password: true }
+  });
 
-  const token = generateToken(user.id);
+  const { token } = await prisma.token.create({
+    data: { token: generateToken(user.id), userId: user.id },
+    select: { token: true }
+  });
 
   setTimeout(
-    () =>
-      tokens.splice(
-        tokens.findIndex(token => token.id === user.id),
-        1
-      ),
-    3000
+    async () => await prisma.token.delete({ where: { token } }),
+    env.JWT_EXPIRES_IN
   );
-
-  tokens.push({ id: user.id, jwt: token });
-  users.push(user);
 
   jwt?.set({
     secure: env.NODE_ENV === 'PRODUCTION',
@@ -41,10 +33,10 @@ export async function create(payload: UserPayload, jwt?: Cookie<unknown>) {
     path: '/'
   });
 
-  return userResponseSchema.parse(user);
+  return user;
 }
 
 export async function get(token?: Cookie<unknown>) {
   verifyToken(token?.value as string);
-  return usersResponseSchema.parse(users);
+  return await prisma.user.findMany({ omit: { password: true } });
 }

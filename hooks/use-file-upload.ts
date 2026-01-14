@@ -11,7 +11,8 @@ import {
   type InputHTMLAttributes
 } from 'react';
 
-import { ext } from '@/lib/utils';
+import { FILES } from '@/constants/file';
+import { ext, getFileErrorMessage } from '@/lib/utils';
 
 export type FileUploadState = {
   errors: string[];
@@ -62,13 +63,16 @@ export type FileUploadActions = {
   };
 };
 
+const KILO_BYTE = 1024;
+const SIZES = ['Bytes', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'];
+
 export const formatBytes = (bytes: number, decimals = 2): string => {
   if (bytes === 0) return '0 Bytes';
 
-  const k = 1024;
+  const k = KILO_BYTE;
+  const sizes = SIZES;
   const dm = decimals < 0 ? 0 : decimals;
   const i = Math.floor(Math.log(bytes) / Math.log(k));
-  const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'];
 
   return Number.parseFloat((bytes / k ** i).toFixed(dm)) + sizes[i];
 };
@@ -77,7 +81,7 @@ export const useFileUpload = (
   options: FileUploadOptions = {}
 ): [FileUploadState, FileUploadActions] => {
   const {
-    accept = '*',
+    accept = FILES.FILE.ACCEPT,
     initialFiles = [],
     maxFiles = Number.POSITIVE_INFINITY,
     maxSize = Number.POSITIVE_INFINITY,
@@ -101,34 +105,35 @@ export const useFileUpload = (
 
   const validateFile = useCallback(
     (file: File | FileMetadata): string | null => {
-      if (file instanceof File) {
-        if (file.size > maxSize) {
-          return `File "${file.name}" exceeds the maximum size of ${formatBytes(maxSize)}.`;
-        }
-      } else {
-        if (file.size > maxSize) {
-          return `File "${file.name}" exceeds the maximum size of ${formatBytes(maxSize)}.`;
-        }
+      if (file instanceof File && file.size > maxSize) {
+        return getFileErrorMessage({
+          file,
+          maxSize: formatBytes(maxSize),
+          name: 'size'
+        });
       }
 
-      if (accept !== '*') {
+      if (accept !== FILES.FILE.ACCEPT) {
         const acceptedTypes = accept.split(',').map(type => type.trim());
-        const fileType = file instanceof File ? file.type || '' : file.type;
+        const fileType =
+          file instanceof File ? file.type || String() : file.type;
         const fileExtension = `.${file instanceof File ? file.name.split('.').pop() : file.name.split('.').pop()}`;
 
         const isAccepted = acceptedTypes.some(type => {
           if (type.startsWith('.')) {
             return fileExtension.toLowerCase() === type.toLowerCase();
           }
-          if (type.endsWith('/*')) {
+
+          if (type.endsWith(`/${FILES.FILE.ACCEPT}`)) {
             const baseType = type.split('/')[0];
             return fileType.startsWith(`${baseType}/`);
           }
+
           return fileType === type;
         });
 
         if (!isAccepted) {
-          return `File "${file instanceof File ? file.name : file.name}" is not an accepted file type.`;
+          return getFileErrorMessage({ file, name: 'type' });
         }
       }
 
@@ -166,7 +171,7 @@ export const useFileUpload = (
       }
 
       if (inputRef.current) {
-        inputRef.current.value = '';
+        inputRef.current.value = String();
       }
 
       const newState = {
@@ -198,7 +203,7 @@ export const useFileUpload = (
         maxFiles !== Number.POSITIVE_INFINITY &&
         state.files.length + newFilesArray.length > maxFiles
       ) {
-        errors.push(`You can only upload a maximum of ${maxFiles} files.`);
+        errors.push(getFileErrorMessage({ maxFiles, name: 'count' }));
         onError?.(errors);
         setState(prev => ({ ...prev, errors }));
         return;
@@ -221,17 +226,22 @@ export const useFileUpload = (
 
         if (file.size > maxSize) {
           errors.push(
-            multiple
-              ? `Some files exceed the maximum size of ${formatBytes(maxSize)}.`
-              : `File exceeds the maximum size of ${formatBytes(maxSize)}.`
+            getFileErrorMessage({
+              file,
+              maxSize: formatBytes(maxSize),
+              name: 'size'
+            })
           );
           continue;
         }
 
         const error = validateFile(file);
+
         if (error) {
           errors.push(error);
-        } else {
+        }
+
+        if (!error) {
           validFiles.push({
             file,
             id: generateUniqueId(file),
@@ -254,7 +264,9 @@ export const useFileUpload = (
             files: newFiles
           };
         });
-      } else if (errors.length > 0) {
+      }
+
+      if (errors.length > 0) {
         onError?.(errors);
         setState(prev => ({
           ...prev,
@@ -262,9 +274,7 @@ export const useFileUpload = (
         }));
       }
 
-      if (inputRef.current) {
-        inputRef.current.value = '';
-      }
+      if (inputRef.current) inputRef.current.value = String();
     },
     [
       multiple,
@@ -347,12 +357,9 @@ export const useFileUpload = (
       }
 
       if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
-        if (!multiple) {
-          const file = e.dataTransfer.files[0];
-          addFiles([file]);
-        } else {
-          addFiles(e.dataTransfer.files);
-        }
+        return !multiple
+          ? addFiles([e.dataTransfer.files[0]])
+          : addFiles(e.dataTransfer.files);
       }
     },
     [addFiles, multiple]

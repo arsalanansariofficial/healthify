@@ -15,7 +15,7 @@ import {
   FileSpreadsheetIcon
 } from 'lucide-react';
 import Link from 'next/link';
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 
 import {
   Alert,
@@ -41,8 +41,7 @@ import {
   type FileMetadata,
   type FileWithPreview
 } from '@/hooks/use-file-upload';
-import { toAbsoluteUrl } from '@/lib/helpers';
-import { cn, getFilePreview } from '@/lib/utils';
+import { cn, getFilePreview, toAbsoluteUrl } from '@/lib/utils';
 
 import { Badge } from './ui/badge';
 
@@ -73,20 +72,28 @@ export default function TableUpload({
   onFilesChange,
   simulateUpload = true
 }: TableUploadProps) {
-  const defaultFiles = files.map(f => ({
-    ...getFilePreview(
-      f,
-      toAbsoluteUrl(`${DOMAIN.LOCAL}/api/upload/${f}`),
-      FILES.FILE.MAX_SIZE,
-      'application/pdf'
-    )
-  }));
+  const defaultFiles = useMemo(
+    () =>
+      files.map(f => ({
+        ...getFilePreview(
+          f,
+          toAbsoluteUrl(`${DOMAIN.LOCAL}/api/upload/${f}`),
+          FILES.FILE.MAX_SIZE,
+          'application/pdf'
+        )
+      })),
+    [files]
+  );
 
-  const defaultUploadFiles: FileUploadItem[] = defaultFiles.map(f => ({
-    ...f,
-    progress: 100,
-    status: 'completed' as const
-  }));
+  const defaultUploadFiles: FileUploadItem[] = useMemo(
+    () =>
+      defaultFiles.map(f => ({
+        ...f,
+        progress: 100,
+        status: 'completed' as const
+      })),
+    [defaultFiles]
+  );
 
   const [uploadFiles, setUploadFiles] =
     useState<FileUploadItem[]>(defaultUploadFiles);
@@ -115,18 +122,9 @@ export default function TableUpload({
           existing => existing.id === file.id
         );
 
-        if (existingFile) {
-          return {
-            ...existingFile,
-            ...file
-          };
-        } else {
-          return {
-            ...file,
-            progress: 0,
-            status: 'uploading' as const
-          };
-        }
+        return existingFile
+          ? { ...existingFile, ...file }
+          : { ...file, progress: 0, status: 'uploading' as const };
       });
       setUploadFiles(newUploadFiles);
     }

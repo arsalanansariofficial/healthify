@@ -7,16 +7,19 @@ export const DIRECTORIES = {
 export const FILES = {
   COVER: {
     ACCEPT: 'image/*',
+    MAX_FILES: 1,
     MAX_SIZE: 5 * 1024 * 1024,
-    TYPE: 'image/jpg'
+    TYPE: 'image/jpg',
   },
   FILE: {
     ACCEPT: '*',
+    MAX_FILES: 5,
     MAX_SIZE: 2 * 1024 * 1024,
     TYPE: 'image/jpg'
   },
   IMAGE: {
     ACCEPT: 'image/*',
+    MAX_FILES: 1,
     MAX_SIZE: 2 * 1024 * 1024,
     TYPE: 'image/jpg'
   }

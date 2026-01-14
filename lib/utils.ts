@@ -11,6 +11,7 @@ import { titleCase } from 'moderndash';
 import { AuthError, User } from 'next-auth';
 import { twMerge } from 'tailwind-merge';
 
+import { FileMetadata } from '@/hooks/use-file-upload';
 import { DOMAIN, FILES, MESSAGES, SMTP, UI } from '@/lib/constants';
 
 export function cn(...inputs: ClassValue[]) {
@@ -19,6 +20,10 @@ export function cn(...inputs: ClassValue[]) {
 
 export function capitalize(text: string) {
   return titleCase(String(text).toLowerCase());
+}
+
+export function absoluteUrl(path: string): string {
+  return `${process.env.NEXT_PUBLIC_APP_URL}${path}`;
 }
 
 export function valid(attribute: string) {
@@ -31,6 +36,10 @@ export function positive(attribute: string) {
 
 export function required(attribute: string) {
   return `${capitalize(attribute)} should not be empty.`;
+}
+
+export function toAbsoluteUrl(path: string): string {
+  return `/${path.startsWith('/') ? path.slice(1) : path}`;
 }
 
 export function formatTime(time: string) {
@@ -137,6 +146,22 @@ export function catchAuthError(error: Error) {
   }
 
   throw error;
+}
+
+export function getFileErrorMessage(
+  reason:
+    | { name: 'type'; file: File | FileMetadata }
+    | { name: 'count'; maxFiles: string | number }
+    | { name: 'size'; file: File | FileMetadata; maxSize: string | number }
+) {
+  switch (reason.name) {
+    case 'type':
+      return `File "${reason.file.name}" is not an accepted file type.`;
+    case 'size':
+      return `File "${reason.file.name}" exceeds the maximum size of ${reason.maxSize}.`;
+    case 'count':
+      return `You can only upload a maximum of ${reason.maxFiles} files.`;
+  }
 }
 
 export function getFilePreview(

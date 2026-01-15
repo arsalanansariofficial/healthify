@@ -3,7 +3,7 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Gender, Prisma, Role } from '@prisma/client';
 import { PlusIcon, TrashIcon } from 'lucide-react';
-import { useMemo, useState } from 'react';
+import { useMemo, useRef, useState } from 'react';
 import { useForm, useWatch } from 'react-hook-form';
 import z from 'zod';
 
@@ -64,6 +64,9 @@ export default function Component({
     };
   }>;
 }) {
+  const userFormButtonRef = useRef<HTMLButtonElement | null>(null);
+  const doctorFormButtonRef = useRef<HTMLButtonElement | null>(null);
+
   const [role, setRole] = useState(
     hasRole(
       user.UserRoles.map(ur => ur.role as Role),
@@ -171,6 +174,7 @@ export default function Component({
                     name='cover'
                     render={({ field }) => (
                       <CoverUpload
+                        buttonRef={userFormButtonRef}
                         className='h-80'
                         imageUrl={getImageUrl(user.hasOAuth, user.cover)}
                         onImageChange={field.onChange}
@@ -308,6 +312,7 @@ export default function Component({
                         })
                       ) || userForm.formState.isSubmitting
                     }
+                    ref={userFormButtonRef}
                     type='submit'
                   >
                     {userForm.formState.isSubmitting ? 'Saving...' : 'Save'}
@@ -326,6 +331,7 @@ export default function Component({
                     name='cover'
                     render={({ field }) => (
                       <CoverUpload
+                        buttonRef={doctorFormButtonRef}
                         className='h-80'
                         imageUrl={getImageUrl(user.hasOAuth, user.cover)}
                         onImageChange={field.onChange}
@@ -579,6 +585,7 @@ export default function Component({
                         })
                       ) || doctorForm.formState.isSubmitting
                     }
+                    ref={doctorFormButtonRef}
                     type='submit'
                   >
                     {doctorForm.formState.isSubmitting ? 'Saving...' : 'Save'}

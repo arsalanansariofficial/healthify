@@ -15,7 +15,7 @@ import {
   FileSpreadsheetIcon
 } from 'lucide-react';
 import Link from 'next/link';
-import { useEffect, useMemo, useState } from 'react';
+import { RefObject, useEffect, useMemo, useState } from 'react';
 
 import {
   Alert,
@@ -60,10 +60,12 @@ interface TableUploadProps {
   className?: string;
   simulateUpload?: boolean;
   onFilesChange?: (files: File[]) => void;
+  buttonRef: RefObject<HTMLButtonElement | null>;
 }
 
 export default function TableUpload({
   accept = FILES.FILE.ACCEPT,
+  buttonRef,
   className,
   files = [],
   maxFiles = 10,
@@ -116,7 +118,7 @@ export default function TableUpload({
     maxFiles,
     maxSize,
     multiple,
-    onFilesChange: newFiles => {
+    onFilesChange(newFiles) {
       const newUploadFiles = newFiles.map(file => {
         const existingFile = uploadFiles.find(
           existing => existing.id === file.id
@@ -127,21 +129,17 @@ export default function TableUpload({
           : { ...file, progress: 0, status: 'uploading' as const };
       });
       setUploadFiles(newUploadFiles);
+      onFilesChange?.(newUploadFiles.map(f => f.file as File));
+      if (buttonRef.current) buttonRef.current.disabled = true;
     }
   });
-
-  useEffect(() => {
-    if (uploadFiles.length) {
-      onFilesChange?.(uploadFiles.map(f => f.file as File));
-    }
-  }, [onFilesChange, uploadFiles]);
 
   useEffect(() => {
     if (!simulateUpload) return;
 
     const interval = setInterval(() => {
-      setUploadFiles(prev =>
-        prev.map(file => {
+      setUploadFiles(prev => {
+        const newFiles = prev.map(file => {
           if (file.status !== 'uploading') return file;
 
           const increment = Math.random() * 15 + 5;
@@ -152,19 +150,27 @@ export default function TableUpload({
           }
 
           return { ...file, progress: newProgress };
-        })
-      );
+        });
+
+        if (newFiles.every(f => f.progress >= 100)) {
+          if (buttonRef.current) buttonRef.current.disabled = false;
+        }
+
+        return newFiles;
+      });
     }, 500);
 
     return () => clearInterval(interval);
-  }, [simulateUpload]);
+  }, [buttonRef, simulateUpload]);
 
   const removeUploadFile = (fileId: string) => {
     setUploadFiles(prev => prev.filter(file => file.id !== fileId));
     removeFile(fileId);
+    if (buttonRef.current) buttonRef.current.disabled = false;
   };
 
   const retryUpload = (fileId: string) => {
+    if (buttonRef.current) buttonRef.current.disabled = true;
     setUploadFiles(prev =>
       prev.map(file =>
         file.id === fileId
@@ -258,7 +264,10 @@ export default function TableUpload({
                 Add files
               </Button>
               <Button
-                onClick={clearFiles}
+                onClick={() => {
+                  clearFiles();
+                  if (buttonRef.current) buttonRef.current.disabled = false;
+                }}
                 size='sm'
                 type='button'
                 variant='outline'

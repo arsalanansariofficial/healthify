@@ -25,5 +25,9 @@ export const FILES = {
     MAX_FILES: 1,
     MAX_SIZE: 2 * 1024 * 1024,
     TYPE: 'image/jpg'
+  },
+  UNITS: {
+    KILO_BYTE: 1024,
+    SIZES: ['Bytes', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB']
   }
 };

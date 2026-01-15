@@ -63,14 +63,11 @@ export type FileUploadActions = {
   };
 };
 
-const KILO_BYTE = 1024;
-const SIZES = ['Bytes', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'];
-
 export const formatBytes = (bytes: number, decimals = 2): string => {
-  if (bytes === 0) return '0 Bytes';
+  if (!bytes) return `${bytes} ${FILES.UNITS.SIZES[0]}`;
 
-  const k = KILO_BYTE;
-  const sizes = SIZES;
+  const k = FILES.UNITS.KILO_BYTE;
+  const sizes = FILES.UNITS.SIZES;
   const dm = decimals < 0 ? 0 : decimals;
   const i = Math.floor(Math.log(bytes) / Math.log(k));
 
@@ -159,31 +156,23 @@ export const useFileUpload = (
   );
 
   const clearFiles = useCallback(() => {
-    setState(prev => {
-      for (const file of prev.files) {
-        if (
-          file.preview &&
-          file.file instanceof File &&
-          file.file.type.startsWith('image/')
-        ) {
-          URL.revokeObjectURL(file.preview);
-        }
+    for (const file of state.files) {
+      if (
+        file.preview &&
+        file.file instanceof File &&
+        file.file.type.startsWith(`${FILES.IMAGE.ID}/`)
+      ) {
+        URL.revokeObjectURL(file.preview);
       }
+    }
 
-      if (inputRef.current) {
-        inputRef.current.value = String();
-      }
+    if (inputRef.current) {
+      inputRef.current.value = String();
+    }
 
-      const newState = {
-        ...prev,
-        errors: [],
-        files: []
-      };
-
-      onFilesChange?.(newState.files);
-      return newState;
-    });
-  }, [onFilesChange]);
+    setState(prev => ({ ...prev, errors: [], files: [] }));
+    onFilesChange?.([]);
+  }, [onFilesChange, state.files]);
 
   const addFiles = useCallback(
     (newFiles: FileList | File[]) => {
@@ -252,26 +241,17 @@ export const useFileUpload = (
 
       if (validFiles.length > 0) {
         onFilesAdded?.(validFiles);
+        const newFiles = !multiple
+          ? validFiles
+          : [...state.files, ...validFiles];
 
-        setState(prev => {
-          const newFiles = !multiple
-            ? validFiles
-            : [...prev.files, ...validFiles];
-          onFilesChange?.(newFiles);
-          return {
-            ...prev,
-            errors,
-            files: newFiles
-          };
-        });
+        setState(prev => ({ ...prev, errors, files: newFiles }));
+        onFilesChange?.(newFiles);
       }
 
       if (errors.length > 0) {
         onError?.(errors);
-        setState(prev => ({
-          ...prev,
-          errors
-        }));
+        setState(prev => ({ ...prev, errors }));
       }
 
       if (inputRef.current) inputRef.current.value = String();
@@ -293,28 +273,22 @@ export const useFileUpload = (
 
   const removeFile = useCallback(
     (id: string) => {
-      setState(prev => {
-        const fileToRemove = prev.files.find(file => file.id === id);
-        if (
-          fileToRemove &&
-          fileToRemove.preview &&
-          fileToRemove.file instanceof File &&
-          fileToRemove.file.type.startsWith('image/')
-        ) {
-          URL.revokeObjectURL(fileToRemove.preview);
-        }
+      const fileToRemove = state.files.find(file => file.id === id);
 
-        const newFiles = prev.files.filter(file => file.id !== id);
-        onFilesChange?.(newFiles);
+      if (
+        fileToRemove &&
+        fileToRemove.preview &&
+        fileToRemove.file instanceof File &&
+        fileToRemove.file.type.startsWith(`${FILES.IMAGE.ID}/`)
+      ) {
+        URL.revokeObjectURL(fileToRemove.preview);
+      }
 
-        return {
-          ...prev,
-          errors: [],
-          files: newFiles
-        };
-      });
+      const newFiles = state.files.filter(file => file.id !== id);
+      setState(prev => ({ ...prev, errors: [], files: newFiles }));
+      onFilesChange?.(newFiles);
     },
-    [onFilesChange]
+    [onFilesChange, state.files]
   );
 
   const clearErrors = useCallback(() => {

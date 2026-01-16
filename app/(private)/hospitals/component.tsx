@@ -5,6 +5,7 @@ import { Prisma, User as PrismaUser } from '@prisma/client';
 import { IconDotsVertical } from '@tabler/icons-react';
 import { ColumnDef } from '@tanstack/react-table';
 import { User } from 'next-auth';
+import Link from 'next/link';
 import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
 
@@ -323,6 +324,11 @@ export default function Component(props: {
     <div className='flex h-full flex-col gap-8 lg:mx-auto lg:w-10/12'>
       {hasPermission(props.user.permissions, 'view:users') && (
         <DataTable
+          button={
+            <Button asChild>
+              <Link href='/hospitals/add'>Add</Link>
+            </Button>
+          }
           columns={
             [
               {

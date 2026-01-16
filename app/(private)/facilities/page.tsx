@@ -7,10 +7,15 @@ import prisma from '@/lib/prisma';
 export default async function Page() {
   const session = await auth();
   if (!session || !session.user) notFound();
-  const facilities = await prisma.facility.findMany();
+
+  const [facilities, departments] = await Promise.all([
+    prisma.facility.findMany(),
+    prisma.department.findMany()
+  ]);
 
   return (
     <Component
+      departments={departments}
       facilities={facilities}
       key={facilities.map(f => f.updatedAt).toString()}
       user={session.user}

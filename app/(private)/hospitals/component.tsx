@@ -1,7 +1,12 @@
 'use client';
 
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Prisma, User as PrismaUser } from '@prisma/client';
+import {
+  Department,
+  Membership,
+  Prisma,
+  User as PrismaUser
+} from '@prisma/client';
 import { IconDotsVertical } from '@tabler/icons-react';
 import { ColumnDef } from '@tanstack/react-table';
 import { User } from 'next-auth';
@@ -63,7 +68,13 @@ import { hospitalSchema } from '@/lib/schemas';
 import { capitalize, catchErrors, getDate, hasPermission } from '@/lib/utils';
 
 type yesNo = 'yes' | 'no';
-type Row = Prisma.HospitalGetPayload<{ include: { doctors: true } }>;
+type Hospital = Prisma.HospitalGetPayload<{
+  include: {
+    doctors: true;
+    hospitalDepartments: true;
+    hospitalMemberships: true;
+  };
+}>;
 
 function Menu({
   id,
@@ -127,7 +138,12 @@ function Menu({
   );
 }
 
-export function TableCellViewer(props: { item: Row; users: PrismaUser[] }) {
+export function TableCellViewer(props: {
+  item: Hospital;
+  users: PrismaUser[];
+  departments: Department[];
+  memberships: Membership[];
+}) {
   const isMobile = useIsMobile();
   const form = useForm({
     defaultValues: {
@@ -135,6 +151,12 @@ export function TableCellViewer(props: { item: Row; users: PrismaUser[] }) {
       city: props.item.city,
       doctors: props.item.doctors.map((d: PrismaUser) => d.id),
       email: props.item.email,
+      hospitalDepartments: props.item.hospitalDepartments.map(
+        v => v.departmentId
+      ),
+      hospitalMemberships: props.item.hospitalMemberships.map(
+        v => v.membershipId
+      ),
       isAffiliated: (props.item.isAffiliated ? 'yes' : 'no') as yesNo,
       name: props.item.name,
       phone: props.item.phone
@@ -277,6 +299,46 @@ export function TableCellViewer(props: { item: Row; users: PrismaUser[] }) {
             />
             <FormField
               control={form.control}
+              name='hospitalDepartments'
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Departments</FormLabel>
+                  <FormControl>
+                    <MultiSelect
+                      options={props.departments.map(v => ({
+                        label: v.name || String(),
+                        value: v.id
+                      }))}
+                      selectedValues={field.value}
+                      setSelectedValues={field.onChange}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name='hospitalDepartments'
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Memberships</FormLabel>
+                  <FormControl>
+                    <MultiSelect
+                      options={props.memberships.map(v => ({
+                        label: v.name || String(),
+                        value: v.id
+                      }))}
+                      selectedValues={field.value}
+                      setSelectedValues={field.onChange}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
               name='doctors'
               render={({ field }) => (
                 <FormItem>
@@ -318,7 +380,9 @@ export function TableCellViewer(props: { item: Row; users: PrismaUser[] }) {
 export default function Component(props: {
   user: User;
   users: PrismaUser[];
-  hospitals: Row[];
+  hospitals: Hospital[];
+  departments: Department[];
+  memberships: Membership[];
 }) {
   return (
     <div className='flex h-full flex-col gap-8 lg:mx-auto lg:w-10/12'>
@@ -363,8 +427,10 @@ export default function Component(props: {
                 accessorKey: 'name',
                 cell: ({ row }) => (
                   <TableCellViewer
+                    departments={props.departments}
                     item={row.original}
                     key={Date.now()}
+                    memberships={props.memberships}
                     users={props.users}
                   />
                 ),
@@ -433,7 +499,7 @@ export default function Component(props: {
                 },
                 id: 'actions'
               }
-            ] as ColumnDef<Row>[]
+            ] as ColumnDef<Hospital>[]
           }
           data={props.hospitals}
           filterConfig={[

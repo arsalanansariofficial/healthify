@@ -9,20 +9,31 @@ export default async function Page() {
   const session = await auth();
   if (!session || !session.user) notFound();
 
-  const hospitals = await prisma.hospital.findMany({
-    include: { doctors: true }
-  });
+  const [hospitals, departments, memberships, users] = await Promise.all([
+    prisma.hospital.findMany({
+      include: {
+        doctors: true,
+        hospitalDepartments: true,
+        hospitalMemberships: true
+      }
+    }),
+    prisma.department.findMany(),
+    prisma.membership.findMany(),
+    prisma.user.findMany({
+      where: {
+        UserRoles: { some: { role: { name: ROLES.DOCTOR as string } } }
+      }
+    })
+  ]);
 
   return (
     <Component
+      departments={departments}
       hospitals={hospitals}
       key={hospitals.map(h => h.updatedAt).toString()}
+      memberships={memberships}
       user={session.user}
-      users={await prisma.user.findMany({
-        where: {
-          UserRoles: { some: { role: { name: ROLES.DOCTOR as string } } }
-        }
-      })}
+      users={users}
     />
   );
 }

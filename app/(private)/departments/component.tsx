@@ -1,7 +1,7 @@
 'use client';
 
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Department } from '@prisma/client';
+import { Department, Facility, Hospital } from '@prisma/client';
 import { IconDotsVertical } from '@tabler/icons-react';
 import { ColumnDef } from '@tanstack/react-table';
 import { User } from 'next-auth';
@@ -39,6 +39,7 @@ import {
   FormControl
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
+import MultiSelect from '@/components/ui/multi-select';
 import useHookForm from '@/hooks/use-hook-form';
 import { useIsMobile } from '@/hooks/use-mobile';
 import {
@@ -112,10 +113,16 @@ function Menu({
   );
 }
 
-function TableCellViewer(props: { item: Department }) {
+function TableCellViewer(props: {
+  item: Department;
+  hospitals: Hospital[];
+  facilities: Facility[];
+}) {
   const isMobile = useIsMobile();
   const form = useForm({
     defaultValues: {
+      facilities: [],
+      hospitals: [],
       name: props.item.name
     },
     resolver: zodResolver(departmentSchema)
@@ -166,6 +173,46 @@ function TableCellViewer(props: { item: Department }) {
                 </FormItem>
               )}
             />
+            <FormField
+              control={form.control}
+              name='hospitals'
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Hospitals</FormLabel>
+                  <FormControl>
+                    <MultiSelect
+                      options={props.hospitals.map(f => ({
+                        label: f.name || String(),
+                        value: f.id
+                      }))}
+                      selectedValues={field.value}
+                      setSelectedValues={field.onChange}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name='facilities'
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Facilities</FormLabel>
+                  <FormControl>
+                    <MultiSelect
+                      options={props.facilities.map(f => ({
+                        label: f.name || String(),
+                        value: f.id
+                      }))}
+                      selectedValues={field.value}
+                      setSelectedValues={field.onChange}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
           </form>
         </Form>
         <DrawerFooter>
@@ -188,6 +235,8 @@ function TableCellViewer(props: { item: Department }) {
 
 export default function Component(props: {
   user: User;
+  hospitals: Hospital[];
+  facilities: Facility[];
   departments: Department[];
 }) {
   return (
@@ -232,7 +281,12 @@ export default function Component(props: {
               {
                 accessorKey: 'name',
                 cell: ({ row }) => (
-                  <TableCellViewer item={row.original} key={Date.now()} />
+                  <TableCellViewer
+                    facilities={props.facilities}
+                    hospitals={props.hospitals}
+                    item={row.original}
+                    key={Date.now()}
+                  />
                 ),
                 enableHiding: false,
                 header: 'Name'

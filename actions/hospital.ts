@@ -21,14 +21,26 @@ export async function deleteHospitals(ids: string[]) {
 
 export async function addHospital(data: z.infer<typeof hospitalSchema>) {
   const result = hospitalSchema.safeParse(data);
-  if (!result.success)
+
+  if (!result.success) {
     return { message: MESSAGES.SYSTEM.INVALID_INPUTS, success: false };
+  }
 
   try {
     await prisma.hospital.create({
       data: {
         ...result.data,
         doctors: { connect: result.data.doctors.map(d => ({ id: d })) },
+        hospitalDepartments: {
+          create: result.data.hospitalDepartments.map(d => ({
+            department: { connect: { id: d } }
+          }))
+        },
+        hospitalMemberships: {
+          create: result.data.hospitalMemberships.map(m => ({
+            membership: { connect: { id: m } }
+          }))
+        },
         isAffiliated: result.data.isAffiliated === 'yes'
       }
     });
@@ -53,6 +65,14 @@ export async function updateHospital(
         ...result.data,
         doctors: {
           connect: result.data.doctors.map(d => ({ id: d })),
+          set: []
+        },
+        hospitalDepartments: {
+          connect: result.data.hospitalDepartments.map(hd => ({ id: hd })),
+          set: []
+        },
+        hospitalMemberships: {
+          connect: result.data.hospitalMemberships.map(hm => ({ id: hm })),
           set: []
         },
         isAffiliated: result.data.isAffiliated === 'yes'

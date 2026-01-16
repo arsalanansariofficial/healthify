@@ -51,11 +51,11 @@ export default function Component({
     defaultValues: {
       address: String(),
       city: String(),
-      departments: [],
       doctors: [],
       email: String(),
+      hospitalDepartments: [],
+      hospitalMemberships: [],
       isAffiliated: 'no',
-      memberships: [],
       name: String(),
       phone: String()
     },
@@ -184,7 +184,7 @@ export default function Component({
               />
               <FormField
                 control={form.control}
-                name='departments'
+                name='hospitalDepartments'
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Departments</FormLabel>
@@ -204,7 +204,7 @@ export default function Component({
               />
               <FormField
                 control={form.control}
-                name='memberships'
+                name='hospitalMemberships'
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Memberships</FormLabel>

@@ -33,8 +33,8 @@ export default function Component({
   facilities,
   hospitals
 }: {
-  facilities: Pick<Facility, 'id' | 'name'>[];
   hospitals: Pick<Hospital, 'id' | 'name'>[];
+  facilities: Pick<Facility, 'id' | 'name'>[];
 }) {
   const { handleSubmit } = useHookForm(handler, addDepartment);
   const form = useForm({

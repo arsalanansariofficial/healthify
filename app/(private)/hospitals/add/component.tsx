@@ -1,9 +1,8 @@
 'use client';
 
 import { zodResolver } from '@hookform/resolvers/zod';
-import { User } from '@prisma/client';
+import { Department, Membership, User } from '@prisma/client';
 import { useForm } from 'react-hook-form';
-import z from 'zod';
 
 import handler from '@/components/display-toast';
 import Footer from '@/components/footer';
@@ -36,17 +35,27 @@ import {
 import { Textarea } from '@/components/ui/textarea';
 import useHookForm from '@/hooks/use-hook-form';
 import { addHospital } from '@/lib/actions';
-import { hospitalSchema, yesNo } from '@/lib/schemas';
+import { hospitalSchema } from '@/lib/schemas';
 
-export default function Component({ users }: { users: User[] }) {
+export default function Component({
+  departments,
+  memberships,
+  users
+}: {
+  departments: Department[];
+  memberships: Membership[];
+  users: Pick<User, 'id' | 'name'>[];
+}) {
   const { handleSubmit } = useHookForm(handler, addHospital);
   const form = useForm({
     defaultValues: {
       address: String(),
       city: String(),
+      departments: [],
       doctors: [],
       email: String(),
       isAffiliated: 'no',
+      memberships: [],
       name: String(),
       phone: String()
     },
@@ -141,7 +150,7 @@ export default function Component({ users }: { users: User[] }) {
                     <FormLabel>Affliated</FormLabel>
                     <FormControl>
                       <Select
-                        defaultValue={field.value as z.infer<typeof yesNo>}
+                        defaultValue={field.value}
                         onValueChange={field.onChange}
                       >
                         <SelectTrigger className='w-full [&_span[data-slot]]:block [&_span[data-slot]]:truncate'>
@@ -167,6 +176,46 @@ export default function Component({ users }: { users: User[] }) {
                       <Textarea
                         {...field}
                         placeholder='123 Main Street, Springfield, IL 62704'
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name='departments'
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Departments</FormLabel>
+                    <FormControl>
+                      <MultiSelect
+                        options={departments.map(d => ({
+                          label: d.name || String(),
+                          value: d.id
+                        }))}
+                        selectedValues={field.value}
+                        setSelectedValues={field.onChange}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name='memberships'
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Memberships</FormLabel>
+                    <FormControl>
+                      <MultiSelect
+                        options={memberships.map(m => ({
+                          label: m.name || String(),
+                          value: m.id
+                        }))}
+                        selectedValues={field.value}
+                        setSelectedValues={field.onChange}
                       />
                     </FormControl>
                     <FormMessage />

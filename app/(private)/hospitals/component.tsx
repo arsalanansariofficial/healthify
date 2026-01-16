@@ -7,7 +7,6 @@ import { ColumnDef } from '@tanstack/react-table';
 import { User } from 'next-auth';
 import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
-import z from 'zod';
 
 import handler from '@/components/display-toast';
 import Footer from '@/components/footer';
@@ -59,9 +58,10 @@ import {
   deleteHospitals
 } from '@/lib/actions';
 import { MESSAGES } from '@/lib/constants';
-import { hospitalSchema, yesNo } from '@/lib/schemas';
+import { hospitalSchema } from '@/lib/schemas';
 import { capitalize, catchErrors, getDate, hasPermission } from '@/lib/utils';
 
+type yesNo = 'yes' | 'no';
 type Row = Prisma.HospitalGetPayload<{ include: { doctors: true } }>;
 
 function Menu({
@@ -134,7 +134,7 @@ export function TableCellViewer(props: { item: Row; users: PrismaUser[] }) {
       city: props.item.city,
       doctors: props.item.doctors.map((d: PrismaUser) => d.id),
       email: props.item.email,
-      isAffiliated: props.item.isAffiliated ? 'yes' : 'no',
+      isAffiliated: (props.item.isAffiliated ? 'yes' : 'no') as yesNo,
       name: props.item.name,
       phone: props.item.phone
     },
@@ -243,7 +243,7 @@ export function TableCellViewer(props: { item: Row; users: PrismaUser[] }) {
                   <FormControl>
                     <Select
                       onValueChange={field.onChange}
-                      value={field.value as z.infer<typeof yesNo>}
+                      value={field.value as yesNo}
                     >
                       <SelectTrigger className='w-full'>
                         <SelectValue placeholder='Select a status' />

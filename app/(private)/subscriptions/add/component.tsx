@@ -4,7 +4,6 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { RenewalType } from '@prisma/client';
 import { PlusIcon, TrashIcon } from 'lucide-react';
 import { useForm } from 'react-hook-form';
-import z from 'zod';
 
 import handler from '@/components/display-toast';
 import Footer from '@/components/footer';
@@ -38,8 +37,10 @@ import {
 import { Textarea } from '@/components/ui/textarea';
 import useHookForm from '@/hooks/use-hook-form';
 import { addMembership } from '@/lib/actions';
-import { membershipSchema, yesNo } from '@/lib/schemas';
+import { membershipSchema } from '@/lib/schemas';
 import { cn } from '@/lib/utils';
+
+type yesNo = 'yes' | 'no';
 
 export default function Component() {
   const { handleSubmit } = useHookForm(handler, addMembership);
@@ -242,13 +243,9 @@ export default function Component() {
                                         <Label>Affiliated</Label>
                                         <Select
                                           defaultValue={
-                                            hm.hospital.isAffiliated as z.infer<
-                                              typeof yesNo
-                                            >
+                                            hm.hospital.isAffiliated as yesNo
                                           }
-                                          onValueChange={(
-                                            type: 'yes' | 'no'
-                                          ) => {
+                                          onValueChange={(type: yesNo) => {
                                             const value = field.value.slice();
                                             value[index].hospital.isAffiliated =
                                               type;

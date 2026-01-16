@@ -147,6 +147,13 @@ export const hospitalSchema = z.object({
     .string({ error: valid('city') })
     .trim()
     .toLowerCase(),
+  departments: z.array(
+    z
+      .string({ error: valid('id') })
+      .nonempty(required('id'))
+      .trim()
+      .toLowerCase()
+  ),
   doctors: z.array(
     z
       .string({ error: valid('id') })
@@ -159,6 +166,13 @@ export const hospitalSchema = z.object({
     .trim()
     .toLowerCase(),
   isAffiliated: z.enum(['yes', 'no']),
+  memberships: z.array(
+    z
+      .string({ error: valid('id') })
+      .nonempty(required('id'))
+      .trim()
+      .toLowerCase()
+  ),
   name: z
     .string({ error: valid('name') })
     .nonempty(required('name'))
@@ -379,6 +393,7 @@ export const emailSchema = z.object({
     .trim()
     .toLowerCase()
 });
+
 export const bioSchema = z.object({
   bio: z
     .string({ error: valid('bio') })
@@ -389,8 +404,6 @@ export const bioSchema = z.object({
 export const roleSchema = nameSchema;
 export const seedSchema = z.object({});
 
-export const facilitySchema = nameSchema;
-export const departmentSchema = nameSchema;
 export const permissionSchema = nameSchema;
 
 export const pharmaSaltSchema = pharmaBaseSchema;
@@ -398,6 +411,43 @@ export const pharmaBrandSchema = pharmaBaseSchema;
 
 export const medicationFormSchema = pharmaBaseSchema;
 export const pharmaManufacturerSchema = pharmaBaseSchema;
+
+export const facilitySchema = z.object({
+  departments: z.array(
+    z
+      .string({ error: valid('id') })
+      .nonempty(required('id'))
+      .trim()
+      .toLowerCase()
+  ),
+  name: z
+    .string({ error: valid('name') })
+    .nonempty(required('name'))
+    .trim()
+    .toLowerCase()
+});
+
+export const departmentSchema = z.object({
+  facilities: z.array(
+    z
+      .string({ error: valid('id') })
+      .nonempty(required('id'))
+      .trim()
+      .toLowerCase()
+  ),
+  hospitals: z.array(
+    z
+      .string({ error: valid('id') })
+      .nonempty(required('id'))
+      .trim()
+      .toLowerCase()
+  ),
+  name: z
+    .string({ error: valid('name') })
+    .nonempty(required('name'))
+    .trim()
+    .toLowerCase()
+});
 
 export const appointmentSummarySchema = z.object({
   appointmentHospitals: z.array(

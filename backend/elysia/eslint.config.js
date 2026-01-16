@@ -58,7 +58,6 @@ export default defineConfig([
       'prefer-object-has-own': 'error',
       'prefer-regex-literals': 'error',
       'capitalized-comments': 'error',
-      'max-classes-per-file': 'error',
       'no-array-constructor': 'error',
       'no-case-declarations': 'error',
       'no-duplicate-imports': 'error',

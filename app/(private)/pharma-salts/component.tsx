@@ -49,7 +49,7 @@ import {
 } from '@/lib/actions';
 import { MESSAGES } from '@/lib/constants';
 import { pharmaManufacturerSchema } from '@/lib/schemas';
-import { catchErrors, getDate, hasPermission } from '@/lib/utils';
+import { catchErrors, hasPermission } from '@/lib/utils';
 
 function Menu({
   id,
@@ -134,7 +134,7 @@ export function TableCellViewer(props: { item: PharmaSalt }) {
     <Drawer direction={isMobile ? 'bottom' : 'right'}>
       <DrawerTrigger asChild onClick={e => e.currentTarget.blur()}>
         <Button className='text-foreground px-0 capitalize' variant='link'>
-          {props.item.name}
+          {props.item.id.slice(-5)}
         </Button>
       </DrawerTrigger>
       <DrawerContent>
@@ -245,9 +245,17 @@ export default function Component(props: { user: User; salts: PharmaSalt[] }) {
                 id: 'select'
               },
               {
-                accessorKey: 'name',
+                accessorKey: 'id',
                 cell: ({ row }) => (
                   <TableCellViewer item={row.original} key={Date.now()} />
+                ),
+                enableHiding: false,
+                header: 'Id'
+              },
+              {
+                accessorKey: 'name',
+                cell: ({ row }) => (
+                  <span className='capitalize'>{row.original.name}</span>
                 ),
                 enableHiding: false,
                 header: 'Name'
@@ -261,11 +269,6 @@ export default function Component(props: { user: User; salts: PharmaSalt[] }) {
                 ),
                 enableHiding: false,
                 header: 'Description'
-              },
-              {
-                accessorKey: 'createdAt',
-                cell: ({ row }) => getDate(row.original.createdAt.toString()),
-                header: () => <div>Created At</div>
               },
               {
                 cell: ({ row }) => (

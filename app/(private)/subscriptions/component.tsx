@@ -180,7 +180,7 @@ export function TableCellViewer(props: { item: Row }) {
     <Drawer direction={isMobile ? 'bottom' : 'right'}>
       <DrawerTrigger asChild onClick={e => e.currentTarget.blur()}>
         <Button className='text-foreground px-0 capitalize' variant='link'>
-          {props.item.membership.name}
+          {props.item.membership.id.slice(-5)}
         </Button>
       </DrawerTrigger>
       <DrawerContent>
@@ -340,7 +340,7 @@ export default function Component(props: { user: User; subscriptions: Row[] }) {
                 id: 'select'
               },
               {
-                accessorKey: 'name',
+                accessorKey: 'id',
                 cell: ({ row }) => (
                   <TableCellViewer
                     item={
@@ -351,6 +351,15 @@ export default function Component(props: { user: User; subscriptions: Row[] }) {
                     key={Date.now()}
                   />
                 ),
+                enableHiding: false,
+                header: 'Id'
+              },
+              {
+                accessorKey: 'name',
+                cell: ({ row }) =>
+                  props.subscriptions.find(
+                    m => m.id === String(row.original.id)
+                  )!.membership.name,
                 enableHiding: false,
                 header: 'Name'
               },

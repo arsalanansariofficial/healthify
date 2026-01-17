@@ -133,7 +133,7 @@ export function TableCellViewer(props: { item: Speciality }) {
     <Drawer direction={isMobile ? 'bottom' : 'right'}>
       <DrawerTrigger asChild onClick={e => e.currentTarget.blur()}>
         <Button className='text-foreground px-0' variant='link'>
-          {props.item.id}
+          {props.item.id.slice(-5)}
         </Button>
       </DrawerTrigger>
       <DrawerContent>
@@ -243,7 +243,9 @@ export default function Component(props: {
               },
               {
                 accessorKey: 'name',
-                cell: ({ row }) => <span>{row.original.name}</span>,
+                cell: ({ row }) => (
+                  <span className='capitalize'>{row.original.name}</span>
+                ),
                 enableHiding: false,
                 header: 'Name',
                 id: 'name'

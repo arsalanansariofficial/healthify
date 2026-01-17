@@ -60,7 +60,7 @@ import {
 } from '@/lib/actions';
 import { MESSAGES } from '@/lib/constants';
 import { userSchema } from '@/lib/schemas';
-import { catchErrors, getDate, hasPermission } from '@/lib/utils';
+import { catchErrors, hasPermission } from '@/lib/utils';
 
 type yesNo = 'yes' | 'no';
 
@@ -143,7 +143,7 @@ export function TableCellViewer(props: {
     <Drawer direction={isMobile ? 'bottom' : 'right'}>
       <DrawerTrigger asChild onClick={e => e.currentTarget.blur()}>
         <Button className='text-foreground px-0 capitalize' variant='link'>
-          {props.item.name}
+          {props.item.id.slice(-5)}
         </Button>
       </DrawerTrigger>
       <DrawerContent>
@@ -318,7 +318,7 @@ export default function Component(props: {
                 id: 'select'
               },
               {
-                accessorKey: 'name',
+                accessorKey: 'id',
                 cell: ({ row }) => (
                   <TableCellViewer
                     chartConfig={props.chartConfig}
@@ -326,6 +326,14 @@ export default function Component(props: {
                     item={row.original}
                     key={Date.now()}
                   />
+                ),
+                enableHiding: false,
+                header: 'Id'
+              },
+              {
+                accessorKey: 'name',
+                cell: ({ row }) => (
+                  <span className='capitalize'>{row.original.name}</span>
                 ),
                 enableHiding: false,
                 header: 'Name'
@@ -375,11 +383,6 @@ export default function Component(props: {
                 header: () => (
                   <div className='flex justify-center'>Email Verified</div>
                 )
-              },
-              {
-                accessorKey: 'createdAt',
-                cell: ({ row }) => getDate(row.original.createdAt.toString()),
-                header: () => <div>Created At</div>
               },
               {
                 cell: ({ row }) => (

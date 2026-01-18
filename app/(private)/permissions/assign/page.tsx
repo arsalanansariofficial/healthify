@@ -1,8 +1,8 @@
+import { RolePermission } from '@prisma/client';
 import { User } from 'next-auth';
 
 import Component from '@/app/(private)/permissions/assign/component';
 import { auth } from '@/auth';
-import { ROLES } from '@/lib/constants';
 import prisma from '@/lib/prisma';
 
 export default async function Page({
@@ -15,23 +15,27 @@ export default async function Page({
 
   const { permissions, rolePermissions, roles } = await prisma.$transaction(
     async function (transaction) {
-      const [roles, defaultRole, permissions] = await Promise.all([
+      const [roles, permissions] = await Promise.all([
         transaction.role.findMany(),
-        transaction.role.findFirst(),
         transaction.permission.findMany()
       ]);
 
-      const existingRole = await transaction.role.findUnique({
-        where: {
-          name: role ? role : defaultRole?.name || (ROLES.DOCTOR as string)
-        }
-      });
+      let existingRole;
+      let rolePermissions: RolePermission[] = [];
 
-      const rolePermissions = await transaction.rolePermission.findMany({
-        where: { roleId: existingRole?.id }
-      });
+      if (role) {
+        existingRole = await transaction.role.findUnique({
+          where: { name: role }
+        });
+      }
 
-      return { existingRole, permissions, rolePermissions, roles };
+      if (existingRole) {
+        rolePermissions = await transaction.rolePermission.findMany({
+          where: { roleId: existingRole.id }
+        });
+      }
+
+      return { permissions, rolePermissions, roles };
     }
   );
 

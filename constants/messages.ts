@@ -149,7 +149,8 @@ export const MESSAGES = {
     ASSIGNED: env(
       'PERMISSIONS_ASSIGNED',
       '🎉 All permissions are assigned successfully.'
-    )
+    ),
+    UPDATED: env('PERMISSION_UPDATED', '🎉 Permission updated successfully.')
   },
 
   PHARMA_BRAND: {
@@ -206,7 +207,8 @@ export const MESSAGES = {
 
   ROLE: {
     ADDED: env('ROLE_ADDED', '🎉 Role added successfully!'),
-    ASSIGNED: env('ROLES_ASSIGNED', '🎉 Roles are assigned successfully.')
+    ASSIGNED: env('ROLES_ASSIGNED', '🎉 Roles are assigned successfully.'),
+    UPDATED: env('ROLE_UPDATED', '🎉 Role updated successfully.')
   },
 
   SPECIALITY: {

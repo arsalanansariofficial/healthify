@@ -23,8 +23,8 @@ export const loginSchema = z.object({
 
 export const rolePermissionsSchema = z.object({
   name: z
-    .string({ error: valid('name') })
-    .nonempty(required('name'))
+    .string({ error: valid('role') })
+    .nonempty(required('role'))
     .trim()
     .toLowerCase(),
   permissions: z.array(
@@ -65,13 +65,9 @@ export const signupSchema = z.object({
 });
 
 export const userRolesSchema = z.object({
-  email: z
-    .email({ error: valid('email') })
-    .trim()
-    .toLowerCase(),
-  name: z
-    .string({ error: valid('name') })
-    .nonempty(required('name'))
+  id: z
+    .string({ error: valid('id') })
+    .nonempty(required('id'))
     .trim()
     .toLowerCase(),
   roles: z

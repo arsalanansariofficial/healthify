@@ -1,9 +1,10 @@
 'use client';
 
 import { zodResolver } from '@hookform/resolvers/zod';
-import { User } from 'next-auth';
+import { Prisma, Role } from '@prisma/client';
+import { usePathname, useRouter, useSearchParams } from 'next/navigation';
+import { useCallback } from 'react';
 import { useForm } from 'react-hook-form';
-import z from 'zod';
 
 import handler from '@/components/display-toast';
 import Footer from '@/components/footer';
@@ -24,35 +25,62 @@ import {
   FormControl,
   FormMessage
 } from '@/components/ui/form';
-import { Input } from '@/components/ui/input';
 import MultiSelect from '@/components/ui/multi-select';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue
+} from '@/components/ui/select';
 import useHookForm from '@/hooks/use-hook-form';
 import { assignRoles } from '@/lib/actions';
 import { userRolesSchema } from '@/lib/schemas';
 
 export default function Component({
   roles,
-  user
+  userId,
+  users
 }: {
-  user: User;
-  roles: { label: string; value: string }[];
+  userId?: string;
+  users: Prisma.UserGetPayload<{
+    select: {
+      email: true;
+      id: true;
+      name: true;
+      UserRoles: {
+        select: { id: true; role: { select: { name: true; id: true } } };
+      };
+    };
+  }>[];
+  roles: Role[];
 }) {
-  const { handleSubmit, pending } = useHookForm(
-    handler,
-    assignRoles.bind(null, user.id as string) as (
-      data: z.infer<typeof userRolesSchema>
-    ) => Promise<unknown>,
-    true
-  );
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+
+  const userRoles =
+    users.find(v => v.id === userId)?.UserRoles.map(v => v.role.id) || [];
 
   const form = useForm({
     defaultValues: {
-      email: user.email as string,
-      name: user.name as string,
-      roles: user.roles?.map(r => r.id) || []
+      id: userId || String(),
+      roles: roles.filter(v => userRoles.includes(v.id)).map(v => v.id)
     },
     resolver: zodResolver(userRolesSchema)
   });
+
+  const { handleSubmit, pending } = useHookForm(handler, assignRoles);
+
+  const updateParam = useCallback(
+    (key: string, value: string) => {
+      const params = new URLSearchParams(searchParams);
+
+      params.set(key, value);
+      router.push(`${pathname}?${params}`);
+    },
+    [pathname, router, searchParams]
+  );
 
   return (
     <div className='flex h-full flex-col gap-8 lg:mx-auto lg:w-10/12'>
@@ -72,25 +100,36 @@ export default function Component({
             >
               <FormField
                 control={form.control}
-                name='name'
+                name='id'
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Name</FormLabel>
+                    <FormLabel>User</FormLabel>
                     <FormControl>
-                      <Input disabled {...field} type='text' />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name='email'
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Email</FormLabel>
-                    <FormControl>
-                      <Input disabled {...field} type='email' />
+                      <Select
+                        defaultValue={field.value}
+                        onValueChange={v => {
+                          updateParam('userId', v);
+                          field.onChange(v);
+                        }}
+                      >
+                        <SelectTrigger className='w-full [&_i]:px-2 [&_span[data-slot]]:block [&_span[data-slot]]:truncate'>
+                          <SelectValue placeholder='Select a user' />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {users.map(v => (
+                            <SelectItem
+                              className='flex items-center gap-2'
+                              key={v.id}
+                              value={v.id}
+                            >
+                              <strong className='font-semibold capitalize'>
+                                {v.name}
+                              </strong>
+                              <i>{v.email}</i>
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -104,7 +143,10 @@ export default function Component({
                     <FormLabel>Roles</FormLabel>
                     <FormControl>
                       <MultiSelect
-                        options={roles}
+                        options={roles.map(v => ({
+                          label: v.name,
+                          value: v.id
+                        }))}
                         selectedValues={field.value}
                         setSelectedValues={field.onChange}
                       />

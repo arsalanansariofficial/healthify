@@ -32,5 +32,9 @@ export const userPayloadSchema = userSchema.pick({
   name: true
 });
 
+export const loginPayloadSchema = userPayloadSchema
+  .extend({ password: z.string({ error: 'Password should be valid.' }) })
+  .omit({ name: true });
+
 export const userResponseSchema = userSchema.omit({ password: true });
 export const usersResponseSchema = z.array(userResponseSchema);

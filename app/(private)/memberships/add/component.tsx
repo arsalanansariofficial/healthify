@@ -105,6 +105,8 @@ export default function Component({ doctors }: { doctors: User[] }) {
                                     city: String(),
                                     doctors: [],
                                     email: String(),
+                                    hospitalDepartments: [],
+                                    hospitalMemberships: [],
                                     isAffiliated: 'no',
                                     name: String(),
                                     phone: String()

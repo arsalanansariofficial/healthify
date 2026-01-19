@@ -9,6 +9,10 @@ import Link from 'next/link';
 import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
 
+import {
+  deleteSubscription,
+  deleteSubscriptions
+} from '@/actions/subscription';
 import handler from '@/components/display-toast';
 import Footer from '@/components/footer';
 import { Badge, BadgeVariant } from '@/components/ui/badge';
@@ -43,12 +47,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import useHookForm from '@/hooks/use-hook-form';
 import { useIsMobile } from '@/hooks/use-mobile';
-import {
-  payForMembership,
-  deleteMedicationForm,
-  updateMedicationForm,
-  deleteMedicationForms
-} from '@/lib/actions';
+import { payForMembership, updateMedicationForm } from '@/lib/actions';
 import { MESSAGES } from '@/lib/constants';
 import { membershipSchema } from '@/lib/schemas';
 import { catchErrors, hasPermission } from '@/lib/utils';
@@ -115,7 +114,7 @@ function Menu({
         <DropdownMenuItem
           onClick={async () => {
             if (!isHeader) {
-              toast.promise(deleteMedicationForm(id as string), {
+              toast.promise(deleteSubscription(id as string), {
                 error(error) {
                   const { message } = catchErrors(error as Error);
                   return <span className='text-destructive'>{message}</span>;
@@ -127,7 +126,7 @@ function Menu({
             }
 
             if (isHeader) {
-              toast.promise(deleteMedicationForms(ids as string[]), {
+              toast.promise(deleteSubscriptions(ids as string[]), {
                 error(error) {
                   const { message } = catchErrors(error as Error);
                   return <span className='text-destructive'>{message}</span>;

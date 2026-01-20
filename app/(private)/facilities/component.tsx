@@ -1,7 +1,7 @@
 'use client';
 
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Department, Facility } from '@prisma/client';
+import { Department, Prisma } from '@prisma/client';
 import { IconDotsVertical } from '@tabler/icons-react';
 import { ColumnDef } from '@tanstack/react-table';
 import { User } from 'next-auth';
@@ -50,6 +50,10 @@ import {
 import { MESSAGES } from '@/lib/constants';
 import { facilitySchema } from '@/lib/schemas';
 import { catchErrors, hasPermission } from '@/lib/utils';
+
+type Facility = Prisma.FacilityGetPayload<{
+  include: { departmentFacilities: true };
+}>;
 
 function Menu({
   id,
@@ -120,7 +124,7 @@ export function TableCellViewer(props: {
   const isMobile = useIsMobile();
   const form = useForm({
     defaultValues: {
-      departments: [],
+      departments: props.item.departmentFacilities.map(v => v.departmentId),
       name: props.item.name
     },
     resolver: zodResolver(facilitySchema)

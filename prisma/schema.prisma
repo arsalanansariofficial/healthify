@@ -249,11 +249,11 @@ model MembershipSubscription {
   updatedAt DateTime           @updatedAt
   createdAt DateTime           @default(now())
 
-  feeId        String @db.ObjectId
-  membershipId String @db.ObjectId
-  userId       String @unique @db.ObjectId
+  feeId        String? @db.ObjectId
+  membershipId String  @db.ObjectId
+  userId       String  @unique @db.ObjectId
 
-  fee        Fee        @relation(fields: [feeId], references: [id], onDelete: Cascade)
+  fee        Fee?       @relation(fields: [feeId], references: [id], onDelete: Cascade)
   user       User       @relation(fields: [userId], references: [id], onDelete: Cascade)
   membership Membership @relation(fields: [membershipId], references: [id], onDelete: Cascade)
 

@@ -4,7 +4,7 @@ import {
 } from '@prisma/client/runtime/client';
 import { Elysia } from 'elysia';
 
-import { InvalidJwtError } from '@/errors/errors';
+import { InvalidCredentialsError, InvalidJwtError } from '@/errors/errors';
 
 export const errorPlugin = new Elysia({ name: 'errorPlugin' }).onError(
   { as: 'global' },
@@ -19,6 +19,12 @@ export const errorPlugin = new Elysia({ name: 'errorPlugin' }).onError(
       return {
         errors: [{ message: 'Unique constraint violation.', path }],
         message: error.message
+      };
+
+    if (error instanceof InvalidCredentialsError)
+      return {
+        errors: [{ message: error.message, path: error.path }],
+        message: 'Invalid credentials.'
       };
 
     if (error instanceof InvalidJwtError)

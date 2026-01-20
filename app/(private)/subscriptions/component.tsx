@@ -150,7 +150,7 @@ export function TableCellViewer(props: { item: Row }) {
   const isMobile = useIsMobile();
   const form = useForm({
     defaultValues: {
-      fees: [props.item.fee],
+      fees: props.item.fee ? [props.item.fee] : [],
       hospitalMemberships: props.item.membership.hospitalMemberships.map(
         hm => ({
           ...hm,
@@ -265,15 +265,17 @@ export function TableCellViewer(props: { item: Row }) {
                 </FormItem>
               )}
             />
-            <div className='space-y-2'>
-              <Label>Fee</Label>
-              <Input
-                className='capitalize'
-                disabled
-                placeholder='Rs. 100'
-                value={props.item.fee.amount || 0}
-              />
-            </div>
+            {props.item.fee && (
+              <div className='space-y-2'>
+                <Label>Fee</Label>
+                <Input
+                  className='capitalize'
+                  disabled
+                  placeholder='Rs. 100'
+                  value={props.item.fee.amount as number}
+                />
+              </div>
+            )}
           </form>
         </Form>
         <DrawerFooter>
@@ -355,10 +357,15 @@ export default function Component(props: { user: User; subscriptions: Row[] }) {
               },
               {
                 accessorKey: 'name',
-                cell: ({ row }) =>
-                  props.subscriptions.find(
-                    m => m.id === String(row.original.id)
-                  )!.membership.name,
+                cell: ({ row }) => (
+                  <span className='capitalize'>
+                    {
+                      props.subscriptions.find(
+                        m => m.id === String(row.original.id)
+                      )!.membership.name
+                    }
+                  </span>
+                ),
                 enableHiding: false,
                 header: 'Name'
               },
@@ -426,13 +433,19 @@ export default function Component(props: { user: User; subscriptions: Row[] }) {
               },
               {
                 accessorKey: 'fee',
-                cell: ({ row }) => (
-                  <ul className='space-y-2'>
-                    <Badge className='capitalize' variant='secondary'>
-                      Rs. {row.original.fee.amount}
-                    </Badge>
-                  </ul>
-                ),
+                cell: ({ row }) => {
+                  if (!row.original.fee) {
+                    return <Badge>Free</Badge>;
+                  }
+
+                  return (
+                    <ul className='space-y-2'>
+                      <Badge className='capitalize' variant='secondary'>
+                        Rs. {row.original.fee.amount}
+                      </Badge>
+                    </ul>
+                  );
+                },
                 enableHiding: false,
                 header: 'Fee'
               },

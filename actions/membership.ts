@@ -49,15 +49,20 @@ export async function subscribeMembership(
   data: z.infer<typeof membershipSubscriptionSchema>
 ) {
   const result = membershipSubscriptionSchema.safeParse(data);
-  if (!result.success)
+
+  if (!result.success) {
     return { message: MESSAGES.SYSTEM.INVALID_INPUTS, success: false };
+  }
+
+  const { feeId, membershipId, users } = result.data;
 
   try {
     await prisma.membershipSubscription.createMany({
-      data: result.data.users.map(u => ({
-        feeId: result.data.feeId,
-        membershipId: result.data.membershipId,
-        userId: u
+      data: users.map(v => ({
+        feeId: feeId || undefined,
+        membershipId,
+        status: feeId ? SubscriptionStatus.pending : SubscriptionStatus.active,
+        userId: v
       }))
     });
 
@@ -75,8 +80,9 @@ export async function payForMembership(id: string) {
       where: { id }
     });
 
-    if (!subscription)
+    if (!subscription || !subscription?.fee) {
       return { message: MESSAGES.SYSTEM.INVALID_INPUTS, success: false };
+    }
 
     let expiresAt;
 

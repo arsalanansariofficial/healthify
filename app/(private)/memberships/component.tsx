@@ -248,6 +248,9 @@ export default function Component(props: { user: User; memberships: Row[] }) {
               },
               {
                 accessorKey: 'name',
+                cell: ({ row }) => (
+                  <span className='capitalize'>{row.original.name}</span>
+                ),
                 enableHiding: false,
                 header: 'Name'
               },

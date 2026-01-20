@@ -78,56 +78,59 @@ export default function Component({
               <div className='space-y-2'>
                 <Label>Membership</Label>
                 <Input
+                  className='capitalize'
                   disabled
                   placeholder='Basic'
                   type='text'
                   value={membership.name}
                 />
               </div>
-              <FormField
-                control={form.control}
-                name='feeId'
-                render={({ field }) => {
-                  const fee = membership.fees.find(f => f.id === field.value);
-                  const amount = fee ? `Rs. ${fee.amount}` : String();
+              {membership.fees.length > 0 && (
+                <FormField
+                  control={form.control}
+                  name='feeId'
+                  render={({ field }) => {
+                    const fee = membership.fees.find(f => f.id === field.value);
+                    const amount = fee ? `Rs. ${fee.amount}` : String();
 
-                  return (
-                    <FormItem>
-                      <FormLabel>Payment Mode</FormLabel>
-                      <FormControl>
-                        <div className='grid grid-cols-[1fr_auto] gap-2'>
-                          <Select
-                            defaultValue={field.value}
-                            onValueChange={field.onChange}
-                          >
-                            <SelectTrigger className='w-full [&_span[data-slot]]:block [&_span[data-slot]]:truncate'>
-                              <SelectValue placeholder='Select a payment mode' />
-                            </SelectTrigger>
-                            <SelectContent>
-                              {membership.fees.map(f => (
-                                <SelectItem
-                                  className='capitalize'
-                                  key={f.id}
-                                  value={f.id}
-                                >
-                                  {capitalize(f.renewalType)}
-                                </SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
-                          <Input
-                            disabled
-                            placeholder='Rs. 100'
-                            type='text'
-                            value={amount}
-                          />
-                        </div>
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  );
-                }}
-              />
+                    return (
+                      <FormItem>
+                        <FormLabel>Payment Mode</FormLabel>
+                        <FormControl>
+                          <div className='grid grid-cols-[1fr_auto] gap-2'>
+                            <Select
+                              defaultValue={field.value}
+                              onValueChange={field.onChange}
+                            >
+                              <SelectTrigger className='w-full [&_span[data-slot]]:block [&_span[data-slot]]:truncate'>
+                                <SelectValue placeholder='Select a payment mode' />
+                              </SelectTrigger>
+                              <SelectContent>
+                                {membership.fees.map(f => (
+                                  <SelectItem
+                                    className='capitalize'
+                                    key={f.id}
+                                    value={f.id}
+                                  >
+                                    {capitalize(f.renewalType)}
+                                  </SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                            <Input
+                              disabled
+                              placeholder='Rs. 100'
+                              type='text'
+                              value={amount}
+                            />
+                          </div>
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    );
+                  }}
+                />
+              )}
               <FormField
                 control={form.control}
                 name='users'

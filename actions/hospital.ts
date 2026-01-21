@@ -59,25 +59,59 @@ export async function updateHospital(
   if (!result.success)
     return { message: MESSAGES.SYSTEM.INVALID_INPUTS, success: false };
 
+  const {
+    doctors,
+    hospitalDepartments,
+    hospitalMemberships,
+    isAffiliated,
+    ...rest
+  } = result.data;
+
   try {
-    await prisma.hospital.update({
-      data: {
-        ...result.data,
-        doctors: {
-          connect: result.data.doctors.map(d => ({ id: d })),
-          set: []
+    await prisma.$transaction(async function (transaction) {
+      await Promise.all([
+        transaction.hospitalDepartment.deleteMany({
+          where: { hospitalId: id }
+        }),
+        transaction.hospitalMembership.deleteMany({
+          where: { hospitalId: id }
+        })
+      ]);
+
+      await transaction.hospital.update({
+        data: {
+          ...rest,
+          doctors: { set: doctors.map(d => ({ id: d })) },
+          isAffiliated: isAffiliated === 'yes'
         },
-        hospitalDepartments: {
-          connect: result.data.hospitalDepartments.map(hd => ({ id: hd })),
-          set: []
-        },
-        hospitalMemberships: {
-          connect: result.data.hospitalMemberships.map(hm => ({ id: hm })),
-          set: []
-        },
-        isAffiliated: result.data.isAffiliated === 'yes'
-      },
-      where: { id }
+        where: { id }
+      });
+
+      const prismaCreates = [];
+
+      if (hospitalDepartments.length) {
+        prismaCreates.push(
+          transaction.hospitalDepartment.createMany({
+            data: hospitalDepartments.map(departmentId => ({
+              departmentId,
+              hospitalId: id
+            }))
+          })
+        );
+      }
+
+      if (hospitalMemberships.length) {
+        prismaCreates.push(
+          transaction.hospitalMembership.createMany({
+            data: hospitalMemberships.map(membershipId => ({
+              hospitalId: id,
+              membershipId
+            }))
+          })
+        );
+      }
+
+      await Promise.all(prismaCreates);
     });
 
     revalidatePath(ROUTES.HOME);

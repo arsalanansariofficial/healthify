@@ -1,6 +1,9 @@
 import {
   PrismaClientInitializationError,
-  PrismaClientKnownRequestError
+  PrismaClientUnknownRequestError,
+  PrismaClientKnownRequestError,
+  PrismaClientValidationError,
+  PrismaClientRustPanicError
 } from '@prisma/client/runtime/client';
 import { Elysia } from 'elysia';
 
@@ -11,14 +14,32 @@ export const errorPlugin = new Elysia({ name: 'errorPlugin' }).onError(
   ({ error, code, path }) => {
     if (error instanceof PrismaClientInitializationError)
       return {
-        errors: [{ message: 'Failed to initialize prisma client.', path }],
-        message: error.message
+        message: 'Failed to initialize prisma client.',
+        errors: [{ message: error.message, path }]
       };
 
     if (error instanceof PrismaClientKnownRequestError)
       return {
-        errors: [{ message: 'Unique constraint violation.', path }],
-        message: error.message
+        errors: [{ message: error.message, path }],
+        message: 'Unique constraint violation.'
+      };
+
+    if (error instanceof PrismaClientUnknownRequestError)
+      return {
+        message: 'Failed to execute database query.',
+        errors: [{ message: error.message, path }]
+      };
+
+    if (error instanceof PrismaClientRustPanicError)
+      return {
+        errors: [{ message: error.message, path }],
+        message: 'Prisma engine crashed.'
+      };
+
+    if (error instanceof PrismaClientValidationError)
+      return {
+        message: 'Invalid prisma client invocation.',
+        errors: [{ message: error.message, path }]
       };
 
     if (error instanceof InvalidCredentialsError)

@@ -171,13 +171,7 @@ export function getFilePreview(
   type = FILES.FILE.TYPE
 ) {
   return {
-    file: {
-      id: attribute,
-      name: `${attribute}.jpg`,
-      size,
-      type,
-      url
-    },
+    file: { id: attribute, name: attribute, size, type, url },
     id: attribute,
     preview: url
   };

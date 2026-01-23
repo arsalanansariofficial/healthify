@@ -33,7 +33,6 @@ import {
   TableHead,
   TableHeader
 } from '@/components/ui/table';
-import { DOMAIN } from '@/constants/domain';
 import { FILES } from '@/constants/file';
 import {
   formatBytes,
@@ -79,9 +78,9 @@ export default function TableUpload({
       files.map(f => ({
         ...getFilePreview(
           f,
-          toAbsoluteUrl(`${DOMAIN.LOCAL}/api/upload/${f}`),
-          FILES.FILE.MAX_SIZE,
-          'application/pdf'
+          toAbsoluteUrl(`/api/upload/${f}`),
+          FILES.PDF.MAX_SIZE,
+          FILES.PDF.TYPE
         )
       })),
     [files]

@@ -9,9 +9,9 @@ import { Elysia } from 'elysia';
 
 import { InvalidCredentialsError, InvalidJwtError } from '@/errors/errors';
 
-export const errorPlugin = new Elysia({ name: 'errorPlugin' }).onError(
-  { as: 'global' },
-  ({ error, code, path }) => {
+export const errorPlugin = new Elysia({ name: 'errorPlugin' })
+  .error({ InvalidCredentialsError, InvalidJwtError })
+  .onError({ as: 'global' }, ({ error, code, path }) => {
     if (error instanceof PrismaClientInitializationError)
       return {
         message: 'Failed to initialize prisma client.',
@@ -42,18 +42,6 @@ export const errorPlugin = new Elysia({ name: 'errorPlugin' }).onError(
         errors: [{ message: error.message, path }]
       };
 
-    if (error instanceof InvalidCredentialsError)
-      return {
-        errors: [{ message: error.message, path: error.path }],
-        message: 'Invalid credentials.'
-      };
-
-    if (error instanceof InvalidJwtError)
-      return {
-        errors: [{ message: error.message, path: error.path }],
-        message: 'Invalid JWT.'
-      };
-
     switch (code) {
       case 'INVALID_COOKIE_SIGNATURE':
         return {
@@ -65,6 +53,12 @@ export const errorPlugin = new Elysia({ name: 'errorPlugin' }).onError(
             }
           ],
           message: 'Invalid cookie.'
+        };
+
+      case 'InvalidCredentialsError':
+        return {
+          errors: [{ message: error.message, path: error.path }],
+          message: 'Invalid credentials.'
         };
 
       case 'INTERNAL_SERVER_ERROR':
@@ -89,6 +83,12 @@ export const errorPlugin = new Elysia({ name: 'errorPlugin' }).onError(
             }
           ],
           message: 'Invalid file type.'
+        };
+
+      case 'InvalidJwtError':
+        return {
+          errors: [{ message: error.message, path: error.path }],
+          message: 'Invalid JWT.'
         };
 
       case 'VALIDATION':
@@ -130,5 +130,4 @@ export const errorPlugin = new Elysia({ name: 'errorPlugin' }).onError(
           message: 'Unknown error.'
         };
     }
-  }
-);
+  });

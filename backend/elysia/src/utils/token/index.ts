@@ -1,7 +1,7 @@
 import jwt from 'jsonwebtoken';
 
-import { InvalidJwtError } from '@/errors/errors';
-import { env } from '@/config/env';
+import { InvalidJwtError } from '@/utils/error';
+import { env } from '@/utils/config';
 
 export function verifyToken(payload: string) {
   try {

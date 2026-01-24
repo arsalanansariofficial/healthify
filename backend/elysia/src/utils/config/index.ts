@@ -9,3 +9,5 @@ export const envSchema = z.object({
   NODE_ENV: z.enum(['PRODUCTION', 'DEV']).default('DEV'),
   PORT: z.coerce.number().default(3000)
 });
+
+export const env = envSchema.parse(process.env);

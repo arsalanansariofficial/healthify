@@ -1,8 +1,8 @@
 import { Elysia } from 'elysia';
 
-import { errorPlugin } from '@/plugins/error';
-import { env } from '@/config/env';
-import user from '@/routes/user';
+import { errorPlugin } from '@/utils/error';
+import { env } from '@/utils/config';
+import user from '@/modules/user';
 
 const app = new Elysia();
 

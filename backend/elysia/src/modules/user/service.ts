@@ -2,12 +2,11 @@ import type { Cookie } from 'elysia/cookies';
 
 import bcrypt from 'bcryptjs';
 
-import type { loginPayload, UserPayload } from '@/types/user';
-
-import { InvalidCredentialsError } from '@/errors/errors';
-import { generateToken, verifyToken } from '@/lib/token';
-import { prisma } from '@/lib/prisma';
-import { env } from '@/config/env';
+import { generateToken, verifyToken } from '@/utils/token';
+import { InvalidCredentialsError } from '@/utils/error';
+import { type Model } from '@/modules/user/model';
+import { prisma } from '@/utils/prisma';
+import { env } from '@/utils/config';
 
 export async function authenticate(
   user: {
@@ -43,7 +42,7 @@ export async function authenticate(
 }
 
 export async function login(
-  { password, email }: loginPayload,
+  { password, email }: Model['loginRequest'],
   jwt?: Cookie<unknown>
 ) {
   const user = await prisma.user.findUnique({ where: { email } });
@@ -54,7 +53,10 @@ export async function login(
   return await authenticate(user, jwt);
 }
 
-export async function create(payload: UserPayload, jwt?: Cookie<unknown>) {
+export async function create(
+  payload: Model['userRequest'],
+  jwt?: Cookie<unknown>
+) {
   const user = await prisma.user.create({
     data: { ...payload, password: await bcrypt.hash(payload.password, 8) },
     omit: { password: true }

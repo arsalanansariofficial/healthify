@@ -1,6 +1,6 @@
 import z from 'zod';
 
-export const userSchema = z.object({
+const user = z.object({
   password: z
     .string('Password should be valid.')
     .nonempty('Password is required.')
@@ -26,15 +26,33 @@ export const userSchema = z.object({
   id: z.string()
 });
 
-export const userPayloadSchema = userSchema.pick({
-  password: true,
-  email: true,
-  name: true
-});
+const userRequest = user.pick({ password: true, email: true, name: true });
 
-export const loginPayloadSchema = userPayloadSchema
+const loginRequest = userRequest
   .extend({ password: z.string({ error: 'Password should be valid.' }) })
   .omit({ name: true });
 
-export const userResponseSchema = userSchema.omit({ password: true });
-export const usersResponseSchema = z.array(userResponseSchema);
+const logoutResponse = z.object({
+  message: z.string({ error: 'Message should be valid.' }),
+  success: z.boolean().default(true)
+});
+
+const jwt = z
+  .object({ jwt: z.jwt({ error: 'JWT should be valid.' }).optional() })
+  .optional();
+
+const userResponse = user.omit({ password: true });
+const loginResponse = user.omit({ password: true });
+const usersResponse = z.array(userResponse);
+
+export const model = {
+  logoutResponse,
+  usersResponse,
+  loginResponse,
+  loginRequest,
+  userResponse,
+  userRequest,
+  jwt
+} as const;
+
+export type Model = { [k in keyof typeof model]: z.infer<(typeof model)[k]> };

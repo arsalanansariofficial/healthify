@@ -7,7 +7,17 @@ import {
 } from '@prisma/client/runtime/client';
 import { Elysia } from 'elysia';
 
-import { InvalidCredentialsError, InvalidJwtError } from '@/errors/errors';
+export class InvalidCredentialsError extends Error {
+  public override message = 'Either email or password is invalid.';
+  public path = ['email', 'password'];
+  public status = 400;
+}
+
+export class InvalidJwtError extends Error {
+  public override message = 'Either jwt invalid or expired.';
+  public path = ['jwt'];
+  public status = 401;
+}
 
 export const errorPlugin = new Elysia({ name: 'errorPlugin' })
   .error({ InvalidCredentialsError, InvalidJwtError })

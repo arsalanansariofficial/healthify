@@ -57,14 +57,18 @@ interface TableUploadProps {
   maxFiles?: number;
   multiple?: boolean;
   className?: string;
+  canUpload?: boolean;
+  canDelete?: boolean;
   simulateUpload?: boolean;
   onFilesChange?: (files: File[]) => void;
-  buttonRef: RefObject<HTMLButtonElement | null>;
+  buttonRef?: RefObject<HTMLButtonElement | null>;
 }
 
 export default function TableUpload({
   accept = FILES.FILE.ACCEPT,
   buttonRef,
+  canDelete = true,
+  canUpload = true,
   className,
   files = [],
   maxFiles = 10,
@@ -129,7 +133,7 @@ export default function TableUpload({
       });
       setUploadFiles(newUploadFiles);
       onFilesChange?.(newUploadFiles.map(f => f.file as File));
-      if (buttonRef.current) buttonRef.current.disabled = true;
+      if (buttonRef?.current) buttonRef.current.disabled = true;
     }
   });
 
@@ -152,7 +156,7 @@ export default function TableUpload({
         });
 
         if (newFiles.every(f => f.progress >= 100)) {
-          if (buttonRef.current) buttonRef.current.disabled = false;
+          if (buttonRef?.current) buttonRef.current.disabled = false;
         }
 
         return newFiles;
@@ -165,11 +169,11 @@ export default function TableUpload({
   const removeUploadFile = (fileId: string) => {
     setUploadFiles(prev => prev.filter(file => file.id !== fileId));
     removeFile(fileId);
-    if (buttonRef.current) buttonRef.current.disabled = false;
+    if (buttonRef?.current) buttonRef.current.disabled = false;
   };
 
   const retryUpload = (fileId: string) => {
-    if (buttonRef.current) buttonRef.current.disabled = true;
+    if (buttonRef?.current) buttonRef.current.disabled = true;
     setUploadFiles(prev =>
       prev.map(file =>
         file.id === fileId
@@ -215,65 +219,73 @@ export default function TableUpload({
 
   return (
     <div className={cn('w-full space-y-4', className)}>
-      <div
-        className={cn(
-          'relative rounded-lg border border-dashed p-6 text-center transition-colors',
-          isDragging
-            ? 'border-primary bg-primary/5'
-            : 'border-muted-foreground/25 hover:border-muted-foreground/50'
-        )}
-        onDragEnter={handleDragEnter}
-        onDragLeave={handleDragLeave}
-        onDragOver={handleDragOver}
-        onDrop={handleDrop}
-      >
-        <input {...getInputProps()} className='sr-only' />
-        <div className='flex flex-col items-center gap-4'>
-          <div
-            className={cn(
-              'bg-muted flex h-12 w-12 cursor-pointer items-center justify-center rounded-full transition-colors',
-              isDragging
-                ? 'border-primary bg-primary/10'
-                : 'border-muted-foreground/25'
-            )}
-            onClick={openFileDialog}
-          >
-            <Upload className='text-muted-foreground h-5 w-5 cursor-pointer' />
+      {canUpload && (
+        <div
+          className={cn(
+            'relative rounded-lg border border-dashed p-6 text-center transition-colors',
+            isDragging
+              ? 'border-primary bg-primary/5'
+              : 'border-muted-foreground/25 hover:border-muted-foreground/50'
+          )}
+          onDragEnter={handleDragEnter}
+          onDragLeave={handleDragLeave}
+          onDragOver={handleDragOver}
+          onDrop={handleDrop}
+        >
+          <input {...getInputProps()} className='sr-only' />
+          <div className='flex flex-col items-center gap-4'>
+            <div
+              className={cn(
+                'bg-muted flex h-12 w-12 cursor-pointer items-center justify-center rounded-full transition-colors',
+                isDragging
+                  ? 'border-primary bg-primary/10'
+                  : 'border-muted-foreground/25'
+              )}
+              onClick={openFileDialog}
+            >
+              <Upload className='text-muted-foreground h-5 w-5 cursor-pointer' />
+            </div>
+            <p className='text-muted-foreground text-xs'>
+              Maximum file size: {formatBytes(maxSize)}, Maximum files:
+              {maxFiles}
+            </p>
           </div>
-          <p className='text-muted-foreground text-xs'>
-            Maximum file size: {formatBytes(maxSize)}, Maximum files:
-            {maxFiles}
-          </p>
         </div>
-      </div>
+      )}
       {uploadFiles.length > 0 && (
         <div className='space-y-4'>
           <div className='flex items-center justify-between'>
-            <h3 className='text-sm font-medium'>
-              Files ({uploadFiles.length})
-            </h3>
+            {canUpload && canDelete && (
+              <h3 className='text-sm font-medium'>
+                Files ({uploadFiles.length})
+              </h3>
+            )}
             <div className='flex gap-2'>
-              <Button
-                onClick={openFileDialog}
-                size='sm'
-                type='button'
-                variant='outline'
-              >
-                <CloudUpload />
-                Add files
-              </Button>
-              <Button
-                onClick={() => {
-                  clearFiles();
-                  if (buttonRef.current) buttonRef.current.disabled = false;
-                }}
-                size='sm'
-                type='button'
-                variant='outline'
-              >
-                <Trash2 />
-                Remove all
-              </Button>
+              {canUpload && (
+                <Button
+                  onClick={openFileDialog}
+                  size='sm'
+                  type='button'
+                  variant='outline'
+                >
+                  <CloudUpload />
+                  Add files
+                </Button>
+              )}
+              {canDelete && (
+                <Button
+                  onClick={() => {
+                    clearFiles();
+                    if (buttonRef?.current) buttonRef.current.disabled = false;
+                  }}
+                  size='sm'
+                  type='button'
+                  variant='outline'
+                >
+                  <Trash2 />
+                  Remove all
+                </Button>
+              )}
             </div>
           </div>
           <div className='rounded-lg border'>
@@ -336,11 +348,15 @@ export default function TableUpload({
                             </div>
                           )}
                         </div>
-                        <p className='flex items-center gap-1 truncate text-sm font-medium'>
-                          {fileItem.file.name}
-                          {fileItem.status === 'error' && (
-                            <Badge variant='destructive'>Error</Badge>
-                          )}
+                        <p className='flex items-center gap-1 text-sm font-medium'>
+                          <span className='max-w-12 truncate sm:max-w-none'>
+                            {fileItem.file.name}
+                          </span>
+                          <span>
+                            {fileItem.status === 'error' && (
+                              <Badge variant='destructive'>Error</Badge>
+                            )}
+                          </span>
                         </p>
                       </div>
                     </TableCell>
@@ -353,7 +369,11 @@ export default function TableUpload({
                       {formatBytes(fileItem.file.size)}
                     </TableCell>
                     <TableCell className='py-2 pe-1'>
-                      <div className='flex items-center gap-1'>
+                      <div
+                        className={cn('flex items-center gap-1 px-2', {
+                          'justify-end': !canDelete
+                        })}
+                      >
                         {fileItem.preview && (
                           <Button
                             asChild
@@ -378,15 +398,17 @@ export default function TableUpload({
                             <RefreshCwIcon className='size-3.5' />
                           </Button>
                         ) : (
-                          <Button
-                            className='size-8'
-                            onClick={() => removeUploadFile(fileItem.id)}
-                            size='icon'
-                            type='button'
-                            variant='secondary'
-                          >
-                            <Trash2 className='size-3.5' />
-                          </Button>
+                          canDelete && (
+                            <Button
+                              className='size-8'
+                              onClick={() => removeUploadFile(fileItem.id)}
+                              size='icon'
+                              type='button'
+                              variant='secondary'
+                            >
+                              <Trash2 className='size-3.5' />
+                            </Button>
+                          )
                         )}
                       </div>
                     </TableCell>

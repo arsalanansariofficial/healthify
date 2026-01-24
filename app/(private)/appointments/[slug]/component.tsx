@@ -3,8 +3,8 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { AppointmentStatus, Facility, Hospital, Prisma } from '@prisma/client';
 import { User as AuthUser } from 'next-auth';
-import { useRef } from 'react';
-import { useForm } from 'react-hook-form';
+import { useMemo, useRef } from 'react';
+import { useForm, useWatch } from 'react-hook-form';
 
 import handler from '@/components/display-toast';
 import Footer from '@/components/footer';
@@ -40,12 +40,20 @@ import useHookForm from '@/hooks/use-hook-form';
 import { updateAppointment } from '@/lib/actions';
 import { FILES } from '@/lib/constants';
 import { appointmentSummarySchema } from '@/lib/schemas';
-import { capitalize, formatTime, getDate } from '@/lib/utils';
+import {
+  capitalize,
+  cn,
+  formatTime,
+  getDate,
+  hasFormChanged,
+  hasRole
+} from '@/lib/utils';
 
 export default function Component({
   appointment,
   facilities,
-  hospitals
+  hospitals,
+  user
 }: {
   user: AuthUser;
   hospitals: Hospital[];
@@ -62,16 +70,10 @@ export default function Component({
     };
   }>;
 }) {
+  const isAdmin = hasRole(user.roles, 'admin');
   const buttonRef = useRef<HTMLButtonElement | null>(null);
-  const { handleSubmit, pending } = useHookForm(
-    handler,
-    updateAppointment.bind(null, appointment.id) as (
-      data: unknown
-    ) => Promise<unknown>
-  );
-
-  const form = useForm({
-    defaultValues: {
+  const defaultValues = useMemo(
+    () => ({
       appointmentHospitals: appointment.appointmentHospitals.map(
         ah => ah.hospitalId
       ),
@@ -81,7 +83,7 @@ export default function Component({
       doctorId: appointment.doctor.id,
       email: appointment.email,
       facilities: appointment.facilities.map(f => f.id),
-      isReferred: appointment.isReferred ? 'yes' : 'no',
+      isReferred: (appointment.isReferred ? 'yes' : 'no') as 'yes' | 'no',
       name: appointment.name,
       notes: capitalize(appointment.notes || String()),
       patientId: appointment.patient.id,
@@ -90,19 +92,37 @@ export default function Component({
       reports: appointment.reports,
       status: appointment.status,
       timeSlotId: appointment.timeSlot.id
-    },
+    }),
+    [appointment]
+  );
+  const { handleSubmit, pending } = useHookForm(
+    handler,
+    updateAppointment.bind(null, appointment.id) as (
+      data: unknown
+    ) => Promise<unknown>
+  );
+
+  const form = useForm({
+    defaultValues,
     resolver: zodResolver(appointmentSummarySchema)
   });
+
+  const isChanged = hasFormChanged(
+    defaultValues,
+    useWatch({ control: form.control })
+  );
 
   return (
     <div className='flex h-full flex-col gap-8 lg:mx-auto lg:w-10/12'>
       <Card>
         <CardHeader>
           <CardTitle>Appointment Summary</CardTitle>
-          <CardDescription>
-            You can update appointment details here, click save when you&apos;re
-            done.
-          </CardDescription>
+          {isAdmin && (
+            <CardDescription>
+              You can update appointment details here, click save when
+              you&apos;re done.
+            </CardDescription>
+          )}
         </CardHeader>
         <CardContent>
           <Form {...form}>
@@ -288,7 +308,7 @@ export default function Component({
                 control={form.control}
                 name='facilities'
                 render={({ field }) => (
-                  <FormItem>
+                  <FormItem className={cn({ 'pointer-events-none': !isAdmin })}>
                     <FormLabel>Facilites</FormLabel>
                     <FormControl>
                       <MultiSelect
@@ -314,6 +334,7 @@ export default function Component({
                     <FormControl>
                       <Select
                         defaultValue={field.value}
+                        disabled={!isAdmin}
                         onValueChange={field.onChange}
                       >
                         <SelectTrigger className='w-full [&_span[data-slot]]:block [&_span[data-slot]]:truncate'>
@@ -342,6 +363,7 @@ export default function Component({
                     <FormControl>
                       <Select
                         defaultValue={field.value}
+                        disabled={!isAdmin}
                         onValueChange={field.onChange}
                       >
                         <SelectTrigger className='w-full capitalize [&_span[data-slot]]:block [&_span[data-slot]]:truncate'>
@@ -388,6 +410,7 @@ export default function Component({
                     <FormControl>
                       <Textarea
                         {...field}
+                        disabled={!isAdmin}
                         placeholder='Any prior medical history or symptoms...'
                       />
                     </FormControl>
@@ -399,15 +422,17 @@ export default function Component({
                 control={form.control}
                 name='reports'
                 render={({ field }) => (
-                  <FormItem className='lg:col-span-2'>
+                  <FormItem className='overflow-x-auto lg:col-span-2'>
                     <FormLabel>Reports</FormLabel>
                     <FormControl>
                       <TableUpload
                         accept={FILES.PDF.TYPE}
-                        buttonRef={buttonRef}
+                        buttonRef={isAdmin && isChanged ? buttonRef : undefined}
+                        canDelete={isAdmin}
+                        canUpload={isAdmin}
                         files={appointment.reports}
                         onFilesChange={field.onChange}
-                        simulateUpload={true}
+                        simulateUpload
                       />
                     </FormControl>
                     <FormMessage />
@@ -419,7 +444,8 @@ export default function Component({
         </CardContent>
         <CardFooter>
           <Button
-            disabled={pending}
+            className='cursor-pointer'
+            disabled={!isChanged || !isAdmin || pending}
             form='appointment-form'
             ref={buttonRef}
             type='submit'

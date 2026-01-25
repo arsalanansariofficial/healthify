@@ -1,13 +1,24 @@
 'use server';
 
+import { revalidatePath } from 'next/cache';
 import z from 'zod';
 
+import { removeFile, saveFile } from '@/actions/file';
 import { MESSAGES } from '@/constants/messages';
+import { ROUTES } from '@/constants/routes';
 import prisma from '@/lib/prisma';
 import { appointmentSummarySchema } from '@/lib/schemas';
 import { catchErrors } from '@/lib/utils';
 
-import { removeFile, saveFile } from './file';
+export async function deleteAppointment(id: string) {
+  await prisma.appointment.delete({ where: { id } });
+  revalidatePath(ROUTES.HOME);
+}
+
+export async function deleteAppointments(ids: string[]) {
+  await prisma.appointment.deleteMany({ where: { id: { in: ids } } });
+  revalidatePath(ROUTES.HOME);
+}
 
 export async function updateAppointment(
   id: string,

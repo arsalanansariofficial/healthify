@@ -11,6 +11,10 @@ export default defineConfig([
   js.configs.recommended,
   {
     rules: {
+      '@typescript-eslint/no-unused-vars': [
+        'error',
+        { argsIgnorePattern: '^_', args: 'all' }
+      ],
       'react-refresh/only-export-components': 'off',
       'arrow-body-style': ['error', 'as-needed'],
       'no-unused-private-class-members': 'error',

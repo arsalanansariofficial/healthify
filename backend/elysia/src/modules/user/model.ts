@@ -26,26 +26,73 @@ const user = z.object({
   id: z.string()
 });
 
+const userProfile = z.object({
+  phoneNumber: z.string().nullable(),
+  gender: z.enum(['male', 'female']),
+  imageUrl: z.string().nullable(),
+  coverUrl: z.string().nullable(),
+  address: z.string().nullable(),
+  bio: z.string().nullable(),
+  createdAt: z.date(),
+  updatedAt: z.date(),
+  userId: z.string()
+});
+
+const file = z
+  .union([
+    z.string('File should be valid.').trim().toLowerCase(),
+    z
+      .file('File should be valid.')
+      .min(10000, 'File should be atleast 10 bytes.')
+      .max(1000000, 'File shold be atmost 1 Megabyte.')
+      .mime(['image/png'], 'File should be in ".png" format.')
+  ])
+  .transform(val => val || undefined);
+
+const token = z.object({
+  createdAt: z.date(),
+  updatedAt: z.date(),
+  userId: z.string(),
+  token: z.string()
+});
+
+const userResponse = user.omit({ password: true });
 const userRequest = user.pick({ password: true, email: true, name: true });
 
-const loginRequest = userRequest
-  .extend({ password: z.string({ error: 'Password should be valid.' }) })
-  .omit({ name: true });
+const userProfileRequest = userRequest
+  .extend(
+    userProfile.extend({ coverUrl: file.optional(), imageUrl: file.optional() })
+      .shape
+  )
+  .extend({
+    password: user.shape.password.optional().transform(val => val || undefined)
+  })
+  .omit({ createdAt: true, updatedAt: true, userId: true });
+
+const userProfileResponse = userResponse.extend({
+  tokens: z.array(token).optional(),
+  profile: userProfile.nullable()
+});
 
 const logoutResponse = z.object({
   message: z.string({ error: 'Message should be valid.' }),
   success: z.boolean().default(true)
 });
 
-const jwt = z
-  .object({ jwt: z.jwt({ error: 'JWT should be valid.' }).optional() })
-  .optional();
+const loginRequest = userRequest
+  .extend({ password: z.string({ error: 'Password should be valid.' }) })
+  .omit({ name: true });
 
-const userResponse = user.omit({ password: true });
+const jwt = z.object({
+  jwt: z.jwt({ error: 'JWT should be valid.' }).optional()
+});
+
 const loginResponse = user.omit({ password: true });
 const usersResponse = z.array(userResponse);
 
 export const model = {
+  userProfileResponse,
+  userProfileRequest,
   logoutResponse,
   usersResponse,
   loginResponse,

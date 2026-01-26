@@ -12,6 +12,7 @@ export const auth = new Elysia({ name: 'auth' })
   .resolve(async ({ cookie: { jwt } }) => {
     const { id } = verifyToken(jwt.value);
     const user = await prisma.user.findUnique({
+      include: { profile: true, tokens: true },
       omit: { password: true },
       where: { id }
     });

@@ -8,6 +8,35 @@ import { type Model } from '@/modules/user/model';
 import { prisma } from '@/utils/prisma';
 import { env } from '@/utils/config';
 
+export async function update(id: string, payload: Model['userProfileRequest']) {
+  let { imageUrl = null, coverUrl = null } = payload;
+  if (imageUrl && imageUrl instanceof File) imageUrl = imageUrl.name;
+  if (coverUrl && coverUrl instanceof File) coverUrl = coverUrl.name;
+
+  const profile = {
+    phoneNumber: payload.phoneNumber,
+    address: payload.address,
+    gender: payload.gender,
+    bio: payload.bio,
+    imageUrl,
+    coverUrl
+  };
+
+  return await prisma.user.update({
+    data: {
+      ...(payload.password
+        ? { password: await bcrypt.hash(payload.password, 8) }
+        : undefined),
+      profile: { upsert: { create: profile, update: profile } },
+      email: payload.email,
+      name: payload.name
+    },
+    include: { profile: true },
+    omit: { password: true },
+    where: { id }
+  });
+}
+
 export async function authenticate(
   user: {
     verifiedAt: Date | null;

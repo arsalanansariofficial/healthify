@@ -73,13 +73,11 @@ export async function logoutAll(token?: Cookie<unknown>) {
 }
 
 export async function logout(token?: Cookie<unknown>) {
-  verifyToken(token?.value as string);
   await prisma.token.delete({ where: { token: token?.value as string } });
   token?.remove();
   return { message: 'User has been logged out.', success: true };
 }
 
-export async function get(token?: Cookie<unknown>) {
-  verifyToken(token?.value as string);
+export async function get() {
   return await prisma.user.findMany({ omit: { password: true } });
 }

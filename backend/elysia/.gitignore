@@ -20,6 +20,7 @@ package-lock.json
 .DS_Store
 .vscode
 *.pem
+public
 
 # debug
 yarn-debug.log*

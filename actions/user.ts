@@ -32,7 +32,7 @@ import {
 import { catchErrors, isPastByTime, removeDuplicateTimes } from '@/lib/utils';
 
 export async function deleteUser(id: string) {
-  await prisma.$transaction(async function (transaction) {
+  await prisma.$transaction(async transaction => {
     const user = await transaction.user.delete({ where: { id } });
     if (user && user.cover) await removeFile(user.cover);
     if (user && !user.hasOAuth && user.image) await removeFile(user.image);
@@ -42,7 +42,7 @@ export async function deleteUser(id: string) {
 }
 
 export async function deleteUsers(ids: string[]) {
-  await prisma.$transaction(async function (transaction) {
+  await prisma.$transaction(async transaction => {
     const users = await transaction.user.findMany({
       where: { id: { in: ids } }
     });
@@ -63,7 +63,7 @@ export async function deleteUsers(ids: string[]) {
 
 export async function verifyEmail(email: string) {
   try {
-    const user = await prisma.$transaction(async function (transaction) {
+    const user = await prisma.$transaction(async transaction => {
       const user = await transaction.user.findUnique({ where: { email } });
       if (!user)
         return { message: MESSAGES.SYSTEM.INVALID_INPUTS, success: false };
@@ -90,7 +90,7 @@ export async function verifyEmail(email: string) {
 
 export async function verifyToken(id: string) {
   try {
-    const result = await prisma.$transaction(async function (transaction) {
+    const result = await prisma.$transaction(async transaction => {
       const token = await transaction.token.findUnique({ where: { id } });
       if (!token)
         return { message: MESSAGES.SYSTEM.INVALID_INPUTS, success: false };
@@ -114,17 +114,14 @@ export async function verifyToken(id: string) {
       return { hasExpired, token, user };
     });
 
-    if (!result?.token) {
+    if (!result?.token)
       return { message: MESSAGES.AUTH.TOKEN_NOT_FOUND, success: false };
-    }
 
-    if (!result?.user) {
+    if (!result?.user)
       return { message: MESSAGES.USER.EMAIL_NOT_FOUND, success: false };
-    }
 
-    if (result?.hasExpired) {
+    if (result?.hasExpired)
       return { message: MESSAGES.AUTH.TOKEN_EXPIRED, success: false };
-    }
 
     return {
       email: result.user.email,
@@ -164,9 +161,8 @@ export async function forgetPassword({ email }: z.infer<typeof emailSchema>) {
   try {
     const user = await prisma.user.findUnique({ where: { email } });
 
-    if (!user) {
+    if (!user)
       return { email, message: MESSAGES.USER.EMAIL_NOT_FOUND, success: false };
-    }
 
     const token = await generateToken(user.id as string);
     const emailSent = await sendEmail(
@@ -189,14 +185,13 @@ export async function updateUser(id: string, data: z.infer<typeof userSchema>) {
     return { message: MESSAGES.SYSTEM.INVALID_INPUTS, success: false };
 
   try {
-    const user = await prisma.$transaction(async function (transaction) {
-      let existingUser;
+    const user = await prisma.$transaction(async transaction => {
+      let existingUser = null;
       const { email, password } = result.data;
       const user = await transaction.user.findUnique({ where: { id } });
 
-      if (email) {
+      if (email)
         existingUser = await transaction.user.findUnique({ where: { email } });
-      }
 
       if (email && email !== user?.email && existingUser)
         return { message: MESSAGES.SYSTEM.INVALID_INPUTS, success: false };
@@ -213,9 +208,8 @@ export async function updateUser(id: string, data: z.infer<typeof userSchema>) {
       });
     });
 
-    if (!user) {
+    if (!user)
       return { message: MESSAGES.USER.EMAIL_REGISTERED, success: false };
-    }
 
     revalidatePath(ROUTES.HOME);
     return { message: MESSAGES.USER.PROFILE_UPDATED, success: true };
@@ -231,15 +225,13 @@ export async function updateUserProfile(
   try {
     const session = await auth();
 
-    if (!session?.user) {
+    if (!session?.user)
       return { message: MESSAGES.AUTH.UNAUTHORIZED, success: false };
-    }
 
     const result = userProfileSchema.safeParse(data);
 
-    if (!result.success) {
+    if (!result.success)
       return { message: MESSAGES.SYSTEM.INVALID_INPUTS, success: false };
-    }
 
     const user = await prisma.user.findUnique({
       select: {
@@ -263,20 +255,18 @@ export async function updateUserProfile(
       where: { email }
     });
 
-    if (email !== user.email && emailExists) {
+    if (email !== user.email && emailExists)
       return { message: MESSAGES.USER.EMAIL_REGISTERED, success: false };
-    }
 
-    const updated = await prisma.$transaction(async function (transaction) {
-      let imageName, coverName;
+    const updated = await prisma.$transaction(async transaction => {
+      let coverName = null,
+        imageName = null;
 
-      if (image instanceof File && image?.size && user.image) {
+      if (image instanceof File && image?.size && user.image)
         await removeFile(user.image);
-      }
 
-      if (cover instanceof File && cover?.size && user.cover) {
+      if (cover instanceof File && cover?.size && user.cover)
         await removeFile(user.cover);
-      }
 
       if (image instanceof File && image.size) {
         imageName = image.name;
@@ -292,7 +282,7 @@ export async function updateUserProfile(
         data: {
           city: city && city !== user.city ? city : undefined,
           cover: coverName,
-          email: email !== user.email ? email : undefined,
+          email: email === user.email ? undefined : email,
           gender:
             gender && gender !== user.gender ? (gender as Gender) : undefined,
           image: imageName,
@@ -305,9 +295,7 @@ export async function updateUserProfile(
 
       const [role] = await Promise.all([
         transaction.role.findUnique({ where: { name: ROLES.USER as string } }),
-        transaction.userRole.deleteMany({
-          where: { userId }
-        })
+        transaction.userRole.deleteMany({ where: { userId } })
       ]);
 
       await transaction.userRole.create({
@@ -317,12 +305,11 @@ export async function updateUserProfile(
       return updated;
     });
 
-    if (email !== user.email) {
+    if (email !== user.email)
       return loginWithCredentials({
         email: result.data.email,
         password: result.data.password || String()
       });
-    }
 
     await update({
       user: { ...session?.user, cover: updated.cover, image: updated.image }
@@ -338,34 +325,27 @@ export async function updateBio(id: string, data: z.infer<typeof bioSchema>) {
   try {
     const result = bioSchema.safeParse(data);
 
-    if (!result.success) {
+    if (!result.success)
       return { message: MESSAGES.SYSTEM.INVALID_INPUTS, success: false };
-    }
 
     const user = await prisma.user.findUnique({
       select: { bio: true, id: true },
       where: { id }
     });
 
-    if (!user) {
-      return { message: MESSAGES.AUTH.UNAUTHORIZED, success: false };
-    }
+    if (!user) return { message: MESSAGES.AUTH.UNAUTHORIZED, success: false };
 
     const fileName = `${user.id}.md`;
     if (user.bio) await removeFile(user.bio);
 
-    if (result.data.bio) {
+    if (result.data.bio)
       await saveFile(
         new File([new Blob([result.data.bio], { type: 'text/md' })], fileName, {
           type: 'text/md'
         })
       );
-    }
 
-    await prisma.user.update({
-      data: { bio: fileName },
-      where: { id }
-    });
+    await prisma.user.update({ data: { bio: fileName }, where: { id } });
 
     return { message: MESSAGES.USER.PROFILE_UPDATED, success: true };
   } catch (error) {
@@ -380,15 +360,13 @@ export async function updateDoctorProfile(
   try {
     const session = await auth();
 
-    if (!session?.user) {
+    if (!session?.user)
       return { message: MESSAGES.AUTH.UNAUTHORIZED, success: false };
-    }
 
     const result = doctorProfileSchema.safeParse(data);
 
-    if (!result.success) {
+    if (!result.success)
       return { message: MESSAGES.SYSTEM.INVALID_INPUTS, success: false };
-    }
 
     const user = await prisma.user.findUnique({
       select: {
@@ -425,20 +403,18 @@ export async function updateDoctorProfile(
       where: { email }
     });
 
-    if (email !== user.email && emailExists) {
+    if (email !== user.email && emailExists)
       return { message: MESSAGES.USER.EMAIL_REGISTERED, success: false };
-    }
 
-    const updated = await prisma.$transaction(async function (transaction) {
-      let imageName, coverName;
+    const updated = await prisma.$transaction(async transaction => {
+      let coverName = null,
+        imageName = null;
 
-      if (image instanceof File && image?.size && user.image) {
+      if (image instanceof File && image?.size && user.image)
         await removeFile(user.image);
-      }
 
-      if (cover instanceof File && cover?.size && user.cover) {
+      if (cover instanceof File && cover?.size && user.cover)
         await removeFile(user.cover);
-      }
 
       if (image instanceof File && image?.size) {
         imageName = image.name;
@@ -458,7 +434,7 @@ export async function updateDoctorProfile(
             daysOfVisit && daysOfVisit.length
               ? (daysOfVisit as Day[])
               : undefined,
-          email: email !== user.email ? email : undefined,
+          email: email === user.email ? undefined : email,
           experience:
             experience && experience !== user.experience
               ? experience
@@ -501,9 +477,7 @@ export async function updateDoctorProfile(
         transaction.role.findUnique({
           where: { name: ROLES.DOCTOR as string }
         }),
-        transaction.userRole.deleteMany({
-          where: { userId: doctorId }
-        })
+        transaction.userRole.deleteMany({ where: { userId: doctorId } })
       ]);
 
       await transaction.userRole.create({
@@ -513,12 +487,11 @@ export async function updateDoctorProfile(
       return updated;
     });
 
-    if (email !== user.email) {
+    if (email !== user.email)
       return loginWithCredentials({
         email: result.data.email,
         password: result.data.password || String()
       });
-    }
 
     await update({
       user: { ...session?.user, cover: updated.cover, image: updated.image }
@@ -533,9 +506,8 @@ export async function updateDoctorProfile(
 export async function addDoctor(data: z.infer<typeof doctorSchema>) {
   const result = doctorSchema.safeParse(data);
 
-  if (!result.success) {
+  if (!result.success)
     return { message: MESSAGES.SYSTEM.INVALID_INPUTS, success: false };
-  }
 
   const { image, specialities, timings } = result.data;
 
@@ -544,12 +516,11 @@ export async function addDoctor(data: z.infer<typeof doctorSchema>) {
       where: { email: result.data.email }
     });
 
-    if (user) {
+    if (user)
       return { message: MESSAGES.USER.EMAIL_REGISTERED, success: false };
-    }
 
-    await prisma.$transaction(async function (transaction) {
-      let fileName;
+    await prisma.$transaction(async transaction => {
+      let fileName = null;
 
       if (image instanceof File && image?.size) {
         fileName = image.name;
@@ -580,11 +551,10 @@ export async function addDoctor(data: z.infer<typeof doctorSchema>) {
         }
       });
 
-      if (specialities.length) {
+      if (specialities.length)
         await transaction.userSpeciality.createMany({
           data: specialities.map(s => ({ specialityId: s, userId: user.id }))
         });
-      }
 
       await transaction.userRole.create({
         data: { roleId: role?.id as string, userId: user.id }
@@ -611,9 +581,8 @@ export async function getAppointment(
   try {
     const session = await auth();
 
-    if (!session?.user?.id) {
+    if (!session?.user?.id)
       return { message: MESSAGES.USER.NOT_FOUND, success: false };
-    }
 
     const time = await prisma.timeSlot.findUnique({
       select: { time: true },
@@ -627,12 +596,11 @@ export async function getAppointment(
         time.time,
         (DATES.EXPIRES_AT as number) * 1000
       )
-    ) {
+    )
       return {
         message: MESSAGES.APPOINTMENT.INVALID_TIME_SLOT,
         success: false
       };
-    }
 
     if (
       await prisma.appointment.findFirst({
@@ -643,9 +611,8 @@ export async function getAppointment(
           timeSlotId: result.data.time
         }
       })
-    ) {
+    )
       return { message: MESSAGES.APPOINTMENT.EXISTS, success: false };
-    }
 
     await prisma.appointment.create({
       data: {
@@ -671,18 +638,16 @@ export async function updateAppointmentStatus(id: string, status: string) {
   try {
     const session = await auth();
 
-    if (!session?.user?.id) {
+    if (!session?.user?.id)
       return { message: MESSAGES.USER.NOT_FOUND, success: false };
-    }
 
     const appointment = await prisma.appointment.findUnique({
       select: { date: true, timeSlot: { select: { time: true } } },
       where: { id }
     });
 
-    if (!appointment) {
+    if (!appointment)
       return { message: MESSAGES.APPOINTMENT.NOT_FOUND, success: false };
-    }
 
     const isInFuture = isPastByTime(
       appointment?.date,
@@ -690,25 +655,25 @@ export async function updateAppointmentStatus(id: string, status: string) {
       (DATES.EXPIRES_AT as number) * 1000
     );
 
-    if (!isInFuture) {
+    if (!isInFuture)
       return {
         message: MESSAGES.APPOINTMENT.ACTION_RESTRICTED,
         success: false
       };
-    }
 
-    const updated = await prisma.$transaction(async function (transaction) {
-      return await transaction.appointment.update({
-        data: { status: status as AppointmentStatus },
-        select: {
-          date: true,
-          doctor: { select: { email: true, name: true } },
-          patient: { select: { email: true, name: true } },
-          timeSlot: { select: { duration: true, time: true } }
-        },
-        where: { id }
-      });
-    });
+    const updated = await prisma.$transaction(
+      async transaction =>
+        await transaction.appointment.update({
+          data: { status: status as AppointmentStatus },
+          select: {
+            date: true,
+            doctor: { select: { email: true, name: true } },
+            patient: { select: { email: true, name: true } },
+            timeSlot: { select: { duration: true, time: true } }
+          },
+          where: { id }
+        })
+    );
 
     const data = {
       data: {
@@ -720,7 +685,7 @@ export async function updateAppointmentStatus(id: string, status: string) {
       }
     };
 
-    if (status === AppointmentStatus.confirmed) {
+    if (status === AppointmentStatus.confirmed)
       await Promise.all([
         sendEmail(
           updated.doctor.email as string,
@@ -733,9 +698,8 @@ export async function updateAppointmentStatus(id: string, status: string) {
           ConfirmAppointment(data)
         )
       ]);
-    }
 
-    if (status === AppointmentStatus.cancelled) {
+    if (status === AppointmentStatus.cancelled)
       await Promise.all([
         sendEmail(
           updated.doctor.email as string,
@@ -748,7 +712,6 @@ export async function updateAppointmentStatus(id: string, status: string) {
           CancelAppointment(data)
         )
       ]);
-    }
 
     revalidatePath('/');
     return {

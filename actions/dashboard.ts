@@ -102,17 +102,11 @@ export async function getDashboardCards() {
   );
 
   const doctorsPrevMonth = doctors.filter(d =>
-    isWithinInterval(d.createdAt, {
-      end: prevMonthEnd,
-      start: prevMonthStart
-    })
+    isWithinInterval(d.createdAt, { end: prevMonthEnd, start: prevMonthStart })
   );
 
   const doctorsThisMonth = doctors.filter(d =>
-    isWithinInterval(d.createdAt, {
-      end: thisMonthEnd,
-      start: thisMonthStart
-    })
+    isWithinInterval(d.createdAt, { end: thisMonthEnd, start: thisMonthStart })
   );
 
   const pendingAppointments = appointments.filter(
@@ -215,7 +209,7 @@ export async function getUserDashboardCards(userId: string) {
         ? `+${((doctors.length / doctors.length) * 100).toFixed(0)}%`
         : '+0%',
       description: 'Available Doctors',
-      subtitle: `${doctors.length} medical professional${doctors.length !== 1 ? 's' : String()}`,
+      subtitle: `${doctors.length} medical professional${doctors.length > 1 ? 's' : String()}`,
       summary: 'Available for consultation',
       title: doctors.length.toString()
     },
@@ -224,7 +218,7 @@ export async function getUserDashboardCards(userId: string) {
         ? `+${((completed.length / (appointments.length || 1)) * 100).toFixed(0)}%`
         : '+0%',
       description: 'Completed Appointments',
-      subtitle: `${completed.length} appointment${completed.length !== 1 ? 's' : ''} completed`,
+      subtitle: `${completed.length} appointment${completed.length > 1 ? 's' : ''} completed`,
       summary: 'Track your healthcare history',
       title: completed.length.toString()
     },
@@ -240,7 +234,7 @@ export async function getUserDashboardCards(userId: string) {
         ? `+${((upcoming.length / (appointments.length || 1)) * 100).toFixed(0)}%`
         : '+0%',
       description: 'Upcoming Appointments',
-      subtitle: `You have ${upcoming.length} upcoming appointment${upcoming.length !== 1 ? 's' : String()}`,
+      subtitle: `You have ${upcoming.length} upcoming appointment${upcoming.length > 1 ? 's' : String()}`,
       summary: 'Stay prepared for your next visit',
       title: upcoming.length.toString()
     }

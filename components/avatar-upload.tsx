@@ -44,9 +44,9 @@ export default function AvatarUpload({
     }
   });
 
-  const handleRemove = () => {
+  function handleRemove() {
     if (currentFile) removeFile(currentFile.id);
-  };
+  }
 
   return (
     <div className={cn('relative', className)}>

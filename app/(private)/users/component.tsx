@@ -93,7 +93,7 @@ function Menu({
       <DropdownMenuContent align='end' className='w-32'>
         <DropdownMenuItem
           onClick={async () => {
-            if (!isHeader) {
+            if (!isHeader)
               toast.promise(deleteUser(id as string), {
                 error(error) {
                   const { message } = catchErrors(error as Error);
@@ -103,9 +103,8 @@ function Menu({
                 position: 'top-center',
                 success: MESSAGES.USER.DELETED
               });
-            }
 
-            if (isHeader) {
+            if (isHeader)
               toast.promise(deleteUsers(ids as string[]), {
                 error(error) {
                   const { message } = catchErrors(error as Error);
@@ -115,7 +114,6 @@ function Menu({
                 position: 'top-center',
                 success: MESSAGES.USER.BULK_DELETED
               });
-            }
           }}
           variant='destructive'
         >
@@ -298,7 +296,9 @@ export default function Component(props: {
                   <Checkbox
                     aria-label='Select row'
                     checked={row.getIsSelected()}
-                    onCheckedChange={value => row.toggleSelected(!!value)}
+                    onCheckedChange={value =>
+                      row.toggleSelected(Boolean(value))
+                    }
                   />
                 ),
                 enableHiding: false,
@@ -311,7 +311,7 @@ export default function Component(props: {
                       (table.getIsSomePageRowsSelected() && 'indeterminate')
                     }
                     onCheckedChange={value =>
-                      table.toggleAllPageRowsSelected(!!value)
+                      table.toggleAllPageRowsSelected(Boolean(value))
                     }
                   />
                 ),
@@ -351,13 +351,11 @@ export default function Component(props: {
                 accessorKey: 'emailVerified',
                 cell: ({ row }) => (
                   <Switch
-                    checked={
+                    checked={Boolean(
                       props.users.find(
                         user => row.original.email === user.email
                       )?.emailVerified
-                        ? true
-                        : false
-                    }
+                    )}
                     className='mx-auto block'
                     id='verify-email'
                     onCheckedChange={async () =>
@@ -388,16 +386,14 @@ export default function Component(props: {
                 cell: ({ row }) => (
                   <Menu id={row.original.id.toString()} isHeader={false} />
                 ),
-                header: ({ table }) => {
-                  return (
-                    <Menu
-                      ids={table
-                        .getSelectedRowModel()
-                        .rows.map(r => r.original.id.toString())}
-                      isHeader={true}
-                    />
-                  );
-                },
+                header: ({ table }) => (
+                  <Menu
+                    ids={table
+                      .getSelectedRowModel()
+                      .rows.map(r => r.original.id.toString())}
+                    isHeader={true}
+                  />
+                ),
                 id: 'actions'
               }
             ] as ColumnDef<PrismaUser>[]

@@ -20,9 +20,7 @@ export default async function Page() {
     prisma.department.findMany(),
     prisma.membership.findMany(),
     prisma.user.findMany({
-      where: {
-        UserRoles: { some: { role: { name: ROLES.DOCTOR as string } } }
-      }
+      where: { UserRoles: { some: { role: { name: ROLES.DOCTOR as string } } } }
     })
   ]);
 

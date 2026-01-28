@@ -63,7 +63,7 @@ export function hasRole(roles: User['roles'], name: string) {
 }
 
 export function getImageUrl(hasOAuth: boolean, image?: string | null) {
-  return `${!hasOAuth ? `${DOMAIN.LOCAL}/api/upload` : ''}${image ? `/${image}` : UI.DEFAULT_PROFILE_IMAGE}`;
+  return `${hasOAuth ? '' : `${DOMAIN.LOCAL}/api/upload`}${image ? `/${image}` : UI.DEFAULT_PROFILE_IMAGE}`;
 }
 
 export function hasPermission(permissions: User['permissions'], name: string) {
@@ -136,14 +136,13 @@ export function isPastByTime(date: Date | string, time: string, diff: number) {
 }
 
 export function catchAuthError(error: Error) {
-  if (error instanceof AuthError) {
+  if (error instanceof AuthError)
     switch (error.type) {
       case 'CredentialsSignin':
         return { message: MESSAGES.AUTH.INVALID_CREDENTIALS, success: false };
       default:
         return { message: MESSAGES.SYSTEM.SERVER_ERROR, success: false };
     }
-  }
 
   throw error;
 }
@@ -159,7 +158,7 @@ export function getFileErrorMessage(
       return `File "${reason.file.name}" is not an accepted file type.`;
     case 'size':
       return `File "${reason.file.name}" exceeds the maximum size of ${reason.maxSize}.`;
-    case 'count':
+    default:
       return `You can only upload a maximum of ${reason.maxFiles} files.`;
   }
 }
@@ -178,15 +177,13 @@ export function getFilePreview(
 }
 
 export function catchErrors(error: Error) {
-  if (error.name === 'PrismaClientKnownRequestError') {
+  if (error.name === 'PrismaClientKnownRequestError')
     return { message: MESSAGES.SYSTEM.UNIQUE_ERROR, success: false };
-  }
 
-  if (error.name === 'PrismaClientInitializationError') {
+  if (error.name === 'PrismaClientInitializationError')
     return { message: MESSAGES.SYSTEM.PRISMA_INIT_FAILED, success: false };
-  }
 
-  if (error instanceof Error && 'code' in error) {
+  if (error instanceof Error && 'code' in error)
     switch (error.code) {
       case 'ETIMEDOUT':
         return { message: SMTP.ERRORS.TIMEOUT, success: false };
@@ -200,10 +197,9 @@ export function catchErrors(error: Error) {
         return { message: SMTP.ERRORS.CONNECT_FAILED, success: false };
       case 'EDNS':
         return { message: MESSAGES.USER.EMAIL_BOUNCED, success: false };
-      case 'EACCES':
+      default:
         return { message: MESSAGES.FILE.PERMISSION_DENIED, success: false };
     }
-  }
 
   return { message: error.message, success: false };
 }
@@ -216,32 +212,27 @@ export function hasFormChanged<T extends Record<string, unknown>>(
     const initialValue = initialValues[key];
     const currentValue = currentValues[key];
 
-    if (currentValue == null) return false;
+    if (!currentValue) return false;
 
-    if (typeof currentValue === 'string') {
+    if (typeof currentValue === 'string')
       return currentValue.trim() !== String() && currentValue !== initialValue;
-    }
 
-    if (typeof currentValue === 'number') {
-      return currentValue !== initialValue;
-    }
+    if (typeof currentValue === 'number') return currentValue !== initialValue;
 
     if (Array.isArray(currentValue)) {
       if (!Array.isArray(initialValue)) return true;
       if (currentValue.length !== initialValue.length) return true;
 
       return currentValue.some((item, i) => {
-        if (typeof item === 'object' && typeof initialValue[i] === 'object') {
+        if (typeof item === 'object' && typeof initialValue[i] === 'object')
           return JSON.stringify(item) !== JSON.stringify(initialValue[i]);
-        }
 
         return item !== initialValue[i];
       });
     }
 
-    if (typeof currentValue === 'object') {
+    if (typeof currentValue === 'object')
       return JSON.stringify(currentValue) !== JSON.stringify(initialValue);
-    }
 
     return false;
   });

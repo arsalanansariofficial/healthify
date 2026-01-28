@@ -24,8 +24,8 @@ async function Verify({ token }: { token: string }) {
           {message}
         </p>
         <Button>
-          <Link href={!success ? ROUTES.HOME : ROUTES.LOGIN}>
-            {!success ? 'Home' : 'Login'}
+          <Link href={success ? ROUTES.LOGIN : ROUTES.HOME}>
+            {success ? 'Login' : 'Home'}
           </Link>
         </Button>
       </section>
@@ -40,7 +40,7 @@ export default async function Page({
 }) {
   const { token } = await searchParams;
 
-  if (!token) {
+  if (!token)
     return (
       <section className='space-y-4 text-center'>
         <p className='text-destructive font-semibold'>
@@ -51,7 +51,6 @@ export default async function Page({
         </Button>
       </section>
     );
-  }
 
   return <Verify token={token} />;
 }

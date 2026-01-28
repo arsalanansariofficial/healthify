@@ -31,10 +31,7 @@ export async function updateSpeciality(
     await prisma.speciality.update({ data: { name }, where: { id } });
 
     revalidatePath(ROUTES.HOME);
-    return {
-      message: MESSAGES.SPECIALITY.ADDED,
-      success: true
-    };
+    return { message: MESSAGES.SPECIALITY.ADDED, success: true };
   } catch (error) {
     return catchErrors(error as Error);
   }

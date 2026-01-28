@@ -208,7 +208,9 @@ export default function Component(props: {
                     <Checkbox
                       aria-label='Select row'
                       checked={row.getIsSelected()}
-                      onCheckedChange={value => row.toggleSelected(!!value)}
+                      onCheckedChange={value =>
+                        row.toggleSelected(Boolean(value))
+                      }
                     />
                   ),
                 enableHiding: false,
@@ -223,7 +225,7 @@ export default function Component(props: {
                           (table.getIsSomePageRowsSelected() && 'indeterminate')
                         }
                         onCheckedChange={value =>
-                          table.toggleAllPageRowsSelected(!!value)
+                          table.toggleAllPageRowsSelected(Boolean(value))
                         }
                       />
                     )
@@ -271,7 +273,7 @@ export default function Component(props: {
               {
                 accessorKey: 'time',
                 cell({ row }) {
-                  const time = row.original.time;
+                  const { time } = row.original;
                   return <span>{formatTime(time as string)}</span>;
                 },
                 header: 'Time',
@@ -281,7 +283,7 @@ export default function Component(props: {
                 accessorKey: 'status',
                 cell({ row }) {
                   let variant: BadgeVariant = 'default';
-                  const status = row.original.status;
+                  const { status } = row.original;
 
                   if (status === AppointmentStatus.pending) variant = 'outline';
                   if (status === AppointmentStatus.confirmed)

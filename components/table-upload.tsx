@@ -148,16 +148,14 @@ export default function TableUpload({
           const increment = Math.random() * 15 + 5;
           const newProgress = Math.min(file.progress + increment, 100);
 
-          if (newProgress >= 100) {
+          if (newProgress >= 100)
             return { ...file, progress: 100, status: 'completed' as const };
-          }
 
           return { ...file, progress: newProgress };
         });
 
-        if (newFiles.every(f => f.progress >= 100)) {
+        if (newFiles.every(f => f.progress >= 100))
           if (buttonRef?.current) buttonRef.current.disabled = false;
-        }
 
         return newFiles;
       });
@@ -166,13 +164,13 @@ export default function TableUpload({
     return () => clearInterval(interval);
   }, [buttonRef, simulateUpload]);
 
-  const removeUploadFile = (fileId: string) => {
+  function removeUploadFile(fileId: string) {
     setUploadFiles(prev => prev.filter(file => file.id !== fileId));
     removeFile(fileId);
     if (buttonRef?.current) buttonRef.current.disabled = false;
-  };
+  }
 
-  const retryUpload = (fileId: string) => {
+  function retryUpload(fileId: string) {
     if (buttonRef?.current) buttonRef.current.disabled = true;
     setUploadFiles(prev =>
       prev.map(file =>
@@ -186,9 +184,9 @@ export default function TableUpload({
           : file
       )
     );
-  };
+  }
 
-  const getFileIcon = (file: File | FileMetadata) => {
+  function getFileIcon(file: File | FileMetadata) {
     const type = file instanceof File ? file.type : file.type;
     if (type.startsWith('image/')) return <ImageIcon className='size-4' />;
     if (type.startsWith('video/')) return <VideoIcon className='size-4' />;
@@ -201,9 +199,9 @@ export default function TableUpload({
     if (type.includes('zip') || type.includes('rar'))
       return <FileArchiveIcon className='size-4' />;
     return <FileTextIcon className='size-4' />;
-  };
+  }
 
-  const getFileTypeLabel = (file: File | FileMetadata) => {
+  function getFileTypeLabel(file: File | FileMetadata) {
     const type = file instanceof File ? file.type : file.type;
     if (type.startsWith('image/')) return 'Image';
     if (type.startsWith('video/')) return 'Video';
@@ -215,7 +213,7 @@ export default function TableUpload({
     if (type.includes('json')) return 'JSON';
     if (type.includes('text')) return 'Text';
     return 'File';
-  };
+  }
 
   return (
     <div className={cn('w-full space-y-4', className)}>

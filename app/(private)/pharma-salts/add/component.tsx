@@ -31,10 +31,7 @@ import { pharmaBrandSchema } from '@/lib/schemas';
 export default function Component() {
   const { handleSubmit } = useHookForm(handler, addPharmaSalt);
   const form = useForm({
-    defaultValues: {
-      description: String(),
-      name: String()
-    },
+    defaultValues: { description: String(), name: String() },
     resolver: zodResolver(pharmaBrandSchema)
   });
 

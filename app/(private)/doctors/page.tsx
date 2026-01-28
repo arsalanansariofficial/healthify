@@ -39,13 +39,7 @@ export default async function Page() {
               select: {
                 hospitalMemberships: {
                   select: {
-                    hospital: {
-                      select: {
-                        doctors: {
-                          select: { id: true }
-                        }
-                      }
-                    }
+                    hospital: { select: { doctors: { select: { id: true } } } }
                   }
                 }
               }
@@ -61,7 +55,7 @@ export default async function Page() {
 
     doctors = [];
 
-    if (subscriptions) {
+    if (subscriptions)
       doctors = await prisma.userRole.findMany({
         select: {
           user: {
@@ -85,7 +79,6 @@ export default async function Page() {
           }
         }
       });
-    }
   }
 
   return (

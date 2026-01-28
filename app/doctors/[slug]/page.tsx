@@ -15,9 +15,7 @@ export default async function Page({
 }) {
   const [session, doctor] = await Promise.all([
     auth(),
-    prisma.user.findUnique({
-      where: { id: (await params).slug }
-    })
+    prisma.user.findUnique({ where: { id: (await params).slug } })
   ]);
 
   if (!session?.user || !doctor) notFound();
@@ -33,7 +31,7 @@ export default async function Page({
           className='aspect-video rounded-lg object-cover'
           fill
           priority
-          src={`${!doctor.hasOAuth ? `${DOMAIN.LOCAL}/api/upload/` : ''}${doctor.image}`}
+          src={`${doctor.hasOAuth ? '' : `${DOMAIN.LOCAL}/api/upload/`}${doctor.image}`}
           unoptimized
         />
       </header>

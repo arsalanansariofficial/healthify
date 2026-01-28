@@ -80,11 +80,10 @@ export default function MultiSelect(props: MultiSelectProps) {
 
   const toggleSelection = useCallback(
     (value: string) => {
-      if (props.selectedValues.includes(value)) {
+      if (props.selectedValues.includes(value))
         return props.setSelectedValues(
           props.selectedValues.filter(item => item !== value)
         );
-      }
 
       props.setSelectedValues([...props.selectedValues, value]);
     },

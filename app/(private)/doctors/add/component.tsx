@@ -315,7 +315,9 @@ export default function Component({
                                   {...field}
                                   onChange={e => {
                                     const time = field.value.slice();
-                                    time[index].duration = +e.target.value;
+                                    time[index].duration = Number(
+                                      e.target.value
+                                    );
                                     field.onChange(time);
                                   }}
                                   type='number'

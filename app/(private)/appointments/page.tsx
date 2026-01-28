@@ -3,8 +3,7 @@ import { redirect } from 'next/navigation';
 
 import Component from '@/app/(private)/appointments/component';
 import { auth } from '@/auth';
-import { ROLES } from '@/lib/constants';
-import { ROUTES } from '@/lib/constants';
+import { ROLES, ROUTES } from '@/lib/constants';
 import prisma from '@/lib/prisma';
 import { hasRole } from '@/lib/utils';
 
@@ -20,12 +19,11 @@ export default async function Page() {
     }
   });
 
-  if (hasRole(session.user.roles, ROLES.ADMIN as string)) {
+  if (hasRole(session.user.roles, ROLES.ADMIN as string))
     appointments = await prisma.appointment.findMany({
       include: { doctor: true, patient: true, timeSlot: true },
       orderBy: { date: 'desc' }
     });
-  }
 
   return (
     <Component

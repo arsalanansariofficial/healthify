@@ -19,9 +19,7 @@ type DialogDescriptionProps = React.ComponentProps<
 
 type DialogContentProps = React.ComponentProps<
   typeof DialogPrimitive.Content
-> & {
-  showCloseButton?: boolean;
-};
+> & { showCloseButton?: boolean };
 
 export function Dialog(props: DialogProps) {
   return <DialogPrimitive.Root data-slot='dialog' {...props} />;

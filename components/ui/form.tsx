@@ -66,7 +66,7 @@ export function FormLabel(props: ComponentProps<typeof LabelPrimitive.Root>) {
     <Label
       {...props}
       className={cn('data-[error=true]:text-destructive', props.className)}
-      data-error={!!error}
+      data-error={Boolean(error)}
       data-slot='form-label'
       htmlFor={formItemId}
     />
@@ -110,11 +110,9 @@ export function FormControl({ ...props }: ComponentProps<typeof Slot>) {
     <Slot
       {...props}
       aria-describedby={
-        !error
-          ? `${formDescriptionId}`
-          : `${formDescriptionId} ${formMessageId}`
+        error ? `${formDescriptionId} ${formMessageId}` : `${formDescriptionId}`
       }
-      aria-invalid={!!error}
+      aria-invalid={Boolean(error)}
       data-slot='form-control'
       id={formItemId}
     />
@@ -128,9 +126,8 @@ export function useFormField() {
   const formState = useFormState({ name: fieldContext.name });
   const fieldState = getFieldState(fieldContext.name, formState);
 
-  if (!fieldContext) {
+  if (!fieldContext)
     throw new Error('useFormField should be used within <FormField>');
-  }
 
   const { id } = itemContext;
 

@@ -22,8 +22,7 @@ import {
   DropdownMenuSeparator
 } from '@/components/ui/dropdown-menu';
 import { Input } from '@/components/ui/input';
-import { ROUTES } from '@/lib/constants';
-import { SIDEBAR } from '@/lib/constants';
+import { SIDEBAR, ROUTES } from '@/lib/constants';
 import { cn, getImageUrl } from '@/lib/utils';
 
 export default function Header({ user }: { user: User }) {
@@ -88,7 +87,9 @@ export default function Header({ user }: { user: User }) {
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Avatar>
-                  <AvatarImage src={getImageUrl(!!user.hasOAuth, user.image)} />
+                  <AvatarImage
+                    src={getImageUrl(Boolean(user.hasOAuth), user.image)}
+                  />
                   <AvatarFallback className='bg-transparent'>
                     <FontAwesomeIcon
                       className='h-5 w-5'
@@ -115,9 +116,9 @@ export default function Header({ user }: { user: User }) {
               </DropdownMenuContent>
             </DropdownMenu>
             <Button
-              onClick={() => {
-                return theme === 'light' ? setTheme('dark') : setTheme('light');
-              }}
+              onClick={() =>
+                theme === 'light' ? setTheme('dark') : setTheme('light')
+              }
               size='icon'
               variant='ghost'
             >

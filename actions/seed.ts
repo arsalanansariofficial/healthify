@@ -8,7 +8,7 @@ import { catchErrors } from '@/lib/utils';
 
 export async function seed() {
   try {
-    await prisma.$transaction(async function (transaction) {
+    await prisma.$transaction(async transaction => {
       const [role, permission, user] = await Promise.all([
         await transaction.role.create({
           data: { name: ROLES.ADMIN as string }
@@ -27,9 +27,7 @@ export async function seed() {
       ]);
 
       await Promise.all([
-        prisma.userRole.create({
-          data: { roleId: role.id, userId: user.id }
-        }),
+        prisma.userRole.create({ data: { roleId: role.id, userId: user.id } }),
         prisma.rolePermission.create({
           data: { permissionId: permission.id, roleId: role.id }
         })

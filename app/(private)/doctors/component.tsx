@@ -170,17 +170,16 @@ export default function Component(props: {
         if (
           debouncedQuery &&
           !(
-            doctorGender == debouncedQuery ||
+            doctorGender === debouncedQuery ||
             doctorExperience.includes(debouncedQuery) ||
             doctor.name?.toLowerCase().includes(debouncedQuery) ||
             doctorTimings.some(t => t.formatted.includes(debouncedQuery)) ||
             doctorSpecialities.some(spec => spec.includes(debouncedQuery))
           )
-        ) {
+        )
           return false;
-        }
 
-        if (gender && doctorGender != gender.toLowerCase()) return false;
+        if (gender && doctorGender !== gender.toLowerCase()) return false;
         if (experience && !doctorExperience.includes(experience)) return false;
 
         if (
@@ -188,9 +187,8 @@ export default function Component(props: {
           !doctorSpecialities.some(spec =>
             spec.includes(speciality.toLowerCase())
           )
-        ) {
+        )
           return false;
-        }
 
         if (
           time &&
@@ -199,9 +197,8 @@ export default function Component(props: {
             if (time === 'evening') return hour >= 12 && hour < 20;
             return false;
           })
-        ) {
+        )
           return false;
-        }
 
         return true;
       }),
@@ -355,7 +352,7 @@ export default function Component(props: {
                     priority
                     sizes='(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw'
                     src={
-                      `${!doctor.hasOAuth ? `${DOMAIN.LOCAL}/api/upload/` : String()}${doctor.image}` ||
+                      `${doctor.hasOAuth ? String() : `${DOMAIN.LOCAL}/api/upload/`}${doctor.image}` ||
                       (UI.DEFAULT_PROFILE_IMAGE as string)
                     }
                     unoptimized

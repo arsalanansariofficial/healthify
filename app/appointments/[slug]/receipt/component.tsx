@@ -36,9 +36,7 @@ export default function Page({
   useEffect(() => {
     setTheme('light');
 
-    if (!originalTheme.current) {
-      originalTheme.current = theme || 'system';
-    }
+    if (!originalTheme.current) originalTheme.current = theme || 'system';
 
     return () => {
       if (originalTheme.current) setTheme(originalTheme.current);

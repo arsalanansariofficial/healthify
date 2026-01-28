@@ -14,9 +14,7 @@ export default async function Page() {
     prisma.membership.findMany(),
     prisma.user.findMany({
       select: { id: true, name: true },
-      where: {
-        UserRoles: { some: { role: { name: ROLES.DOCTOR as string } } }
-      }
+      where: { UserRoles: { some: { role: { name: ROLES.DOCTOR as string } } } }
     })
   ]);
 

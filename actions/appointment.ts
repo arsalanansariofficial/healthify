@@ -26,9 +26,8 @@ export async function updateAppointment(
 ) {
   const result = appointmentSummarySchema.safeParse(data);
 
-  if (!result.success) {
+  if (!result.success)
     return { message: MESSAGES.SYSTEM.INVALID_INPUTS, success: false };
-  }
 
   const {
     city,
@@ -46,24 +45,22 @@ export async function updateAppointment(
   } = result.data;
 
   try {
-    await prisma.$transaction(async function (transaction) {
+    await prisma.$transaction(async transaction => {
       const appointment = await transaction.appointment.findUnique({
         select: { reports: true },
         where: { id }
       });
 
-      if (!appointment) {
+      if (!appointment)
         return { message: MESSAGES.SYSTEM.BAD_REQUEST, success: false };
-      }
 
-      if (reports.length) {
+      if (reports.length)
         await Promise.all([
           ...appointment.reports.map(report => removeFile(report)),
           ...reports.map(report => saveFile(report as File))
         ]);
-      }
 
-      await transaction.appointment.update({
+      return await transaction.appointment.update({
         data: {
           city,
           date,

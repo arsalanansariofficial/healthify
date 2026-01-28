@@ -67,9 +67,8 @@ type CharLegendContentProps = ComponentProps<'div'> & {
 export function useChart() {
   const context = useContext(ChartContext);
 
-  if (!context) {
+  if (!context)
     throw new Error('useChart must be used within a <ChartContainer />');
-  }
 
   return context;
 }
@@ -131,7 +130,7 @@ export function getPayloadConfigFromPayload(
   payload: unknown,
   key: string
 ) {
-  let payloadPayload;
+  let payloadPayload = null;
   let configLabelKey: string = key;
   if (typeof payload !== 'object' || payload === null) return undefined;
 
@@ -139,26 +138,23 @@ export function getPayloadConfigFromPayload(
     'payload' in payload &&
     typeof payload.payload === 'object' &&
     payload.payload
-  ) {
+  )
     payloadPayload = payload.payload;
-  }
 
   if (
     key in payload &&
     typeof payload[key as keyof typeof payload] === 'string'
-  ) {
+  )
     configLabelKey = payload[key as keyof typeof payload] as string;
-  }
 
   if (
     payloadPayload &&
     key in payloadPayload &&
     typeof payloadPayload[key as keyof typeof payloadPayload] === 'string'
-  ) {
+  )
     configLabelKey = payloadPayload[
       key as keyof typeof payloadPayload
     ] as string;
-  }
 
   if (configLabelKey in config) return config[configLabelKey];
   return config[key as keyof typeof config];
@@ -194,9 +190,7 @@ export function ChartLegendContent(props: CharLegendContentProps) {
             ) : (
               <div
                 className='h-2 w-2 shrink-0 rounded-[2px]'
-                style={{
-                  backgroundColor: item.color
-                }}
+                style={{ backgroundColor: item.color }}
               />
             )}
             {itemConfig?.label}
@@ -220,17 +214,15 @@ export function ChartTooltipContent(props: ChartTooltipContentProps) {
     const itemConfig = getPayloadConfigFromPayload(config, item, key);
     let value = itemConfig?.label;
 
-    if (!props.labelKey && typeof props.label === 'string') {
+    if (!props.labelKey && typeof props.label === 'string')
       value = config[props.label as keyof typeof config]?.label || props.label;
-    }
 
-    if (props.labelFormatter) {
+    if (props.labelFormatter)
       return (
         <div className={cn('font-medium', props.labelClassName)}>
           {props.labelFormatter(value, props.payload)}
         </div>
       );
-    }
 
     if (!value) return null;
 
@@ -239,9 +231,7 @@ export function ChartTooltipContent(props: ChartTooltipContentProps) {
     );
   }, [props, config, hideLabel]);
 
-  if (!props.active || !props.payload?.length) {
-    return null;
-  }
+  if (!props.active || !props.payload?.length) return null;
 
   const nestLabel = props.payload.length === 1 && indicator !== 'dot';
 
@@ -252,7 +242,7 @@ export function ChartTooltipContent(props: ChartTooltipContentProps) {
         props.className
       )}
     >
-      {!nestLabel ? tooltipLabel : null}
+      {nestLabel ? null : tooltipLabel}
       <div className='grid gap-1.5'>
         {props.payload.map((item, index) => {
           const key = `${props.nameKey || item.name || item.dataKey || 'value'}`;

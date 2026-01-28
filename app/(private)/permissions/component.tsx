@@ -79,7 +79,7 @@ function Menu({
       <DropdownMenuContent align='end' className='w-32'>
         <DropdownMenuItem
           onClick={async () => {
-            if (!isHeader) {
+            if (!isHeader)
               toast.promise(deletePharmaSalt(id as string), {
                 error(error) {
                   const { message } = catchErrors(error as Error);
@@ -89,9 +89,8 @@ function Menu({
                 position: 'top-center',
                 success: MESSAGES.PHARMA_SALT.DELETED
               });
-            }
 
-            if (isHeader) {
+            if (isHeader)
               toast.promise(deletePharmaSalts(ids as string[]), {
                 error(error) {
                   const { message } = catchErrors(error as Error);
@@ -101,7 +100,6 @@ function Menu({
                 position: 'top-center',
                 success: MESSAGES.PHARMA_SALT.BULK_DELETED
               });
-            }
           }}
           variant='destructive'
         >
@@ -213,7 +211,9 @@ export default function Component(props: {
                   <Checkbox
                     aria-label='Select row'
                     checked={row.getIsSelected()}
-                    onCheckedChange={value => row.toggleSelected(!!value)}
+                    onCheckedChange={value =>
+                      row.toggleSelected(Boolean(value))
+                    }
                   />
                 ),
                 enableHiding: false,
@@ -226,7 +226,7 @@ export default function Component(props: {
                       (table.getIsSomePageRowsSelected() && 'indeterminate')
                     }
                     onCheckedChange={value =>
-                      table.toggleAllPageRowsSelected(!!value)
+                      table.toggleAllPageRowsSelected(Boolean(value))
                     }
                   />
                 ),
@@ -252,16 +252,14 @@ export default function Component(props: {
                 cell: ({ row }) => (
                   <Menu id={row.original.id.toString()} isHeader={false} />
                 ),
-                header: ({ table }) => {
-                  return (
-                    <Menu
-                      ids={table
-                        .getSelectedRowModel()
-                        .rows.map(r => r.original.id.toString())}
-                      isHeader={true}
-                    />
-                  );
-                },
+                header: ({ table }) => (
+                  <Menu
+                    ids={table
+                      .getSelectedRowModel()
+                      .rows.map(r => r.original.id.toString())}
+                    isHeader={true}
+                  />
+                ),
                 id: 'actions'
               }
             ] as ColumnDef<Role>[]

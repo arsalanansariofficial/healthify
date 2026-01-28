@@ -49,13 +49,12 @@ export default async function Page({
 }) {
   const { token } = await searchParams;
 
-  if (!token) {
+  if (!token)
     return (
       <section>
         <ErrorCard message='Missing verification token' />
       </section>
     );
-  }
 
   return (
     <Suspense

@@ -111,10 +111,7 @@ export function DraggableRow<T extends { id: string }>(props: { row: Row<T> }) {
       data-dragging={isDragging}
       data-state={row.getIsSelected() && 'selected'}
       ref={setNodeRef}
-      style={{
-        transform: CSS.Transform.toString(transform),
-        transition: transition
-      }}
+      style={{ transform: CSS.Transform.toString(transform), transition }}
     >
       {row.getVisibleCells().map(cell => (
         <TableCell key={cell.id}>
@@ -150,10 +147,7 @@ export function DataTable<T extends { id: string }>(props: {
     [data]
   );
 
-  const [pagination, setPagination] = useState({
-    pageIndex: 0,
-    pageSize: 10
-  });
+  const [pagination, setPagination] = useState({ pageIndex: 0, pageSize: 10 });
 
   const sensors = useSensors(
     useSensor(MouseSensor, {}),
@@ -207,13 +201,12 @@ export function DataTable<T extends { id: string }>(props: {
 
   function handleDragEnd(event: DragEndEvent) {
     const { active, over } = event;
-    if (active && over && active.id !== over.id) {
+    if (active && over && active.id !== over.id)
       setData(data => {
         const oldIndex = dataIds.indexOf(active.id);
         const newIndex = dataIds.indexOf(over.id);
         return arrayMove(data, oldIndex, newIndex);
       });
-    }
   }
 
   return (
@@ -226,22 +219,18 @@ export function DataTable<T extends { id: string }>(props: {
           {props.filterConfig.map(filter => {
             const value = filterValues[filter.id] ?? '';
 
-            if (filter.type && filter.type === 'time') {
+            if (filter.type && filter.type === 'time')
               return (
                 <TimePicker
                   key={filter.id}
                   onChange={val =>
-                    setFilterValues(prev => ({
-                      ...prev,
-                      [filter.id]: val
-                    }))
+                    setFilterValues(prev => ({ ...prev, [filter.id]: val }))
                   }
                   value={value as string}
                 />
               );
-            }
 
-            if (filter.type && filter.type === 'date') {
+            if (filter.type && filter.type === 'date')
               return (
                 <Popover key={filter.id}>
                   <PopoverTrigger asChild>
@@ -269,10 +258,7 @@ export function DataTable<T extends { id: string }>(props: {
                     <Button
                       className='w-full text-red-500'
                       onClick={() =>
-                        setFilterValues(prev => ({
-                          ...prev,
-                          [filter.id]: ''
-                        }))
+                        setFilterValues(prev => ({ ...prev, [filter.id]: '' }))
                       }
                       size='sm'
                       variant='ghost'
@@ -282,7 +268,6 @@ export function DataTable<T extends { id: string }>(props: {
                   </PopoverContent>
                 </Popover>
               );
-            }
 
             return (
               <Input
@@ -319,20 +304,18 @@ export function DataTable<T extends { id: string }>(props: {
                     typeof column.accessorFn !== 'undefined' &&
                     column.getCanHide()
                 )
-                .map(column => {
-                  return (
-                    <DropdownMenuCheckboxItem
-                      checked={column.getIsVisible()}
-                      className='capitalize'
-                      key={column.id}
-                      onCheckedChange={value =>
-                        column.toggleVisibility(!!value)
-                      }
-                    >
-                      {column.id}
-                    </DropdownMenuCheckboxItem>
-                  );
-                })}
+                .map(column => (
+                  <DropdownMenuCheckboxItem
+                    checked={column.getIsVisible()}
+                    className='capitalize'
+                    key={column.id}
+                    onCheckedChange={value =>
+                      column.toggleVisibility(Boolean(value))
+                    }
+                  >
+                    {column.id}
+                  </DropdownMenuCheckboxItem>
+                ))}
             </DropdownMenuContent>
           </DropdownMenu>
           {props.button}
@@ -354,17 +337,15 @@ export function DataTable<T extends { id: string }>(props: {
               <TableHeader className='bg-muted sticky top-0 z-10'>
                 {table.getHeaderGroups().map(headerGroup => (
                   <TableRow key={headerGroup.id}>
-                    {headerGroup.headers.map(header => {
-                      return (
-                        <TableHead colSpan={header.colSpan} key={header.id}>
-                          {!header.isPlaceholder &&
-                            flexRender(
-                              header.column.columnDef.header,
-                              header.getContext()
-                            )}
-                        </TableHead>
-                      );
-                    })}
+                    {headerGroup.headers.map(header => (
+                      <TableHead colSpan={header.colSpan} key={header.id}>
+                        {!header.isPlaceholder &&
+                          flexRender(
+                            header.column.columnDef.header,
+                            header.getContext()
+                          )}
+                      </TableHead>
+                    ))}
                   </TableRow>
                 ))}
               </TableHeader>

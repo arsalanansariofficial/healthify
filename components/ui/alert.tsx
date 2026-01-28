@@ -160,11 +160,7 @@ const alertVariants = cva(
         variant: 'mono'
       }
     ],
-    defaultVariants: {
-      appearance: 'solid',
-      size: 'md',
-      variant: 'secondary'
-    },
+    defaultVariants: { appearance: 'solid', size: 'md', variant: 'secondary' },
     variants: {
       appearance: {
         light: '',

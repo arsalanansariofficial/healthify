@@ -7,6 +7,7 @@ export const envSchema = z.object({
   DATABASE_URL: z.url({ error: 'DATABASE_URL should be valid url.' }),
   JWT_EXPIRES_IN: z.coerce.number().default(60 * 60 * 1000),
   NODE_ENV: z.enum(['PRODUCTION', 'DEV']).default('DEV'),
+  UPLOAD_DIR: z.string().default('public'),
   PORT: z.coerce.number().default(3000)
 });
 

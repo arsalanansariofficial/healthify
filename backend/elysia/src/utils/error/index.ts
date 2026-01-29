@@ -13,14 +13,38 @@ export class InvalidCredentialsError extends Error {
   public status = 400;
 }
 
+export class PermissionDeniedError extends Error {
+  public override message = 'No permissions for the upload directory.';
+  public path = ['file'];
+  public status = 400;
+}
+
 export class InvalidJwtError extends Error {
   public override message = 'Either jwt invalid or expired.';
   public path = ['jwt'];
   public status = 401;
 }
 
+export class StorageFullError extends Error {
+  public override message = 'Disk storage is full.';
+  public path = ['file'];
+  public status = 400;
+}
+
+export class FileNotFoundError extends Error {
+  public override message = 'File not found.';
+  public path = ['file'];
+  public status = 400;
+}
+
 export const errorPlugin = new Elysia({ name: 'errorPlugin' })
-  .error({ InvalidCredentialsError, InvalidJwtError })
+  .error({
+    EPERM: PermissionDeniedError,
+    ENOENT: FileNotFoundError,
+    ENOSPC: StorageFullError,
+    InvalidCredentialsError,
+    InvalidJwtError
+  })
   .onError({ as: 'global' }, ({ error, code, path }) => {
     if (error instanceof PrismaClientInitializationError)
       return {
@@ -126,6 +150,12 @@ export const errorPlugin = new Elysia({ name: 'errorPlugin' })
         return {
           errors: [{ message: 'An unknown error occurred.', path }],
           message: 'Unknown error.'
+        };
+
+      case 'ENOENT':
+        return {
+          errors: [{ message: error.message, path: error.path }],
+          message: 'File not found.'
         };
 
       case 'PARSE':

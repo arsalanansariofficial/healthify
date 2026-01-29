@@ -5,35 +5,46 @@ import bcrypt from 'bcryptjs';
 import { generateToken, verifyToken } from '@/utils/token';
 import { InvalidCredentialsError } from '@/utils/error';
 import { type Model } from '@/modules/user/model';
+import { remove, upload } from '@/utils/file';
 import { prisma } from '@/utils/prisma';
 import { env } from '@/utils/config';
 
 export async function update(id: string, payload: Model['userProfileRequest']) {
-  let { imageUrl = null, coverUrl = null } = payload;
-  if (imageUrl && imageUrl instanceof File) imageUrl = imageUrl.name;
-  if (coverUrl && coverUrl instanceof File) coverUrl = coverUrl.name;
+  return await prisma.$transaction(async prisma => {
+    const userProfile = await prisma.userProfile.findUnique({
+      select: { imageUrl: true, coverUrl: true },
+      where: { userId: id }
+    });
 
-  const profile = {
-    phoneNumber: payload.phoneNumber,
-    address: payload.address,
-    gender: payload.gender,
-    bio: payload.bio,
-    imageUrl,
-    coverUrl
-  };
+    if (userProfile && userProfile.imageUrl) await remove(userProfile.imageUrl);
+    if (userProfile && userProfile.coverUrl) await remove(userProfile.coverUrl);
 
-  return await prisma.user.update({
-    data: {
-      ...(payload.password
-        ? { password: await bcrypt.hash(payload.password, 8) }
-        : undefined),
-      profile: { upsert: { create: profile, update: profile } },
-      email: payload.email,
-      name: payload.name
-    },
-    include: { profile: true },
-    omit: { password: true },
-    where: { id }
+    let { imageUrl = null, coverUrl = null } = payload;
+    if (imageUrl && imageUrl instanceof File) imageUrl = await upload(imageUrl);
+    if (coverUrl && coverUrl instanceof File) coverUrl = await upload(coverUrl);
+
+    const profile = {
+      phoneNumber: payload.phoneNumber,
+      address: payload.address,
+      gender: payload.gender,
+      bio: payload.bio,
+      imageUrl,
+      coverUrl
+    };
+
+    return await prisma.user.update({
+      data: {
+        ...(payload.password
+          ? { password: await bcrypt.hash(payload.password, 8) }
+          : undefined),
+        profile: { upsert: { create: profile, update: profile } },
+        email: payload.email,
+        name: payload.name
+      },
+      include: { profile: true },
+      omit: { password: true },
+      where: { id }
+    });
   });
 }
 

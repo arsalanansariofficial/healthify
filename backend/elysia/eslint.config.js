@@ -174,7 +174,7 @@ export default defineConfig([
       eqeqeq: 'error'
     },
     languageOptions: {
-      globals: { ...globals.browser, ...globals.node },
+      globals: { ...globals.browser, ...globals.node, ...globals.bunBuiltin },
       ecmaVersion: 'latest'
     }
   }

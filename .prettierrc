@@ -3,6 +3,7 @@
   "jsxSingleQuote": true,
   "arrowParens": "avoid",
   "trailingComma": "none",
+  "bracketSameLine": true,
   "objectWrap": "collapse",
   "plugins": ["prettier-plugin-tailwindcss"]
 }

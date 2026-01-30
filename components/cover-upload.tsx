@@ -101,8 +101,7 @@ export default function CoverUpload({
       onDragEnter={handleDragEnter}
       onDragLeave={handleDragLeave}
       onDragOver={handleDragOver}
-      onDrop={handleDrop}
-    >
+      onDrop={handleDrop}>
       <input {...getInputProps()} className='sr-only -z-10' />
       {hasImage && (
         <div className='relative h-full w-full'>
@@ -136,8 +135,7 @@ export default function CoverUpload({
                 onClick={openFileDialog}
                 size='sm'
                 type='button'
-                variant='secondary'
-              >
+                variant='secondary'>
                 <Upload />
                 Change Cover
               </Button>
@@ -146,8 +144,7 @@ export default function CoverUpload({
                 onClick={removeCoverImage}
                 size='sm'
                 type='button'
-                variant='destructive'
-              >
+                variant='destructive'>
                 <XIcon />
                 Remove
               </Button>
@@ -192,8 +189,7 @@ export default function CoverUpload({
       {!hasImage && (
         <div
           className='grid h-full place-items-center'
-          onClick={openFileDialog}
-        >
+          onClick={openFileDialog}>
           <div className='bg-primary/10 rounded-full p-4'>
             <CloudUpload className='text-primary size-6' />
           </div>

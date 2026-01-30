@@ -80,8 +80,7 @@ export default function Component() {
             <form
               className='space-y-2'
               id='signup-form'
-              onSubmit={form.handleSubmit(handleSubmit)}
-            >
+              onSubmit={form.handleSubmit(handleSubmit)}>
               <FormField
                 control={form.control}
                 name='name'
@@ -141,15 +140,13 @@ export default function Component() {
             className='cursor-pointer'
             disabled={pending}
             form='signup-form'
-            type='submit'
-          >
+            type='submit'>
             {pending ? 'Signing up...' : 'Signup'}
           </Button>
           <Button
             className='cursor-pointer'
             onClick={() => signIn('github')}
-            variant='outline'
-          >
+            variant='outline'>
             <FontAwesomeIcon icon={faGithub} size='5x' />
           </Button>
         </CardFooter>

@@ -91,8 +91,7 @@ export default function Component(props: {
             <form
               className='space-y-2'
               id='role-permissions-form'
-              onSubmit={form.handleSubmit(handleSubmit)}
-            >
+              onSubmit={form.handleSubmit(handleSubmit)}>
               <FormField
                 control={form.control}
                 name='name'
@@ -106,8 +105,7 @@ export default function Component(props: {
                           field.onChange(role);
                           updateParam('role', role);
                         }}
-                        value={field.value}
-                      >
+                        value={field.value}>
                         <SelectTrigger className='w-full'>
                           <SelectValue placeholder='Select a role' />
                         </SelectTrigger>
@@ -116,8 +114,7 @@ export default function Component(props: {
                             <SelectItem
                               className='capitalize'
                               key={role.id}
-                              value={role.name}
-                            >
+                              value={role.name}>
                               {capitalize(role.name)}
                             </SelectItem>
                           ))}
@@ -154,8 +151,7 @@ export default function Component(props: {
             className='cursor-pointer'
             disabled={pending}
             form='role-permissions-form'
-            type='submit'
-          >
+            type='submit'>
             {pending ? 'Assigning permissions...' : 'Assign permissions'}
           </Button>
         </CardFooter>

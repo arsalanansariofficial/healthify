@@ -64,8 +64,7 @@ export default async function Page({
             Verifying...
           </p>
         </section>
-      }
-    >
+      }>
       <Verify token={token} />
     </Suspense>
   );

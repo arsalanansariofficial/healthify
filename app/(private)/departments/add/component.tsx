@@ -57,8 +57,7 @@ export default function Component({
             <form
               className='space-y-2'
               id='department-form'
-              onSubmit={form.handleSubmit(handleSubmit)}
-            >
+              onSubmit={form.handleSubmit(handleSubmit)}>
               <FormField
                 control={form.control}
                 name='name'
@@ -120,8 +119,7 @@ export default function Component({
             className='cursor-pointer'
             disabled={form.formState.isLoading}
             form='department-form'
-            type='submit'
-          >
+            type='submit'>
             {form.formState.isLoading ? 'Saving...' : 'Save'}
           </Button>
         </CardFooter>

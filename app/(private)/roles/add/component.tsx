@@ -49,8 +49,7 @@ export default function Component() {
             <form
               className='space-y-2'
               id='role-form'
-              onSubmit={form.handleSubmit(handleSubmit)}
-            >
+              onSubmit={form.handleSubmit(handleSubmit)}>
               <FormField
                 control={form.control}
                 name='name'
@@ -72,8 +71,7 @@ export default function Component() {
             className='cursor-pointer'
             disabled={pending}
             form='role-form'
-            type='submit'
-          >
+            type='submit'>
             {pending ? 'Adding role...' : 'Add role'}
           </Button>
         </CardFooter>

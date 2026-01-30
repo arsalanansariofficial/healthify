@@ -96,8 +96,7 @@ export default function Component({
             <form
               className='space-y-2'
               id='roles-form'
-              onSubmit={form.handleSubmit(handleSubmit)}
-            >
+              onSubmit={form.handleSubmit(handleSubmit)}>
               <FormField
                 control={form.control}
                 name='id'
@@ -110,8 +109,7 @@ export default function Component({
                         onValueChange={v => {
                           updateParam('userId', v);
                           field.onChange(v);
-                        }}
-                      >
+                        }}>
                         <SelectTrigger className='w-full [&_i]:px-2 [&_span[data-slot]]:block [&_span[data-slot]]:truncate'>
                           <SelectValue placeholder='Select a user' />
                         </SelectTrigger>
@@ -120,8 +118,7 @@ export default function Component({
                             <SelectItem
                               className='flex items-center gap-2'
                               key={v.id}
-                              value={v.id}
-                            >
+                              value={v.id}>
                               <strong className='font-semibold capitalize'>
                                 {v.name}
                               </strong>
@@ -163,8 +160,7 @@ export default function Component({
             className='cursor-pointer'
             disabled={pending}
             form='roles-form'
-            type='submit'
-          >
+            type='submit'>
             {pending ? 'Adding roles...' : 'Add roles'}
           </Button>
         </CardFooter>

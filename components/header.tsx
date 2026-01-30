@@ -36,8 +36,7 @@ export default function Header({ user }: { user: User }) {
           <div className='grid grid-flow-col grid-cols-[auto_1fr] items-center gap-4'>
             <Link
               className='hover:bg-accent relative hidden aspect-square rounded-md p-4 lg:block'
-              href={ROUTES.DASHBOARD}
-            >
+              href={ROUTES.DASHBOARD}>
               <span className='absolute top-1/2 left-1/2 mt-0.5 ml-0.5 grid min-w-5 -translate-x-1/2 -translate-y-1/2 -rotate-45 gap-1'>
                 <span className='bg-primary h-1 w-full rounded-md'></span>
                 <span className='bg-primary h-1 w-1/2 justify-self-center rounded-md'></span>
@@ -45,8 +44,7 @@ export default function Header({ user }: { user: User }) {
             </Link>
             <button
               className='hover:bg-accent grid aspect-square place-items-center rounded-md p-2 lg:hidden'
-              onClick={() => setHasMenu(hasMenu => !hasMenu)}
-            >
+              onClick={() => setHasMenu(hasMenu => !hasMenu)}>
               <span className={cn('grid min-w-5 gap-1', { 'gap-0': hasMenu })}>
                 <span
                   className={cn(
@@ -65,14 +63,12 @@ export default function Header({ user }: { user: User }) {
             <nav className='hidden grid-flow-col gap-4 justify-self-start lg:grid'>
               <Link
                 className='hover:bg-accent rounded-md px-2 py-1 font-semibold'
-                href='/docs'
-              >
+                href='/docs'>
                 Docs
               </Link>
               <Link
                 className='hover:bg-accent rounded-md px-2 py-1 font-semibold'
-                href='/components'
-              >
+                href='/components'>
                 Components
               </Link>
             </nav>
@@ -120,8 +116,7 @@ export default function Header({ user }: { user: User }) {
                 theme === 'light' ? setTheme('dark') : setTheme('light')
               }
               size='icon'
-              variant='ghost'
-            >
+              variant='ghost'>
               <Sun className='h-[1.2rem] w-[1.2rem] scale-0 -rotate-90 transition-all dark:scale-100 dark:rotate-0' />
               <Moon className='absolute h-[1.2rem] w-[1.2rem] scale-100 rotate-0 transition-all dark:scale-0 dark:rotate-90' />
               <span className='sr-only'>Theme Toggle</span>
@@ -133,8 +128,7 @@ export default function Header({ user }: { user: User }) {
         className={cn(
           'fixed inset-x-0 top-16 bottom-0 z-30 col-span-2 mt-1 hidden space-y-1 overflow-y-auto bg-transparent px-8 backdrop-blur-xs lg:hidden',
           { block: hasMenu }
-        )}
-      >
+        )}>
         <div className='h-full'>
           <Menu entries={Array.from(SIDEBAR.entries())} user={user} />
         </div>

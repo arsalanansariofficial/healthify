@@ -41,8 +41,7 @@ export default async function Page() {
   return (
     <div
       className='flex h-full flex-col gap-8 lg:mx-auto lg:w-10/12'
-      key={users.length}
-    >
+      key={users.length}>
       {hasPermission(user.permissions, 'view:stats-cards') && (
         <section className='@container/main'>
           <div className='grid grid-cols-1 gap-4 *:data-[slot=card]:bg-gradient-to-t *:data-[slot=card]:shadow-xs @xl/main:grid-cols-2'>

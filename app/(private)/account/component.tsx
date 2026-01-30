@@ -167,8 +167,7 @@ export default function Component({
               <Form {...userForm}>
                 <form
                   className='relative space-y-2'
-                  onSubmit={userForm.handleSubmit(submitUser)}
-                >
+                  onSubmit={userForm.handleSubmit(submitUser)}>
                   <FormField
                     control={userForm.control}
                     name='cover'
@@ -270,8 +269,7 @@ export default function Component({
                         <FormControl>
                           <Select
                             defaultValue={field.value}
-                            onValueChange={field.onChange}
-                          >
+                            onValueChange={field.onChange}>
                             <SelectTrigger className='w-full [&_span[data-slot]]:block [&_span[data-slot]]:truncate'>
                               <SelectValue placeholder='Select a gender' />
                             </SelectTrigger>
@@ -311,8 +309,7 @@ export default function Component({
                       ) || userForm.formState.isSubmitting
                     }
                     ref={userFormButtonRef}
-                    type='submit'
-                  >
+                    type='submit'>
                     {userForm.formState.isSubmitting ? 'Saving...' : 'Save'}
                   </Button>
                 </form>
@@ -322,8 +319,7 @@ export default function Component({
               <Form {...doctorForm}>
                 <form
                   className='relative space-y-2'
-                  onSubmit={doctorForm.handleSubmit(submitDoctor)}
-                >
+                  onSubmit={doctorForm.handleSubmit(submitDoctor)}>
                   <FormField
                     control={doctorForm.control}
                     name='cover'
@@ -407,8 +403,7 @@ export default function Component({
                         <FormControl>
                           <Select
                             defaultValue={field.value}
-                            onValueChange={field.onChange}
-                          >
+                            onValueChange={field.onChange}>
                             <SelectTrigger className='w-full [&_span[data-slot]]:block [&_span[data-slot]]:truncate'>
                               <SelectValue placeholder='Select a gender' />
                             </SelectTrigger>
@@ -514,8 +509,7 @@ export default function Component({
                                   ]);
                                 }}
                                 type='button'
-                                variant='ghost'
-                              >
+                                variant='ghost'>
                                 <PlusIcon className='h-4 w-4' />
                               </Button>
                             </div>
@@ -524,8 +518,7 @@ export default function Component({
                                 {field.value.map((time, index) => (
                                   <li
                                     className='grid grid-cols-[1fr_auto_auto] gap-2'
-                                    key={time.id}
-                                  >
+                                    key={time.id}>
                                     <Input
                                       className='bg-background appearance-none [&::-webkit-calendar-picker-indicator]:hidden [&::-webkit-calendar-picker-indicator]:appearance-none'
                                       defaultValue={time.time}
@@ -561,8 +554,7 @@ export default function Component({
                                         }
                                       }}
                                       type='button'
-                                      variant='ghost'
-                                    >
+                                      variant='ghost'>
                                       <TrashIcon className='h-4 w-4' />
                                     </Button>
                                   </li>
@@ -584,8 +576,7 @@ export default function Component({
                       ) || doctorForm.formState.isSubmitting
                     }
                     ref={doctorFormButtonRef}
-                    type='submit'
-                  >
+                    type='submit'>
                     {doctorForm.formState.isSubmitting ? 'Saving...' : 'Save'}
                   </Button>
                 </form>

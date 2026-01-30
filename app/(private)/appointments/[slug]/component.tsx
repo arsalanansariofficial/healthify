@@ -129,8 +129,7 @@ export default function Component({
             <form
               className='space-y-4 lg:grid lg:grid-cols-2 lg:gap-4'
               id='appointment-form'
-              onSubmit={form.handleSubmit(handleSubmit)}
-            >
+              onSubmit={form.handleSubmit(handleSubmit)}>
               <FormField
                 control={form.control}
                 name='doctorId'
@@ -335,8 +334,7 @@ export default function Component({
                       <Select
                         defaultValue={field.value}
                         disabled={!isAdmin}
-                        onValueChange={field.onChange}
-                      >
+                        onValueChange={field.onChange}>
                         <SelectTrigger className='w-full [&_span[data-slot]]:block [&_span[data-slot]]:truncate'>
                           <SelectValue placeholder='Select a value' />
                         </SelectTrigger>
@@ -364,34 +362,29 @@ export default function Component({
                       <Select
                         defaultValue={field.value}
                         disabled={!isAdmin}
-                        onValueChange={field.onChange}
-                      >
+                        onValueChange={field.onChange}>
                         <SelectTrigger className='w-full capitalize [&_span[data-slot]]:block [&_span[data-slot]]:truncate'>
                           <SelectValue placeholder='Select a value' />
                         </SelectTrigger>
                         <SelectContent>
                           <SelectItem
                             className='capitalize'
-                            value={AppointmentStatus.pending}
-                          >
+                            value={AppointmentStatus.pending}>
                             {AppointmentStatus.pending}
                           </SelectItem>
                           <SelectItem
                             className='capitalize'
-                            value={AppointmentStatus.confirmed}
-                          >
+                            value={AppointmentStatus.confirmed}>
                             {AppointmentStatus.confirmed}
                           </SelectItem>
                           <SelectItem
                             className='capitalize'
-                            value={AppointmentStatus.cancelled}
-                          >
+                            value={AppointmentStatus.cancelled}>
                             {AppointmentStatus.cancelled}
                           </SelectItem>
                           <SelectItem
                             className='capitalize'
-                            value={AppointmentStatus.done}
-                          >
+                            value={AppointmentStatus.done}>
                             {AppointmentStatus.done}
                           </SelectItem>
                         </SelectContent>
@@ -448,8 +441,7 @@ export default function Component({
             disabled={!isChanged || !isAdmin || pending}
             form='appointment-form'
             ref={buttonRef}
-            type='submit'
-          >
+            type='submit'>
             {pending ? 'Saving...' : 'Save'}
           </Button>
         </CardFooter>

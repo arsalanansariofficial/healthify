@@ -30,12 +30,10 @@ export default function Menu({ entries, user }: Props) {
                         <Button
                           asChild
                           className='block text-sm font-normal'
-                          variant='ghost'
-                        >
+                          variant='ghost'>
                           <Link
                             className='flex items-center justify-start gap-4'
-                            href={item.url}
-                          >
+                            href={item.url}>
                             <FontAwesomeIcon icon={item.icon} />
                             <span>{item.label}</span>
                           </Link>

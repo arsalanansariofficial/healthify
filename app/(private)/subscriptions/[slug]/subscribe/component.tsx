@@ -68,8 +68,7 @@ export default function Component({
             <form
               className='space-y-2'
               id='membership-form'
-              onSubmit={form.handleSubmit(handleSubmit)}
-            >
+              onSubmit={form.handleSubmit(handleSubmit)}>
               <div className='space-y-2'>
                 <Label>Membership</Label>
                 <Input
@@ -93,8 +92,7 @@ export default function Component({
                         <div className='grid grid-cols-[1fr_auto] gap-2'>
                           <Select
                             defaultValue={field.value}
-                            onValueChange={field.onChange}
-                          >
+                            onValueChange={field.onChange}>
                             <SelectTrigger className='w-full [&_span[data-slot]]:block [&_span[data-slot]]:truncate'>
                               <SelectValue placeholder='Select a payment mode' />
                             </SelectTrigger>
@@ -103,8 +101,7 @@ export default function Component({
                                 <SelectItem
                                   className='capitalize'
                                   key={f.id}
-                                  value={f.id}
-                                >
+                                  value={f.id}>
                                   {capitalize(f.renewalType)}
                                 </SelectItem>
                               ))}
@@ -152,8 +149,7 @@ export default function Component({
             className='cursor-pointer'
             disabled={form.formState.isLoading}
             form='membership-form'
-            type='submit'
-          >
+            type='submit'>
             {form.formState.isLoading ? 'Saving...' : 'Save'}
           </Button>
         </CardFooter>

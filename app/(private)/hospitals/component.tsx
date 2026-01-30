@@ -90,8 +90,7 @@ function Menu({
       <Button
         className='data-[state=open]:bg-muted text-muted-foreground flex size-8'
         size='icon'
-        variant='ghost'
-      >
+        variant='ghost'>
         <IconDotsVertical />
         <span className='sr-only'>Open menu</span>
       </Button>
@@ -127,8 +126,7 @@ function Menu({
                 success: MESSAGES.HOSPITAL.BULK_DELETED
               });
           }}
-          variant='destructive'
-        >
+          variant='destructive'>
           Delete
         </DropdownMenuItem>
       </DropdownMenuContent>
@@ -187,8 +185,7 @@ export function TableCellViewer(props: {
           <form
             className='space-y-2 overflow-y-auto p-4 text-sm'
             id='hospital-form'
-            onSubmit={form.handleSubmit(handleSubmit)}
-          >
+            onSubmit={form.handleSubmit(handleSubmit)}>
             <FormField
               control={form.control}
               name='name'
@@ -264,8 +261,7 @@ export function TableCellViewer(props: {
                   <FormControl>
                     <Select
                       onValueChange={field.onChange}
-                      value={field.value as yesNo}
-                    >
+                      value={field.value as yesNo}>
                       <SelectTrigger className='w-full'>
                         <SelectValue placeholder='Select a status' />
                       </SelectTrigger>
@@ -363,8 +359,7 @@ export function TableCellViewer(props: {
             className='cursor-pointer'
             disabled={form.formState.isLoading}
             form='hospital-form'
-            type='submit'
-          >
+            type='submit'>
             {form.formState.isLoading ? 'Saving...' : 'Save'}
           </Button>
           <DrawerClose asChild>

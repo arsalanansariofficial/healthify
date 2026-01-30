@@ -228,8 +228,7 @@ export default function TableUpload({
           onDragEnter={handleDragEnter}
           onDragLeave={handleDragLeave}
           onDragOver={handleDragOver}
-          onDrop={handleDrop}
-        >
+          onDrop={handleDrop}>
           <input {...getInputProps()} className='sr-only' />
           <div className='flex flex-col items-center gap-4'>
             <div
@@ -239,8 +238,7 @@ export default function TableUpload({
                   ? 'border-primary bg-primary/10'
                   : 'border-muted-foreground/25'
               )}
-              onClick={openFileDialog}
-            >
+              onClick={openFileDialog}>
               <Upload className='text-muted-foreground h-5 w-5 cursor-pointer' />
             </div>
             <p className='text-muted-foreground text-xs'>
@@ -264,8 +262,7 @@ export default function TableUpload({
                   onClick={openFileDialog}
                   size='sm'
                   type='button'
-                  variant='outline'
-                >
+                  variant='outline'>
                   <CloudUpload />
                   Add files
                 </Button>
@@ -278,8 +275,7 @@ export default function TableUpload({
                   }}
                   size='sm'
                   type='button'
-                  variant='outline'
-                >
+                  variant='outline'>
                   <Trash2 />
                   Remove all
                 </Button>
@@ -306,14 +302,12 @@ export default function TableUpload({
                         <div
                           className={cn(
                             'text-muted-foreground/80 relative flex size-8 shrink-0 items-center justify-center'
-                          )}
-                        >
+                          )}>
                           {fileItem.status === 'uploading' ? (
                             <div className='relative'>
                               <svg
                                 className='size-8 -rotate-90'
-                                viewBox='0 0 32 32'
-                              >
+                                viewBox='0 0 32 32'>
                                 <circle
                                   className='text-muted-foreground/20'
                                   cx='16'
@@ -370,16 +364,14 @@ export default function TableUpload({
                       <div
                         className={cn('flex items-center gap-1 px-2', {
                           'justify-end': !canDelete
-                        })}
-                      >
+                        })}>
                         {fileItem.preview && (
                           <Button
                             asChild
                             className='size-8'
                             size='icon'
                             type='button'
-                            variant='secondary'
-                          >
+                            variant='secondary'>
                             <Link href={fileItem.preview} target='_blank'>
                               <Download className='size-3.5' />
                             </Link>
@@ -391,8 +383,7 @@ export default function TableUpload({
                             onClick={() => retryUpload(fileItem.id)}
                             size='icon'
                             type='button'
-                            variant='secondary'
-                          >
+                            variant='secondary'>
                             <RefreshCwIcon className='size-3.5' />
                           </Button>
                         ) : (
@@ -402,8 +393,7 @@ export default function TableUpload({
                               onClick={() => removeUploadFile(fileItem.id)}
                               size='icon'
                               type='button'
-                              variant='secondary'
-                            >
+                              variant='secondary'>
                               <Trash2 className='size-3.5' />
                             </Button>
                           )

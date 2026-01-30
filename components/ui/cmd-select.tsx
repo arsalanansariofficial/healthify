@@ -55,8 +55,7 @@ export default function CmdSelect(props: CmdProps) {
         <Button
           className='w-full items-center justify-between px-2 pb-2'
           ref={triggerRef}
-          variant='outline'
-        >
+          variant='outline'>
           {props.selected ? (
             <span className='truncate font-normal'>
               {props.options.find(opt => opt.value === props.selected)?.label}
@@ -71,8 +70,7 @@ export default function CmdSelect(props: CmdProps) {
       <PopoverContent
         align='start'
         className='p-0'
-        style={{ width: triggerWidth }}
-      >
+        style={{ width: triggerWidth }}>
         <Command>
           <CommandInput
             onValueChange={setInputValue}
@@ -91,8 +89,7 @@ export default function CmdSelect(props: CmdProps) {
                   onSelect={() => {
                     setOpen(false);
                     props.setSelected(option.value);
-                  }}
-                >
+                  }}>
                   <div className='flex items-center'>
                     <Check
                       className={cn('mr-2 h-4 w-4 opacity-0', {

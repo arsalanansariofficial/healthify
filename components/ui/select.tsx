@@ -77,8 +77,7 @@ export function SelectScrollDownButton(props: SelectScrollDownProps) {
         'flex cursor-default items-center justify-center py-1',
         props.className
       )}
-      data-slot='select-scroll-down-button'
-    >
+      data-slot='select-scroll-down-button'>
       <ChevronDownIcon className='size-4' />
     </ScrollDownButton>
   );
@@ -92,8 +91,7 @@ export function SelectScrollUpButton(props: SelectScrollUpProps) {
         'flex cursor-default items-center justify-center py-1',
         props.className
       )}
-      data-slot='select-scroll-up-button'
-    >
+      data-slot='select-scroll-up-button'>
       <ChevronUpIcon className='size-4' />
     </ScrollUpButton>
   );
@@ -107,8 +105,7 @@ export function SelectItem({ children, className, ...props }: SelectItemProps) {
         "focus:bg-accent focus:text-accent-foreground [&_svg:not([class*='text-'])]:text-muted-foreground relative flex w-full cursor-default items-center gap-2 rounded-sm py-1.5 pr-8 pl-2 text-sm outline-hidden select-none data-[disabled]:pointer-events-none data-[disabled]:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4 *:[span]:last:flex *:[span]:last:items-center *:[span]:last:gap-2",
         className
       )}
-      data-slot='select-item'
-    >
+      data-slot='select-item'>
       <span className='absolute right-2 flex size-3.5 items-center justify-center'>
         <ItemIndicator>
           <CheckIcon className='size-4' />
@@ -131,8 +128,7 @@ export function SelectTrigger({
         props.className
       )}
       data-size={size}
-      data-slot='select-trigger'
-    >
+      data-slot='select-trigger'>
       {props.children}
       <Icon asChild>
         <ChevronDownIcon className='size-4 opacity-50' />
@@ -156,16 +152,14 @@ export function SelectContent({
           props.className
         )}
         data-slot='select-content'
-        position={position}
-      >
+        position={position}>
         <SelectScrollUpButton />
         <Viewport
           className={cn(
             'p-1',
             position === 'popper' &&
               'h-[var(--radix-select-trigger-height)] w-full min-w-[var(--radix-select-trigger-width)] scroll-my-1'
-          )}
-        >
+          )}>
           {props.children}
         </Viewport>
         <SelectScrollDownButton />

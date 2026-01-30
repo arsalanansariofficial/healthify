@@ -14,8 +14,7 @@ export default function Footer() {
         <span>Created By</span>
         <Link
           className='text-muted-foreground hover:text-foreground'
-          href={SOCIAL.WEBSITE as string}
-        >
+          href={SOCIAL.WEBSITE as string}>
           Arsalan Ansari
         </Link>
       </p>
@@ -25,8 +24,7 @@ export default function Footer() {
             className='text-muted-foreground hover:text-foreground grid'
             href={SOCIAL.EMAIL as string}
             target='_blank'
-            title='Email'
-          >
+            title='Email'>
             <FontAwesomeIcon icon={faEnvelope} size='sm' />
           </a>
         </li>
@@ -35,8 +33,7 @@ export default function Footer() {
             className='text-muted-foreground hover:text-foreground grid'
             href={SOCIAL.GITHUB as string}
             target='_blank'
-            title='GitHub'
-          >
+            title='GitHub'>
             <FontAwesomeIcon icon={faGithub} size='sm' />
           </a>
         </li>
@@ -45,8 +42,7 @@ export default function Footer() {
             className='text-muted-foreground hover:text-foreground grid'
             href={SOCIAL.LINKEDIN as string}
             target='_blank'
-            title='LinkedIn'
-          >
+            title='LinkedIn'>
             <FontAwesomeIcon icon={faLinkedin} size='sm' />
           </a>
         </li>
@@ -55,8 +51,7 @@ export default function Footer() {
             className='text-muted-foreground hover:text-foreground grid'
             href={SOCIAL.WHATSAPP as string}
             target='_blank'
-            title='WhatsApp'
-          >
+            title='WhatsApp'>
             <FontAwesomeIcon icon={faWhatsapp} size='sm' />
           </a>
         </li>

@@ -53,8 +53,7 @@ function HeaderMenu({ ids }: { ids: string[] }) {
           <Button
             className='data-[state=open]:bg-muted text-muted-foreground flex size-8'
             size='icon'
-            variant='ghost'
-          >
+            variant='ghost'>
             <IconDotsVertical />
             <span className='sr-only'>Open menu</span>
           </Button>
@@ -74,8 +73,7 @@ function HeaderMenu({ ids }: { ids: string[] }) {
               success: MESSAGES.APPOINTMENT.BULK_DELETED
             });
           }}
-          variant='destructive'
-        >
+          variant='destructive'>
           <span>Delete</span>
           <Trash />
         </DropdownMenuItem>
@@ -116,8 +114,7 @@ function Menu({ appointment, user }: { user: User; appointment: Row }) {
         <Button
           className='data-[state=open]:bg-muted text-muted-foreground flex size-8'
           size='icon'
-          variant='ghost'
-        >
+          variant='ghost'>
           <IconDotsVertical />
           <span className='sr-only'>Open menu</span>
         </Button>
@@ -137,8 +134,7 @@ function Menu({ appointment, user }: { user: User; appointment: Row }) {
                 success: MESSAGES.APPOINTMENT.DELETED
               });
             }}
-            variant='destructive'
-          >
+            variant='destructive'>
             <span>Delete</span>
             <Trash />
           </DropdownMenuItem>
@@ -150,8 +146,7 @@ function Menu({ appointment, user }: { user: User; appointment: Row }) {
             <DropdownMenuItem
               className='flex cursor-pointer items-center justify-between gap-1'
               disabled={validating || cancelling}
-              onClick={cancelAppointment}
-            >
+              onClick={cancelAppointment}>
               <span>{cancelling ? 'Cancelling...' : 'Cancel'}</span>
               <X />
             </DropdownMenuItem>
@@ -162,8 +157,7 @@ function Menu({ appointment, user }: { user: User; appointment: Row }) {
             <DropdownMenuItem
               className='flex cursor-pointer items-center justify-between gap-1'
               disabled={validating || cancelling}
-              onClick={confirmAppointment}
-            >
+              onClick={confirmAppointment}>
               <span>{validating ? 'Saving...' : 'Confirm'}</span>
               <Check />
             </DropdownMenuItem>
@@ -173,8 +167,7 @@ function Menu({ appointment, user }: { user: User; appointment: Row }) {
             <DropdownMenuItem>
               <Link
                 className='flex w-full items-center justify-between gap-1'
-                href={`/appointments/${appointmentId}/receipt`}
-              >
+                href={`/appointments/${appointmentId}/receipt`}>
                 <span>Receipt</span>
                 <Printer />
               </Link>

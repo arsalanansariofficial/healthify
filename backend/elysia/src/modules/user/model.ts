@@ -1,5 +1,7 @@
 import z from 'zod';
 
+import { Gender } from '~/generated/prisma/enums';
+
 const user = z.object({
   password: z
     .string('Password should be valid.')
@@ -28,11 +30,11 @@ const user = z.object({
 
 const userProfile = z.object({
   phoneNumber: z.string().nullable(),
-  gender: z.enum(['male', 'female']),
   imageUrl: z.string().nullable(),
   coverUrl: z.string().nullable(),
   address: z.string().nullable(),
   bio: z.string().nullable(),
+  gender: z.enum(Gender),
   createdAt: z.date(),
   updatedAt: z.date(),
   userId: z.string()

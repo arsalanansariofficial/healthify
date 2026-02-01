@@ -24,6 +24,9 @@ router.group('', app =>
   app
     .use(auth)
     .get('/me', ({ user }) => user, { response: model.userProfileResponse })
+    .delete('/me', async ({ user }) => await userService.deleteUser(user.id), {
+      response: model.userResponse
+    })
     .patch(
       '/me',
       async ({ user, body }) => await userService.update(user.id, body),

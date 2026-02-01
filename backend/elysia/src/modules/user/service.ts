@@ -1,6 +1,10 @@
+import type { DefaultArgs } from '@prisma/client/runtime/client';
 import type { Cookie } from 'elysia/cookies';
 
 import bcrypt from 'bcryptjs';
+
+import type { GlobalOmitConfig } from '~/generated/prisma/internal/prismaNamespace';
+import type { PrismaClient } from '~/generated/prisma/internal/class';
 
 import { generateToken, verifyToken } from '@/utils/token';
 import { InvalidCredentialsError } from '@/utils/error';
@@ -11,13 +15,7 @@ import { env } from '@/utils/config';
 
 export async function update(id: string, payload: Model['userProfileRequest']) {
   return await prisma.$transaction(async prisma => {
-    const userProfile = await prisma.userProfile.findUnique({
-      select: { imageUrl: true, coverUrl: true },
-      where: { userId: id }
-    });
-
-    if (userProfile && userProfile.imageUrl) await remove(userProfile.imageUrl);
-    if (userProfile && userProfile.coverUrl) await remove(userProfile.coverUrl);
+    await cleanUserProfile(prisma, id);
 
     let { imageUrl = null, coverUrl = null } = payload;
     if (imageUrl && imageUrl instanceof File) imageUrl = await upload(imageUrl);
@@ -105,19 +103,45 @@ export async function create(
   return await authenticate(user, jwt);
 }
 
-export async function logoutAll(token?: Cookie<unknown>) {
-  const { id } = verifyToken(token?.value as string);
+export async function logoutAll(token: Cookie<string>) {
+  const { id } = verifyToken(token.value);
   await prisma.token.deleteMany({ where: { userId: id } });
-  token?.remove();
+  token.remove();
   return { message: 'All sessions has been revoked.', success: true };
 }
 
-export async function logout(token?: Cookie<unknown>) {
-  await prisma.token.delete({ where: { token: token?.value as string } });
-  token?.remove();
+export async function deleteUser(id: string) {
+  return await prisma.$transaction(async prisma => {
+    await cleanUserProfile(prisma, id);
+    return await prisma.user.delete({
+      omit: { password: true },
+      where: { id }
+    });
+  });
+}
+
+export async function logout(token: Cookie<string>) {
+  await prisma.token.delete({ where: { token: token.value } });
+  token.remove();
   return { message: 'User has been logged out.', success: true };
 }
 
 export async function get() {
   return await prisma.user.findMany({ omit: { password: true } });
+}
+
+async function cleanUserProfile(
+  prisma: Omit<
+    PrismaClient<never, GlobalOmitConfig | undefined, DefaultArgs>,
+    '$disconnect' | '$connect' | '$extends' | '$use' | '$on'
+  >,
+  id: string
+) {
+  const userProfile = await prisma.userProfile.findUnique({
+    select: { imageUrl: true, coverUrl: true },
+    where: { userId: id }
+  });
+
+  if (userProfile && userProfile.imageUrl) await remove(userProfile.imageUrl);
+  if (userProfile && userProfile.coverUrl) await remove(userProfile.coverUrl);
 }

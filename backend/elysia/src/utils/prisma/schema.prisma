@@ -40,6 +40,7 @@ model Token {
 
 model Task {
   id          String  @id @default(uuid())
+  status      Status
   description String?
   title       String
   userId      String
@@ -53,6 +54,11 @@ model Task {
 enum Gender {
   male
   female
+}
+
+enum Status {
+  complete
+  incomplete
 }
 
 generator client {

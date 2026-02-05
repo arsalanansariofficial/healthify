@@ -2,14 +2,16 @@ import { staticPlugin } from '@elysia/static';
 import { Elysia } from 'elysia';
 
 import { errorPlugin } from '@/utils/error';
+import userRouter from '@/modules/user';
+import taskRouter from '@/modules/task';
 import { env } from '@/utils/config';
-import user from '@/modules/user';
 
-const app = new Elysia();
+const app = new Elysia({ name: 'root' });
 
 app.get('/', () => ({ message: 'Hello World.' }));
 app.use(staticPlugin());
 app.use(errorPlugin);
-app.use(user);
+app.use(userRouter);
+app.use(taskRouter);
 
 app.listen(env.PORT);

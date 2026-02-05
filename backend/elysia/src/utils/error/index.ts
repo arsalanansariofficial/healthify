@@ -7,6 +7,17 @@ import {
 } from '@prisma/client/runtime/client';
 import { Elysia } from 'elysia';
 
+export class TaskNotFoundError extends Error {
+  public override message = 'Requested task not found.';
+  public path = ['task'];
+  public status = 400;
+
+  constructor(path: string[]) {
+    super();
+    this.path = path;
+  }
+}
+
 export class InvalidCredentialsError extends Error {
   public override message = 'Either email or password is invalid.';
   public path = ['email', 'password'];
@@ -37,12 +48,13 @@ export class FileNotFoundError extends Error {
   public status = 400;
 }
 
-export const errorPlugin = new Elysia({ name: 'errorPlugin' })
+export const errorPlugin = new Elysia({ name: 'error' })
   .error({
     EPERM: PermissionDeniedError,
     ENOENT: FileNotFoundError,
     ENOSPC: StorageFullError,
     InvalidCredentialsError,
+    TaskNotFoundError,
     InvalidJwtError
   })
   .onError({ as: 'global' }, ({ error, code, path }) => {

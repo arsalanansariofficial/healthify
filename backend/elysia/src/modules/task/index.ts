@@ -9,6 +9,9 @@ const router = new Elysia({ prefix: '/tasks', name: 'task' });
 router.group('', app =>
   app
     .use(auth)
+    .get('/', async () => await service.get(), {
+      response: model.tasksResponse
+    })
     .get('/:id', async ({ params: { id } }) => await service.get(id), {
       response: model.taskResponse,
       params: model.params
@@ -22,8 +25,8 @@ router.group('', app =>
       '/:id',
       async ({ params: { id }, body }) => await service.update(id, body),
       {
+        body: model.taskUpdateRequest,
         response: model.taskResponse,
-        body: model.taskRequest,
         params: model.params
       }
     )

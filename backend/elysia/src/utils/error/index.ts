@@ -131,6 +131,12 @@ export const errorPlugin = new Elysia({ name: 'error' })
           message: 'Invalid file type.'
         };
 
+      case 'TaskNotFoundError':
+        return {
+          errors: [{ message: error.message, path: error.path }],
+          message: 'Task not found.'
+        };
+
       case 'InvalidJwtError':
         return {
           errors: [{ message: error.message, path: error.path }],
@@ -170,10 +176,22 @@ export const errorPlugin = new Elysia({ name: 'error' })
           message: 'File not found.'
         };
 
+      case 'ENOSPC':
+        return {
+          errors: [{ message: error.message, path: error.path }],
+          message: 'Disk storage full.'
+        };
+
       case 'PARSE':
         return {
           errors: [{ message: error.message, path: ['body'] }],
           message: 'Invalid request body.'
+        };
+
+      case 'EPERM':
+        return {
+          errors: [{ message: error.message, path: error.path }],
+          message: 'Permission denied.'
         };
 
       default:

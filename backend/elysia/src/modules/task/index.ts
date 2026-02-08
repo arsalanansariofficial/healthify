@@ -9,13 +9,14 @@ const router = new Elysia({ prefix: '/tasks', name: 'task' });
 router.group('', app =>
   app
     .use(auth)
-    .get('/', async () => await service.get(), {
+    .get('/', async ({ user: { id } }) => await service.get(id), {
       response: model.tasksResponse
     })
-    .get('/:id', async ({ params: { id } }) => await service.get(id), {
-      response: model.taskResponse,
-      params: model.params
-    })
+    .get(
+      '/:id',
+      async ({ params: { id }, user }) => await service.get(user.id, id),
+      { response: model.taskResponse, params: model.params }
+    )
     .delete(
       '/:id',
       async ({ params: { id } }) => await service.deleteTask(id),

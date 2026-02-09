@@ -8,7 +8,6 @@ import { env } from '@/utils/config';
 
 const app = new Elysia({ name: 'root' });
 
-app.get('/', () => ({ message: 'Hello World.' }));
 app.use(staticPlugin());
 app.use(errorPlugin);
 app.use(userRouter);

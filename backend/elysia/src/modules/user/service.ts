@@ -103,13 +103,6 @@ export async function create(
   return await authenticate(user, jwt);
 }
 
-export async function logoutAll(token: Cookie<string>) {
-  const { id } = verifyToken(token.value);
-  await prisma.token.deleteMany({ where: { userId: id } });
-  token.remove();
-  return { message: 'All sessions has been revoked.', success: true };
-}
-
 export async function deleteUser(id: string) {
   return await prisma.$transaction(async prisma => {
     await cleanUserProfile(prisma, id);
@@ -120,9 +113,14 @@ export async function deleteUser(id: string) {
   });
 }
 
-export async function logout(token: Cookie<string>) {
-  await prisma.token.delete({ where: { token: token.value } });
-  token.remove();
+export async function logoutAll(jwt: string) {
+  const { id } = verifyToken(jwt);
+  await prisma.token.deleteMany({ where: { userId: id } });
+  return { message: 'All sessions has been revoked.', success: true };
+}
+
+export async function logout(jwt: string) {
+  await prisma.token.delete({ where: { token: jwt } });
   return { message: 'User has been logged out.', success: true };
 }
 

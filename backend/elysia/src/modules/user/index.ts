@@ -1,8 +1,8 @@
 import { Elysia } from 'elysia';
 
 import * as service from '@/modules/user/service';
+import { removeAuth, auth } from '@/utils/auth';
 import { model } from '@/modules/user/model';
-import { auth } from '@/utils/auth';
 
 const router = new Elysia({ prefix: '/users', name: 'user' });
 
@@ -32,12 +32,15 @@ router.group('', app =>
       async ({ user, body }) => await service.update(user.id, body),
       { response: model.userProfileResponse, body: model.userProfileRequest }
     )
-    .post('/logout', async ({ cookie: { jwt } }) => await service.logout(jwt), {
-      response: model.logoutResponse
-    })
+    .use(removeAuth)
+    .post(
+      '/logout',
+      async ({ cookie: { jwt } }) => await service.logout(jwt.value),
+      { response: model.logoutResponse }
+    )
     .post(
       '/logout/all',
-      async ({ cookie: { jwt } }) => await service.logoutAll(jwt),
+      async ({ cookie: { jwt } }) => await service.logoutAll(jwt.value),
       { response: model.logoutResponse }
     )
 );

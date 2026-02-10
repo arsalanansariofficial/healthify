@@ -21,3 +21,14 @@ export const auth = new Elysia({ name: 'auth' })
     return { jwt: jwt.value, user };
   })
   .as('scoped');
+
+export const removeAuth = new Elysia({ name: 'removeAuth' })
+  .onAfterHandle(({ cookie: { jwt }, responseValue }) => {
+    if (
+      responseValue instanceof Object &&
+      'success' in responseValue &&
+      responseValue.success
+    )
+      jwt?.remove();
+  })
+  .as('scoped');

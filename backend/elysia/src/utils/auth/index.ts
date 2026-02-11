@@ -1,14 +1,12 @@
 import { Elysia } from 'elysia';
-import z from 'zod';
 
 import { InvalidCredentialsError } from '@/utils/error';
+import { model } from '@/modules/user/model';
 import { verifyToken } from '@/utils/token';
 import { prisma } from '@/utils/prisma';
 
 export const auth = new Elysia({ name: 'auth' })
-  .guard({
-    cookie: z.object({ jwt: z.jwt({ error: 'JWT should be valid.' }) })
-  })
+  .guard({ cookie: model.jwt.required() })
   .resolve(async ({ cookie: { jwt } }) => {
     const { id } = verifyToken(jwt.value);
     const user = await prisma.user.findUnique({
@@ -23,12 +21,13 @@ export const auth = new Elysia({ name: 'auth' })
   .as('scoped');
 
 export const removeAuth = new Elysia({ name: 'removeAuth' })
+  .guard({ cookie: model.jwt.required() })
   .onAfterHandle(({ cookie: { jwt }, responseValue }) => {
     if (
       responseValue instanceof Object &&
       'success' in responseValue &&
       responseValue.success
     )
-      jwt?.remove();
+      jwt.remove();
   })
   .as('scoped');

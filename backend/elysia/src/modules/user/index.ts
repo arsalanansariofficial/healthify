@@ -6,17 +6,17 @@ import { model } from '@/modules/user/model';
 
 const router = new Elysia({ prefix: '/users', name: 'user' });
 
-router.group('', { cookie: model.jwt }, app =>
+router.group('', { response: model.userResponse, cookie: model.jwt }, app =>
   app
     .post(
       '/',
       async ({ cookie: { jwt }, body }) => await service.create(body, jwt),
-      { response: model.userResponse, body: model.userRequest }
+      { body: model.userRequest }
     )
     .post(
       '/login',
       async ({ cookie: { jwt }, body }) => await service.login(body, jwt),
-      { response: model.userResponse, body: model.loginRequest }
+      { body: model.loginRequest }
     )
 );
 

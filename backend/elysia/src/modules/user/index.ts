@@ -4,7 +4,7 @@ import * as service from '@/modules/user/service';
 import { removeAuth, auth } from '@/utils/auth';
 import { model } from '@/modules/user/model';
 
-const router = new Elysia({ prefix: '/users', name: 'user' });
+const router = new Elysia({ name: 'User.Router', prefix: '/users' });
 
 router.group('', { response: model.userResponse, cookie: model.jwt }, app =>
   app

@@ -4,7 +4,7 @@ import * as service from '@/modules/task/service';
 import { model } from '@/modules/task/model';
 import { auth } from '@/utils/auth';
 
-const router = new Elysia({ prefix: '/tasks', name: 'task' });
+const router = new Elysia({ name: 'Task.Router', prefix: '/tasks' });
 
 router.group('', app =>
   app

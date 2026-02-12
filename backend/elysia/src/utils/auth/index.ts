@@ -5,7 +5,7 @@ import { model } from '@/modules/user/model';
 import { verifyToken } from '@/utils/token';
 import { prisma } from '@/utils/prisma';
 
-export const auth = new Elysia({ name: 'auth' })
+export const auth = new Elysia({ name: 'Auth.SetPlugin' })
   .guard({ cookie: model.jwt.required() })
   .resolve(async ({ cookie: { jwt } }) => {
     const { id } = verifyToken(jwt.value);
@@ -20,7 +20,7 @@ export const auth = new Elysia({ name: 'auth' })
   })
   .as('scoped');
 
-export const removeAuth = new Elysia({ name: 'removeAuth' })
+export const removeAuth = new Elysia({ name: 'Auth.UnsetPlugin' })
   .guard({ cookie: model.jwt.required() })
   .onAfterHandle(({ cookie: { jwt }, responseValue }) => {
     if (

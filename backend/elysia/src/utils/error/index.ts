@@ -48,7 +48,7 @@ export class FileNotFoundError extends Error {
   public status = 400;
 }
 
-export const errorPlugin = new Elysia({ name: 'error' })
+export const errorPlugin = new Elysia({ name: 'Error.Plugin' })
   .error({
     EPERM: PermissionDeniedError,
     ENOENT: FileNotFoundError,

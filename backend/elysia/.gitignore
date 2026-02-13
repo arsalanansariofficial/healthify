@@ -20,7 +20,8 @@ package-lock.json
 .DS_Store
 .vscode
 *.pem
-public
+public/*
+!public/.gitkeep
 
 # debug
 yarn-debug.log*

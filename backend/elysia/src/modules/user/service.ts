@@ -1,10 +1,6 @@
-import type { DefaultArgs } from '@prisma/client/runtime/client';
-import type { Cookie } from 'elysia/cookies';
-
 import bcrypt from 'bcryptjs';
 
-import type { GlobalOmitConfig } from '~/generated/prisma/internal/prismaNamespace';
-import type { PrismaClient } from '~/generated/prisma/internal/class';
+import type { Prisma } from '~/generated/prisma/client';
 
 import { generateToken, verifyToken } from '@/utils/token';
 import { InvalidCredentialsError } from '@/utils/error';
@@ -46,61 +42,35 @@ export async function update(id: string, payload: Model['userProfileRequest']) {
   });
 }
 
-export async function authenticate(
-  user: {
-    verifiedAt: Date | null;
-    createdAt: Date;
-    updatedAt: Date;
-    email: string;
-    name: string;
-    id: string;
-  },
-  jwt: Cookie<unknown> | undefined
-) {
-  const { token } = await prisma.token.create({
-    data: { token: generateToken(user.id), userId: user.id },
-    select: { token: true }
+export async function authenticate(user: Model['userResponse']) {
+  const token = await prisma.token.create({
+    data: { token: generateToken(user.id), userId: user.id }
   });
 
   setTimeout(
-    async () => await prisma.token.delete({ where: { token } }),
+    async () => await prisma.token.delete({ where: { token: token.token } }),
     env.JWT_EXPIRES_IN
   );
 
-  jwt?.set({
-    secure: env.NODE_ENV === 'PRODUCTION',
-    maxAge: env.JWT_EXPIRES_IN / 1000,
-    sameSite: 'lax',
-    httpOnly: true,
-    value: token,
-    path: '/'
-  });
-
-  return user;
+  return { tokens: [token], ...user };
 }
 
-export async function login(
-  { password, email }: Model['loginRequest'],
-  jwt?: Cookie<unknown>
-) {
+export async function login({ password, email }: Model['loginRequest']) {
   const user = await prisma.user.findUnique({ where: { email } });
 
   if (!user || !(await bcrypt.compare(password, user.password)))
     throw new InvalidCredentialsError();
 
-  return await authenticate(user, jwt);
+  return await authenticate(user);
 }
 
-export async function create(
-  payload: Model['userRequest'],
-  jwt?: Cookie<unknown>
-) {
+export async function create(payload: Model['userRequest']) {
   const user = await prisma.user.create({
     data: { ...payload, password: await bcrypt.hash(payload.password, 8) },
     omit: { password: true }
   });
 
-  return await authenticate(user, jwt);
+  return await authenticate(user);
 }
 
 export async function deleteUser(id: string) {
@@ -128,13 +98,7 @@ export async function get() {
   return await prisma.user.findMany({ omit: { password: true } });
 }
 
-async function cleanUserProfile(
-  prisma: Omit<
-    PrismaClient<never, GlobalOmitConfig | undefined, DefaultArgs>,
-    '$disconnect' | '$connect' | '$extends' | '$use' | '$on'
-  >,
-  id: string
-) {
+async function cleanUserProfile(prisma: Prisma.TransactionClient, id: string) {
   const userProfile = await prisma.userProfile.findUnique({
     select: { imageUrl: true, coverUrl: true },
     where: { userId: id }

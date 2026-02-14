@@ -1,23 +1,20 @@
 import { Elysia } from 'elysia';
 
+import { removeAuth, setAuth, auth } from '@/utils/auth';
 import * as service from '@/modules/user/service';
-import { removeAuth, auth } from '@/utils/auth';
 import { model } from '@/modules/user/model';
 
 const router = new Elysia({ name: 'User.Router', prefix: '/users' });
 
-router.group('', { response: model.userResponse, cookie: model.jwt }, app =>
+router.group('', { response: model.userProfileResponse }, app =>
   app
-    .post(
-      '/',
-      async ({ cookie: { jwt }, body }) => await service.create(body, jwt),
-      { body: model.userRequest }
-    )
-    .post(
-      '/login',
-      async ({ cookie: { jwt }, body }) => await service.login(body, jwt),
-      { body: model.loginRequest }
-    )
+    .use(setAuth)
+    .post('/', async ({ body }) => await service.create(body), {
+      body: model.userRequest
+    })
+    .post('/login', async ({ body }) => await service.login(body), {
+      body: model.loginRequest
+    })
 );
 
 router.group('', app =>

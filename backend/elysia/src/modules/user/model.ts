@@ -72,8 +72,8 @@ const userProfileRequest = userRequest
   .omit({ createdAt: true, updatedAt: true, userId: true });
 
 const userProfileResponse = userResponse.extend({
-  tokens: z.array(token).optional(),
-  profile: userProfile.nullable()
+  tokens: z.array(token).nullish(),
+  profile: userProfile.nullish()
 });
 
 const logoutResponse = z.object({
@@ -101,6 +101,7 @@ export const model = {
   loginRequest,
   userResponse,
   userRequest,
+  token,
   jwt
 } as const;
 

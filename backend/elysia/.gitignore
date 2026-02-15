@@ -8,20 +8,20 @@ package-lock.json
 **/*.bun
 .vercel
 
+# misc
+!public/.gitkeep
+.VSCodeCounter
+.DS_Store
+public/*
+.vscode
+*.pem
+
 # local env files
 .env.development.local
 .env.production.local
 .env.test.local
 .env.local
 .env
-
-# misc
-.VSCodeCounter
-.DS_Store
-.vscode
-*.pem
-public/*
-!public/.gitkeep
 
 # debug
 yarn-debug.log*
@@ -33,6 +33,11 @@ npm-debug.log*
 .pnp.js
 /.pnp
 
+# production
+/build
+server
+dist
+
 # next.js
 /.next/
 /out/
@@ -42,9 +47,6 @@ npm-debug.log*
 
 # testing
 /coverage
-
-# production
-/build
 
 # database
 *.db

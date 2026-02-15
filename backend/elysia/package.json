@@ -12,11 +12,14 @@
   "type": "module",
   "module": "src/index.ts",
   "scripts": {
+    "build": "bun build --minify --compile --minify-whitespace --minify-syntax --target bun --outfile server src/index.ts",
+    "build:js": "bun build src/index.ts --target=bun --minify-whitespace --minify-syntax --outfile ./dist/index.js",
     "dev": "bun run --watch src/index.ts",
     "prisma:generate": "prisma generate",
     "prisma:migrate": "prisma migrate dev"
   },
   "dependencies": {
+    "@elysia/cors": "^1.4.2",
     "@elysia/static": "^1.4.11",
     "@prisma/adapter-mariadb": "^7.9.0",
     "@prisma/client": "^7.9.0",

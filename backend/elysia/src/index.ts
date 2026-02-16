@@ -1,16 +1,9 @@
-import { staticPlugin } from '@elysia/static';
-import { Elysia } from 'elysia';
+import cluster from 'node:cluster';
+import process from 'node:process';
+import os from 'node:os';
 
-import { errorPlugin } from '@/utils/error';
-import userRouter from '@/modules/user';
-import taskRouter from '@/modules/task';
-import { env } from '@/utils/config';
+if (!cluster.isPrimary)
+  import('@/server').then(() => console.log(`Worker ${process.pid} started`));
 
-const app = new Elysia({ name: 'App.Router' });
-
-app.use(staticPlugin());
-app.use(errorPlugin);
-app.use(userRouter);
-app.use(taskRouter);
-
-app.listen(env.PORT);
+if (cluster.isPrimary)
+  for (let i = 0; i < os.availableParallelism(); i++) cluster.fork();

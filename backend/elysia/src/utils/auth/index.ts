@@ -31,7 +31,7 @@ export const setAuth = new Elysia({ name: 'Auth.SetPlugin' })
     ) {
       const [{ token }] = responseValue.tokens as [Model['token']];
       jwt.set({
-        secure: env.NODE_ENV === 'PRODUCTION',
+        secure: env.NODE_ENV === 'production',
         maxAge: env.JWT_EXPIRES_IN / 1000,
         sameSite: 'lax',
         httpOnly: true,

@@ -7,7 +7,7 @@ import userRouter from '@/modules/user';
 import taskRouter from '@/modules/task';
 import { env } from '@/utils/config';
 
-const app = new Elysia({ name: 'App.Router' });
+export const app = new Elysia({ name: 'App.Router' });
 
 app.use(staticPlugin());
 app.use(errorPlugin);

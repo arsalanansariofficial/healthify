@@ -20,6 +20,7 @@
   },
   "dependencies": {
     "@elysia/cors": "^1.4.2",
+    "@elysia/eden": "^1.4.10",
     "@elysia/static": "^1.4.11",
     "@prisma/adapter-mariadb": "^7.9.0",
     "@prisma/client": "^7.9.0",

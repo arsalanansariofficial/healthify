@@ -3,17 +3,17 @@ import { cors } from '@elysia/cors';
 import { Elysia } from 'elysia';
 
 import { errorPlugin } from '@/utils/error';
-import userRouter from '@/modules/user';
-import taskRouter from '@/modules/task';
+import userRoutes from '@/modules/user';
+import taskRoutes from '@/modules/task';
 import { env } from '@/utils/config';
 
 export type App = typeof app;
-export const app = new Elysia({ name: 'App.Router' });
 
-app.use(staticPlugin());
-app.use(errorPlugin);
-app.use(userRouter);
-app.use(taskRouter);
-app.use(cors());
+export const app = new Elysia({ name: 'App.Routes' })
+  .use(staticPlugin())
+  .use(errorPlugin)
+  .use(userRoutes)
+  .use(taskRoutes)
+  .use(cors());
 
 app.listen(env.PORT);

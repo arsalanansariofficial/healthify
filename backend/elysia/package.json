@@ -17,7 +17,9 @@
     "dev": "bun run --watch src/server.ts",
     "prisma:generate": "prisma generate",
     "prisma:migrate": "prisma migrate dev",
-    "start": "bun run --watch src/index.ts"
+    "start": "bun run --watch src/index.ts",
+    "test": "bun test --env-file=.env.test.local",
+    "test:prisma:migrate": "bun --env-file=.env.test.local x prisma migrate reset -f --config prisma.test.config.ts && bun --env-file=.env.test.local x prisma migrate deploy --config prisma.test.config.ts && bun --env-file=.env.test.local x prisma generate --config prisma.test.config.ts"
   },
   "dependencies": {
     "@elysia/cors": "^1.4.2",

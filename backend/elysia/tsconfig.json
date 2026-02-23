@@ -5,7 +5,6 @@
     "forceConsistentCasingInFileNames": true,
     "lib": ["DOM", "DOM.Iterable", "ESNext"],
     "rewriteRelativeImportExtensions": true,
-    "exactOptionalPropertyTypes": true,
     "allowImportingTsExtensions": true,
     "noFallthroughCasesInSwitch": true,
     "allowArbitraryExtensions": true,

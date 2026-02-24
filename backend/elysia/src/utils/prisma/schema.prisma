@@ -5,7 +5,7 @@ model UserProfile {
   coverUrl    String?
   bio         String?
   address     String?
-  gender      Gender
+  gender      Gender?
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt

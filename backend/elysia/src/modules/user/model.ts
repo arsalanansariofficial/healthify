@@ -30,11 +30,11 @@ const user = z.object({
 
 const userProfile = z.object({
   phoneNumber: z.string().nullable(),
+  gender: z.enum(Gender).nullish(),
   imageUrl: z.string().nullable(),
   coverUrl: z.string().nullable(),
   address: z.string().nullable(),
   bio: z.string().nullable(),
-  gender: z.enum(Gender),
   createdAt: z.date(),
   updatedAt: z.date(),
   userId: z.string()
@@ -61,15 +61,10 @@ const token = z.object({
 const userResponse = user.omit({ password: true });
 const userRequest = user.pick({ password: true, email: true, name: true });
 
-const userProfileRequest = userRequest
-  .extend(
-    userProfile.extend({ coverUrl: file.optional(), imageUrl: file.optional() })
-      .shape
-  )
-  .extend({
-    password: user.shape.password.optional().transform(val => val || undefined)
-  })
-  .omit({ createdAt: true, updatedAt: true, userId: true });
+const userProfileUpdateRequest = userRequest
+  .extend(userProfile.extend({ coverUrl: file, imageUrl: file }).shape)
+  .omit({ createdAt: true, updatedAt: true, userId: true })
+  .partial();
 
 const userProfileResponse = userResponse.extend({
   tokens: z.array(token).nullish(),
@@ -93,8 +88,8 @@ const loginResponse = user.omit({ password: true });
 const usersResponse = z.array(userResponse);
 
 export const model = {
+  userProfileUpdateRequest,
   userProfileResponse,
-  userProfileRequest,
   logoutResponse,
   usersResponse,
   loginResponse,

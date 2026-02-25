@@ -7,6 +7,17 @@ import {
 } from '@prisma/client/runtime/client';
 import { Elysia } from 'elysia';
 
+export class EmailAlreadyExistError extends Error {
+  public override message = 'Email already exists.';
+  public path = ['email'];
+  public status = 400;
+
+  constructor(path: string[]) {
+    super();
+    this.path = path;
+  }
+}
+
 export class TaskNotFoundError extends Error {
   public override message = 'Requested task not found.';
   public path = ['task'];
@@ -54,6 +65,7 @@ export const errorPlugin = new Elysia({ name: 'Error.Plugin' })
     ENOENT: FileNotFoundError,
     ENOSPC: StorageFullError,
     InvalidCredentialsError,
+    EmailAlreadyExistError,
     TaskNotFoundError,
     InvalidJwtError
   })
@@ -105,6 +117,12 @@ export const errorPlugin = new Elysia({ name: 'Error.Plugin' })
         return {
           errors: [{ message: error.message, path: error.path }],
           message: 'Invalid credentials.'
+        };
+
+      case 'EmailAlreadyExistError':
+        return {
+          errors: [{ message: error.message, path: error.path }],
+          message: 'Email not available.'
         };
 
       case 'INTERNAL_SERVER_ERROR':

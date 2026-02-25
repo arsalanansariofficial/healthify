@@ -2,20 +2,31 @@ import bcrypt from 'bcryptjs';
 
 import type { Prisma } from '~/generated/prisma/client';
 
+import { InvalidCredentialsError, EmailAlreadyExistError } from '@/utils/error';
 import { generateToken, verifyToken } from '@/utils/token';
-import { InvalidCredentialsError } from '@/utils/error';
 import { type Model } from '@/modules/user/model';
 import { remove, upload } from '@/utils/file';
 import { prisma } from '@/utils/prisma';
 import { env } from '@/utils/config';
 
-export async function update(id: string, payload: Model['userProfileRequest']) {
+export async function update(
+  user: Model['userResponse'],
+  payload: Model['userProfileUpdateRequest']
+) {
   return await prisma.$transaction(async prisma => {
-    await cleanUserProfile(prisma, id);
+    await cleanUserProfile(prisma, user.id);
 
-    let { imageUrl = null, coverUrl = null } = payload;
+    let { password, imageUrl, coverUrl } = payload;
     if (imageUrl && imageUrl instanceof File) imageUrl = await upload(imageUrl);
     if (coverUrl && coverUrl instanceof File) coverUrl = await upload(coverUrl);
+    if (password) password = await bcrypt.hash(password, 8);
+
+    if (
+      payload.email &&
+      payload.email !== user.email &&
+      (await prisma.user.findUnique({ where: { email: payload.email } }))
+    )
+      throw new EmailAlreadyExistError([payload.email]);
 
     const profile = {
       phoneNumber: payload.phoneNumber,
@@ -28,16 +39,14 @@ export async function update(id: string, payload: Model['userProfileRequest']) {
 
     return await prisma.user.update({
       data: {
-        ...(payload.password
-          ? { password: await bcrypt.hash(payload.password, 8) }
-          : undefined),
         profile: { upsert: { create: profile, update: profile } },
         email: payload.email,
-        name: payload.name
+        name: payload.name,
+        password
       },
       include: { profile: true },
       omit: { password: true },
-      where: { id }
+      where: { id: user.id }
     });
   });
 }

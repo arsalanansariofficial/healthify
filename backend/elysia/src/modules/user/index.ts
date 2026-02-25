@@ -19,9 +19,9 @@ const privateRoutes = new Elysia({ name: 'User.Routes.Private' })
   .delete('/me', async ({ user }) => await service.deleteUser(user.id), {
     response: model.userResponse
   })
-  .patch('/me', async ({ user, body }) => await service.update(user.id, body), {
-    response: model.userProfileResponse,
-    body: model.userProfileRequest
+  .patch('/me', async ({ user, body }) => await service.update(user, body), {
+    body: model.userProfileUpdateRequest,
+    response: model.userProfileResponse
   })
   .use(removeAuth)
   .post(

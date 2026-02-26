@@ -16,8 +16,9 @@
     "build:js": "bun build src/index.ts --target=bun --minify-whitespace --minify-syntax --outfile ./dist/index.js",
     "dev": "bun run --watch src/server.ts",
     "prisma:generate": "prisma generate",
-    "prisma:migrate": "prisma migrate dev",
+    "prisma:migrate": "prisma migrate reset -f && prisma migrate dev",
     "start": "bun run --watch src/index.ts",
+    "start:js": "bun run --watch dist/index.js",
     "test": "bun test --env-file=.env.test.local",
     "test:prisma:migrate": "bun --env-file=.env.test.local x prisma migrate reset -f --config prisma.test.config.ts && bun --env-file=.env.test.local x prisma migrate deploy --config prisma.test.config.ts && bun --env-file=.env.test.local x prisma generate --config prisma.test.config.ts"
   },

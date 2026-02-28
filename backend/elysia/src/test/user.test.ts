@@ -58,13 +58,15 @@ describe('User routes', () => {
     const cookie = await login();
     const { status } = await api.users.me.patch(
       {
+        profile: {
+          phoneNumber: 'Updated',
+          address: 'Updated',
+          bio: 'Updated',
+          gender: 'male'
+        },
         email: 'updated@example.com',
-        phoneNumber: 'Updated',
         password: '#Secret123',
-        address: 'Updated',
-        name: 'Updated',
-        bio: 'Updated',
-        gender: 'male'
+        name: 'Updated'
       },
       { headers: { Cookie: cookie } }
     );

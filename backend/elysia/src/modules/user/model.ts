@@ -1,103 +1,99 @@
 import z from 'zod';
 
 import { Gender } from '~/generated/prisma/enums';
+import '@/utils/config/zod';
 
-const user = z.object({
-  password: z
-    .string('Password should be valid.')
-    .nonempty('Password is required.')
-    .min(8, 'Password must be at least 8 characters long.')
-    .max(256, 'Password must be at most 256 characters long.')
-    .regex(/[0-9]/, 'Password must contain at least one number.')
-    .regex(/[a-z]/, 'Password must contain at least one lowercase letter.')
-    .regex(/[A-Z]/, 'Password must contain at least one uppercase letter.')
-    .regex(
-      /[^A-Za-z0-9]/,
-      'Password must contain at least one special character.'
-    )
-    .trim(),
-  name: z
-    .string('Name should be valid.')
-    .nonempty('Name is required.')
-    .trim()
-    .toLowerCase(),
-  email: z.email('Email should be valid.').trim().toLowerCase(),
-  verifiedAt: z.date().nullish(),
-  createdAt: z.date(),
-  updatedAt: z.date(),
-  id: z.string()
-});
+const file = z.union([
+  z.string('File should be valid.').trim().toLowerCase(),
+  z
+    .file('File should be valid.')
+    .min(10000, 'File should be atleast 10 bytes.')
+    .max(1000000, 'File shold be atmost 1 Megabyte.')
+    .mime(['image/png'], 'File should be in ".png" format.')
+]);
 
-const userProfile = z.object({
-  phoneNumber: z.string().nullable(),
-  gender: z.enum(Gender).nullish(),
-  imageUrl: z.string().nullable(),
-  coverUrl: z.string().nullable(),
-  address: z.string().nullable(),
-  bio: z.string().nullable(),
-  createdAt: z.date(),
-  updatedAt: z.date(),
-  userId: z.string()
-});
-
-const file = z
-  .union([
-    z.string('File should be valid.').trim().toLowerCase(),
-    z
-      .file('File should be valid.')
-      .min(10000, 'File should be atleast 10 bytes.')
-      .max(1000000, 'File shold be atmost 1 Megabyte.')
-      .mime(['image/png'], 'File should be in ".png" format.')
-  ])
-  .transform(val => val || undefined);
-
-const token = z.object({
-  createdAt: z.date(),
-  updatedAt: z.date(),
-  userId: z.string(),
-  token: z.string()
-});
-
-const userResponse = user.omit({ password: true });
-const userRequest = user.pick({ password: true, email: true, name: true });
-
-const userProfileUpdateRequest = userRequest
-  .extend(userProfile.extend({ coverUrl: file, imageUrl: file }).shape)
-  .omit({ createdAt: true, updatedAt: true, userId: true })
+const user = z
+  .object({
+    password: z
+      .string('Password should be valid.')
+      .nonempty('Password is required.')
+      .min(8, 'Password must be at least 8 characters long.')
+      .max(256, 'Password must be at most 256 characters long.')
+      .regex(/[0-9]/, 'Password must contain at least one number.')
+      .regex(/[a-z]/, 'Password must contain at least one lowercase letter.')
+      .regex(/[A-Z]/, 'Password must contain at least one uppercase letter.')
+      .regex(
+        /[^A-Za-z0-9]/,
+        'Password must contain at least one special character.'
+      )
+      .trim(),
+    name: z
+      .string('Name should be valid.')
+      .nonempty('Name is required.')
+      .trim()
+      .toLowerCase(),
+    email: z.email('Email should be valid.').trim().toLowerCase(),
+    verifiedAt: z.date().nullable(),
+    createdAt: z.date(),
+    updatedAt: z.date(),
+    id: z.string()
+  })
   .partial();
 
-const userProfileResponse = userResponse.extend({
-  tokens: z.array(token).nullish(),
-  profile: userProfile.nullish()
-});
+const userProfile = z
+  .object({
+    phoneNumber: z.string().nullable(),
+    gender: z.enum(Gender).nullable(),
+    address: z.string().nullable(),
+    bio: z.string().nullable(),
+    imageUrl: file.nullable(),
+    coverUrl: file.nullable(),
+    createdAt: z.date(),
+    updatedAt: z.date(),
+    userId: z.string()
+  })
+  .partial();
 
-const logoutResponse = z.object({
+const token = z
+  .object({
+    createdAt: z.date(),
+    updatedAt: z.date(),
+    userId: z.string(),
+    token: z.string()
+  })
+  .partial();
+
+const userWithProfileAndToken = user
+  .extend({
+    tokens: z.array(token).nullable(),
+    profile: userProfile.nullable()
+  })
+  .partial();
+
+const userProfilePayload = userWithProfileAndToken
+  .extend({ imageUrl: file, coverUrl: file })
+  .partial();
+
+const success = z.object({
   message: z.string({ error: 'Message should be valid.' }),
   success: z.boolean().default(true)
 });
-
-const loginRequest = userRequest
-  .extend({ password: z.string({ error: 'Password should be valid.' }) })
-  .omit({ name: true });
 
 const jwt = z.object({
   jwt: z.jwt({ error: 'JWT should be valid.' }).optional()
 });
 
-const loginResponse = user.omit({ password: true });
-const usersResponse = z.array(userResponse);
-
 export const model = {
-  userProfileUpdateRequest,
-  userProfileResponse,
-  logoutResponse,
-  usersResponse,
-  loginResponse,
-  loginRequest,
-  userResponse,
-  userRequest,
+  userPayload: user.required({ password: true, email: true, name: true }),
+  loginPayload: user.pick({ password: true, email: true }).required(),
+  userWithoutPassword: user.omit({ password: true }),
+  userWithProfileAndToken,
+  userProfilePayload,
+  success,
   token,
+  user,
   jwt
 } as const;
 
 export type Model = { [k in keyof typeof model]: z.infer<(typeof model)[k]> };
+export type RequireFields<T, K extends keyof T> = Required<Pick<T, K>> & T;

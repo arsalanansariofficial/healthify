@@ -3,15 +3,15 @@ import bcrypt from 'bcryptjs';
 import type { Prisma } from '~/generated/prisma/client';
 
 import { InvalidCredentialsError, EmailAlreadyExistError } from '@/utils/error';
+import { type RequireFields, type Model } from '@/modules/user/model';
 import { generateToken, verifyToken } from '@/utils/token';
-import { type Model } from '@/modules/user/model';
 import { remove, upload } from '@/utils/file';
 import { prisma } from '@/utils/prisma';
 import { env } from '@/utils/config';
 
 export async function update(
-  user: Model['userResponse'],
-  payload: Model['userProfileUpdateRequest']
+  user: RequireFields<Model['user'], 'email' | 'id'>,
+  payload: Model['userProfilePayload']
 ) {
   return await prisma.$transaction(async prisma => {
     await cleanUserProfile(prisma, user.id);
@@ -29,10 +29,10 @@ export async function update(
       throw new EmailAlreadyExistError([payload.email]);
 
     const profile = {
-      phoneNumber: payload.phoneNumber,
-      address: payload.address,
-      gender: payload.gender,
-      bio: payload.bio,
+      phoneNumber: payload?.profile?.phoneNumber,
+      address: payload?.profile?.address,
+      gender: payload?.profile?.gender,
+      bio: payload?.profile?.bio,
       imageUrl,
       coverUrl
     };
@@ -51,7 +51,7 @@ export async function update(
   });
 }
 
-export async function authenticate(user: Model['userResponse']) {
+export async function authenticate(user: RequireFields<Model['user'], 'id'>) {
   const token = await prisma.token.create({
     data: { token: generateToken(user.id), userId: user.id }
   });
@@ -64,7 +64,7 @@ export async function authenticate(user: Model['userResponse']) {
   return { tokens: [token], ...user };
 }
 
-export async function login({ password, email }: Model['loginRequest']) {
+export async function login({ password, email }: Model['loginPayload']) {
   const user = await prisma.user.findUnique({ where: { email } });
 
   if (!user || !(await bcrypt.compare(password, user.password)))
@@ -73,7 +73,7 @@ export async function login({ password, email }: Model['loginRequest']) {
   return await authenticate(user);
 }
 
-export async function create(payload: Model['userRequest']) {
+export async function create(payload: Model['userPayload']) {
   const user = await prisma.user.create({
     data: { ...payload, password: await bcrypt.hash(payload.password, 8) },
     omit: { password: true }

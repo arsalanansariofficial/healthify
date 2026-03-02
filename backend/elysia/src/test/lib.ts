@@ -2,7 +2,7 @@ import { beforeEach, afterAll } from 'bun:test';
 import { treaty } from '@elysia/eden';
 import bcrypt from 'bcryptjs';
 
-import type { Model } from '@/modules/task/model';
+import type { RequireFields, Model } from '@/modules/task/model';
 
 import { prisma } from '@/utils/prisma';
 import { app } from '@/server';
@@ -15,7 +15,7 @@ export const user = {
   password: '#Secret123'
 };
 
-export const task: Model['taskRequest'] = {
+export const task: RequireFields<Model['task'], 'status' | 'title'> = {
   description: 'Start learning JavaScript from mdn docs.',
   title: 'Learn JavaScript',
   status: 'incomplete'

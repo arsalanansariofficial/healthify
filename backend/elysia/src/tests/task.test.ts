@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'bun:test';
 
-import { setUpTests, login, task, user, api } from '@/test/lib';
+import { setUpTests, login, task, user, api } from '@/tests/lib';
 import { prisma } from '@/utils/prisma';
 
 setUpTests();

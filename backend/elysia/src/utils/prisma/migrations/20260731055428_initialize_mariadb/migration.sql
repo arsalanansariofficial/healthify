@@ -6,7 +6,7 @@ CREATE TABLE `UserProfile` (
     `coverUrl` VARCHAR(191) NULL,
     `bio` VARCHAR(191) NULL,
     `address` VARCHAR(191) NULL,
-    `gender` ENUM('male', 'female') NOT NULL,
+    `gender` ENUM('male', 'female') NULL,
     `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
     `updatedAt` DATETIME(3) NOT NULL,
     UNIQUE INDEX `UserProfile_phoneNumber_key`(`phoneNumber`),

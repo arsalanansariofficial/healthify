@@ -13,14 +13,13 @@
   "module": "src/index.ts",
   "scripts": {
     "build": "bun build --minify --compile --minify-whitespace --minify-syntax --target bun --outfile server src/index.ts",
-    "build:js": "bun build src/index.ts --target=bun --minify-whitespace --minify-syntax --outfile ./dist/index.js",
-    "dev": "bun run --watch src/server.ts",
-    "prisma:generate": "prisma generate",
-    "prisma:migrate": "prisma migrate reset -f && prisma migrate dev",
-    "start": "bun run --watch src/index.ts",
-    "start:js": "bun run --watch dist/index.js",
-    "test": "bun test --env-file=.env.test.local",
-    "test:prisma:migrate": "bun --env-file=.env.test.local x prisma migrate reset -f --config prisma.test.config.ts && bun --env-file=.env.test.local x prisma migrate deploy --config prisma.test.config.ts && bun --env-file=.env.test.local x prisma generate --config prisma.test.config.ts"
+    "build:js": "bun build src/index.ts --target=bun --minify-whitespace --minify-syntax --outfile dist/index.js",
+    "dev": "bun --watch src/server.ts",
+    "prisma:migrate": "prisma migrate reset -f --config src/utils/prisma/prisma.config.ts && prisma migrate dev --config src/utils/prisma/prisma.config.ts && prisma generate --config src/utils/prisma/prisma.config.ts",
+    "start": "bun --watch src/index.ts",
+    "start:js": "bun --watch dist/index.js",
+    "test": "bun test",
+    "test:prisma:migrate": "prisma migrate reset -f --config src/utils/prisma/prisma.test.config.ts && prisma migrate dev --config src/utils/prisma/prisma.test.config.ts && prisma generate --config src/utils/prisma/prisma.test.config.ts"
   },
   "dependencies": {
     "@elysia/cors": "^1.4.2",

@@ -1,7 +1,9 @@
 import z from 'zod';
 
-import { Gender } from '~/generated/prisma/enums';
+import type { ModelType } from '@/utils/lib';
+
 import '@/utils/config/zod';
+import { Gender } from '~/generated/prisma/enums';
 
 const file = z.union([
   z.string('File should be valid.').trim().toLowerCase(),
@@ -95,5 +97,4 @@ export const model = {
   jwt
 } as const;
 
-export type Model = { [k in keyof typeof model]: z.infer<(typeof model)[k]> };
-export type RequireFields<T, K extends keyof T> = Required<Pick<T, K>> & T;
+export type Model = ModelType<typeof model>;

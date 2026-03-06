@@ -35,7 +35,7 @@ npm-debug.log*
 
 # production
 /build
-server*
+/server
 dist
 
 # next.js

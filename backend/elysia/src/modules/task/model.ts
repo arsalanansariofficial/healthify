@@ -1,7 +1,9 @@
 import z from 'zod';
 
-import { Status } from '~/generated/prisma/enums';
+import type { ModelType } from '@/utils/lib';
+
 import '@/utils/config/zod';
+import { Status } from '~/generated/prisma/enums';
 
 const task = z
   .object({
@@ -21,5 +23,4 @@ export const model = {
   task
 } as const;
 
-export type Model = { [k in keyof typeof model]: z.infer<(typeof model)[k]> };
-export type RequireFields<T, K extends keyof T> = Required<Pick<T, K>> & T;
+export type Model = ModelType<typeof model>;

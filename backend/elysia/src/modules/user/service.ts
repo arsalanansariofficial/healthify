@@ -1,10 +1,11 @@
 import bcrypt from 'bcryptjs';
 
 import type { Prisma } from '~/generated/prisma/client';
+import type { RequireFields } from '@/utils/lib';
 
 import { InvalidCredentialsError, EmailAlreadyExistError } from '@/utils/error';
-import { type RequireFields, type Model } from '@/modules/user/model';
 import { generateToken, verifyToken } from '@/utils/token';
+import { type Model } from '@/modules/user/model';
 import { remove, upload } from '@/utils/file';
 import { prisma } from '@/utils/prisma';
 import { env } from '@/utils/config';

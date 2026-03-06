@@ -1,6 +1,6 @@
-import { type RequireFields, type Model } from '@/modules/task/model';
+import { type RequireFields, getDefinedKeys } from '@/utils/lib';
+import { type Model } from '@/modules/task/model';
 import { TaskNotFoundError } from '@/utils/error';
-import { getDefinedKeys } from '@/utils/lib';
 import { prisma } from '@/utils/prisma';
 
 export function get(id: string, userId: string): Promise<Model['task']>;

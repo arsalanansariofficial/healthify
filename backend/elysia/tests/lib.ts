@@ -2,7 +2,8 @@ import { beforeEach, afterAll } from 'bun:test';
 import { treaty } from '@elysia/eden';
 import bcrypt from 'bcryptjs';
 
-import type { RequireFields, Model } from '@/modules/task/model';
+import type { Model } from '@/modules/task/model';
+import type { RequireFields } from '@/utils/lib';
 
 import { prisma } from '@/utils/prisma';
 import { app } from '@/server';

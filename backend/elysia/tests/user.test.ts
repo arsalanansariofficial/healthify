@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'bun:test';
 
-import { setUpTests, login, api } from '@/tests/lib';
+import { setUpTests, login, api } from '~/tests/lib';
 
 setUpTests();
 

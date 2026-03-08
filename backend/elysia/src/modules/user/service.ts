@@ -1,9 +1,9 @@
 import bcrypt from 'bcryptjs';
 
 import type { Prisma } from '~/generated/prisma/client';
-import type { RequireFields } from '@/utils/lib';
 
 import { InvalidCredentialsError, EmailAlreadyExistError } from '@/utils/error';
+import { type RequireFields, hashPassword } from '@/utils/lib';
 import { generateToken, verifyToken } from '@/utils/token';
 import { type Model } from '@/modules/user/model';
 import { remove, upload } from '@/utils/file';
@@ -20,7 +20,7 @@ export async function update(
     let { password, imageUrl, coverUrl } = payload;
     if (imageUrl && imageUrl instanceof File) imageUrl = await upload(imageUrl);
     if (coverUrl && coverUrl instanceof File) coverUrl = await upload(coverUrl);
-    if (password) password = await bcrypt.hash(password, 8);
+    if (password) password = await hashPassword(password);
 
     if (
       payload.email &&

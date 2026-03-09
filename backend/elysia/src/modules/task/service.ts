@@ -1,3 +1,5 @@
+import { PrismaClientKnownRequestError } from '@prisma/client/runtime/client';
+
 import { type RequireFields, getDefinedKeys } from '@/utils/lib';
 import { type Model } from '@/modules/task/model';
 import { TaskNotFoundError } from '@/utils/error';
@@ -16,9 +18,19 @@ export async function get(userId: string, id?: string) {
   return tasks as Model['tasks'];
 }
 
+export async function deleteTask(userId: string, id: string) {
+  try {
+    return await prisma.task.delete({ where: { userId, id } });
+  } catch (error) {
+    if (error instanceof PrismaClientKnownRequestError)
+      throw new TaskNotFoundError([id, userId]);
+    throw error;
+  }
+}
+
 export async function create(
   userId: string,
-  payload: RequireFields<Model['task'], 'status' | 'title'>
+  payload: RequireFields<Model['task'], 'title'>
 ) {
   return await prisma.task.create({ data: { ...payload, userId } });
 }
@@ -28,8 +40,4 @@ export async function update(id: string, payload: Model['task']) {
     data: getDefinedKeys(payload),
     where: { id }
   });
-}
-
-export async function deleteTask(id: string) {
-  return await prisma.task.delete({ where: { id } });
 }

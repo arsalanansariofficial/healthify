@@ -8,8 +8,8 @@ import { Status } from '~/generated/prisma/enums';
 const task = z
   .object({
     description: z.string({ error: 'Description should be valid.' }).nullable(),
+    status: z.enum(Status).default(Status.incomplete).nullable(),
     title: z.string({ error: 'Title should be valid.' }),
-    status: z.enum(Status).default(Status.incomplete),
     createdAt: z.date(),
     updatedAt: z.date(),
     userId: z.string(),

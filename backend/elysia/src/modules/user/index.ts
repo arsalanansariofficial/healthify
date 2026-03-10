@@ -3,6 +3,7 @@ import { Elysia } from 'elysia';
 import { removeAuth, setAuth, auth } from '@/utils/auth';
 import * as service from '@/modules/user/service';
 import { model } from '@/modules/user/model';
+import { none } from '@/utils/lib';
 
 const publicRoutes = new Elysia({ name: 'User.Routes.Public' })
   .use(setAuth)
@@ -17,9 +18,13 @@ const publicRoutes = new Elysia({ name: 'User.Routes.Public' })
 
 const privateRoutes = new Elysia({ name: 'User.Routes.Private' })
   .use(auth)
-  .get('/me', ({ user }) => user, { response: model.userWithProfileAndToken })
+  .get('/me', ({ user }) => user, {
+    response: model.userWithProfileAndToken,
+    body: none
+  })
   .delete('/me', async ({ user }) => await service.deleteUser(user.id), {
-    response: model.user
+    response: model.user,
+    body: none
   })
   .patch('/me', async ({ user, body }) => await service.update(user, body), {
     response: model.userWithProfileAndToken,
@@ -29,12 +34,12 @@ const privateRoutes = new Elysia({ name: 'User.Routes.Private' })
   .post(
     '/logout',
     async ({ cookie: { jwt } }) => await service.logout(jwt.value),
-    { response: model.success }
+    { response: model.success, body: none }
   )
   .post(
     '/logout/all',
     async ({ cookie: { jwt } }) => await service.logoutAll(jwt.value),
-    { response: model.success }
+    { response: model.success, body: none }
   );
 
 export default new Elysia({ name: 'User.Routes', prefix: '/users' })

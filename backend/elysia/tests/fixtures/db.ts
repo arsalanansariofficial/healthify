@@ -1,11 +1,18 @@
-import type { User } from '~/generated/prisma/client';
+import { treaty } from '@elysia/eden';
+
+import type { Prisma } from '~/generated/prisma/client';
 
 import { hashPassword } from '@/utils/lib';
 import { prisma } from '@/utils/prisma';
+import { app } from '@/server';
 
-export let kevin: User;
-export let gwen: User;
-export let ben: User;
+type UserWithTasks = Prisma.UserGetPayload<{ include: { tasks: true } }>;
+
+export let kevin: UserWithTasks;
+export let gwen: UserWithTasks;
+export let ben: UserWithTasks;
+
+export const api = treaty(app);
 
 export async function setupDb() {
   const $ben = {
@@ -57,4 +64,9 @@ export async function setupDb() {
   ben.password = $ben.password;
   gwen.password = $gwen.password;
   kevin.password = $kevin.password;
+}
+
+export async function cleanupDb() {
+  await prisma.user.deleteMany();
+  await prisma.$disconnect();
 }

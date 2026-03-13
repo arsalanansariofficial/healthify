@@ -1,19 +1,11 @@
 import { beforeEach, afterAll, expect, test } from 'bun:test';
-import { treaty } from '@elysia/eden';
 
-import { setupDb, kevin, gwen, ben } from '~/tests/fixtures/db';
+import { cleanupDb, setupDb, kevin, gwen, ben, api } from '~/tests/fixtures/db';
 import { generateToken } from '@/utils/token';
 import { prisma } from '@/utils/prisma';
-import { app } from '@/server';
 
 beforeEach(setupDb);
-
-afterAll(async () => {
-  await prisma.user.deleteMany();
-  await prisma.$disconnect();
-});
-
-const api = treaty(app);
+afterAll(cleanupDb);
 
 test('should upload profile picture for a user', async () => {
   const { status, data } = await api.users.me.patch(
@@ -88,17 +80,15 @@ test('should not login a non existing user', async () => {
 });
 
 test('should get profile for a user', async () => {
-  const token = generateToken(gwen.id as string);
-
   const { status } = await api.users.me.get({
-    headers: { Cookie: `jwt=${token}` }
+    headers: { Cookie: `jwt=${generateToken(gwen.id as string)}` }
   });
 
   expect(status).toBe(200);
 });
 
 test('should delete account for authenticated user', async () => {
-  const { status } = await api.users.me.delete(null, {
+  const { status } = await api.users.me.delete(undefined, {
     headers: { Cookie: `jwt=${generateToken(kevin.id as string)}` }
   });
 

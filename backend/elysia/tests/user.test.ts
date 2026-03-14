@@ -11,7 +11,7 @@ test('should upload profile picture for a user', async () => {
   const { status, data } = await api.users.me.patch(
     {
       imageUrl: new File(
-        [await Bun.file('tests/fixtures/assets/image.png').arrayBuffer()],
+        [await Bun.file('tests/fixtures/images/image.png').arrayBuffer()],
         'image.png',
         { type: 'image/png' }
       )

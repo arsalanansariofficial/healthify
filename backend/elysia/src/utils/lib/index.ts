@@ -7,7 +7,7 @@ export type None = z.infer<typeof none>;
 
 export const none = z.union([z.null(), z.undefined()]);
 
-export function getDefinedKeys<T extends Record<string, unknown>>(payload: T) {
+export function removeUndefinedProps<T extends Record<string, unknown>>(payload: T) {
   return Object.fromEntries(
     Object.entries(payload).filter(([, value]) => value)
   );

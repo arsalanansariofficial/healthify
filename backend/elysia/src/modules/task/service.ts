@@ -1,6 +1,6 @@
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime/client';
 
-import { type RequireFields, getDefinedKeys } from '@/utils/lib';
+import { removeUndefinedProps, type RequireFields } from '@/utils/lib';
 import { type Model } from '@/modules/task/model';
 import { TaskNotFoundError } from '@/utils/error';
 import { prisma } from '@/utils/prisma';
@@ -37,7 +37,7 @@ export async function create(
 
 export async function update(id: string, payload: Model['task']) {
   return await prisma.task.update({
-    data: getDefinedKeys(payload),
+    data: removeUndefinedProps(payload),
     where: { id }
   });
 }

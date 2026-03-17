@@ -69,7 +69,7 @@ export const errorPlugin = new Elysia({ name: 'Error.Plugin' })
     TaskNotFoundError,
     InvalidJwtError
   })
-  .onError({ as: 'global' }, ({ error, code, path }) => {
+  .onError(({ error, code, path }) => {
     if (error instanceof PrismaClientInitializationError)
       return {
         message: 'Failed to initialize prisma client.',
@@ -218,4 +218,5 @@ export const errorPlugin = new Elysia({ name: 'Error.Plugin' })
           message: 'Unknown error.'
         };
     }
-  });
+  })
+  .as('global');

@@ -1,8 +1,8 @@
 import z from 'zod';
 
+import '@/utils/config/zod';
 import type { ModelType } from '@/utils/lib';
 
-import '@/utils/config/zod';
 import { Gender } from '~/generated/prisma/enums';
 
 const file = z.union([
@@ -70,10 +70,11 @@ const userWithProfileAndToken = user
     tokens: z.array(token).nullable(),
     profile: userProfile.nullable()
   })
+  .omit({ password: true })
   .partial();
 
 const userProfilePayload = userWithProfileAndToken
-  .extend({ imageUrl: file, coverUrl: file })
+  .extend({ password: user.shape.password, imageUrl: file, coverUrl: file })
   .partial();
 
 const success = z.object({
@@ -88,7 +89,6 @@ const jwt = z.object({
 export const model = {
   userPayload: user.required({ password: true, email: true, name: true }),
   loginPayload: user.pick({ password: true, email: true }).required(),
-  userWithoutPassword: user.omit({ password: true }),
   userWithProfileAndToken,
   userProfilePayload,
   success,

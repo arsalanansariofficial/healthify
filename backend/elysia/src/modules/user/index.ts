@@ -8,11 +8,11 @@ import { none } from '@/utils/lib';
 const publicRoutes = new Elysia({ name: 'User.Routes.Public' })
   .use(setAuth)
   .post('/', async ({ body }) => await service.create(body), {
-    response: model.userWithoutPassword,
+    response: model.userWithProfileAndToken,
     body: model.userPayload
   })
   .post('/login', async ({ body }) => await service.login(body), {
-    response: model.userWithoutPassword,
+    response: model.userWithProfileAndToken,
     body: model.loginPayload
   });
 
@@ -23,7 +23,7 @@ const privateRoutes = new Elysia({ name: 'User.Routes.Private' })
     body: none
   })
   .delete('/me', async ({ user }) => await service.deleteUser(user.id), {
-    response: model.user,
+    response: model.userWithProfileAndToken,
     body: none
   })
   .patch('/me', async ({ user, body }) => await service.update(user, body), {

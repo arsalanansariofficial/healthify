@@ -74,6 +74,17 @@ export async function login({ password, email }: Model['loginPayload']) {
   return await authenticate(user);
 }
 
+export async function loginUser(id: string) {
+  const user = await prisma.user.findUnique({
+    include: { profile: true, tokens: true },
+    omit: { password: true },
+    where: { id }
+  });
+
+  if (!user) throw new InvalidCredentialsError();
+  return user;
+}
+
 export async function create(payload: Model['userPayload']) {
   const user = await prisma.user.create({
     data: { ...payload, password: await bcrypt.hash(payload.password, 8) },

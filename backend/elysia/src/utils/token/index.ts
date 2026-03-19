@@ -1,7 +1,19 @@
 import jwt from 'jsonwebtoken';
 
+import { type Model } from '@/modules/user/model';
 import { InvalidJwtError } from '@/utils/error';
 import { env } from '@/utils/config';
+
+export function hasValidAuthentication(
+  value: unknown
+): value is Model['userWithProfileAndToken'] & { tokens: [Model['token']] } {
+  return Boolean(
+    value &&
+    typeof value === 'object' &&
+    'tokens' in value &&
+    Array.isArray(value.tokens)
+  );
+}
 
 export function verifyToken(payload: string) {
   try {
@@ -11,6 +23,12 @@ export function verifyToken(payload: string) {
       error instanceof Error ? error.message : undefined
     );
   }
+}
+
+export function hasSuccess(value: unknown): value is Model['success'] {
+  return Boolean(
+    value && value instanceof Object && 'success' in value && value.success
+  );
 }
 
 export function generateToken(payload: string, expiresIn = env.JWT_EXPIRES_IN) {

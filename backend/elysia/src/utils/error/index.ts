@@ -7,6 +7,17 @@ import {
 } from '@prisma/client/runtime/client';
 import { Elysia } from 'elysia';
 
+export class InvalidCredentialsError extends Error {
+  public override message = 'Either email or password is invalid.';
+  public path = ['email', 'password'];
+  public status = 400;
+
+  constructor(path?: string[]) {
+    super();
+    if (path) this.path = path;
+  }
+}
+
 export class EmailAlreadyExistError extends Error {
   public override message = 'Email already exists.';
   public path = ['email'];
@@ -29,10 +40,15 @@ export class TaskNotFoundError extends Error {
   }
 }
 
-export class InvalidCredentialsError extends Error {
-  public override message = 'Either email or password is invalid.';
-  public path = ['email', 'password'];
+export class UserNotFoundError extends Error {
+  public override message = 'User not found.';
+  public path = ['id'];
   public status = 400;
+
+  constructor(path: string[]) {
+    super();
+    this.path = path;
+  }
 }
 
 export class PermissionDeniedError extends Error {
@@ -67,6 +83,7 @@ export const errorPlugin = new Elysia({ name: 'Error.Plugin' })
     InvalidCredentialsError,
     EmailAlreadyExistError,
     TaskNotFoundError,
+    UserNotFoundError,
     InvalidJwtError
   })
   .onError(({ error, code, path }) => {
@@ -153,6 +170,12 @@ export const errorPlugin = new Elysia({ name: 'Error.Plugin' })
         return {
           errors: [{ message: error.message, path: error.path }],
           message: 'Task not found.'
+        };
+
+      case 'UserNotFoundError':
+        return {
+          errors: [{ message: error.message, path: error.path }],
+          message: 'User not found.'
         };
 
       case 'InvalidJwtError':

@@ -1,7 +1,7 @@
 import { Elysia } from 'elysia';
 
 import { hasValidAuthentication, verifyToken, hasSuccess } from '@/utils/token';
-import { loginUser } from '@/modules/user/service';
+import { validateCredentials } from '@/modules/user/service';
 import { model } from '@/modules/user/model';
 import { env } from '@/utils/config';
 
@@ -9,7 +9,7 @@ export const auth = new Elysia({ name: 'Auth.Plugin' })
   .guard({ cookie: model.jwt.required() })
   .resolve(async ({ cookie: { jwt } }) => {
     const { id } = verifyToken(jwt.value);
-    const user = await loginUser(id);
+    const user = await validateCredentials({ id });
     return { jwt: jwt.value, user };
   })
   .as('scoped');

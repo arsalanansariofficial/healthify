@@ -26,10 +26,11 @@ const privateRoutes = new Elysia({ name: 'User.Routes.Private' })
     response: model.userWithProfileAndToken,
     body: none
   })
-  .patch('/me', async ({ user, body }) => await service.update(user, body), {
-    response: model.userWithProfileAndToken,
-    body: model.userProfilePayload
-  })
+  .patch(
+    '/me',
+    async ({ user, body }) => await service.update({ payload: body, user }),
+    { response: model.userWithProfileAndToken, body: model.userProfilePayload }
+  )
   .use(removeAuth)
   .post(
     '/logout',

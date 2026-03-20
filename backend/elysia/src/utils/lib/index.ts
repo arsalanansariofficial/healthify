@@ -1,3 +1,5 @@
+import type { File } from 'zod/v4/core';
+
 import bcrypt from 'bcryptjs';
 import z from 'zod';
 
@@ -15,6 +17,10 @@ export function removeUndefinedProps<T extends Record<string, unknown>>(
   return Object.fromEntries(
     Object.entries(payload).filter(([, value]) => value)
   );
+}
+
+export function isFile(payload?: string | File): payload is File {
+  return Boolean(payload && payload instanceof File);
 }
 
 export async function hashPassword(payload: string) {

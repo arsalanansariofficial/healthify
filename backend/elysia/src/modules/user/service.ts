@@ -3,44 +3,37 @@ import bcrypt from 'bcryptjs';
 import type { Prisma } from '~/generated/prisma/client';
 
 import { InvalidCredentialsError, EmailAlreadyExistError } from '@/utils/error';
-import { type RequireFields, hashPassword } from '@/utils/lib';
+import { type RequireFields, hashPassword, isFile } from '@/utils/lib';
 import { generateToken, verifyToken } from '@/utils/token';
 import { type Model } from '@/modules/user/model';
 import { remove, upload } from '@/utils/file';
 import { prisma } from '@/utils/prisma';
 import { env } from '@/utils/config';
 
-export async function update(
-  user: RequireFields<Model['user'], 'email' | 'id'>,
-  payload: Model['userProfilePayload']
-) {
+export async function update({
+  payload,
+  user
+}: {
+  user: RequireFields<Model['user'], 'email' | 'id'>;
+  payload: Model['userProfilePayload'];
+}) {
   return await prisma.$transaction(async prisma => {
     await cleanUserProfile(prisma, user.id);
+    await validateNewEmail({ updated: payload.email, original: user.email });
 
     let { password, imageUrl, coverUrl } = payload;
-    if (imageUrl && imageUrl instanceof File) imageUrl = await upload(imageUrl);
-    if (coverUrl && coverUrl instanceof File) coverUrl = await upload(coverUrl);
+    if (isFile(imageUrl)) imageUrl = await upload(imageUrl);
+    if (isFile(coverUrl)) coverUrl = await upload(coverUrl);
     if (password) password = await hashPassword(password);
-
-    if (
-      payload.email &&
-      payload.email !== user.email &&
-      (await prisma.user.findUnique({ where: { email: payload.email } }))
-    )
-      throw new EmailAlreadyExistError([payload.email]);
-
-    const profile = {
-      phoneNumber: payload?.profile?.phoneNumber,
-      address: payload?.profile?.address,
-      gender: payload?.profile?.gender,
-      bio: payload?.profile?.bio,
-      imageUrl,
-      coverUrl
-    };
 
     return await prisma.user.update({
       data: {
-        profile: { upsert: { create: profile, update: profile } },
+        profile: {
+          upsert: {
+            create: { ...payload?.profile, imageUrl, coverUrl },
+            update: { ...payload?.profile, imageUrl, coverUrl }
+          }
+        },
         email: payload.email,
         name: payload.name,
         password
@@ -52,37 +45,36 @@ export async function update(
   });
 }
 
-export async function authenticate(user: RequireFields<Model['user'], 'id'>) {
+export async function validateCredentials({
+  password,
+  email,
+  id
+}: {
+  password?: string;
+  email?: string;
+  id?: string;
+}) {
+  const user = await prisma.user.findFirst({
+    include: { profile: true, tokens: true },
+    where: { OR: [{ email, id }] }
+  });
+
+  if (!user) throw new InvalidCredentialsError();
+
+  const { password: originalPassword, ...userWithoutPassword } = user;
+  if (password && !(await bcrypt.compare(password, originalPassword)))
+    throw new InvalidCredentialsError();
+
+  return userWithoutPassword;
+}
+
+export async function createToken(user: RequireFields<Model['user'], 'id'>) {
   const token = await prisma.token.create({
     data: { token: generateToken(user.id), userId: user.id }
   });
 
-  setTimeout(
-    async () => await prisma.token.delete({ where: { token: token.token } }),
-    env.JWT_EXPIRES_IN
-  );
-
-  return { tokens: [token], ...user };
-}
-
-export async function login({ password, email }: Model['loginPayload']) {
-  const user = await prisma.user.findUnique({ where: { email } });
-
-  if (!user || !(await bcrypt.compare(password, user.password)))
-    throw new InvalidCredentialsError();
-
-  return await authenticate(user);
-}
-
-export async function loginUser(id: string) {
-  const user = await prisma.user.findUnique({
-    include: { profile: true, tokens: true },
-    omit: { password: true },
-    where: { id }
-  });
-
-  if (!user) throw new InvalidCredentialsError();
-  return user;
+  removeToken(token.token);
+  return { ...user, tokens: [token] };
 }
 
 export async function create(payload: Model['userPayload']) {
@@ -91,7 +83,7 @@ export async function create(payload: Model['userPayload']) {
     omit: { password: true }
   });
 
-  return await authenticate(user);
+  return await createToken(user);
 }
 
 export async function deleteUser(id: string) {
@@ -108,6 +100,11 @@ export async function logoutAll(jwt: string) {
   const { id } = verifyToken(jwt);
   await prisma.token.deleteMany({ where: { userId: id } });
   return { message: 'All sessions has been revoked.', success: true };
+}
+
+export async function login({ password, email }: Model['loginPayload']) {
+  const user = await validateCredentials({ password, email });
+  return await createToken(user);
 }
 
 export async function logout(jwt: string) {
@@ -127,4 +124,23 @@ async function cleanUserProfile(prisma: Prisma.TransactionClient, id: string) {
 
   if (userProfile && userProfile.imageUrl) await remove(userProfile.imageUrl);
   if (userProfile && userProfile.coverUrl) await remove(userProfile.coverUrl);
+}
+
+async function validateNewEmail({
+  original,
+  updated
+}: {
+  original: string;
+  updated?: string;
+}) {
+  if (!updated || updated === original) return;
+  if (await prisma.user.findUnique({ where: { email: updated } }))
+    throw new EmailAlreadyExistError([updated]);
+}
+
+function removeToken(token: string) {
+  return setTimeout(
+    async () => await prisma.token.delete({ where: { token } }),
+    env.JWT_EXPIRES_IN
+  );
 }

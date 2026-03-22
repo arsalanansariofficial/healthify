@@ -5,9 +5,12 @@ import { type Model } from '@/modules/task/model';
 import { TaskNotFoundError } from '@/utils/error';
 import { prisma } from '@/utils/prisma';
 
-export function get(id: string, userId: string): Promise<Model['task']>;
-export function get(userId: string): Promise<Model['tasks']>;
-export async function get(userId: string, id?: string) {
+export function get(payload: {
+  userId: string;
+  id: string;
+}): Promise<Model['task']>;
+export function get(payload: { userId: string }): Promise<Model['tasks']>;
+export async function get({ userId, id }: { userId: string; id?: string }) {
   if (id) {
     const task = await prisma.task.findUnique({ where: { userId, id } });
     if (!task) throw new TaskNotFoundError([id, userId]);
@@ -18,7 +21,13 @@ export async function get(userId: string, id?: string) {
   return tasks as Model['tasks'];
 }
 
-export async function deleteTask(userId: string, id: string) {
+export async function deleteTask({
+  userId,
+  id
+}: {
+  userId: string;
+  id: string;
+}) {
   try {
     return await prisma.task.delete({ where: { userId, id } });
   } catch (error) {
@@ -28,14 +37,23 @@ export async function deleteTask(userId: string, id: string) {
   }
 }
 
-export async function create(
-  userId: string,
-  payload: RequireFields<Model['task'], 'title'>
-) {
+export async function create({
+  payload,
+  userId
+}: {
+  payload: RequireFields<Model['task'], 'title'>;
+  userId: string;
+}) {
   return await prisma.task.create({ data: { ...payload, userId } });
 }
 
-export async function update(id: string, payload: Model['task']) {
+export async function update({
+  payload,
+  id
+}: {
+  payload: Model['task'];
+  id: string;
+}) {
   return await prisma.task.update({
     data: removeUndefinedProps(payload),
     where: { id }

@@ -1,9 +1,9 @@
 import { Elysia } from 'elysia';
 
-import { removeAuth, setAuth, auth } from '@/utils/auth';
+import { removeAuth, setAuth, auth } from '@/lib/auth';
 import * as service from '@/modules/user/service';
 import { model } from '@/modules/user/model';
-import { none } from '@/utils/lib';
+import { none } from '@/lib/util';
 
 const publicRoutes = new Elysia({ name: 'User.Routes.Public' })
   .use(setAuth)

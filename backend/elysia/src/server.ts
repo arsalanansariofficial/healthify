@@ -2,10 +2,10 @@ import { staticPlugin } from '@elysia/static';
 import { cors } from '@elysia/cors';
 import { Elysia } from 'elysia';
 
-import { errorPlugin } from '@/utils/error';
+import { errorPlugin } from '@/lib/error';
 import userRoutes from '@/modules/user';
 import taskRoutes from '@/modules/task';
-import { env } from '@/utils/config';
+import { env } from '@/lib/config';
 
 export type App = typeof app;
 

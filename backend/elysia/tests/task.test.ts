@@ -1,8 +1,8 @@
 import { beforeEach, afterAll, expect, test } from 'bun:test';
 
 import { cleanupDb, setupDb, kevin, gwen, api, ben } from '~/tests/fixtures/db';
-import { generateToken } from '@/utils/token';
-import { prisma } from '@/utils/prisma';
+import { generateToken } from '@/lib/token';
+import { prisma } from '@/lib/prisma';
 
 beforeEach(setupDb);
 afterAll(cleanupDb);

@@ -3,7 +3,7 @@ import type { File } from 'zod/v4/core';
 import bcrypt from 'bcryptjs';
 import z from 'zod';
 
-import { env } from '@/utils/config';
+import { env } from '@/lib/config';
 
 export type RequireFields<T, K extends keyof T> = Required<Pick<T, K>> & T;
 export type ModelType<T> = { [k in keyof T]: z.infer<T[k]> };

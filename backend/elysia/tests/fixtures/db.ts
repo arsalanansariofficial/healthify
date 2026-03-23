@@ -2,8 +2,8 @@ import { treaty } from '@elysia/eden';
 
 import type { Prisma } from '~/generated/prisma/client';
 
-import { hashPassword } from '@/utils/lib';
-import { prisma } from '@/utils/prisma';
+import { hashPassword } from '@/lib/util';
+import { prisma } from '@/lib/prisma';
 import { app } from '@/server';
 
 type UserWithTasks = Prisma.UserGetPayload<{ include: { tasks: true } }>;

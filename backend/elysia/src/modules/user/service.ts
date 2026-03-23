@@ -2,13 +2,13 @@ import bcrypt from 'bcryptjs';
 
 import type { Prisma } from '~/generated/prisma/client';
 
-import { InvalidCredentialsError, EmailAlreadyExistError } from '@/utils/error';
-import { type RequireFields, hashPassword, isFile } from '@/utils/lib';
-import { generateToken, verifyToken } from '@/utils/token';
+import { InvalidCredentialsError, EmailAlreadyExistError } from '@/lib/error';
+import { type RequireFields, hashPassword, isFile } from '@/lib/util';
+import { generateToken, verifyToken } from '@/lib/token';
 import { type Model } from '@/modules/user/model';
-import { remove, upload } from '@/utils/file';
-import { prisma } from '@/utils/prisma';
-import { env } from '@/utils/config';
+import { remove, upload } from '@/lib/file';
+import { prisma } from '@/lib/prisma';
+import { env } from '@/lib/config';
 
 export async function update({
   payload,

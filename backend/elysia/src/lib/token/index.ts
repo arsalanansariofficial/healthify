@@ -1,8 +1,8 @@
 import jwt from 'jsonwebtoken';
 
 import { type Model } from '@/modules/user/model';
-import { InvalidJwtError } from '@/utils/error';
-import { env } from '@/utils/config';
+import { InvalidJwtError } from '@/lib/error';
+import { env } from '@/lib/config';
 
 export function hasValidAuthentication(
   value: unknown

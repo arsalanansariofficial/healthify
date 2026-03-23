@@ -1,7 +1,7 @@
 import { unlink } from 'node:fs/promises';
 import { extname } from 'node:path';
 
-import { env } from '@/utils/config';
+import { env } from '@/lib/config';
 
 export async function upload(file: File) {
   const name = `${crypto.randomUUID()}${extname(file.name)}`;

@@ -1,9 +1,9 @@
 import { Elysia } from 'elysia';
 
-import { hasValidAuthentication, verifyToken, hasSuccess } from '@/utils/token';
+import { hasValidAuthentication, verifyToken, hasSuccess } from '@/lib/token';
 import { validateCredentials } from '@/modules/user/service';
 import { model } from '@/modules/user/model';
-import { env } from '@/utils/config';
+import { env } from '@/lib/config';
 
 export const auth = new Elysia({ name: 'Auth.Plugin' })
   .guard({ cookie: model.jwt.required() })

@@ -1,9 +1,9 @@
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime/client';
 
-import { removeUndefinedProps, type RequireFields } from '@/utils/lib';
+import { removeUndefinedProps, type RequireFields } from '@/lib/util';
 import { type Model } from '@/modules/task/model';
-import { TaskNotFoundError } from '@/utils/error';
-import { prisma } from '@/utils/prisma';
+import { TaskNotFoundError } from '@/lib/error';
+import { prisma } from '@/lib/prisma';
 
 export function get(payload: {
   userId: string;

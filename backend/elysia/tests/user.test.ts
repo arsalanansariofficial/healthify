@@ -1,6 +1,15 @@
 import { beforeEach, afterAll, expect, test } from 'bun:test';
+import { HttpStatusCode } from 'axios';
 
-import { cleanupDb, setupDb, kevin, gwen, ben, api } from '~/tests/fixtures/db';
+import {
+  axiosClient,
+  cleanupDb,
+  setupDb,
+  kevin,
+  gwen,
+  ben,
+  api
+} from '~/tests/fixtures/db';
 import { generateToken } from '@/lib/token';
 import { prisma } from '@/lib/prisma';
 
@@ -10,13 +19,9 @@ afterAll(cleanupDb);
 test('should upload profile picture for a user', async () => {
   const { status, data } = await api.users.me.patch(
     {
-      imageUrl: new File(
-        [await Bun.file('tests/fixtures/images/image.png').arrayBuffer()],
-        'image.png',
-        { type: 'image/png' }
-      )
+      imageUrl: Bun.file('tests/fixtures/images/image.png') as unknown as File
     },
-    { headers: { Cookie: `jwt=${generateToken(gwen.id as string)}` } }
+    { headers: { Cookie: `jwt=${generateToken(gwen.id)}` } }
   );
 
   const user = await prisma.user.findUnique({
@@ -62,12 +67,22 @@ test('should update valid user fields', async () => {
   const name = 'Max Tennyson';
   const { status, data } = await api.users.me.patch(
     { name },
-    { headers: { Cookie: `jwt=${generateToken(ben.id as string)}` } }
+    { headers: { Cookie: `jwt=${generateToken(ben.id)}` } }
   );
 
   const user = await prisma.user.findUnique({ where: { id: data?.id } });
   expect(user?.name).toBe(name.toLocaleLowerCase());
   expect(status).toBe(200);
+});
+
+test('should not update invalid user fields', async () => {
+  const { status, data } = await axiosClient.patch<Error>('/users/me', {
+    name: 1,
+    age: 1
+  });
+
+  expect(status).toBe(HttpStatusCode.UnprocessableEntity);
+  expect(data.message).toBeDefined();
 });
 
 test('should not login a non existing user', async () => {
@@ -81,7 +96,7 @@ test('should not login a non existing user', async () => {
 
 test('should get profile for a user', async () => {
   const { status } = await api.users.me.get({
-    headers: { Cookie: `jwt=${generateToken(gwen.id as string)}` }
+    headers: { Cookie: `jwt=${generateToken(gwen.id)}` }
   });
 
   expect(status).toBe(200);
@@ -89,7 +104,7 @@ test('should get profile for a user', async () => {
 
 test('should delete account for authenticated user', async () => {
   const { status } = await api.users.me.delete(undefined, {
-    headers: { Cookie: `jwt=${generateToken(kevin.id as string)}` }
+    headers: { Cookie: `jwt=${generateToken(kevin.id)}` }
   });
 
   expect(status).toBe(200);

@@ -1,4 +1,5 @@
 import { treaty } from '@elysia/eden';
+import axios from 'axios';
 
 import type { Prisma } from '~/generated/prisma/client';
 
@@ -13,6 +14,11 @@ export let gwen: UserWithTasks;
 export let ben: UserWithTasks;
 
 export const api = treaty(app);
+export const axiosClient = axios.create({
+  baseURL: 'http://localhost:3000',
+  validateStatus: undefined,
+  timeout: 5000
+});
 
 export async function setupDb() {
   const $ben = {

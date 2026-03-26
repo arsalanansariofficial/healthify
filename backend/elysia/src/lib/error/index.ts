@@ -7,72 +7,117 @@ import {
 } from '@prisma/client/runtime/client';
 import { Elysia } from 'elysia';
 
-export class InvalidCredentialsError extends Error {
-  public override message = 'Either email or password is invalid.';
-  public path = ['email', 'password'];
-  public status = 400;
+import type { Err } from '@/lib/util';
 
-  constructor(path?: string[]) {
+export class ApiError extends Error {
+  constructor(
+    public errors: [Err, ...Array<Err>] = [
+      { message: 'An unknown error occurred.', path: ['unknown'] }
+    ],
+    public override message = 'An unknown error occurred.',
+    public status = 500
+  ) {
     super();
-    if (path) this.path = path;
   }
 }
 
-export class EmailAlreadyExistError extends Error {
-  public override message = 'Email already exists.';
-  public path = ['email'];
-  public status = 400;
-
-  constructor(path: string[]) {
+export class InvalidCredentialsError extends ApiError {
+  constructor(
+    public override errors: [Err, ...Array<Err>] = [
+      {
+        message: 'Either email or password is invalid.',
+        path: ['email', 'password']
+      }
+    ],
+    public override message = 'Invalid credentials.',
+    public override status = 400
+  ) {
     super();
-    this.path = path;
   }
 }
 
-export class TaskNotFoundError extends Error {
-  public override message = 'Requested task not found.';
-  public path = ['task'];
-  public status = 400;
-
-  constructor(path: string[]) {
+export class PermissionDeniedError extends ApiError {
+  constructor(
+    public override errors: [Err, ...Array<Err>] = [
+      { message: 'No permission for the upload directory.', path: ['file'] }
+    ],
+    public override message = 'Permission denied.',
+    public override status = 400
+  ) {
     super();
-    this.path = path;
   }
 }
 
-export class UserNotFoundError extends Error {
-  public override message = 'User not found.';
-  public path = ['id'];
-  public status = 400;
-
-  constructor(path: string[]) {
+export class StorageFullError extends ApiError {
+  constructor(
+    public override errors: [Err, ...Array<Err>] = [
+      { message: 'Disk storage is full.', path: ['file'] }
+    ],
+    public override message = 'No space is available on the disk.',
+    public override status = 400
+  ) {
     super();
-    this.path = path;
   }
 }
 
-export class PermissionDeniedError extends Error {
-  public override message = 'No permissions for the upload directory.';
-  public path = ['file'];
-  public status = 400;
+export class EmailAlreadyExistError extends ApiError {
+  constructor(
+    public override errors: [Err, ...Array<Err>] = [
+      { message: 'Email already exists.', path: ['email'] }
+    ],
+    public override message = 'Email not available.',
+    public override status = 400
+  ) {
+    super();
+  }
 }
 
-export class InvalidJwtError extends Error {
-  public override message = 'Either jwt invalid or expired.';
-  public path = ['jwt'];
-  public status = 401;
+export class UserNotFoundError extends ApiError {
+  constructor(
+    public override errors: [Err, ...Array<Err>] = [
+      { message: 'User with the id does not exist.', path: ['id'] }
+    ],
+    public override message = 'User not found.',
+    public override status = 400
+  ) {
+    super();
+  }
 }
 
-export class StorageFullError extends Error {
-  public override message = 'Disk storage is full.';
-  public path = ['file'];
-  public status = 400;
+export class TaskNotFoundError extends ApiError {
+  constructor(
+    public override errors: [Err, ...Array<Err>] = [
+      { message: 'Requested task not found.', path: ['task'] }
+    ],
+    public override message = 'Task not found.',
+    public override status = 400
+  ) {
+    super();
+  }
 }
 
-export class FileNotFoundError extends Error {
-  public override message = 'File not found.';
-  public path = ['file'];
-  public status = 400;
+export class FileNotFoundError extends ApiError {
+  constructor(
+    public override errors: [Err, ...Array<Err>] = [
+      { message: 'Requested file not found.', path: ['file'] }
+    ],
+    public override message = 'File not found.',
+    public override status = 400
+  ) {
+    super();
+  }
+}
+
+export class InvalidJwtError extends ApiError {
+  constructor(
+    public override errors: [Err, ...Array<Err>] = [
+      { message: 'Either jwt invalid or expired.', path: ['jwt'] }
+    ],
+    public override message = 'Invalid jwt.',
+    public override status = 401
+  ) {
+    super();
+  }
 }
 
 export const errorPlugin = new Elysia({ name: 'Error.Plugin' })
@@ -80,166 +125,146 @@ export const errorPlugin = new Elysia({ name: 'Error.Plugin' })
     EPERM: PermissionDeniedError,
     ENOENT: FileNotFoundError,
     ENOSPC: StorageFullError,
-    InvalidCredentialsError,
-    EmailAlreadyExistError,
-    TaskNotFoundError,
-    UserNotFoundError,
-    InvalidJwtError
+    ApiError
   })
   .onError(({ error, code, path }) => {
-    if (error instanceof PrismaClientInitializationError)
-      return {
-        message: 'Failed to initialize prisma client.',
-        errors: [{ message: error.message, path }]
-      };
+    switch (true) {
+      case code === 'INVALID_COOKIE_SIGNATURE':
+        return JSON.stringify(
+          new ApiError(
+            [{ message: error.message, path: [error.key] }],
+            error.name,
+            error.status
+          )
+        );
 
-    if (error instanceof PrismaClientKnownRequestError)
-      return {
-        errors: [{ message: error.message, path }],
-        message: 'Unique constraint violation.'
-      };
+      case code === 'INTERNAL_SERVER_ERROR':
+        return JSON.stringify(
+          new ApiError(
+            [{ message: error.message, path: [error.code] }],
+            error.name,
+            error.status
+          )
+        );
 
-    if (error instanceof PrismaClientUnknownRequestError)
-      return {
-        message: 'Failed to execute database query.',
-        errors: [{ message: error.message, path }]
-      };
+      case code === 'INVALID_FILE_TYPE':
+        return JSON.stringify(
+          new ApiError(
+            [
+              {
+                path: [error.property, `expected ${error.expected}`],
+                message: error.message
+              }
+            ],
+            error.name,
+            error.status
+          )
+        );
 
-    if (error instanceof PrismaClientRustPanicError)
-      return {
-        errors: [{ message: error.message, path }],
-        message: 'Prisma engine crashed.'
-      };
+      case code === 'NOT_FOUND':
+        return JSON.stringify(
+          new ApiError(
+            [{ message: error.message, path: [path] }],
+            error.name,
+            error.status
+          )
+        );
 
-    if (error instanceof PrismaClientValidationError)
-      return {
-        message: 'Invalid prisma client invocation.',
-        errors: [{ message: error.message, path }]
-      };
-
-    switch (code) {
-      case 'INVALID_COOKIE_SIGNATURE':
-        return {
-          errors: [
-            {
-              message:
-                'The cookie signature is invalid or has been tampered with.',
-              path: ['cookie']
-            }
-          ],
-          message: 'Invalid cookie.'
-        };
-
-      case 'InvalidCredentialsError':
-        return {
-          errors: [{ message: error.message, path: error.path }],
-          message: 'Invalid credentials.'
-        };
-
-      case 'EmailAlreadyExistError':
-        return {
-          errors: [{ message: error.message, path: error.path }],
-          message: 'Email not available.'
-        };
-
-      case 'INTERNAL_SERVER_ERROR':
-        return {
-          errors: [
-            {
-              message:
-                'An unexpected error occurred while processing the request.',
-              path: []
-            }
-          ],
-          message: 'Internal server error.'
-        };
-
-      case 'INVALID_FILE_TYPE':
-        return {
-          errors: [
-            {
-              message:
-                error.message || 'The uploaded file type is not allowed.',
-              path: ['file']
-            }
-          ],
-          message: 'Invalid file type.'
-        };
-
-      case 'TaskNotFoundError':
-        return {
-          errors: [{ message: error.message, path: error.path }],
-          message: 'Task not found.'
-        };
-
-      case 'UserNotFoundError':
-        return {
-          errors: [{ message: error.message, path: error.path }],
-          message: 'User not found.'
-        };
-
-      case 'InvalidJwtError':
-        return {
-          errors: [{ message: error.message, path: error.path }],
-          message: 'Invalid JWT.'
-        };
-
-      case 'VALIDATION':
-        return {
-          errors:
+      case code === 'VALIDATION':
+        return JSON.stringify(
+          new ApiError(
             error.all?.map(issue => ({
               message: issue.message,
               path: issue.path
-            })) ?? [],
-          message: 'Validation failed.'
-        };
+            })) as unknown as [Err, ...Array<Err>],
+            error.name,
+            error.status
+          )
+        );
 
-      case 'NOT_FOUND':
-        return {
-          errors: [
-            {
-              message: `Requested path "${path}" does not exist.`,
-              path: [path]
-            }
-          ],
-          message: 'Path not found.'
-        };
+      case code === 'PARSE':
+        return JSON.stringify(
+          new ApiError(
+            [{ message: error.message, path: [error.code] }],
+            error.message,
+            error.status
+          )
+        );
 
-      case 'UNKNOWN':
-        return {
-          errors: [{ message: 'An unknown error occurred.', path }],
-          message: 'Unknown error.'
-        };
+      case code === 'UNKNOWN':
+        return JSON.stringify(
+          new ApiError([{ message: error.message, path: [path] }], error.name)
+        );
 
-      case 'ENOENT':
-        return {
-          errors: [{ message: error.message, path: error.path }],
-          message: 'File not found.'
-        };
+      case code === 'EPERM':
+        return JSON.stringify(new PermissionDeniedError());
 
-      case 'ENOSPC':
-        return {
-          errors: [{ message: error.message, path: error.path }],
-          message: 'Disk storage full.'
-        };
+      case code === 'ENOENT':
+        return JSON.stringify(new FileNotFoundError());
 
-      case 'PARSE':
-        return {
-          errors: [{ message: error.message, path: ['body'] }],
-          message: 'Invalid request body.'
-        };
+      case code === 'ENOSPC':
+        return JSON.stringify(new StorageFullError());
 
-      case 'EPERM':
-        return {
-          errors: [{ message: error.message, path: error.path }],
-          message: 'Permission denied.'
-        };
+      case error instanceof PrismaClientInitializationError:
+        return JSON.stringify(
+          new ApiError(
+            [{ path: [path, String(error.errorCode)], message: error.message }],
+            error.name,
+            400
+          )
+        );
+
+      case error instanceof PrismaClientKnownRequestError:
+        return JSON.stringify(
+          new ApiError(
+            [
+              {
+                path: [path, error.code, String(error.batchRequestIdx)],
+                message: error.message
+              }
+            ],
+            error.name,
+            400
+          )
+        );
+
+      case error instanceof PrismaClientUnknownRequestError:
+        return JSON.stringify(
+          new ApiError(
+            [
+              {
+                path: [path, String(error.batchRequestIdx)],
+                message: error.message
+              }
+            ],
+            error.name,
+            400
+          )
+        );
+
+      case error instanceof PrismaClientRustPanicError:
+        return JSON.stringify(
+          new ApiError(
+            [{ message: error.message, path: [path] }],
+            error.name,
+            400
+          )
+        );
+
+      case error instanceof PrismaClientValidationError:
+        return JSON.stringify(
+          new ApiError(
+            [{ message: error.message, path: [path] }],
+            error.name,
+            400
+          )
+        );
+
+      case code === 'ApiError':
+        return JSON.stringify(error);
 
       default:
-        return {
-          errors: [{ message: 'An unknown error occurred.', path }],
-          message: 'Unknown error.'
-        };
+        return JSON.stringify(new ApiError());
     }
   })
   .as('global');

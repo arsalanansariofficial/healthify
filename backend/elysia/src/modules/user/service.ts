@@ -54,16 +54,24 @@ export async function validateCredentials({
   email?: string;
   id?: string;
 }) {
+  const error = new InvalidCredentialsError();
+  const [errors] = error.errors;
+
   const user = await prisma.user.findFirst({
     include: { profile: true, tokens: true },
     where: { OR: [{ email, id }] }
   });
 
-  if (!user) throw new InvalidCredentialsError();
+  if (!user) {
+    errors.path = [String(email), String(id)];
+    throw error;
+  }
 
   const { password: originalPassword, ...userWithoutPassword } = user;
-  if (password && !(await bcrypt.compare(password, originalPassword)))
-    throw new InvalidCredentialsError();
+  if (password && !(await bcrypt.compare(password, originalPassword))) {
+    errors.path = [String(email), String(password)];
+    throw error;
+  }
 
   return userWithoutPassword;
 }
@@ -135,7 +143,12 @@ async function validateNewEmail({
 }) {
   if (!updated || updated === original) return;
   if (await prisma.user.findUnique({ where: { email: updated } }))
-    throw new EmailAlreadyExistError([updated]);
+    throw new EmailAlreadyExistError([
+      {
+        message: `A user with email ${updated} already exist.`,
+        path: [updated]
+      }
+    ]);
 }
 
 function removeToken(token: string) {

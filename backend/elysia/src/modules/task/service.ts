@@ -13,7 +13,13 @@ export function get(payload: { userId: string }): Promise<Model['tasks']>;
 export async function get({ userId, id }: { userId: string; id?: string }) {
   if (id) {
     const task = await prisma.task.findUnique({ where: { userId, id } });
-    if (!task) throw new TaskNotFoundError([id, userId]);
+    if (!task)
+      throw new TaskNotFoundError([
+        {
+          message: `Requested task with ${id} for user ${userId} does not exist.`,
+          path: [id, userId]
+        }
+      ]);
     return task as Model['task'];
   }
 
@@ -32,7 +38,12 @@ export async function deleteTask({
     return await prisma.task.delete({ where: { userId, id } });
   } catch (error) {
     if (error instanceof PrismaClientKnownRequestError)
-      throw new TaskNotFoundError([id, userId]);
+      throw new TaskNotFoundError([
+        {
+          message: `Requested task with ${id} for user ${userId} does not exist.`,
+          path: [id, userId]
+        }
+      ]);
     throw error;
   }
 }

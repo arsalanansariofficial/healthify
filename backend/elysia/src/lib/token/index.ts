@@ -19,9 +19,9 @@ export function verifyToken(payload: string) {
   try {
     return jwt.verify(payload, env.JWT_SECRET) as { id: string };
   } catch (error: unknown) {
-    throw new InvalidJwtError(
-      error instanceof Error ? error.message : undefined
-    );
+    throw new InvalidJwtError([
+      { message: (error as Error).message, path: [payload] }
+    ]);
   }
 }
 

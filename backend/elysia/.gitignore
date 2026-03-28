@@ -9,10 +9,10 @@ package-lock.json
 .vercel
 
 # misc
+public/*
 !public/.gitkeep
 .VSCodeCounter
 .DS_Store
-public/*
 .vscode
 *.pem
 

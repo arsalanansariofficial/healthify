@@ -5,6 +5,7 @@ import type { Prisma } from '~/generated/prisma/client';
 
 import { hashPassword } from '@/lib/util';
 import { prisma } from '@/lib/prisma';
+import { remove } from '@/lib/file';
 import { app } from '@/server';
 
 type UserWithTasks = Prisma.UserGetPayload<{ include: { tasks: true } }>;
@@ -49,6 +50,9 @@ export async function setupDb() {
     name: 'Kevin Ethan Leven',
     email: 'kevin@cn.com'
   };
+
+  const users = await prisma.user.findMany({ include: { profile: true } });
+  await Promise.all(users.map(async u => await remove(u.profile?.imageUrl)));
 
   const [, ...rest] = await prisma.$transaction([
     prisma.user.deleteMany(),

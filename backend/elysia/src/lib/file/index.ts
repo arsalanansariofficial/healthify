@@ -9,6 +9,7 @@ export async function upload(file: File) {
   return name;
 }
 
-export async function remove(name: string) {
+export async function remove(name?: string | null) {
+  if (!name) return;
   return await unlink(`${env.UPLOAD_DIR}/${name}`);
 }

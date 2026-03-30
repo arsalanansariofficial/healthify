@@ -9,7 +9,7 @@ import {
   gwen,
   ben,
   api
-} from '~/tests/fixtures/db';
+} from '@/tests/fixtures/db';
 import { generateToken } from '@/lib/token';
 import { prisma } from '@/lib/prisma';
 
@@ -29,7 +29,7 @@ test('should upload profile picture for a user', async () => {
     where: { id: data?.id }
   });
 
-  expect(user?.profile).not.toBe(null);
+  expect(user?.profile?.imageUrl).not.toBe(null);
   expect(status).toBe(200);
 });
 

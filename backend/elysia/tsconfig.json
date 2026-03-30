@@ -1,6 +1,6 @@
 {
   "compilerOptions": {
-    "paths": { "@/*": ["./src/*"], "~/*": ["./*"] },
+    "paths": { "@/tests/*": ["./tests/*"], "@/*": ["./src/*"], "~/*": ["./*"] },
     "noPropertyAccessFromIndexSignature": false,
     "forceConsistentCasingInFileNames": true,
     "lib": ["DOM", "DOM.Iterable", "ESNext"],

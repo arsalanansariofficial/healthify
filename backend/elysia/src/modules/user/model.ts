@@ -74,7 +74,11 @@ const userWithProfileAndToken = user
   .partial();
 
 const userProfilePayload = userWithProfileAndToken
-  .extend({ password: user.shape.password, imageUrl: file, coverUrl: file })
+  .extend({
+    password: user.shape.password,
+    imageUrl: file.nullable(),
+    coverUrl: file.nullable()
+  })
   .partial();
 
 const success = z.object({

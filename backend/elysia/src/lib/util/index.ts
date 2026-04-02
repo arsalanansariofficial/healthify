@@ -31,7 +31,7 @@ export function removeUndefinedProps<T extends Record<string, unknown>>(
   );
 }
 
-export function isFile(payload?: string | File): payload is File {
+export function isFile(payload?: string | File | null): payload is File {
   return Boolean(payload && payload instanceof File);
 }
 

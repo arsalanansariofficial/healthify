@@ -55,7 +55,7 @@ export async function validateCredentials({
   id?: string;
 }) {
   const error = new InvalidCredentialsError();
-  const [errors] = error.errors;
+  error.errors.splice(0);
 
   const user = await prisma.user.findFirst({
     include: { profile: true, tokens: true },
@@ -63,13 +63,20 @@ export async function validateCredentials({
   });
 
   if (!user) {
-    errors.path = [String(email), String(id)];
+    if (email)
+      error.errors.push({ message: 'Email is invalid.', path: [email] });
+    if (id)
+      error.errors.push({
+        message: `User with ${id} does not exist.`,
+        path: [id]
+      });
     throw error;
   }
 
   const { password: originalPassword, ...userWithoutPassword } = user;
   if (password && !(await bcrypt.compare(password, originalPassword))) {
-    errors.path = [String(email), String(password)];
+    if (password)
+      error.errors.push({ message: 'Password is invalid.', path: [password] });
     throw error;
   }
 

@@ -14,16 +14,33 @@ export async function update({
   payload,
   user
 }: {
-  user: RequireFields<Model['user'], 'email' | 'id'>;
+  user: RequireFields<
+    Prisma.UserGetPayload<{ include: { profile: true; tokens: true } }>,
+    'email' | 'id'
+  >;
   payload: Model['userProfilePayload'];
 }) {
   return await prisma.$transaction(async prisma => {
-    await cleanUserProfile(prisma, user.id);
     await validateNewEmail({ updated: payload.email, original: user.email });
 
     let { password, imageUrl, coverUrl } = payload;
+    let userCover: string | null = null;
+    let userImage: string | null = null;
+
+    if (user.profile) {
+      userImage = user.profile.imageUrl;
+      userCover = user.profile.coverUrl;
+    }
+
+    if (imageUrl && userImage) await remove(userImage);
+    if (coverUrl && userCover) await remove(userCover);
+
+    if (imageUrl === null && userImage) await remove(userImage);
+    if (coverUrl === null && userCover) await remove(userCover);
+
     if (isFile(imageUrl)) imageUrl = await upload(imageUrl);
     if (isFile(coverUrl)) coverUrl = await upload(coverUrl);
+
     if (password) password = await hashPassword(password);
 
     return await prisma.user.update({

@@ -1,4 +1,5 @@
 import { beforeEach, afterAll, expect, test } from 'bun:test';
+import { HttpStatusCode } from 'axios';
 
 import { cleanupDb, setupDb, kevin, gwen, api, ben } from '@/tests/fixtures/db';
 import { generateToken } from '@/lib/token';
@@ -16,7 +17,7 @@ test('should create task for user', async () => {
   const task = await prisma.task.findUnique({ where: { id: data?.id } });
   expect(task?.status).toBe('incomplete');
   expect(task).not.toBeNull();
-  expect(status).toBe(200);
+  expect(status).toBe(HttpStatusCode.Ok);
 });
 
 test('ben should not delete task created by kevin', async () => {
@@ -27,7 +28,7 @@ test('ben should not delete task created by kevin', async () => {
 
   const task = await prisma.task.findUnique({ where: { id: $task?.id } });
   expect(task).not.toBeNull();
-  expect(status).toBe(400);
+  expect(status).toBe(HttpStatusCode.BadRequest);
 });
 
 test('should fetch tasks for user', async () => {
@@ -36,5 +37,5 @@ test('should fetch tasks for user', async () => {
   });
 
   expect(data?.length).toBe(1);
-  expect(status).toBe(200);
+  expect(status).toBe(HttpStatusCode.Ok);
 });

@@ -30,7 +30,7 @@ test('should upload profile picture for a user', async () => {
   });
 
   expect(user?.profile?.imageUrl).not.toBe(null);
-  expect(status).toBe(200);
+  expect(status).toBe(HttpStatusCode.Ok);
 });
 
 test('should signup a new user', async () => {
@@ -47,7 +47,7 @@ test('should signup a new user', async () => {
   expect(data).not.toBeNull();
   expect(user).not.toBeNull();
   expect(error).toBeNull();
-  expect(status).toBe(200);
+  expect(status).toBe(HttpStatusCode.Ok);
 });
 
 test('should login an existing user', async () => {
@@ -60,7 +60,7 @@ test('should login an existing user', async () => {
 
   expect(response.headers.get('set-cookie')).toContain('jwt');
   expect(user).not.toBe(null);
-  expect(status).toBe(200);
+  expect(status).toBe(HttpStatusCode.Ok);
 });
 
 test('should update valid user fields', async () => {
@@ -72,7 +72,7 @@ test('should update valid user fields', async () => {
 
   const user = await prisma.user.findUnique({ where: { id: data?.id } });
   expect(user?.name).toBe(name.toLocaleLowerCase());
-  expect(status).toBe(200);
+  expect(status).toBe(HttpStatusCode.Ok);
 });
 
 test('should not update invalid user fields', async () => {
@@ -91,7 +91,7 @@ test('should not login a non existing user', async () => {
     email: 'non.existing@cn.com'
   });
 
-  expect(status).toBe(400);
+  expect(status).toBe(HttpStatusCode.BadRequest);
 });
 
 test('should get profile for a user', async () => {
@@ -99,7 +99,7 @@ test('should get profile for a user', async () => {
     headers: { Cookie: `jwt=${generateToken(gwen.id)}` }
   });
 
-  expect(status).toBe(200);
+  expect(status).toBe(HttpStatusCode.Ok);
 });
 
 test('should delete account for authenticated user', async () => {
@@ -107,15 +107,15 @@ test('should delete account for authenticated user', async () => {
     headers: { Cookie: `jwt=${generateToken(kevin.id)}` }
   });
 
-  expect(status).toBe(200);
+  expect(status).toBe(HttpStatusCode.Ok);
 });
 
 test('should not get profile for unauthenticated user', async () => {
   const { status } = await api.users.me.get();
-  expect(status).toBe(422);
+  expect(status).toBe(HttpStatusCode.UnprocessableEntity);
 });
 
 test('should not delete account for unauthenticated user', async () => {
   const { status } = await api.users.me.delete();
-  expect(status).toBe(422);
+  expect(status).toBe(HttpStatusCode.UnprocessableEntity);
 });

@@ -5,6 +5,7 @@ import {
   PrismaClientValidationError,
   PrismaClientRustPanicError
 } from '@prisma/client/runtime/client';
+import { HttpStatusCode } from 'axios';
 import { Elysia } from 'elysia';
 
 import { isFileError, type Err } from '@/lib/util';
@@ -15,7 +16,7 @@ export class ApiError extends Error {
       { message: 'An unknown error occurred.', path: ['unknown'] }
     ],
     public override message = 'An unknown error occurred.',
-    public status = 500
+    public status = HttpStatusCode.InternalServerError
   ) {
     super();
   }
@@ -30,7 +31,7 @@ export class InvalidCredentialsError extends ApiError {
       }
     ],
     public override message = 'Invalid credentials.',
-    public override status = 400
+    public override status = HttpStatusCode.BadRequest
   ) {
     super();
   }
@@ -42,7 +43,7 @@ export class EmailAlreadyExistError extends ApiError {
       { message: 'Email already exists.', path: ['email'] }
     ],
     public override message = 'Email not available.',
-    public override status = 400
+    public override status = HttpStatusCode.BadRequest
   ) {
     super();
   }
@@ -54,7 +55,7 @@ export class UserNotFoundError extends ApiError {
       { message: 'User with the id does not exist.', path: ['id'] }
     ],
     public override message = 'User not found.',
-    public override status = 400
+    public override status = HttpStatusCode.BadRequest
   ) {
     super();
   }
@@ -66,7 +67,7 @@ export class TaskNotFoundError extends ApiError {
       { message: 'Requested task not found.', path: ['task'] }
     ],
     public override message = 'Task not found.',
-    public override status = 400
+    public override status = HttpStatusCode.BadRequest
   ) {
     super();
   }
@@ -78,7 +79,7 @@ export class InvalidJwtError extends ApiError {
       { message: 'Either jwt invalid or expired.', path: ['jwt'] }
     ],
     public override message = 'Invalid jwt.',
-    public override status = 401
+    public override status = HttpStatusCode.BadRequest
   ) {
     super();
   }
@@ -90,35 +91,35 @@ export const errorPlugin = new Elysia({ name: 'Error.Plugin' })
     const e = error as Error;
 
     if (isFileError(e))
-      return status(400, {
+      return status(HttpStatusCode.BadRequest, {
         ...new ApiError(
           [{ path: [e.path as string], message: e.message }],
           e.name,
-          400
+          HttpStatusCode.BadRequest
         )
       });
 
     switch (true) {
       case code === 'INVALID_COOKIE_SIGNATURE':
-        return {
+        return status(error.status, {
           ...new ApiError(
             [{ message: error.message, path: [error.key] }],
             error.name,
             error.status
           )
-        };
+        });
 
       case code === 'INTERNAL_SERVER_ERROR':
-        return {
+        return status(error.status, {
           ...new ApiError(
             [{ message: error.message, path: [error.code] }],
             error.name,
             error.status
           )
-        };
+        });
 
       case code === 'INVALID_FILE_TYPE':
-        return {
+        return status(error.status, {
           ...new ApiError(
             [
               {
@@ -129,19 +130,19 @@ export const errorPlugin = new Elysia({ name: 'Error.Plugin' })
             error.name,
             error.status
           )
-        };
+        });
 
       case code === 'NOT_FOUND':
-        return {
+        return status(error.status, {
           ...new ApiError(
             [{ message: error.message, path: [path] }],
             error.name,
             error.status
           )
-        };
+        });
 
       case code === 'VALIDATION':
-        return {
+        return status(error.status, {
           ...new ApiError(
             error.all?.map(issue => ({
               message: issue.message,
@@ -150,36 +151,36 @@ export const errorPlugin = new Elysia({ name: 'Error.Plugin' })
             error.name,
             error.status
           )
-        };
+        });
 
       case code === 'PARSE':
-        return {
+        return status(error.status, {
           ...new ApiError(
             [{ message: error.message, path: [error.code] }],
             error.message,
             error.status
           )
-        };
+        });
 
       case code === 'UNKNOWN':
-        return {
+        return status(HttpStatusCode.InternalServerError, {
           ...new ApiError(
             [{ message: error.message, path: [path] }],
             error.name
           )
-        };
+        });
 
       case error instanceof PrismaClientInitializationError:
-        return {
+        return status(HttpStatusCode.BadRequest, {
           ...new ApiError(
             [{ path: [path, String(error.errorCode)], message: error.message }],
             error.name,
-            400
+            HttpStatusCode.BadRequest
           )
-        };
+        });
 
       case error instanceof PrismaClientKnownRequestError:
-        return {
+        return status(HttpStatusCode.BadRequest, {
           ...new ApiError(
             [
               {
@@ -188,12 +189,12 @@ export const errorPlugin = new Elysia({ name: 'Error.Plugin' })
               }
             ],
             error.name,
-            400
+            HttpStatusCode.BadRequest
           )
-        };
+        });
 
       case error instanceof PrismaClientUnknownRequestError:
-        return {
+        return status(HttpStatusCode.BadRequest, {
           ...new ApiError(
             [
               {
@@ -202,33 +203,35 @@ export const errorPlugin = new Elysia({ name: 'Error.Plugin' })
               }
             ],
             error.name,
-            400
+            HttpStatusCode.BadRequest
           )
-        };
+        });
 
       case error instanceof PrismaClientRustPanicError:
-        return {
+        return status(HttpStatusCode.BadRequest, {
           ...new ApiError(
             [{ message: error.message, path: [path] }],
             error.name,
-            400
+            HttpStatusCode.BadRequest
           )
-        };
+        });
 
       case error instanceof PrismaClientValidationError:
-        return {
+        return status(HttpStatusCode.BadRequest, {
           ...new ApiError(
             [{ message: error.message, path: [path] }],
             error.name,
-            400
+            HttpStatusCode.BadRequest
           )
-        };
+        });
 
       case code === 'ApiError':
-        return { ...error };
+        return status(error.status, { ...error });
 
       default:
-        return { ...new ApiError() };
+        return status(HttpStatusCode.InternalServerError, {
+          ...new ApiError()
+        });
     }
   })
   .as('global');

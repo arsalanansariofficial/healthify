@@ -1,6 +1,8 @@
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime/client';
 
-import { removeUndefinedProps, type RequireFields } from '@/lib/util';
+import type { RequireFields } from '@/lib/util/types';
+
+import { removeUndefinedProps } from '@/lib/util';
 import { type Model } from '@/modules/task/model';
 import { TaskNotFoundError } from '@/lib/error';
 import { prisma } from '@/lib/prisma';

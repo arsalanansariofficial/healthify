@@ -1,7 +1,8 @@
 import z from 'zod';
 
 import '@/lib/config/zod';
-import type { ModelType } from '@/lib/util';
+
+import type { ModelType } from '@/lib/util/types';
 
 import { Gender } from '~/generated/prisma/enums';
 

@@ -2,8 +2,8 @@ import { Elysia } from 'elysia';
 
 import * as service from '@/modules/task/service';
 import { model } from '@/modules/task/model';
+import { none } from '@/lib/util/types';
 import { auth } from '@/lib/auth';
-import { none } from '@/lib/util';
 
 export default new Elysia({ name: 'Task.Routes', prefix: '/tasks' })
   .use(auth)

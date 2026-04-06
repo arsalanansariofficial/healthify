@@ -8,7 +8,9 @@ import {
 import { HttpStatusCode } from 'axios';
 import { Elysia } from 'elysia';
 
-import { isFileError, type Err } from '@/lib/util';
+import type { Err } from '@/lib/util/types';
+
+import { isFileError } from '@/lib/util';
 
 export class ApiError extends Error {
   constructor(

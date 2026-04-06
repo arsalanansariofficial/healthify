@@ -1,8 +1,8 @@
 import z from 'zod';
 
-import type { ModelType } from '@/lib/util';
-
 import '@/lib/config/zod';
+import type { ModelType } from '@/lib/util/types';
+
 import { Status } from '~/generated/prisma/enums';
 
 const task = z

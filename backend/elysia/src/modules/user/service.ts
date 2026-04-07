@@ -1,59 +1,39 @@
 import bcrypt from 'bcryptjs';
 
+import type { UserAndPayload, RequireFields } from '@/lib/util/types';
 import type { Prisma } from '~/generated/prisma/client';
 
 import { InvalidCredentialsError, EmailAlreadyExistError } from '@/lib/error';
-import { type RequireFields, hashPassword, isFile } from '@/lib/util';
 import { generateToken, verifyToken } from '@/lib/token';
+import { hashPassword, isFile } from '@/lib/util';
 import { type Model } from '@/modules/user/model';
 import { remove, upload } from '@/lib/file';
 import { prisma } from '@/lib/prisma';
 import { env } from '@/lib/config';
 
-export async function update({
-  payload,
-  user
-}: {
-  user: RequireFields<
-    Prisma.UserGetPayload<{ include: { profile: true; tokens: true } }>,
-    'email' | 'id'
-  >;
-  payload: Model['userProfilePayload'];
-}) {
+export async function update({ payload, user }: UserAndPayload) {
   return await prisma.$transaction(async prisma => {
     await validateNewEmail({ updated: payload.email, original: user.email });
-
-    let { password, imageUrl, coverUrl } = payload;
-    let userCover: string | null = null;
-    let userImage: string | null = null;
-
-    if (user.profile) {
-      userImage = user.profile.imageUrl;
-      userCover = user.profile.coverUrl;
-    }
-
-    if (imageUrl && userImage) await remove(userImage);
-    if (coverUrl && userCover) await remove(userCover);
-
-    if (imageUrl === null && userImage) await remove(userImage);
-    if (coverUrl === null && userCover) await remove(userCover);
-
-    if (isFile(imageUrl)) imageUrl = await upload(imageUrl);
-    if (isFile(coverUrl)) coverUrl = await upload(coverUrl);
-
-    if (password) password = await hashPassword(password);
-
+    const updates = await getUpdatedUserPayload({ payload, user });
     return await prisma.user.update({
       data: {
         profile: {
           upsert: {
-            create: { ...payload?.profile, imageUrl, coverUrl },
-            update: { ...payload?.profile, imageUrl, coverUrl }
+            create: {
+              ...updates.profile,
+              imageUrl: updates.imageUrl,
+              coverUrl: updates.coverUrl
+            },
+            update: {
+              ...updates.profile,
+              imageUrl: updates.imageUrl,
+              coverUrl: updates.coverUrl
+            }
           }
         },
-        email: payload.email,
-        name: payload.name,
-        password
+        password: updates.password,
+        email: updates.email,
+        name: updates.name
       },
       include: { profile: true },
       omit: { password: true },
@@ -146,6 +126,30 @@ export async function logout(jwt: string) {
 
 export async function get() {
   return await prisma.user.findMany({ omit: { password: true } });
+}
+
+async function getUpdatedUserPayload({ payload, user }: UserAndPayload) {
+  let { password, imageUrl, coverUrl } = payload;
+  let userCover: string | null = null;
+  let userImage: string | null = null;
+
+  if (user.profile) {
+    userImage = user.profile.imageUrl;
+    userCover = user.profile.coverUrl;
+  }
+
+  if (imageUrl && userImage) await remove(userImage);
+  if (coverUrl && userCover) await remove(userCover);
+
+  if (imageUrl === null && userImage) await remove(userImage);
+  if (coverUrl === null && userCover) await remove(userCover);
+
+  if (isFile(imageUrl)) imageUrl = await upload(imageUrl);
+  if (isFile(coverUrl)) coverUrl = await upload(coverUrl);
+
+  if (password) password = await hashPassword(password);
+
+  return { ...payload, imageUrl, coverUrl, password };
 }
 
 async function cleanUserProfile(prisma: Prisma.TransactionClient, id: string) {

@@ -19,7 +19,7 @@
     "start": "bun --watch src/index.ts",
     "start:js": "bun --watch dist/index.js",
     "test": "bun test --watch",
-    "test:prisma:migrate": "prisma migrate reset -f --config src/lib/prisma/prisma.test.config.ts && prisma migrate dev --config src/lib/prisma/prisma.test.config.ts && prisma generate --config src/lib/prisma/prisma.test.config.ts"
+    "test:prisma:migrate": "prisma migrate reset -f --config src/lib/prisma/prisma.test.config.ts && prisma migrate deploy --config src/lib/prisma/prisma.test.config.ts && prisma generate --config src/lib/prisma/prisma.test.config.ts"
   },
   "dependencies": {
     "@elysia/cors": "^1.4.2",

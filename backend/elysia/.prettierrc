@@ -4,5 +4,6 @@
   "arrowParens": "avoid",
   "trailingComma": "none",
   "bracketSameLine": true,
-  "objectWrap": "collapse"
+  "objectWrap": "collapse",
+  "plugins": ["prettier-plugin-sql"]
 }

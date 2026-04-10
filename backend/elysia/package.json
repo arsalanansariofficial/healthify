@@ -44,6 +44,7 @@
     "eslint-plugin-perfectionist": "^5.10.0",
     "globals": "^17.7.0",
     "prettier": "^3.9.6",
+    "prettier-plugin-sql": "^0.20.0",
     "prisma": "^7.9.0",
     "typescript-eslint": "^8.65.0"
   }

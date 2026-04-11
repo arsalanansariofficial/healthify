@@ -1,3 +1,74 @@
+model User {
+  id            String  @id
+  name          String  @db.Text
+  email         String
+  emailVerified Boolean @default(false)
+  image         String? @db.Text
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  sessions Session[]
+  accounts Account[]
+
+  profile UserProfile?
+
+  tokens Token[]
+  tasks  Task[]
+
+  @@unique([email])
+}
+
+model Account {
+  id                    String    @id
+  userId                String
+  accountId             String    @db.Text
+  providerId            String    @db.Text
+  idToken               String?   @db.Text
+  scope                 String?   @db.Text
+  password              String?   @db.Text
+  accessToken           String?   @db.Text
+  refreshToken          String?   @db.Text
+  accessTokenExpiresAt  DateTime?
+  refreshTokenExpiresAt DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId(length: 191)])
+}
+
+model Session {
+  id        String   @id
+  userId    String
+  token     String
+  expiresAt DateTime
+  ipAddress String?  @db.Text
+  userAgent String?  @db.Text
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([token])
+  @@index([userId(length: 191)])
+}
+
+model Verification {
+  id         String   @id
+  identifier String   @db.Text
+  value      String   @db.Text
+  expiresAt  DateTime
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([identifier(length: 191)])
+}
+
 model UserProfile {
   phoneNumber String? @unique
   userId      String  @id
@@ -13,24 +84,12 @@ model UserProfile {
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
-model User {
-  id         String    @id @default(uuid())
-  email      String    @unique
-  verifiedAt DateTime?
-  password   String
-  name       String
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  profile UserProfile?
-  tokens  Token[]
-  tasks   Task[]
-}
-
-model Token {
-  token  String @unique
-  userId String
+model Task {
+  id          String  @id @default(uuid())
+  status      Status?
+  description String?
+  title       String
+  userId      String
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -38,12 +97,9 @@ model Token {
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
-model Task {
-  id          String  @id @default(uuid())
-  status      Status?
-  description String?
-  title       String
-  userId      String
+model Token {
+  token  String @unique
+  userId String
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt

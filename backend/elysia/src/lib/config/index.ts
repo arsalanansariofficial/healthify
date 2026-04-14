@@ -23,8 +23,10 @@ export const envSchema = z.object({
     .enum(['development', 'production', 'test'])
     .default('development'),
   DATABASE_URL: z.url({ error: 'DATABASE_URL should be valid url.' }),
+  MAX_FILE_SIZE: z.coerce.number().default(1 * 1_000 * 1_000),
   JWT_EXPIRES_IN: z.coerce.number().default(60 * 60 * 1000),
   SALT: z.union([z.coerce.number(), z.string()]).default(8),
+  MIN_FILE_SIZE: z.coerce.number().default(10 * 1_000),
   UPLOAD_DIR: z.string().default('public'),
   PORT: z.coerce.number().default(3000)
 });

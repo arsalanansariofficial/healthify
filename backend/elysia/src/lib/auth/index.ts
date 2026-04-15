@@ -1,37 +1,52 @@
+import { prismaAdapter } from 'better-auth/adapters/prisma';
+import { betterAuth } from 'better-auth';
+import { HttpStatusCode } from 'axios';
 import { Elysia } from 'elysia';
 
-import { hasValidAuthentication, verifyToken, hasSuccess } from '@/lib/token';
-import { validateCredentials } from '@/modules/user/service';
-import { model } from '@/modules/user/model';
+import { UnauthorizedError, ApiError } from '@/lib/error';
+import { hasValidAuthMethod } from '@/lib/util';
+import { prisma } from '@/lib/prisma';
 import { env } from '@/lib/config';
 
-export const auth = new Elysia({ name: 'Auth.Plugin' })
-  .guard({ cookie: model.jwt.required() })
-  .resolve(async ({ cookie: { jwt } }) => {
-    const { id } = verifyToken(jwt.value);
-    const user = await validateCredentials({ id });
-    return { jwt: jwt.value, user };
+export const auth = betterAuth({
+  socialProviders: {
+    ...(env.GITHUB_CLIENT_ID &&
+      env.GITHUB_CLIENT_SECRET && {
+        github: {
+          clientSecret: env.GITHUB_CLIENT_SECRET,
+          clientId: env.GITHUB_CLIENT_ID
+        }
+      })
+  },
+  advanced: { disableOriginCheck: true, disableCSRFCheck: false },
+  database: prismaAdapter(prisma, { provider: 'mysql' }),
+  emailAndPassword: { enabled: true }
+});
+
+export const loadAuthContext = new Elysia({ name: 'AuthContext.Plugin' })
+  .resolve(async ({ request }) => {
+    const session = await auth.api.getSession({ headers: request.headers });
+    if (!session) throw new UnauthorizedError();
+    return {
+      ...session,
+      user: {
+        ...session.user,
+        profile: await prisma.userProfile.findUnique({
+          where: { userId: session.user.id }
+        })
+      }
+    };
   })
   .as('scoped');
 
-export const setAuth = new Elysia({ name: 'Auth.SetPlugin' })
-  .guard({ cookie: model.jwt })
-  .onAfterHandle(({ cookie: { jwt }, responseValue }) => {
-    if (hasValidAuthentication(responseValue))
-      jwt.set({
-        secure: env.NODE_ENV === 'production',
-        value: responseValue.tokens[0].token,
-        maxAge: env.JWT_EXPIRES_IN / 1000,
-        sameSite: 'lax',
-        httpOnly: true,
-        path: '/'
-      });
-  })
-  .as('scoped');
-
-export const removeAuth = new Elysia({ name: 'Auth.UnsetPlugin' })
-  .guard({ cookie: model.jwt.required() })
-  .onAfterHandle(({ cookie: { jwt }, responseValue }) => {
-    if (hasSuccess(responseValue)) jwt.remove();
-  })
-  .as('scoped');
+export const authRoutes = new Elysia({ name: 'BetterAuth.Routes' }).all(
+  '/api/auth/*',
+  ({ request, path }) => {
+    if (hasValidAuthMethod(request.method)) return auth.handler(request);
+    throw new ApiError(
+      [{ message: `Method: ${request.method}, is not allowed.`, path: [path] }],
+      'Method not allowed.',
+      HttpStatusCode.MethodNotAllowed
+    );
+  }
+);

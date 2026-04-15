@@ -1,9 +1,11 @@
 import type { File } from 'zod/v4/core';
 
-import bcrypt from 'bcryptjs';
 import os from 'node:os';
+import z from 'zod';
 
 import { env } from '@/lib/config';
+
+export const none = z.union([z.null(), z.undefined()]);
 
 export function isFileError(
   e: Error
@@ -27,6 +29,15 @@ export function isFile(payload?: string | File | null): payload is File {
   return Boolean(payload && payload instanceof File);
 }
 
-export async function hashPassword(payload: string) {
-  return await bcrypt.hash(payload, env.SALT);
+export function hasValidAuthMethod(method: string) {
+  return env.BETTER_AUTH_ACCEPT_METHODS.includes(method);
 }
+
+export const file = z.union([
+  z.string('File should be valid.').trim().toLowerCase(),
+  z
+    .file('File should be valid.')
+    .min(env.MIN_FILE_SIZE, 'File should be atleast 10 KB.')
+    .mime(['image/png'], 'File should be in ".png" format.')
+    .max(env.MAX_FILE_SIZE, 'File shold be atmost 1 MB.')
+]);

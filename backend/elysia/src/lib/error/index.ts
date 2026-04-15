@@ -92,16 +92,16 @@ export const errorPlugin = new Elysia({ name: 'Error.Plugin' })
   .onError(({ status, error, code, path }) => {
     const e = error as Error;
 
-    if (isFileError(e))
-      return status(HttpStatusCode.BadRequest, {
-        ...new ApiError(
-          [{ path: [e.path as string], message: e.message }],
-          e.name,
-          HttpStatusCode.BadRequest
-        )
-      });
-
     switch (true) {
+      case isFileError(e):
+        return status(HttpStatusCode.BadRequest, {
+          ...new ApiError(
+            [{ path: [e.code as string], message: e.message }],
+            e.name,
+            HttpStatusCode.BadRequest
+          )
+        });
+
       case code === 'INVALID_COOKIE_SIGNATURE':
         return status(error.status, {
           ...new ApiError(

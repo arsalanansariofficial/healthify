@@ -1,20 +1,22 @@
 import { Elysia } from 'elysia';
 
 import * as service from '@/modules/task/service';
+import { loadAuthContext } from '@/lib/auth';
 import { model } from '@/modules/task/model';
-import { none } from '@/lib/util/types';
-import { auth } from '@/lib/auth';
+import { none } from '@/lib/util';
 
-export default new Elysia({ name: 'Task.Routes', prefix: '/tasks' })
-  .use(auth)
-  .get('/', async ({ user: { id: userId } }) => await service.get({ userId }), {
-    response: model.tasks,
-    body: none
-  })
+export const taskRoutes = new Elysia({ name: 'Task.Routes', prefix: '/tasks' })
+  .use(loadAuthContext)
+  .get(
+    '/',
+    async ({ user: { id: userId } }) =>
+      model.tasks.parse(await service.get({ userId })),
+    { response: model.tasks, body: none }
+  )
   .get(
     '/:id',
     async ({ user: { id: userId }, params: { id } }) =>
-      await service.get({ userId, id }),
+      model.task.parse(await service.get({ userId, id })),
     { params: model.params, response: model.task, body: none }
   )
   .delete(
@@ -33,5 +35,5 @@ export default new Elysia({ name: 'Task.Routes', prefix: '/tasks' })
     '/',
     async ({ user: { id: userId }, body: payload }) =>
       await service.create({ payload, userId }),
-    { body: model.task.required({ title: true }), response: model.task }
+    { response: model.task, body: model.payload }
   );

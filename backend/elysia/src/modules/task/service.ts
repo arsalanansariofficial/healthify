@@ -1,17 +1,10 @@
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime/client';
 
-import type { RequireFields } from '@/lib/util/types';
-
 import { removeUndefinedProps } from '@/lib/util';
 import { type Model } from '@/modules/task/model';
 import { TaskNotFoundError } from '@/lib/error';
 import { prisma } from '@/lib/prisma';
 
-export function get(payload: {
-  userId: string;
-  id: string;
-}): Promise<Model['task']>;
-export function get(payload: { userId: string }): Promise<Model['tasks']>;
 export async function get({ userId, id }: { userId: string; id?: string }) {
   if (id) {
     const task = await prisma.task.findUnique({ where: { userId, id } });
@@ -50,16 +43,6 @@ export async function deleteTask({
   }
 }
 
-export async function create({
-  payload,
-  userId
-}: {
-  payload: RequireFields<Model['task'], 'title'>;
-  userId: string;
-}) {
-  return await prisma.task.create({ data: { ...payload, userId } });
-}
-
 export async function update({
   payload,
   id
@@ -71,4 +54,14 @@ export async function update({
     data: removeUndefinedProps(payload),
     where: { id }
   });
+}
+
+export async function create({
+  payload,
+  userId
+}: {
+  payload: Model['payload'];
+  userId: string;
+}) {
+  return await prisma.task.create({ data: { ...payload, userId } });
 }

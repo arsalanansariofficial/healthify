@@ -24,16 +24,16 @@ export class ApiError extends Error {
   }
 }
 
-export class InvalidCredentialsError extends ApiError {
+export class UnauthorizedError extends ApiError {
   constructor(
     public override errors: [Err, ...Array<Err>] = [
       {
-        message: 'Either email or password is invalid.',
-        path: ['email', 'password']
+        message: 'Invalid session token provided.',
+        path: ['better-auth.session_token']
       }
     ],
-    public override message = 'Invalid credentials.',
-    public override status = HttpStatusCode.BadRequest
+    public override message = 'Unauthorized.',
+    public override status = HttpStatusCode.Unauthorized
   ) {
     super();
   }
@@ -51,36 +51,12 @@ export class EmailAlreadyExistError extends ApiError {
   }
 }
 
-export class UserNotFoundError extends ApiError {
-  constructor(
-    public override errors: [Err, ...Array<Err>] = [
-      { message: 'User with the id does not exist.', path: ['id'] }
-    ],
-    public override message = 'User not found.',
-    public override status = HttpStatusCode.BadRequest
-  ) {
-    super();
-  }
-}
-
 export class TaskNotFoundError extends ApiError {
   constructor(
     public override errors: [Err, ...Array<Err>] = [
       { message: 'Requested task not found.', path: ['task'] }
     ],
     public override message = 'Task not found.',
-    public override status = HttpStatusCode.BadRequest
-  ) {
-    super();
-  }
-}
-
-export class InvalidJwtError extends ApiError {
-  constructor(
-    public override errors: [Err, ...Array<Err>] = [
-      { message: 'Either jwt invalid or expired.', path: ['jwt'] }
-    ],
-    public override message = 'Invalid jwt.',
     public override status = HttpStatusCode.BadRequest
   ) {
     super();

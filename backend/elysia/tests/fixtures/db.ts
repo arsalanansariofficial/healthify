@@ -1,82 +1,123 @@
+import { readdir, rm } from 'node:fs/promises';
 import { treaty } from '@elysia/eden';
 import axios from 'axios';
 
-import type { Prisma } from '~/generated/prisma/client';
-
-import { hashPassword } from '@/lib/util';
 import { prisma } from '@/lib/prisma';
-import { remove } from '@/lib/file';
+import { env } from '@/lib/config';
+import { auth } from '@/lib/auth';
 import { app } from '@/server';
 
-type UserWithTasks = Prisma.UserGetPayload<{ include: { tasks: true } }>;
+export const ben = {
+  tasks: [
+    {
+      title: 'Learn about SwampFire',
+      status: 'incomplete' as const,
+      id: crypto.randomUUID()
+    }
+  ],
+  password: 'Ben.Tennyson@123',
+  name: 'Ben Tennyson',
+  email: 'ben@cn.com'
+};
 
-export let kevin: UserWithTasks;
-export let gwen: UserWithTasks;
-export let ben: UserWithTasks;
+export const gwen = {
+  tasks: [
+    {
+      status: 'incomplete' as const,
+      title: 'Meet Charm Caster',
+      id: crypto.randomUUID()
+    }
+  ],
+  password: 'Gwen.Tennyson@123',
+  name: 'Gwen Tennyson',
+  email: 'gwen@cn.com'
+};
 
-export const api = treaty(app);
+export const kevin = {
+  tasks: [
+    {
+      status: 'complete' as const,
+      id: crypto.randomUUID(),
+      title: 'Stop aggregor'
+    }
+  ],
+  password: 'Kevin.Eleven@123',
+  name: 'Kevin Ethan Leven',
+  email: 'kevin@cn.com'
+};
+
+export const unknown = {
+  tasks: [
+    {
+      title: 'Learn about SwampFire',
+      status: 'incomplete' as const,
+      id: crypto.randomUUID()
+    }
+  ],
+  password: 'Unknown.Password@123',
+  email: 'unknown@cn.com',
+  name: 'Ben Tennyson'
+};
+
 export const axiosClient = axios.create({
   baseURL: 'http://localhost:3000',
   validateStatus: undefined,
   timeout: 5000
 });
 
+export const api = treaty(app);
+
 export async function setupDb() {
-  const $ben = {
-    tasks: {
-      create: [
-        { title: 'Learn about SwampFire', status: 'incomplete' as const }
-      ]
-    },
-    password: 'Ben.Tennyson@123',
-    name: 'Ben Tennyson',
-    email: 'ben@cn.com'
-  };
+  await Promise.all([resetDb(), resetDisk()]);
 
-  const $gwen = {
-    tasks: {
-      create: [{ status: 'incomplete' as const, title: 'Meet Charm Caster' }]
-    },
-    password: 'Gwen.Tennyson@123',
-    name: 'Gwen Tennyson',
-    email: 'gwen@cn.com'
-  };
-
-  const $kevin = {
-    tasks: {
-      create: [{ status: 'complete' as const, title: 'Stop aggregor' }]
-    },
-    password: 'Kevin.Eleven@123',
-    name: 'Kevin Ethan Leven',
-    email: 'kevin@cn.com'
-  };
-
-  const users = await prisma.user.findMany({ include: { profile: true } });
-  await Promise.all(users.map(async u => await remove(u.profile?.imageUrl)));
-
-  const [, ...rest] = await prisma.$transaction([
-    prisma.user.deleteMany(),
-    prisma.user.create({
-      data: { ...$ben, password: await hashPassword($ben.password) },
-      include: { tasks: true }
-    }),
-    prisma.user.create({
-      data: { ...$gwen, password: await hashPassword($gwen.password) },
-      include: { tasks: true }
-    }),
-    prisma.user.create({
-      data: { ...$kevin, password: await hashPassword($kevin.password) },
-      include: { tasks: true }
-    })
+  const [$ben, $gwen, $kevin] = await Promise.all([
+    auth.api.signUpEmail({ body: { ...ben } }),
+    auth.api.signUpEmail({ body: { ...gwen } }),
+    auth.api.signUpEmail({ body: { ...kevin } })
   ]);
 
-  [ben, gwen, kevin] = rest;
-  ben.password = $ben.password;
-  gwen.password = $gwen.password;
-  kevin.password = $kevin.password;
+  await prisma.$transaction([
+    prisma.task.createMany({
+      data: ben.tasks.map(t => ({ ...t, userId: $ben.user.id }))
+    }),
+    prisma.task.createMany({
+      data: gwen.tasks.map(t => ({ ...t, userId: $gwen.user.id }))
+    }),
+    prisma.task.createMany({
+      data: kevin.tasks.map(t => ({ ...t, userId: $kevin.user.id }))
+    })
+  ]);
 }
 
-export async function cleanupDb() {
-  await prisma.user.deleteMany();
-  await prisma.$disconnect();
+export async function resetDb() {
+  await prisma.$transaction([
+    prisma.verification.deleteMany(),
+    prisma.userProfile.deleteMany(),
+    prisma.account.deleteMany(),
+    prisma.session.deleteMany(),
+    prisma.token.deleteMany(),
+    prisma.task.deleteMany(),
+    prisma.user.deleteMany()
+  ]);
+}
+
+export async function resetDisk() {
+  const entries = await readdir(env.UPLOAD_DIR);
+
+  await Promise.all(
+    entries
+      .filter(f => f !== '.gitkeep')
+      .map(f => rm(`${env.UPLOAD_DIR}/${f}`, { recursive: true, force: true }))
+  );
+}
+
+export function getSessionCookie(headers: Headers) {
+  return {
+    headers: {
+      cookie: headers
+        .getSetCookie()
+        .map(cookie => cookie.split(';')[0])
+        .join('; ')
+    }
+  };
 }

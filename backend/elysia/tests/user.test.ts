@@ -2,26 +2,36 @@ import { beforeEach, afterAll, expect, test } from 'bun:test';
 import { HttpStatusCode } from 'axios';
 
 import {
+  getSessionCookie,
   axiosClient,
-  cleanupDb,
+  resetDisk,
   setupDb,
-  kevin,
+  resetDb,
+  unknown,
   gwen,
-  ben,
-  api
+  api,
+  ben
 } from '@/tests/fixtures/db';
-import { generateToken } from '@/lib/token';
 import { prisma } from '@/lib/prisma';
+import { auth } from '@/lib/auth';
 
+afterAll(async () => {
+  await Promise.all([resetDb(), resetDisk()]);
+  await prisma.$disconnect();
+});
 beforeEach(setupDb);
-afterAll(cleanupDb);
 
 test('should upload profile picture for a user', async () => {
+  const { headers } = await auth.api.signInEmail({
+    returnHeaders: true,
+    body: { ...gwen }
+  });
+
   const { status, data } = await api.users.me.patch(
     {
       imageUrl: Bun.file('tests/fixtures/images/image.png') as unknown as File
     },
-    { headers: { Cookie: `jwt=${generateToken(gwen.id)}` } }
+    getSessionCookie(headers)
   );
 
   const user = await prisma.user.findUnique({
@@ -40,34 +50,34 @@ test('should signup a new user', async () => {
     name: 'Charm Caster'
   };
 
-  const { response, status, error, data } = await api.users.post(payload);
-  const user = await prisma.user.findUnique({ where: { id: data?.id } });
-
-  expect(response.headers.get('set-cookie')).toContain('jwt');
-  expect(data).not.toBeNull();
+  const { token, user } = await auth.api.signUpEmail({ body: payload });
+  expect(token).not.toBeNull();
   expect(user).not.toBeNull();
-  expect(error).toBeNull();
-  expect(status).toBe(HttpStatusCode.Ok);
+
+  const userFromDb = await prisma.user.findUnique({ where: { id: user.id } });
+  expect(userFromDb?.email).toBe(payload.email);
+  expect(userFromDb).not.toBeNull();
 });
 
 test('should login an existing user', async () => {
-  const { response, status, data } = await api.users.login.post({
-    password: gwen.password,
-    email: gwen.email
-  });
-
-  const user = await prisma.user.findUnique({ where: { id: data?.id } });
-
-  expect(response.headers.get('set-cookie')).toContain('jwt');
+  const { token, user } = await auth.api.signInEmail({ body: { ...gwen } });
   expect(user).not.toBe(null);
-  expect(status).toBe(HttpStatusCode.Ok);
+  expect(token).not.toBe(null);
+
+  const userFromDb = await prisma.user.findUnique({ where: { id: user.id } });
+  expect(userFromDb).not.toBe(null);
 });
 
 test('should update valid user fields', async () => {
   const name = 'Max Tennyson';
+  const { headers } = await auth.api.signInEmail({
+    returnHeaders: true,
+    body: { ...ben }
+  });
+
   const { status, data } = await api.users.me.patch(
     { name },
-    { headers: { Cookie: `jwt=${generateToken(ben.id)}` } }
+    getSessionCookie(headers)
   );
 
   const user = await prisma.user.findUnique({ where: { id: data?.id } });
@@ -86,36 +96,42 @@ test('should not update invalid user fields', async () => {
 });
 
 test('should not login a non existing user', async () => {
-  const { status } = await api.users.login.post({
-    password: 'Invalid.Password@123',
-    email: 'non.existing@cn.com'
-  });
-
-  expect(status).toBe(HttpStatusCode.BadRequest);
+  expect(auth.api.signInEmail({ body: unknown })).rejects.toThrowError(
+    'Invalid email or password'
+  );
 });
 
 test('should get profile for a user', async () => {
-  const { status } = await api.users.me.get({
-    headers: { Cookie: `jwt=${generateToken(gwen.id)}` }
+  const { headers } = await auth.api.signInEmail({
+    returnHeaders: true,
+    body: { ...ben }
   });
+
+  const { status } = await api.users.me.get(getSessionCookie(headers));
 
   expect(status).toBe(HttpStatusCode.Ok);
 });
 
 test('should delete account for authenticated user', async () => {
-  const { status } = await api.users.me.delete(undefined, {
-    headers: { Cookie: `jwt=${generateToken(kevin.id)}` }
+  const { headers } = await auth.api.signInEmail({
+    returnHeaders: true,
+    body: { ...ben }
   });
+
+  const { status } = await api.users.me.delete(
+    undefined,
+    getSessionCookie(headers)
+  );
 
   expect(status).toBe(HttpStatusCode.Ok);
 });
 
 test('should not get profile for unauthenticated user', async () => {
   const { status } = await api.users.me.get();
-  expect(status).toBe(HttpStatusCode.UnprocessableEntity);
+  expect(status).toBe(HttpStatusCode.Unauthorized);
 });
 
 test('should not delete account for unauthenticated user', async () => {
   const { status } = await api.users.me.delete();
-  expect(status).toBe(HttpStatusCode.UnprocessableEntity);
+  expect(status).toBe(HttpStatusCode.Unauthorized);
 });

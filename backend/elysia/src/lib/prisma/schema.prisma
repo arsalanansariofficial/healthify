@@ -13,8 +13,7 @@ model User {
 
   profile UserProfile?
 
-  tokens Token[]
-  tasks  Task[]
+  tasks Task[]
 
   @@unique([email])
 }
@@ -90,16 +89,6 @@ model Task {
   description String?
   title       String
   userId      String
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-}
-
-model Token {
-  token  String @unique
-  userId String
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt

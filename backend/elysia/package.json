@@ -16,6 +16,7 @@
     "build:js": "bun build src/index.ts --target=bun --minify-whitespace --minify-syntax --outfile dist/index.js",
     "dev": "bun --watch src/server.ts",
     "format": "prettier -w .",
+    "lint": "eslint --fix",
     "prisma:deploy": "prisma migrate deploy --config src/lib/prisma/prisma.config.ts",
     "prisma:generate": "prisma generate --config src/lib/prisma/prisma.config.ts",
     "prisma:migrate": "prisma migrate dev --config src/lib/prisma/prisma.config.ts",

@@ -38,7 +38,7 @@ model Account {
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([issuer, accountId])
-  @@index([userId(length: 191)])
+  @@index([userId])
 }
 
 model Session {
@@ -55,26 +55,26 @@ model Session {
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([token])
-  @@index([userId(length: 191)])
+  @@index([userId])
 }
 
 model Verification {
   id         String   @id
-  identifier String   @db.Text
+  identifier String
   value      String   @db.Text
   expiresAt  DateTime
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  @@index([identifier(length: 191)])
+  @@index([identifier])
 }
 
 model UserProfile {
   phoneNumber String? @unique
   userId      String  @id
-  imageUrl    String?
-  coverUrl    String?
+  image       String?
+  cover       String?
   bio         String?
   address     String?
   gender      Gender?

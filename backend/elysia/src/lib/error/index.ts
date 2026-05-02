@@ -39,18 +39,6 @@ export class UnauthorizedError extends ApiError {
   }
 }
 
-export class EmailAlreadyExistError extends ApiError {
-  constructor(
-    public override errors: [Err, ...Array<Err>] = [
-      { message: 'Email already exists.', path: ['email'] }
-    ],
-    public override message = 'Email not available.',
-    public override status = HttpStatusCode.BadRequest
-  ) {
-    super();
-  }
-}
-
 export class TaskNotFoundError extends ApiError {
   constructor(
     public override errors: [Err, ...Array<Err>] = [
@@ -66,14 +54,12 @@ export class TaskNotFoundError extends ApiError {
 export const errorPlugin = new Elysia({ name: 'Error.Plugin' })
   .error({ ApiError })
   .onError(({ status, error, code, path }) => {
-    const e = error as Error;
-
     switch (true) {
-      case isFileError(e):
+      case error instanceof Error && isFileError(error):
         return status(HttpStatusCode.BadRequest, {
           ...new ApiError(
-            [{ path: [e.code as string], message: e.message }],
-            e.name,
+            [{ path: [error.code as string], message: error.message }],
+            error.name,
             HttpStatusCode.BadRequest
           )
         });

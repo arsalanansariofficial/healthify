@@ -3,6 +3,8 @@ import { betterAuth } from 'better-auth';
 import { HttpStatusCode } from 'axios';
 import { Elysia } from 'elysia';
 
+import type { UserWithProfile } from '@/lib/util/types';
+
 import { UnauthorizedError, ApiError } from '@/lib/error';
 import { hasValidAuthMethod } from '@/lib/util';
 import { prisma } from '@/lib/prisma';
@@ -34,7 +36,7 @@ export const loadAuthContext = new Elysia({ name: 'AuthContext.Plugin' })
         profile: await prisma.userProfile.findUnique({
           where: { userId: session.user.id }
         })
-      }
+      } as UserWithProfile
     };
   })
   .as('scoped');

@@ -5,7 +5,7 @@ import { type Model } from '@/modules/task/model';
 import { TaskNotFoundError } from '@/lib/error';
 import { prisma } from '@/lib/prisma';
 
-export async function get({ userId, id }: { userId: string; id?: string }) {
+async function get({ userId, id }: { userId: string; id?: string }) {
   if (id) {
     const task = await prisma.task.findUnique({ where: { userId, id } });
     if (!task)
@@ -15,20 +15,13 @@ export async function get({ userId, id }: { userId: string; id?: string }) {
           path: [id, userId]
         }
       ]);
-    return task as Model['task'];
+    return task;
   }
 
-  const tasks = await prisma.task.findMany({ where: { userId } });
-  return tasks as Model['tasks'];
+  return await prisma.task.findMany({ where: { userId } });
 }
 
-export async function deleteTask({
-  userId,
-  id
-}: {
-  userId: string;
-  id: string;
-}) {
+async function deleteTask({ userId, id }: { userId: string; id: string }) {
   try {
     return await prisma.task.delete({ where: { userId, id } });
   } catch (error) {
@@ -43,11 +36,11 @@ export async function deleteTask({
   }
 }
 
-export async function update({
+async function update({
   payload,
   id
 }: {
-  payload: Model['task'];
+  payload: Model['payload'];
   id: string;
 }) {
   return await prisma.task.update({
@@ -56,7 +49,7 @@ export async function update({
   });
 }
 
-export async function create({
+async function create({
   payload,
   userId
 }: {
@@ -65,3 +58,5 @@ export async function create({
 }) {
   return await prisma.task.create({ data: { ...payload, userId } });
 }
+
+export const taskService = { deleteTask, update, create, get };

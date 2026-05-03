@@ -1,58 +1,42 @@
-import type { Prisma } from '~/generated/prisma/client';
+import type { UserWithProfile } from '@/lib/util/types';
 
-import { EmailAlreadyExistError } from '@/lib/error';
+import { removeUndefinedProps, isFile } from '@/lib/util';
 import { type Model } from '@/modules/user/model';
 import { remove, upload } from '@/lib/file';
 import { prisma } from '@/lib/prisma';
-import { isFile } from '@/lib/util';
 
-export async function update({
+async function update({
   payload,
   user
 }: {
-  user: Prisma.UserGetPayload<{
-    include: { profile: true };
-    omit: { image: true };
-  }> & { image?: string | null };
   payload: Model['payload'];
+  user: UserWithProfile;
 }) {
   return await prisma.$transaction(async prisma => {
-    await validateNewEmail({ updated: payload.email, original: user.email });
-
-    let { imageUrl, coverUrl } = payload;
+    let { image, cover } = payload;
     let userCover: undefined | string | null = null;
     let userImage: undefined | string | null = null;
 
     if (user.profile) {
-      userImage = user.profile.imageUrl;
-      userCover = user.profile.coverUrl;
+      userImage = user.profile.image;
+      userCover = user.profile.cover;
     }
 
-    if (imageUrl && userImage) await remove(userImage);
-    if (coverUrl && userCover) await remove(userCover);
+    if (image && userImage) await remove(userImage);
+    if (cover && userCover) await remove(userCover);
 
-    if (imageUrl === null && userImage) await remove(userImage);
-    if (coverUrl === null && userCover) await remove(userCover);
+    if (image === null && userImage) await remove(userImage);
+    if (cover === null && userCover) await remove(userCover);
 
-    if (isFile(imageUrl)) imageUrl = await upload(imageUrl);
-    if (isFile(coverUrl)) coverUrl = await upload(coverUrl);
+    if (isFile(image)) image = await upload(image);
+    if (isFile(cover)) cover = await upload(cover);
 
-    const { profileUpdates, userUpdates } = {
-      profileUpdates: {
-        phoneNumber: payload.phoneNumber,
-        address: payload.address,
-        gender: payload.gender,
-        bio: payload.bio,
-        imageUrl,
-        coverUrl
-      },
-      userUpdates: { email: payload.email, name: payload.name }
-    };
+    const { name, ...profileUpdates } = { ...payload, image, cover };
 
     return await prisma.user.update({
       data: {
         profile: { upsert: { create: profileUpdates, update: profileUpdates } },
-        ...userUpdates
+        ...removeUndefinedProps({ name })
       },
       include: { profile: true },
       where: { id: user.id }
@@ -60,32 +44,13 @@ export async function update({
   });
 }
 
-export async function deleteUser(id: string) {
+async function deleteUser(user: UserWithProfile) {
   return await prisma.$transaction(async prisma => {
-    const userProfile = await prisma.userProfile.findUnique({
-      select: { imageUrl: true, coverUrl: true },
-      where: { userId: id }
-    });
-
-    if (userProfile && userProfile.imageUrl) await remove(userProfile.imageUrl);
-    if (userProfile && userProfile.coverUrl) await remove(userProfile.coverUrl);
-    return await prisma.user.delete({ where: { id } });
+    if (user.profile && user.profile.image) await remove(user.profile.image);
+    if (user.profile && user.profile.cover) await remove(user.profile.cover);
+    await prisma.user.delete({ where: { id: user.id } });
+    return user;
   });
 }
 
-async function validateNewEmail({
-  original,
-  updated
-}: {
-  updated?: string | null;
-  original?: string;
-}) {
-  if (!updated || updated === original) return;
-  if (await prisma.user.findUnique({ where: { email: updated } }))
-    throw new EmailAlreadyExistError([
-      {
-        message: `A user with email ${updated} already exist.`,
-        path: [updated]
-      }
-    ]);
-}
+export const userService = { deleteUser, update };

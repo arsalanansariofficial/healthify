@@ -28,9 +28,7 @@ test('should upload profile picture for a user', async () => {
   });
 
   const { status, data } = await api.users.me.patch(
-    {
-      imageUrl: Bun.file('tests/fixtures/images/image.png') as unknown as File
-    },
+    { image: Bun.file('tests/fixtures/images/image.png') as unknown as File },
     getSessionCookie(headers)
   );
 
@@ -39,7 +37,7 @@ test('should upload profile picture for a user', async () => {
     where: { id: data?.id }
   });
 
-  expect(user?.profile?.imageUrl).not.toBe(null);
+  expect(user?.profile?.image).not.toBe(null);
   expect(status).toBe(HttpStatusCode.Ok);
 });
 

@@ -1,5 +1,6 @@
-import { readdir, rm } from 'node:fs/promises';
+import { mkdir, rm } from 'node:fs/promises';
 import { treaty } from '@elysia/eden';
+import path from 'node:path';
 import axios from 'axios';
 
 import { prisma } from '@/lib/prisma';
@@ -101,22 +102,11 @@ export async function resetDb() {
 }
 
 export async function resetDisk() {
-  const entries = await readdir(env.UPLOAD_DIR);
-
-  await Promise.all(
-    entries
-      .filter(f => f !== '.gitkeep')
-      .map(f => rm(`${env.UPLOAD_DIR}/${f}`, { recursive: true, force: true }))
-  );
+  await rm(env.UPLOAD_DIR, { recursive: true, force: true });
+  await mkdir(path.dirname(env.UPLOAD_DIR), { recursive: true });
+  await Bun.write(`${env.UPLOAD_DIR}/.gitkeep`, String());
 }
 
 export function getSessionCookie(headers: Headers) {
-  return {
-    headers: {
-      cookie: headers
-        .getSetCookie()
-        .map(cookie => cookie.split(';')[0])
-        .join('; ')
-    }
-  };
+  return { headers: { cookie: headers.getSetCookie() } };
 }

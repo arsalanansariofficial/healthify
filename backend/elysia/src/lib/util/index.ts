@@ -25,19 +25,15 @@ export function removeUndefinedProps<T extends Record<string, unknown>>(
   );
 }
 
+export function hasValidAuthMethod(method: string) {
+  return env.BETTER_AUTH_ACCEPT_METHODS.includes(method as 'POST' | 'GET');
+}
+
 export function isFile(payload?: string | File | null): payload is File {
   return Boolean(payload && payload instanceof File);
 }
 
-export function hasValidAuthMethod(method: string) {
-  return env.BETTER_AUTH_ACCEPT_METHODS.includes(method);
-}
-
 export const file = z.union([
-  z.string('File should be valid.').trim().toLowerCase(),
-  z
-    .file('File should be valid.')
-    .min(env.MIN_FILE_SIZE, 'File should be atleast 10 KB.')
-    .mime(['image/png'], 'File should be in ".png" format.')
-    .max(env.MAX_FILE_SIZE, 'File shold be atmost 1 MB.')
+  z.string().trim().toLowerCase(),
+  z.file().min(env.MIN_FILE_SIZE).mime(['image/png']).max(env.MAX_FILE_SIZE)
 ]);

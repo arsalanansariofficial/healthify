@@ -29,7 +29,7 @@ export class UnauthorizedError extends ApiError {
     public override errors: [Err, ...Array<Err>] = [
       {
         message: 'Invalid session token provided.',
-        path: ['better-auth.session_token']
+        path: ['task-manager.session_token']
       }
     ],
     public override message = 'Unauthorized.',

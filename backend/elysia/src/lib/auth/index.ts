@@ -20,7 +20,12 @@ export const auth = betterAuth({
         }
       })
   },
-  advanced: { disableOriginCheck: true, disableCSRFCheck: false },
+  advanced: {
+    cookies: { session: { name: 'session-token' } },
+    cookiePrefix: 'task-manager',
+    disableOriginCheck: true,
+    disableCSRFCheck: false
+  },
   database: prismaAdapter(prisma, { provider: 'mysql' }),
   emailAndPassword: { enabled: true }
 });

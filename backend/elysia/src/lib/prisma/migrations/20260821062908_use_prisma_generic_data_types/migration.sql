@@ -1,0 +1,18 @@
+-- AlterTable
+ALTER TABLE `Account` MODIFY `providerId` VARCHAR(191) NOT NULL,
+MODIFY `idToken` VARCHAR(191) NULL,
+MODIFY `scope` VARCHAR(191) NULL,
+MODIFY `password` VARCHAR(191) NULL,
+MODIFY `accessToken` VARCHAR(191) NULL,
+MODIFY `refreshToken` VARCHAR(191) NULL;
+
+-- AlterTable
+ALTER TABLE `Session` MODIFY `ipAddress` VARCHAR(191) NULL,
+MODIFY `userAgent` VARCHAR(191) NULL;
+
+-- AlterTable
+ALTER TABLE `User` MODIFY `name` VARCHAR(191) NOT NULL,
+MODIFY `image` VARCHAR(191) NULL;
+
+-- AlterTable
+ALTER TABLE `Verification` MODIFY `value` VARCHAR(191) NOT NULL;

@@ -1,9 +1,9 @@
 model User {
   id            String  @id
-  name          String  @db.Text
+  name          String
   email         String
   emailVerified Boolean @default(false)
-  image         String? @db.Text
+  image         String?
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -20,15 +20,15 @@ model User {
 
 model Account {
   id                    String    @id
-  issuer                String    @db.VarChar(191)
+  issuer                String
   userId                String
   accountId             String
-  providerId            String    @db.Text
-  idToken               String?   @db.Text
-  scope                 String?   @db.Text
-  password              String?   @db.Text
-  accessToken           String?   @db.Text
-  refreshToken          String?   @db.Text
+  providerId            String
+  idToken               String?
+  scope                 String?
+  password              String?
+  accessToken           String?
+  refreshToken          String?
   accessTokenExpiresAt  DateTime?
   refreshTokenExpiresAt DateTime?
 
@@ -46,8 +46,8 @@ model Session {
   userId    String
   token     String
   expiresAt DateTime
-  ipAddress String?  @db.Text
-  userAgent String?  @db.Text
+  ipAddress String?
+  userAgent String?
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -61,7 +61,7 @@ model Session {
 model Verification {
   id         String   @id
   identifier String
-  value      String   @db.Text
+  value      String
   expiresAt  DateTime
 
   createdAt DateTime @default(now())

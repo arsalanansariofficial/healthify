@@ -1,65 +1,67 @@
 model User {
-  id            String  @id
-  name          String
-  email         String
-  emailVerified Boolean @default(false)
-  image         String?
+  id String @id @default(uuid())
+
+  name  String
+  email String @unique
+
+  emailVerified Boolean  @default(false)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  image String?
+
+  profile  UserProfile?
+  sessions Session[]
+  accounts Account[]
+  tasks    Task[]
+}
+
+model Account {
+  id String @id @default(uuid())
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  issuer     String
+  accountId  String
+  providerId String
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  sessions Session[]
-  accounts Account[]
-
-  profile UserProfile?
-
-  tasks Task[]
-
-  @@unique([email])
-}
-
-model Account {
-  id                    String    @id
-  issuer                String
-  userId                String
-  accountId             String
-  providerId            String
   idToken               String?
   scope                 String?
   password              String?
   accessToken           String?
-  refreshToken          String?
   accessTokenExpiresAt  DateTime?
+  refreshToken          String?
   refreshTokenExpiresAt DateTime?
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([issuer, accountId])
   @@index([userId])
 }
 
 model Session {
-  id        String   @id
-  userId    String
-  token     String
+  id String @id @default(uuid())
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  token     String   @unique
   expiresAt DateTime
-  ipAddress String?
-  userAgent String?
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  ipAddress String?
+  userAgent String?
 
-  @@unique([token])
   @@index([userId])
 }
 
 model Verification {
-  id         String   @id
+  id String @id @default(uuid())
+
   identifier String
   value      String
   expiresAt  DateTime
@@ -71,31 +73,33 @@ model Verification {
 }
 
 model UserProfile {
+  userId String @id
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
   phoneNumber String? @unique
-  userId      String  @id
   image       String?
   cover       String?
   bio         String?
   address     String?
   gender      Gender?
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 model Task {
-  id          String  @id @default(uuid())
-  status      Status?
-  description String?
-  title       String
-  userId      String
+  id String @id @default(uuid())
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  title String
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  status      Status?
+  description String?
 }
 
 enum Gender {

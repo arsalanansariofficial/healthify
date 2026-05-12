@@ -5,5 +5,5 @@
   "trailingComma": "none",
   "bracketSameLine": true,
   "objectWrap": "collapse",
-  "plugins": ["prettier-plugin-sql"]
+  "plugins": ["prettier-plugin-sql", "prettier-plugin-prisma"]
 }

@@ -22,7 +22,7 @@ export const auth = betterAuth({
   },
   advanced: {
     cookies: { session: { name: 'session-token' } },
-    database: { generateId: 'uuid' },
+    database: { generateId: 'uuid', joins: true },
     cookiePrefix: 'task-manager',
     disableOriginCheck: true,
     disableCSRFCheck: false

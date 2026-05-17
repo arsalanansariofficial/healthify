@@ -1,14 +1,14 @@
 model User {
   id String @id @default(uuid())
 
-  name  String
   email String @unique
+  name  String @db.Text
 
   emailVerified Boolean  @default(false)
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
 
-  image String?
+  image String? @db.Text
 
   profile  UserProfile?
   sessions Session[]
@@ -22,19 +22,19 @@ model Account {
   userId String
   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  issuer     String
-  accountId  String
-  providerId String
+  issuer     String @db.VarChar(191)
+  accountId  String @db.VarChar(191)
+  providerId String @db.Text
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  idToken               String?
-  scope                 String?
-  password              String?
-  accessToken           String?
+  accessToken           String?   @db.Text
+  refreshToken          String?   @db.Text
+  idToken               String?   @db.Text
+  scope                 String?   @db.Text
+  password              String?   @db.Text
   accessTokenExpiresAt  DateTime?
-  refreshToken          String?
   refreshTokenExpiresAt DateTime?
 
   @@unique([issuer, accountId])
@@ -53,8 +53,8 @@ model Session {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  ipAddress String?
-  userAgent String?
+  ipAddress String? @db.Text
+  userAgent String? @db.Text
 
   @@index([userId])
 }
@@ -62,14 +62,14 @@ model Session {
 model Verification {
   id String @id @default(uuid())
 
-  identifier String
-  value      String
+  identifier String   @db.Text
+  value      String   @db.Text
   expiresAt  DateTime
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  @@index([identifier])
+  @@index([identifier(length: 191)])
 }
 
 model UserProfile {

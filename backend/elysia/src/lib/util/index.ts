@@ -6,6 +6,7 @@ import z from 'zod';
 
 import { env } from '@/lib/config';
 
+export const mailer = nodemailer.createTransport(env.SMTP_URL);
 export const none = z.union([z.null(), z.undefined()]);
 
 export function isFileError(
@@ -38,23 +39,3 @@ export const file = z.union([
   z.string().trim().toLowerCase(),
   z.file().min(env.MIN_FILE_SIZE).mime(['image/png']).max(env.MAX_FILE_SIZE)
 ]);
-
-export async function sendEmail(payload: {
-  subject: string;
-  html: string;
-  to: string;
-}) {
-  const smtp = nodemailer.createTransport({
-    auth: { pass: env.SMTP_PASSWORD, user: env.SMTP_EMAIL },
-    port: env.SMTP_PORT,
-    host: env.SMTP_HOST,
-    secure: true
-  });
-
-  return await smtp.sendMail({
-    subject: payload.subject,
-    from: env.SMTP_EMAIL,
-    html: payload.html,
-    to: payload.to
-  });
-}

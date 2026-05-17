@@ -5,34 +5,34 @@ import { Elysia } from 'elysia';
 
 import type { UserWithProfile } from '@/lib/util/types';
 
-import { hasValidAuthMethod, sendEmail } from '@/lib/util';
 import { UnauthorizedError, ApiError } from '@/lib/error';
+import { hasValidAuthMethod, mailer } from '@/lib/util';
 import { prisma } from '@/lib/prisma';
 import { env } from '@/lib/config';
 
 export const auth = betterAuth({
   emailVerification: {
     sendVerificationEmail: async ({ user, url }) => {
-      sendEmail({
+      mailer.sendMail({
         html: `Click the link to verify your email: ${url}`,
         subject: 'Verify your email address',
         to: user.email
       });
     },
-    autoSignInAfterVerification: true,
-    sendOnSignUp: true,
-    sendOnSignIn: true
+    sendOnSignUp: env.NODE_ENV !== 'test',
+    sendOnSignIn: env.NODE_ENV !== 'test',
+    autoSignInAfterVerification: true
   },
   emailAndPassword: {
     sendResetPassword: async ({ user, url }) => {
-      sendEmail({
+      mailer.sendMail({
         html: `Click the link to reset your password: ${url}`,
         subject: 'Reset your password',
         to: user.email
       });
     },
+    requireEmailVerification: env.NODE_ENV !== 'test',
     revokeSessionsOnPasswordReset: true,
-    requireEmailVerification: true,
     enabled: true
   },
   socialProviders: {
@@ -50,6 +50,10 @@ export const auth = betterAuth({
     cookiePrefix: 'task-manager',
     disableOriginCheck: true,
     disableCSRFCheck: false
+  },
+  session: {
+    expiresIn: env.BETTER_AUTH_SESSION_EXPIRES_IN,
+    disableSessionRefresh: true
   },
   database: prismaAdapter(prisma, { provider: 'mysql' })
 });

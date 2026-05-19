@@ -23,6 +23,13 @@ export const envSchema = z.object({
       description:
         'OAuth application password to verify with the GitHub provider, ex: example_secret_1234567890abcdef.'
     }),
+  BETTER_AUTH_COOKIE_CACHE_TIMEOUT: z.coerce
+    .number()
+    .default(15 * 60)
+    .meta({
+      description:
+        'Time until the session cookie is cached (seconds), defaults to 15 minutes.'
+    }),
   BETTER_AUTH_SESSION_EXPIRES_IN: z.coerce
     .number()
     .default(60 * 60)

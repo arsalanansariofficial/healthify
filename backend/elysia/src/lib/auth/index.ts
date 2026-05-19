@@ -52,6 +52,10 @@ export const auth = betterAuth({
     disableCSRFCheck: false
   },
   session: {
+    cookieCache: {
+      maxAge: env.BETTER_AUTH_COOKIE_CACHE_TIMEOUT,
+      enabled: true
+    },
     expiresIn: env.BETTER_AUTH_SESSION_EXPIRES_IN,
     disableSessionRefresh: true
   },

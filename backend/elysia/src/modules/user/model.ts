@@ -35,8 +35,7 @@ const payload = z.object({
   gender: userProfile.shape.gender.nullish(),
   image: userProfile.shape.image.nullish(),
   cover: userProfile.shape.cover.nullish(),
-  bio: userProfile.shape.bio.nullish(),
-  name: user.shape.name.nullish()
+  bio: userProfile.shape.bio.nullish()
 });
 
 const userWithProfile = z.object({

@@ -1,9 +1,9 @@
 import type { UserWithProfile } from '@/lib/util/types';
 
-import { removeUndefinedProps, isFile } from '@/lib/util';
 import { type Model } from '@/modules/user/model';
 import { remove, upload } from '@/lib/file';
 import { prisma } from '@/lib/prisma';
+import { isFile } from '@/lib/util';
 
 async function update({
   payload,
@@ -31,13 +31,10 @@ async function update({
     if (isFile(image)) image = await upload(image);
     if (isFile(cover)) cover = await upload(cover);
 
-    const { name, ...profileUpdates } = { ...payload, image, cover };
+    const updates = { ...payload, image, cover };
 
     return await prisma.user.update({
-      data: {
-        profile: { upsert: { create: profileUpdates, update: profileUpdates } },
-        ...removeUndefinedProps({ name })
-      },
+      data: { profile: { upsert: { create: updates, update: updates } } },
       include: { profile: true },
       where: { id: user.id }
     });

@@ -59,6 +59,9 @@ export const auth = betterAuth({
     expiresIn: env.BETTER_AUTH_SESSION_EXPIRES_IN,
     disableSessionRefresh: true
   },
+  user: {
+    changeEmail: { updateEmailWithoutVerification: true, enabled: true }
+  },
   database: prismaAdapter(prisma, { provider: 'mysql' })
 });
 

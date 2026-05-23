@@ -7,16 +7,6 @@ import { file } from '@/lib/util';
 
 export type Model = ModelType<typeof model>;
 
-const user = z.object({
-  emailVerified: z.boolean().default(false),
-  name: z.string().trim().toLowerCase(),
-  email: z.email().trim().toLowerCase(),
-  id: z.string().trim(),
-  image: file.nullish(),
-  createdAt: z.date(),
-  updatedAt: z.date()
-});
-
 const userProfile = z.object({
   phoneNumber: z.string().trim().toLowerCase().nullable(),
   address: z.string().trim().toLowerCase().nullable(),
@@ -25,6 +15,29 @@ const userProfile = z.object({
   userId: z.string().trim(),
   image: file.nullable(),
   cover: file.nullable(),
+  createdAt: z.date(),
+  updatedAt: z.date()
+});
+
+const password = z.object({
+  password: z
+    .string()
+    .regex(/[^A-Za-z0-9]/)
+    .regex(/[0-9]/)
+    .regex(/[a-z]/)
+    .regex(/[A-Z]/)
+    .nonempty()
+    .max(256)
+    .min(8)
+    .trim()
+});
+
+const user = z.object({
+  emailVerified: z.boolean().default(false),
+  name: z.string().trim().toLowerCase(),
+  email: z.email().trim().toLowerCase(),
+  id: z.string().trim(),
+  image: file.nullish(),
   createdAt: z.date(),
   updatedAt: z.date()
 });
@@ -43,4 +56,13 @@ const userWithProfile = z.object({
   profile: userProfile.nullable()
 });
 
-export const model = { userWithProfile, userProfile, payload, user };
+const success = z.object({ status: z.boolean() });
+
+export const model = {
+  userWithProfile,
+  userProfile,
+  password,
+  payload,
+  success,
+  user
+};

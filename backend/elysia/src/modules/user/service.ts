@@ -4,6 +4,7 @@ import { type Model } from '@/modules/user/model';
 import { remove, upload } from '@/lib/file';
 import { prisma } from '@/lib/prisma';
 import { isFile } from '@/lib/util';
+import { auth } from '@/lib/auth';
 
 async function update({
   payload,
@@ -50,4 +51,17 @@ async function deleteUser(user: UserWithProfile) {
   });
 }
 
-export const userService = { deleteUser, update };
+async function setPassword({
+  payload,
+  headers
+}: {
+  payload: Model['password'];
+  headers: Headers;
+}) {
+  return await auth.api.setPassword({
+    body: { newPassword: payload.password },
+    headers
+  });
+}
+
+export const userService = { setPassword, deleteUser, update };

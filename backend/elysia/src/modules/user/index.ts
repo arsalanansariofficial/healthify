@@ -23,6 +23,18 @@ export const userRoutes = new Elysia({ name: 'User.Routes', prefix: '/users' })
   .post(
     '/set-password',
     async ({ request: { headers }, body }) =>
-      await userService.setPassword({ payload: body, headers }),
-    { response: model.success, body: model.password }
+      await userService.setPassword({
+        password: body.password as string,
+        headers
+      }),
+    { response: model.payload, body: model.payload }
+  )
+  .post(
+    '/verify-password',
+    async ({ request: { headers }, body }) =>
+      await userService.verifyPassword({
+        password: body.password as string,
+        headers
+      }),
+    { response: model.payload, body: model.payload }
   );

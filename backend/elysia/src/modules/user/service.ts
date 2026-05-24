@@ -52,16 +52,23 @@ async function deleteUser(user: UserWithProfile) {
 }
 
 async function setPassword({
-  payload,
+  password: newPassword,
   headers
 }: {
-  payload: Model['password'];
+  password: string;
   headers: Headers;
 }) {
-  return await auth.api.setPassword({
-    body: { newPassword: payload.password },
-    headers
-  });
+  return await auth.api.setPassword({ body: { newPassword }, headers });
 }
 
-export const userService = { setPassword, deleteUser, update };
+async function verifyPassword({
+  password,
+  headers
+}: {
+  password: string;
+  headers: Headers;
+}) {
+  return await auth.api.verifyPassword({ body: { password }, headers });
+}
+
+export const userService = { verifyPassword, setPassword, deleteUser, update };

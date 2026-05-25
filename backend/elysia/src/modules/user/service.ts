@@ -6,6 +6,8 @@ import { prisma } from '@/lib/prisma';
 import { isFile } from '@/lib/util';
 import { auth } from '@/lib/auth';
 
+type PasswordPayload = { password: string; headers: Headers };
+
 async function update({
   payload,
   user
@@ -51,23 +53,14 @@ async function deleteUser(user: UserWithProfile) {
   });
 }
 
-async function setPassword({
-  password: newPassword,
-  headers
-}: {
-  password: string;
-  headers: Headers;
-}) {
-  return await auth.api.setPassword({ body: { newPassword }, headers });
+async function setPassword({ password, headers }: PasswordPayload) {
+  return await auth.api.setPassword({
+    body: { newPassword: password },
+    headers
+  });
 }
 
-async function verifyPassword({
-  password,
-  headers
-}: {
-  password: string;
-  headers: Headers;
-}) {
+async function verifyPassword({ password, headers }: PasswordPayload) {
   return await auth.api.verifyPassword({ body: { password }, headers });
 }
 

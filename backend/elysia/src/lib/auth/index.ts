@@ -11,6 +11,19 @@ import { prisma } from '@/lib/prisma';
 import { env } from '@/lib/config';
 
 export const auth = betterAuth({
+  user: {
+    deleteUser: {
+      sendDeleteAccountVerification: async ({ user, url }) => {
+        mailer.sendMail({
+          html: `Click the link to delete your account: ${url}`,
+          subject: 'Verification to delete your account',
+          to: user.email
+        });
+      },
+      enabled: env.NODE_ENV !== 'test'
+    },
+    changeEmail: { updateEmailWithoutVerification: true, enabled: true }
+  },
   emailVerification: {
     sendVerificationEmail: async ({ user, url }) => {
       mailer.sendMail({
@@ -58,10 +71,6 @@ export const auth = betterAuth({
     },
     expiresIn: env.BETTER_AUTH_SESSION_EXPIRES_IN,
     disableSessionRefresh: true
-  },
-  user: {
-    changeEmail: { updateEmailWithoutVerification: true, enabled: true },
-    deleteUser: { enabled: true }
   },
   database: prismaAdapter(prisma, { provider: 'mysql' })
 });

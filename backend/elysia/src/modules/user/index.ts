@@ -11,10 +11,6 @@ export const userRoutes = new Elysia({ name: 'User.Routes', prefix: '/users' })
     response: model.userWithProfile,
     body: none
   })
-  .delete('/me', async ({ user }) => await userService.deleteUser(user), {
-    response: model.userWithProfile,
-    body: none
-  })
   .patch(
     '/me',
     async ({ user, body }) => await userService.update({ payload: body, user }),

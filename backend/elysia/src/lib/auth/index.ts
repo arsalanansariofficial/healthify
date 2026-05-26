@@ -60,7 +60,8 @@ export const auth = betterAuth({
     disableSessionRefresh: true
   },
   user: {
-    changeEmail: { updateEmailWithoutVerification: true, enabled: true }
+    changeEmail: { updateEmailWithoutVerification: true, enabled: true },
+    deleteUser: { enabled: true }
   },
   database: prismaAdapter(prisma, { provider: 'mysql' })
 });

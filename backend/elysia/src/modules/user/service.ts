@@ -44,15 +44,6 @@ async function update({
   });
 }
 
-async function deleteUser(user: UserWithProfile) {
-  return await prisma.$transaction(async prisma => {
-    if (user.profile && user.profile.image) await remove(user.profile.image);
-    if (user.profile && user.profile.cover) await remove(user.profile.cover);
-    await prisma.user.delete({ where: { id: user.id } });
-    return user;
-  });
-}
-
 async function setPassword({ password, headers }: PasswordPayload) {
   return await auth.api.setPassword({
     body: { newPassword: password },
@@ -64,4 +55,4 @@ async function verifyPassword({ password, headers }: PasswordPayload) {
   return await auth.api.verifyPassword({ body: { password }, headers });
 }
 
-export const userService = { verifyPassword, setPassword, deleteUser, update };
+export const userService = { verifyPassword, setPassword, update };

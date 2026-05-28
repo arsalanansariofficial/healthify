@@ -1,19 +1,39 @@
 import { prismaAdapter } from 'better-auth/adapters/prisma';
-import { betterAuth } from 'better-auth';
+import { betterAuth, APIError } from 'better-auth';
 import { HttpStatusCode } from 'axios';
 import { Elysia } from 'elysia';
 
 import type { UserWithProfile } from '@/lib/util/types';
 
+import { hasValidAuthMethod, isFileError, mailer } from '@/lib/util';
 import { UnauthorizedError, ApiError } from '@/lib/error';
-import { hasValidAuthMethod, mailer } from '@/lib/util';
 import { prisma } from '@/lib/prisma';
+import { remove } from '@/lib/file';
 import { env } from '@/lib/config';
 
 export const auth = betterAuth({
   user: {
     deleteUser: {
-      sendDeleteAccountVerification: async ({ user, url }) => {
+      async beforeDelete(user) {
+        try {
+          const profile = await prisma.userProfile.findUnique({
+            where: { userId: user.id }
+          });
+
+          if (!profile) return;
+          if (profile.image) await remove(profile.image);
+          if (profile.cover) await remove(profile.cover);
+        } catch (error) {
+          if (error instanceof Error && isFileError(error))
+            throw new APIError('BAD_REQUEST', {
+              message: error.message,
+              code: error.code,
+              name: error.name,
+              path: error.path
+            });
+        }
+      },
+      async sendDeleteAccountVerification({ user, url }) {
         mailer.sendMail({
           html: `Click the link to delete your account: ${url}`,
           subject: 'Verification to delete your account',
@@ -25,7 +45,7 @@ export const auth = betterAuth({
     changeEmail: { updateEmailWithoutVerification: true, enabled: true }
   },
   emailVerification: {
-    sendVerificationEmail: async ({ user, url }) => {
+    async sendVerificationEmail({ user, url }) {
       mailer.sendMail({
         html: `Click the link to verify your email: ${url}`,
         subject: 'Verify your email address',
@@ -37,7 +57,7 @@ export const auth = betterAuth({
     autoSignInAfterVerification: true
   },
   emailAndPassword: {
-    sendResetPassword: async ({ user, url }) => {
+    async sendResetPassword({ user, url }) {
       mailer.sendMail({
         html: `Click the link to reset your password: ${url}`,
         subject: 'Reset your password',

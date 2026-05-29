@@ -1,5 +1,5 @@
+import { APIError as BetterAuthError, betterAuth } from 'better-auth';
 import { prismaAdapter } from 'better-auth/adapters/prisma';
-import { betterAuth, APIError } from 'better-auth';
 import { HttpStatusCode } from 'axios';
 import { Elysia } from 'elysia';
 
@@ -25,11 +25,12 @@ export const auth = betterAuth({
           if (profile.cover) await remove(profile.cover);
         } catch (error) {
           if (error instanceof Error && isFileError(error))
-            throw new APIError('BAD_REQUEST', {
-              message: error.message,
-              code: error.code,
-              name: error.name,
-              path: error.path
+            throw new BetterAuthError(HttpStatusCode.BadRequest, {
+              ...new ApiError(
+                [{ path: [error.path as string], message: error.message }],
+                error.code,
+                HttpStatusCode.BadRequest
+              )
             });
         }
       },

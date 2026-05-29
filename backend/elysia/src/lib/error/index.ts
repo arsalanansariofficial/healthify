@@ -58,7 +58,7 @@ export const errorPlugin = new Elysia({ name: 'Error.Plugin' })
       case error instanceof Error && isFileError(error):
         return status(HttpStatusCode.BadRequest, {
           ...new ApiError(
-            [{ path: [error.code as string], message: error.message }],
+            [{ path: [error.path as string], message: error.message }],
             error.name,
             HttpStatusCode.BadRequest
           )

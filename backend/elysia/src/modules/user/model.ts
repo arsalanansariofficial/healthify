@@ -34,15 +34,4 @@ const userWithProfile = z.object({
   profile: userProfile.nullable()
 });
 
-const payload = z.object({
-  phoneNumber: userProfile.shape.phoneNumber.nullish(),
-  password: z.string().nonempty().trim().nullish(),
-  address: userProfile.shape.address.nullish(),
-  gender: userProfile.shape.gender.nullish(),
-  image: userProfile.shape.image.nullish(),
-  cover: userProfile.shape.cover.nullish(),
-  bio: userProfile.shape.bio.nullish(),
-  status: z.boolean().nullish()
-});
-
-export const model = { userWithProfile, userProfile, payload, user };
+export const model = { userWithProfile, userProfile, user } as const;

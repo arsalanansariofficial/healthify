@@ -1,18 +1,16 @@
 import type { UserWithProfile } from '@/lib/util/types';
+import type { Payload } from '@/modules/user/payload';
 
-import { type Model } from '@/modules/user/model';
 import { remove, upload } from '@/lib/file';
 import { prisma } from '@/lib/prisma';
 import { isFile } from '@/lib/util';
 import { auth } from '@/lib/auth';
 
-type PasswordPayload = { password: string; headers: Headers };
-
 async function update({
   payload,
   user
 }: {
-  payload: Model['payload'];
+  payload: Payload['userProfile'];
   user: UserWithProfile;
 }) {
   return await prisma.$transaction(async prisma => {
@@ -44,14 +42,23 @@ async function update({
   });
 }
 
-async function setPassword({ password, headers }: PasswordPayload) {
-  return await auth.api.setPassword({
-    body: { newPassword: password },
-    headers
-  });
+async function setPassword({
+  newPassword,
+  headers
+}: {
+  newPassword: string;
+  headers: Headers;
+}) {
+  return await auth.api.setPassword({ body: { newPassword }, headers });
 }
 
-async function verifyPassword({ password, headers }: PasswordPayload) {
+async function verifyPassword({
+  password,
+  headers
+}: {
+  password: string;
+  headers: Headers;
+}) {
   return await auth.api.verifyPassword({ body: { password }, headers });
 }
 

@@ -37,6 +37,13 @@ export const envSchema = z.object({
       description:
         'Time remaining until automatic logout (seconds), defaults to 1 hour.'
     }),
+  AXIOS_REQUEST_TIMEOUT: z.coerce
+    .number()
+    .default(5 * 1000)
+    .meta({
+      description:
+        'Timeout for failing network requests (milliseconds), defaults to 5 seconds.'
+    }),
   UPLOAD_DIR: z
     .string()
     .default('public')

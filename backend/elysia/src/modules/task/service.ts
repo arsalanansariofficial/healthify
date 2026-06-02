@@ -1,7 +1,7 @@
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime/client';
 
-import { removeUndefinedProps } from '@/lib/util';
-import { type Model } from '@/modules/task/model';
+import type { Payload } from '@/modules/task/payload';
+
 import { TaskNotFoundError } from '@/lib/error';
 import { prisma } from '@/lib/prisma';
 
@@ -36,27 +36,24 @@ async function deleteTask({ userId, id }: { userId: string; id: string }) {
   }
 }
 
-async function update({
-  payload,
-  id
-}: {
-  payload: Model['payload'];
-  id: string;
-}) {
-  return await prisma.task.update({
-    data: removeUndefinedProps(payload),
-    where: { id }
-  });
-}
-
 async function create({
   payload,
   userId
 }: {
-  payload: Model['payload'];
+  payload: Payload['task'];
   userId: string;
 }) {
   return await prisma.task.create({ data: { ...payload, userId } });
+}
+
+async function update({
+  payload,
+  id
+}: {
+  payload: Payload['patchTask'];
+  id: string;
+}) {
+  return await prisma.task.update({ data: payload, where: { id } });
 }
 
 export const taskService = { deleteTask, update, create, get };

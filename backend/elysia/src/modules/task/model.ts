@@ -16,13 +16,6 @@ const task = z.object({
   updatedAt: z.date()
 });
 
-const payload = z.object({
-  description: z.string().nonempty().trim().toLowerCase().nullish(),
-  status: z.enum(Status).default(Status.incomplete).nullish(),
-  title: z.string().nonempty().trim().toLowerCase()
-});
-
-const params = z.object({ id: z.string().nonempty().trim() });
 const tasks = z.array(task);
 
-export const model = { payload, params, tasks, task } as const;
+export const model = { tasks, task } as const;

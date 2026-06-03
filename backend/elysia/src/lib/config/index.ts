@@ -10,8 +10,8 @@ export const envSchema = z.object({
         'Random hash value for better-auth to hash passwords, defaults to aJEj11jdjesEdzi8AuGGA2G4FzZ9YbWA.'
     }),
   BETTER_AUTH_ACCEPT_METHODS: z
-    .array(z.enum(['POST', 'GET']))
-    .default(['POST', 'GET'])
+    .array(z.enum(['post', 'get']))
+    .default(['post', 'get'])
     .meta({
       description:
         'HTTP authentication methods for better-auth, defaults to POST and GET methods.'

@@ -122,9 +122,10 @@ export const loadAuthContext = new Elysia({ name: 'AuthContext.Plugin' })
 export const authRoutes = new Elysia({ name: 'BetterAuth.Routes' }).all(
   '/api/auth/*',
   ({ request, path }) => {
-    if (hasValidAuthMethod(request.method)) return auth.handler(request);
+    const method = request.method.toLowerCase();
+    if (hasValidAuthMethod(method)) return auth.handler(request);
     throw new ApiError(
-      [{ message: `Method: ${request.method}, is not allowed.`, path: [path] }],
+      [{ message: `Method: ${method}, is not allowed.`, path: [path] }],
       'Method not allowed.',
       HttpStatusCode.MethodNotAllowed
     );

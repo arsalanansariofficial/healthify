@@ -28,7 +28,7 @@ export function removeUndefinedProps<T extends Record<string, unknown>>(
 }
 
 export function hasValidAuthMethod(method: string) {
-  return env.BETTER_AUTH_ACCEPT_METHODS.includes(method as 'POST' | 'GET');
+  return env.BETTER_AUTH_ACCEPT_METHODS.includes(method as 'post' | 'get');
 }
 
 export function isFile(payload?: string | File | null): payload is File {

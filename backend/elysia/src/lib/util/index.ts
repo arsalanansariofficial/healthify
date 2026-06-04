@@ -2,12 +2,10 @@ import type { File } from 'zod/v4/core';
 
 import nodemailer from 'nodemailer';
 import os from 'node:os';
-import z from 'zod';
 
 import { env } from '@/lib/config';
 
 export const mailer = nodemailer.createTransport(env.SMTP_URL);
-export const none = z.union([z.null(), z.undefined()]);
 
 export function isFileError(
   e: Error
@@ -34,8 +32,3 @@ export function hasValidAuthMethod(method: string) {
 export function isFile(payload?: string | File | null): payload is File {
   return Boolean(payload && payload instanceof File);
 }
-
-export const file = z.union([
-  z.string().trim().toLowerCase(),
-  z.file().min(env.MIN_FILE_SIZE).mime(['image/png']).max(env.MAX_FILE_SIZE)
-]);

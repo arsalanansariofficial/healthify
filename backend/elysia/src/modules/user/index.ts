@@ -4,13 +4,13 @@ import { userService } from '@/modules/user/service';
 import { payload } from '@/modules/user/payload';
 import { loadAuthContext } from '@/lib/auth';
 import { model } from '@/modules/user/model';
-import { none } from '@/lib/util';
+import { schema } from '@/lib/util/schema';
 
 export const userRoutes = new Elysia({ name: 'User.Routes', prefix: '/users' })
   .use(loadAuthContext)
   .get('/me', ({ user }) => user, {
     response: model.userWithProfile,
-    body: none
+    body: schema.nullish('body')
   })
   .patch(
     '/me',

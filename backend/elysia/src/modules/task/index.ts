@@ -3,11 +3,10 @@ import { Elysia } from 'elysia';
 import type { Task } from '~/generated/prisma/client';
 
 import { taskService } from '@/modules/task/service';
+import { payload } from '@/modules/task/payload';
 import { loadAuthContext } from '@/lib/auth';
 import { model } from '@/modules/task/model';
-import { none } from '@/lib/util';
-
-import { payload } from './payload';
+import { schema } from '@/lib/util/schema';
 
 export const taskRoutes = new Elysia({ name: 'Task.Routes', prefix: '/tasks' })
   .use(loadAuthContext)
@@ -15,19 +14,27 @@ export const taskRoutes = new Elysia({ name: 'Task.Routes', prefix: '/tasks' })
     '/',
     async ({ user: { id: userId } }) =>
       (await taskService.get({ userId })) as Task[],
-    { response: model.tasks, body: none }
+    { body: schema.nullish('body'), response: model.tasks }
   )
   .get(
     '/:id',
     async ({ user: { id: userId }, params: { id } }) =>
       (await taskService.get({ userId, id })) as Task,
-    { params: payload.taskId, response: model.task, body: none }
+    {
+      body: schema.nullish('body'),
+      params: payload.taskId,
+      response: model.task
+    }
   )
   .delete(
     '/:id',
     async ({ user: { id: userId }, params: { id } }) =>
       await taskService.deleteTask({ userId, id }),
-    { params: payload.taskId, response: model.task, body: none }
+    {
+      body: schema.nullish('body'),
+      params: payload.taskId,
+      response: model.task
+    }
   )
   .patch(
     '/:id',

@@ -70,6 +70,20 @@ export const envSchema = z.object(
         description:
           'Timeout for failing network requests (milliseconds), defaults to 5 seconds.'
       }),
+    BETTER_AUTH_MAX_PASSWORD_LENGTH: z.coerce
+      .number('BETTER_AUTH_MAX_PASSWORD_LENGTH should be a valid number.')
+      .default(256)
+      .meta({
+        description:
+          'Maximum number of characters a password can be, defaults to 256.'
+      }),
+    BETTER_AUTH_MIN_PASSWORD_LENGTH: z.coerce
+      .number('BETTER_AUTH_MIN_PASSWORD_LENGTH should be a valid number.')
+      .default(8)
+      .meta({
+        description:
+          'Minimum number of characters a password should be, defaults to 8.'
+      }),
     NODE_ENV: z
       .enum(
         ['development', 'production', 'test'],
@@ -93,6 +107,13 @@ export const envSchema = z.object(
         description:
           'Minimum number of bytes for a valid file upload, defaults to 10 KB.'
       }),
+    BETTER_AUTH_URL: z
+      .url('BETTER_AUTH_URL should be valid url.')
+      .default('http://localhost:3000')
+      .meta({
+        description:
+          'Server url of better-auth, defaults to http://localhost:3000.'
+      }),
     SMTP_URL: z
       .url('SMTP_URL should be a valid url.')
       .meta({
@@ -112,11 +133,11 @@ export const envSchema = z.object(
         description:
           'Port at which the elysia server is running, defaults to 3000.'
       }),
-    BETTER_AUTH_URL: z
-      .url('BETTER_AUTH_URL should be valid url.')
+    BASE_URL: z
+      .url('BASE_URL should be valid url.')
+      .default('http://localhost:3000')
       .meta({
-        description:
-          'Server url of better-auth, defaults to http://localhost:3000.'
+        description: 'Base server url, defaults to http://localhost:3000.'
       })
   },
   'envSchema should be a valid object.'

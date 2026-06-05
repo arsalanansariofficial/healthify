@@ -3,6 +3,7 @@ import z from 'zod';
 import type { ModelType } from '@/lib/util/types';
 
 import { model } from '@/modules/user/model';
+import { env } from '@/lib/config';
 
 export type Payload = ModelType<typeof payload>;
 
@@ -23,8 +24,14 @@ const setPassword = z.object(
         'newPassword should contain at least one uppercase character.'
       )
       .regex(/[0-9]/, 'newPassword should contain at least one number.')
-      .max(256, 'newPassword should be atmost 256 characters.')
-      .min(8, 'newPassword should be at least 8 characters.')
+      .min(
+        env.BETTER_AUTH_MIN_PASSWORD_LENGTH,
+        `newPassword should be at least ${env.BETTER_AUTH_MIN_PASSWORD_LENGTH} characters.`
+      )
+      .max(
+        env.BETTER_AUTH_MAX_PASSWORD_LENGTH,
+        `newPassword should be atmost ${env.BETTER_AUTH_MAX_PASSWORD_LENGTH} characters.`
+      )
       .nonempty('newPassword should not be empty.')
       .trim()
   },

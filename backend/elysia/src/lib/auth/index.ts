@@ -41,9 +41,23 @@ export const auth = betterAuth({
           to: user.email
         });
       },
-      enabled: env.NODE_ENV !== 'test'
+      enabled: true
     },
     changeEmail: { updateEmailWithoutVerification: true, enabled: true }
+  },
+  emailAndPassword: {
+    async sendResetPassword({ user, url }) {
+      mailer.sendMail({
+        html: `Click the link to reset your password: ${url}`,
+        subject: 'Reset your password',
+        to: user.email
+      });
+    },
+    maxPasswordLength: env.BETTER_AUTH_MAX_PASSWORD_LENGTH,
+    minPasswordLength: env.BETTER_AUTH_MIN_PASSWORD_LENGTH,
+    requireEmailVerification: env.NODE_ENV !== 'test',
+    revokeSessionsOnPasswordReset: true,
+    enabled: true
   },
   emailVerification: {
     async sendVerificationEmail({ user, url }) {
@@ -56,18 +70,6 @@ export const auth = betterAuth({
     sendOnSignUp: env.NODE_ENV !== 'test',
     sendOnSignIn: env.NODE_ENV !== 'test',
     autoSignInAfterVerification: true
-  },
-  emailAndPassword: {
-    async sendResetPassword({ user, url }) {
-      mailer.sendMail({
-        html: `Click the link to reset your password: ${url}`,
-        subject: 'Reset your password',
-        to: user.email
-      });
-    },
-    requireEmailVerification: env.NODE_ENV !== 'test',
-    revokeSessionsOnPasswordReset: true,
-    enabled: true
   },
   socialProviders: {
     ...(env.GITHUB_CLIENT_ID &&

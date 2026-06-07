@@ -34,8 +34,8 @@ const userProfile = z.object(
       .uuid('userId')
       .nonempty('userId should not be empty.')
       .trim(),
-    image: schema.file('image').nullable(),
-    cover: schema.file('image').nullable(),
+    image: schema.fileOrUrl('image').nullable(),
+    cover: schema.fileOrUrl('image').nullable(),
     createdAt: schema.date('createdAt'),
     updatedAt: schema.date('updatedAt')
   },
@@ -54,7 +54,7 @@ const user = z.object(
       .default(false),
     email: z.email('email should be a valid email.').trim().toLowerCase(),
     id: schema.uuid('id').nonempty('id should not be empty.').trim(),
-    image: schema.file('image').nullish(),
+    image: schema.fileOrUrl('image').nullish(),
     createdAt: schema.date('createdAt'),
     updatedAt: schema.date('updatedAt')
   },

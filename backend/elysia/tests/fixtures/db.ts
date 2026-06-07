@@ -61,9 +61,9 @@ export const unknown = {
 };
 
 export const axiosClient = axios.create({
-  baseURL: 'http://localhost:3000',
+  timeout: env.AXIOS_REQUEST_TIMEOUT,
   validateStatus: undefined,
-  timeout: 5000
+  baseURL: env.BASE_URL
 });
 
 export const api = treaty(app);

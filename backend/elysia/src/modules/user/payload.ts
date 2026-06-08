@@ -38,18 +38,6 @@ const setPassword = z.object(
   'setPassword should be a valid object.'
 );
 
-const userProfile = z.object(
-  {
-    phoneNumber: model.userProfile.shape.phoneNumber.nullish(),
-    address: model.userProfile.shape.address.nullish(),
-    gender: model.userProfile.shape.gender.nullish(),
-    image: model.userProfile.shape.image.nullish(),
-    cover: model.userProfile.shape.cover.nullish(),
-    bio: model.userProfile.shape.bio.nullish()
-  },
-  'userProfile should be valid object.'
-);
-
 const verifyPassword = z.object(
   {
     password: z
@@ -64,6 +52,8 @@ const status = z.object(
   { status: z.boolean('status should be valid boolean.') },
   'status should be a valid object.'
 );
+
+const userProfile = model.userProfile.partial();
 
 export const payload = {
   verifyPassword,

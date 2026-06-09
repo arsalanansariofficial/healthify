@@ -3,6 +3,7 @@ import z from 'zod';
 import type { ModelType } from '@/lib/util/types';
 
 import { model } from '@/modules/user/model';
+import { schema } from '@/lib/util/schema';
 import { env } from '@/lib/config';
 
 export type Payload = ModelType<typeof payload>;
@@ -48,12 +49,17 @@ const verifyPassword = z.object(
   'password should be valid object.'
 );
 
+const userProfile = model.userProfile
+  .extend({
+    image: schema.fileOrUrl('image').nullable(),
+    cover: schema.fileOrUrl('cover').nullable()
+  })
+  .partial();
+
 const status = z.object(
   { status: z.boolean('status should be valid boolean.') },
   'status should be a valid object.'
 );
-
-const userProfile = model.userProfile.partial();
 
 export const payload = {
   verifyPassword,

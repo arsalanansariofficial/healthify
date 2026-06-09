@@ -1,5 +1,5 @@
-import type { UserWithProfile } from '@/lib/util/types';
 import type { Payload } from '@/modules/user/payload';
+import type { Model } from '@/modules/user/model';
 
 import { remove, upload } from '@/lib/file';
 import { prisma } from '@/lib/prisma';
@@ -11,7 +11,7 @@ async function update({
   user
 }: {
   payload: Payload['userProfile'];
-  user: UserWithProfile;
+  user: Model['userWithProfile'];
 }) {
   return await prisma.$transaction(async prisma => {
     let { image, cover } = payload;

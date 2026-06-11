@@ -4,14 +4,10 @@ import { userService } from '@/modules/user/service';
 import { payload } from '@/modules/user/payload';
 import { loadAuthContext } from '@/lib/auth';
 import { model } from '@/modules/user/model';
-import { schema } from '@/lib/util/schema';
 
 export const userRoutes = new Elysia({ name: 'User.Routes', prefix: '/users' })
   .use(loadAuthContext)
-  .get('/me', ({ user }) => user, {
-    response: model.userWithProfile,
-    body: schema.nullish('body')
-  })
+  .get('/me', ({ user }) => user, { response: model.userWithProfile })
   .patch(
     '/me',
     async ({ user, body }) => await userService.update({ payload: body, user }),

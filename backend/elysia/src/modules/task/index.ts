@@ -14,17 +14,13 @@ export const taskRoutes = new Elysia({ name: 'Task.Routes', prefix: '/tasks' })
     '/',
     async ({ user: { id: userId } }) =>
       (await taskService.get({ userId })) as Task[],
-    { body: schema.nullish('body'), response: model.tasks }
+    { response: model.tasks }
   )
   .get(
     '/:id',
     async ({ user: { id: userId }, params: { id } }) =>
       (await taskService.get({ userId, id })) as Task,
-    {
-      body: schema.nullish('body'),
-      params: payload.taskId,
-      response: model.task
-    }
+    { params: payload.taskId, response: model.task }
   )
   .delete(
     '/:id',

@@ -27,6 +27,16 @@ const userProfile = z.object(
       .toLowerCase()
       .trim()
       .nullable(),
+    image: z
+      .url('image should be a valid url.')
+      .nonempty('image should not be empty.')
+      .trim()
+      .nullable(),
+    cover: z
+      .url('cover should be a valid url.')
+      .nonempty('cover should not be empty.')
+      .trim()
+      .nullable(),
     gender: z
       .enum(Gender, `gender should be valid, ex: ${Object.values(Gender)}.`)
       .nullable(),
@@ -34,8 +44,6 @@ const userProfile = z.object(
       .uuid('userId')
       .nonempty('userId should not be empty.')
       .trim(),
-    image: z.string('image should be a valid string.').nullable(),
-    cover: z.string('cover should be a valid string.').nullable(),
     createdAt: schema.date('createdAt'),
     updatedAt: schema.date('updatedAt')
   },
@@ -49,12 +57,15 @@ const user = z.object(
       .nonempty('name should not be empty.')
       .toLowerCase()
       .trim(),
+    email: z
+      .email('email should be a valid.')
+      .nonempty('email should not be empty.')
+      .trim(),
     emailVerified: z
       .boolean('emailVerified should be a valid boolean.')
       .default(false),
-    email: z.email('email should be a valid email.').trim().toLowerCase(),
     id: schema.uuid('id').nonempty('id should not be empty.').trim(),
-    image: z.string('image should be a valid string').nullish(),
+    image: z.url('image should be a valid url.').trim().nullable(),
     createdAt: schema.date('createdAt'),
     updatedAt: schema.date('updatedAt')
   },

@@ -113,7 +113,8 @@ export const loadAuthContext = new Elysia({ name: 'AuthContext.Plugin' })
         ...session.user,
         profile: await prisma.userProfile.findUnique({
           where: { userId: session.user.id }
-        })
+        }),
+        image: session.user.image as string | null
       }
     };
   })

@@ -1,11 +1,9 @@
 import { Elysia } from 'elysia';
 
-import type { Task } from '~/generated/prisma/client';
-
+import { type Model, model } from '@/modules/task/model';
 import { taskService } from '@/modules/task/service';
 import { payload } from '@/modules/task/payload';
 import { loadAuthContext } from '@/lib/auth';
-import { model } from '@/modules/task/model';
 import { schema } from '@/lib/util/schema';
 
 export const taskRoutes = new Elysia({ name: 'Task.Routes', prefix: '/tasks' })
@@ -13,13 +11,13 @@ export const taskRoutes = new Elysia({ name: 'Task.Routes', prefix: '/tasks' })
   .get(
     '/',
     async ({ user: { id: userId } }) =>
-      (await taskService.get({ userId })) as Task[],
+      (await taskService.get({ userId })) as Model['tasks'],
     { response: model.tasks }
   )
   .get(
     '/:id',
     async ({ user: { id: userId }, params: { id } }) =>
-      (await taskService.get({ userId, id })) as Task,
+      (await taskService.get({ userId, id })) as Model['task'],
     { params: payload.taskId, response: model.task }
   )
   .delete(

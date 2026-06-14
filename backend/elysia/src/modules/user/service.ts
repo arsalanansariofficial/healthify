@@ -1,65 +1,71 @@
+import type { HTTPHeaders } from 'elysia/types';
+
 import type { Payload } from '@/modules/user/payload';
 import type { Model } from '@/modules/user/model';
 
-import { remove, upload } from '@/lib/file';
 import { prisma } from '@/lib/prisma';
-import { isFile } from '@/lib/util';
+import { replace } from '@/lib/file';
 import { auth } from '@/lib/auth';
 
-async function update({
-  payload,
-  user
-}: {
-  payload: Payload['userProfile'];
+async function update(args: {
+  payload: Payload['userWithProfile'];
   user: Model['userWithProfile'];
+  set: { headers: HTTPHeaders };
+  headers: Headers;
 }) {
-  return await prisma.$transaction(async prisma => {
-    let { image, cover } = payload;
-    let userCover: undefined | string | null = null;
-    let userImage: undefined | string | null = null;
+  const { profile: $profile, user: $user } = args.payload;
 
-    if (user.profile) {
-      userImage = user.profile.image;
-      userCover = user.profile.cover;
-    }
-
-    if (image && userImage) await remove(userImage);
-    if (cover && userCover) await remove(userCover);
-
-    if (image === null && userImage) await remove(userImage);
-    if (cover === null && userCover) await remove(userCover);
-
-    if (isFile(image)) image = await upload(image);
-    if (isFile(cover)) cover = await upload(cover);
-
-    const updates = { ...payload, image, cover };
-
-    return await prisma.user.update({
-      data: { profile: { upsert: { create: updates, update: updates } } },
-      include: { profile: true },
-      where: { id: user.id }
+  if ($user) {
+    const image = await replace({
+      replaceWith: $user.image,
+      url: args.user.image
     });
+    await auth.api.updateUser({
+      body: { ...$user, image },
+      headers: args.headers
+    });
+  }
+
+  if ($profile) {
+    const cover = await replace({
+      url: args.user.profile?.cover,
+      replaceWith: $profile.cover
+    });
+
+    await prisma.userProfile.upsert({
+      create: { ...$profile, userId: args.user.id, image: cover, cover },
+      update: { ...$profile, image: cover, cover },
+      where: { userId: args.user.id }
+    });
+  }
+
+  const { headers: cookie } = await auth.api.getSession({
+    query: { disableCookieCache: true },
+    headers: args.headers,
+    returnHeaders: true
+  });
+
+  const updated = await prisma.user.findUnique({
+    where: { id: args.user.id },
+    include: { profile: true }
+  });
+
+  args.set.headers['set-cookie'] = cookie.getSetCookie();
+  return updated || args.user;
+}
+
+async function setPassword(args: { newPassword: string; headers: Headers }) {
+  return await auth.api.setPassword({
+    body: { newPassword: args.newPassword },
+    headers: args.headers
   });
 }
 
-async function setPassword({
-  newPassword,
-  headers
-}: {
-  newPassword: string;
-  headers: Headers;
-}) {
-  return await auth.api.setPassword({ body: { newPassword }, headers });
-}
-
-async function verifyPassword({
-  password,
-  headers
-}: {
-  password: string;
-  headers: Headers;
-}) {
-  return await auth.api.verifyPassword({ body: { password }, headers });
+async function verifyPassword(args: { password: string; headers: Headers }) {
+  return await auth.api.verifyPassword({
+    body: { password: args.password },
+    headers: args.headers
+  });
 }
 
 export const userService = { verifyPassword, setPassword, update };

@@ -34,7 +34,11 @@ function nullish(attribute: string) {
 
 function fileOrUrl(attribute: string) {
   return z.union([
-    z.url(`${attribute} should be a valid url.`).trim().toLowerCase(),
+    z
+      .url(`${attribute} should be a valid url.`)
+      .nonempty(`${attribute} should not be empty.`)
+      .toLowerCase()
+      .trim(),
     file(attribute)
   ]);
 }

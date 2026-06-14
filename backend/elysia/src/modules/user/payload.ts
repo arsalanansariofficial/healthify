@@ -49,12 +49,14 @@ const verifyPassword = z.object(
   'password should be valid object.'
 );
 
-const userProfile = model.userProfile
-  .extend({
-    image: schema.fileOrUrl('image').nullable(),
-    cover: schema.fileOrUrl('cover').nullable()
+const userWithProfile = z.deepPartial(
+  z.object({
+    profile: model.userProfile.extend({
+      cover: schema.fileOrUrl('cover').nullable()
+    }),
+    user: model.user.extend({ image: schema.fileOrUrl('image').nullable() })
   })
-  .partial();
+);
 
 const status = z.object(
   { status: z.boolean('status should be valid boolean.') },
@@ -62,8 +64,8 @@ const status = z.object(
 );
 
 export const payload = {
+  userWithProfile,
   verifyPassword,
   setPassword,
-  userProfile,
   status
 } as const;

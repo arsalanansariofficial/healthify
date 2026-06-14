@@ -80,7 +80,6 @@ model UserProfile {
   updatedAt DateTime @updatedAt
 
   phoneNumber String? @unique
-  image       String?
   cover       String?
   bio         String?
   address     String?

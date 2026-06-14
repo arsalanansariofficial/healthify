@@ -27,11 +27,6 @@ const userProfile = z.object(
       .toLowerCase()
       .trim()
       .nullable(),
-    image: z
-      .url('image should be a valid url.')
-      .nonempty('image should not be empty.')
-      .trim()
-      .nullable(),
     cover: z
       .url('cover should be a valid url.')
       .nonempty('cover should not be empty.')
@@ -57,6 +52,11 @@ const user = z.object(
       .nonempty('name should not be empty.')
       .toLowerCase()
       .trim(),
+    image: z
+      .url('image should be a valid url.')
+      .nonempty('image should not be empty.')
+      .trim()
+      .nullable(),
     email: z
       .email('email should be a valid.')
       .nonempty('email should not be empty.')
@@ -65,7 +65,6 @@ const user = z.object(
       .boolean('emailVerified should be a valid boolean.')
       .default(false),
     id: schema.uuid('id').nonempty('id should not be empty.').trim(),
-    image: z.url('image should be a valid url.').trim().nullable(),
     createdAt: schema.date('createdAt'),
     updatedAt: schema.date('updatedAt')
   },

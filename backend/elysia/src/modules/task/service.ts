@@ -36,24 +36,17 @@ async function deleteTask({ userId, id }: { userId: string; id: string }) {
   }
 }
 
-async function create({
-  payload,
-  userId
-}: {
-  payload: Payload['task'];
-  userId: string;
-}) {
-  return await prisma.task.create({ data: { ...payload, userId } });
+async function update(args: { payload: Payload['patchTask']; id: string }) {
+  return await prisma.task.update({
+    where: { id: args.id },
+    data: args.payload
+  });
 }
 
-async function update({
-  payload,
-  id
-}: {
-  payload: Payload['patchTask'];
-  id: string;
-}) {
-  return await prisma.task.update({ data: payload, where: { id } });
+async function create(args: { payload: Payload['task']; userId: string }) {
+  return await prisma.task.create({
+    data: { ...args.payload, userId: args.userId }
+  });
 }
 
 export const taskService = { deleteTask, update, create, get };

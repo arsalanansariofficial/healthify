@@ -5,6 +5,7 @@ import type { Payload } from '@/modules/user/payload';
 
 import {
   getSessionCookie,
+  axiosClient,
   resetDisk,
   setupDb,
   resetDb,
@@ -23,25 +24,26 @@ afterAll(async () => {
 });
 beforeEach(setupDb);
 
-test.skip('should upload profile picture for a user', async () => {
+test('should upload profile picture for a user', async () => {
   const { headers } = await auth.api.signInEmail({
     returnHeaders: true,
     body: { ...gwen }
   });
 
-  const { status, data } = await api.users.me.patch(
-    {
-      user: {
-        image: Bun.file('tests/fixtures/images/image.png') as unknown as File
-      }
-    },
+  const fd = new FormData();
+  fd.append('user.image', Bun.file('tests/fixtures/images/image.png'));
+
+  const { status, data } = await axiosClient.patch(
+    '/users/me',
+    fd,
     getSessionCookie(headers)
   );
 
   const user = await prisma.user.findUnique({ where: { id: data?.id } });
 
-  expect(user?.image).not.toBe(null);
   expect(status).toBe(HttpStatusCode.Ok);
+  expect(user?.image).toBeString();
+  expect(user?.image).toBeTruthy();
 });
 
 test('should signup a new user', async () => {

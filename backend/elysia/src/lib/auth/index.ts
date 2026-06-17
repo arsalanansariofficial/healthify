@@ -18,9 +18,8 @@ export const auth = betterAuth({
             where: { userId: user.id }
           });
 
-          if (!profile) return;
-          if (profile.image) await remove(profile.image);
-          if (profile.cover) await remove(profile.cover);
+          if (user.image) await remove(user.image);
+          if (profile?.cover) await remove(profile.cover);
         } catch (error) {
           if (error instanceof Error && isFileError(error))
             throw new BetterAuthError(HttpStatusCode.BadRequest, {

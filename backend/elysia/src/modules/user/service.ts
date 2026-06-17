@@ -31,11 +31,10 @@ async function update(args: {
       url: args.user.profile?.cover,
       replaceWith: $profile.cover
     });
-
     await prisma.userProfile.upsert({
-      create: { ...$profile, userId: args.user.id, image: cover, cover },
-      update: { ...$profile, image: cover, cover },
-      where: { userId: args.user.id }
+      create: { ...$profile, userId: args.user.id, cover },
+      where: { userId: args.user.id },
+      update: { ...$profile, cover }
     });
   }
 

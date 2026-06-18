@@ -8,12 +8,15 @@ model User {
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
 
-  image String? @db.Text
+  image            String?  @db.Text
+  twoFactorEnabled Boolean?
 
-  profile  UserProfile?
-  sessions Session[]
-  accounts Account[]
-  tasks    Task[]
+  profile UserProfile?
+
+  TwoFactor TwoFactor[]
+  sessions  Session[]
+  accounts  Account[]
+  tasks     Task[]
 }
 
 model Account {
@@ -57,6 +60,20 @@ model Session {
   userAgent String? @db.Text
 
   @@index([userId])
+}
+
+model TwoFactor {
+  id String @id @default(uuid())
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  backupCodes             String  @db.Text
+  verified                Boolean
+  secret                  String
+  failedVerificationCount Int
+
+  lockedUntil DateTime?
 }
 
 model Verification {

@@ -57,6 +57,10 @@ const user = z.object(
       .nonempty('image should not be empty.')
       .trim()
       .nullable(),
+    twoFactorEnabled: z
+      .boolean('twoFactorEnabled should be a valid boolean.')
+      .default(false)
+      .nullable(),
     email: z
       .email('email should be a valid.')
       .nonempty('email should not be empty.')

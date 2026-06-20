@@ -1,5 +1,6 @@
 import { APIError as BetterAuthError, betterAuth } from 'better-auth';
 import { prismaAdapter } from 'better-auth/adapters/prisma';
+import { twoFactor } from 'better-auth/plugins';
 import { HttpStatusCode } from 'axios';
 import { Elysia } from 'elysia';
 
@@ -68,6 +69,20 @@ export const auth = betterAuth({
     sendOnSignIn: env.NODE_ENV !== 'test',
     autoSignInAfterVerification: true
   },
+  plugins: [
+    twoFactor({
+      otpOptions: {
+        async sendOTP({ user, otp }) {
+          mailer.sendMail({
+            html: `Enter ${otp} to verify your identity.`,
+            subject: 'Verify OTP',
+            to: user.email
+          });
+        }
+      },
+      allowPasswordless: true
+    })
+  ],
   socialProviders: {
     ...(env.GITHUB_CLIENT_ID &&
       env.GITHUB_CLIENT_SECRET && {
@@ -99,7 +114,8 @@ export const auth = betterAuth({
       allowUnlinkingAll: true
     }
   },
-  database: prismaAdapter(prisma, { provider: 'mysql' })
+  database: prismaAdapter(prisma, { provider: 'mysql' }),
+  appName: 'task-manager'
 });
 
 export const loadAuthContext = new Elysia({ name: 'AuthContext.Plugin' })
@@ -113,6 +129,7 @@ export const loadAuthContext = new Elysia({ name: 'AuthContext.Plugin' })
         profile: await prisma.userProfile.findUnique({
           where: { userId: session.user.id }
         }),
+        twoFactorEnabled: session.user.twoFactorEnabled as boolean | null,
         image: session.user.image as string | null
       }
     };

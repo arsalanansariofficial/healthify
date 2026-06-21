@@ -15,6 +15,12 @@ export const userRoutes = new Elysia({ name: 'User.Routes', prefix: '/users' })
     { response: model.userWithProfile, body: payload.userWithProfile }
   )
   .post(
+    '/view-backup-codes',
+    async ({ body: { userId } }) =>
+      await userService.getBackupCodes({ userId }),
+    { body: payload.viewBackupCodes, response: payload.status }
+  )
+  .post(
     '/set-password',
     async ({ body: { newPassword }, request: { headers } }) =>
       await userService.setPassword({ newPassword, headers }),

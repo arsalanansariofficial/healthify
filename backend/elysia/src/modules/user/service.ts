@@ -67,4 +67,13 @@ async function verifyPassword(args: { password: string; headers: Headers }) {
   });
 }
 
-export const userService = { verifyPassword, setPassword, update };
+async function getBackupCodes({ userId }: Payload['viewBackupCodes']) {
+  return await auth.api.viewBackupCodes({ body: { userId } });
+}
+
+export const userService = {
+  getBackupCodes,
+  verifyPassword,
+  setPassword,
+  update
+};

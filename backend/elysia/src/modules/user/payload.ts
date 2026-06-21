@@ -58,13 +58,27 @@ const userWithProfile = z.deepPartial(
   })
 );
 
-const status = z.object(
-  { status: z.boolean('status should be valid boolean.') },
-  'status should be a valid object.'
+const status = z
+  .object(
+    {
+      backupCodes: z.array(
+        z.string('backupCode should be a valid string.'),
+        'backupCodes should be a valid array.'
+      ),
+      status: z.boolean('status should be valid boolean.')
+    },
+    'status should be a valid object.'
+  )
+  .partial();
+
+const viewBackupCodes = z.object(
+  { userId: model.user.shape.id },
+  'viewBackupCodes should be a valid object.'
 );
 
 export const payload = {
   userWithProfile,
+  viewBackupCodes,
   verifyPassword,
   setPassword,
   status

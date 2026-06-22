@@ -1,6 +1,6 @@
 import { APIError as BetterAuthError, betterAuth } from 'better-auth';
 import { prismaAdapter } from 'better-auth/adapters/prisma';
-import { twoFactor } from 'better-auth/plugins';
+import { twoFactor, username } from 'better-auth/plugins';
 import { HttpStatusCode } from 'axios';
 import { Elysia } from 'elysia';
 
@@ -70,6 +70,7 @@ export const auth = betterAuth({
     autoSignInAfterVerification: true
   },
   plugins: [
+    username(),
     twoFactor({
       otpOptions: {
         async sendOTP({ user, otp }) {

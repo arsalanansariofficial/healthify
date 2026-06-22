@@ -9,7 +9,9 @@ model User {
   updatedAt     DateTime @updatedAt
 
   image            String?  @db.Text
+  username         String?  @unique
   twoFactorEnabled Boolean?
+  displayUsername  String?
 
   profile UserProfile?
 

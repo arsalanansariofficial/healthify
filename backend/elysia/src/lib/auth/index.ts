@@ -1,6 +1,6 @@
 import { APIError as BetterAuthError, betterAuth } from 'better-auth';
+import { anonymous, twoFactor, username } from 'better-auth/plugins';
 import { prismaAdapter } from 'better-auth/adapters/prisma';
-import { twoFactor, username } from 'better-auth/plugins';
 import { HttpStatusCode } from 'axios';
 import { Elysia } from 'elysia';
 
@@ -57,20 +57,9 @@ export const auth = betterAuth({
     revokeSessionsOnPasswordReset: true,
     enabled: true
   },
-  emailVerification: {
-    async sendVerificationEmail({ user, url }) {
-      mailer.sendMail({
-        html: `Click the link to verify your email: ${url}`,
-        subject: 'Verify your email address',
-        to: user.email
-      });
-    },
-    sendOnSignUp: env.NODE_ENV !== 'test',
-    sendOnSignIn: env.NODE_ENV !== 'test',
-    autoSignInAfterVerification: true
-  },
   plugins: [
     username(),
+    anonymous({ emailDomainName: 'guest.task-manager.com' }),
     twoFactor({
       otpOptions: {
         async sendOTP({ user, otp }) {
@@ -84,6 +73,18 @@ export const auth = betterAuth({
       allowPasswordless: true
     })
   ],
+  emailVerification: {
+    async sendVerificationEmail({ user, url }) {
+      mailer.sendMail({
+        html: `Click the link to verify your email: ${url}`,
+        subject: 'Verify your email address',
+        to: user.email
+      });
+    },
+    sendOnSignUp: env.NODE_ENV !== 'test',
+    sendOnSignIn: env.NODE_ENV !== 'test',
+    autoSignInAfterVerification: true
+  },
   socialProviders: {
     ...(env.GITHUB_CLIENT_ID &&
       env.GITHUB_CLIENT_SECRET && {

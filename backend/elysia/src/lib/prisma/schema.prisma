@@ -11,6 +11,7 @@ model User {
   image            String?  @db.Text
   username         String?  @unique
   twoFactorEnabled Boolean?
+  isAnonymous      Boolean?
   displayUsername  String?
 
   profile UserProfile?

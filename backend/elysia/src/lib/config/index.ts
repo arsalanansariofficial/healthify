@@ -38,6 +38,14 @@ export const envSchema = z.object(
         description:
           'Time until the session cookie is cached (seconds), defaults to 15 minutes.'
       }),
+    SESSION_COOKIE_NAME: z
+      .string('SESSION_COOKIE_NAME should be a valid string.')
+      .nonempty('SESSION_COOKIE_NAME should not be empty.')
+      .default('session_token')
+      .meta({
+        description:
+          'Name of better-auth session cookie, defaults to session_token.'
+      }),
     GITHUB_CLIENT_ID: z
       .string('GITHUB_CLIENT_ID should be a valid string.')
       .nonempty('GITHUB_CLIENT_ID should not be empty.')
@@ -69,6 +77,13 @@ export const envSchema = z.object(
       .meta({
         description:
           'Timeout for failing network requests (milliseconds), defaults to 5 seconds.'
+      }),
+    APPLICATION_NAME: z
+      .string('APPLICATION_NAME should be a valid string.')
+      .nonempty('APPLICATION_NAME should not be empty.')
+      .default('task-manager')
+      .meta({
+        description: 'Name of the application, defaults to task-manager.'
       }),
     BETTER_AUTH_MAX_PASSWORD_LENGTH: z.coerce
       .number('BETTER_AUTH_MAX_PASSWORD_LENGTH should be a valid number.')

@@ -85,6 +85,13 @@ export const auth = betterAuth({
     sendOnSignIn: env.NODE_ENV !== 'test',
     autoSignInAfterVerification: true
   },
+  advanced: {
+    cookies: { session: { name: env.SESSION_COOKIE_NAME } },
+    database: { generateId: 'uuid', joins: true },
+    cookiePrefix: env.APPLICATION_NAME,
+    disableOriginCheck: true,
+    disableCSRFCheck: false
+  },
   socialProviders: {
     ...(env.GITHUB_CLIENT_ID &&
       env.GITHUB_CLIENT_SECRET && {
@@ -93,13 +100,6 @@ export const auth = betterAuth({
           clientId: env.GITHUB_CLIENT_ID
         }
       })
-  },
-  advanced: {
-    cookies: { session: { name: 'session-token' } },
-    database: { generateId: 'uuid', joins: true },
-    cookiePrefix: 'task-manager',
-    disableOriginCheck: true,
-    disableCSRFCheck: false
   },
   session: {
     cookieCache: {
@@ -117,7 +117,7 @@ export const auth = betterAuth({
     }
   },
   database: prismaAdapter(prisma, { provider: 'mysql' }),
-  appName: 'task-manager'
+  appName: env.APPLICATION_NAME
 });
 
 export const loadAuthContext = new Elysia({ name: 'AuthContext.Plugin' })

@@ -8,11 +8,13 @@ model User {
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
 
-  image            String?  @db.Text
-  username         String?  @unique
-  twoFactorEnabled Boolean?
-  isAnonymous      Boolean?
-  displayUsername  String?
+  image               String?  @db.Text
+  username            String?  @unique
+  phoneNumber         String?  @unique
+  twoFactorEnabled    Boolean?
+  isAnonymous         Boolean?
+  phoneNumberVerified Boolean?
+  displayUsername     String?
 
   profile UserProfile?
 

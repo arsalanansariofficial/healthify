@@ -1,5 +1,10 @@
+import {
+  phoneNumber,
+  anonymous,
+  twoFactor,
+  username
+} from 'better-auth/plugins';
 import { APIError as BetterAuthError, betterAuth } from 'better-auth';
-import { anonymous, twoFactor, username } from 'better-auth/plugins';
 import { prismaAdapter } from 'better-auth/adapters/prisma';
 import { HttpStatusCode } from 'axios';
 import { Elysia } from 'elysia';
@@ -43,6 +48,37 @@ export const auth = betterAuth({
     },
     changeEmail: { updateEmailWithoutVerification: true, enabled: true }
   },
+  plugins: [
+    phoneNumber({
+      async sendOTP({ phoneNumber, code }) {
+        mailer.sendMail({
+          html: `Enter ${code} for ${phoneNumber} to verify your identity.`,
+          to: `${phoneNumber}@gmail.com`,
+          subject: 'Verify OTP'
+        });
+      },
+      signUpOnVerification: {
+        getTempEmail(phoneNumber) {
+          return `${phoneNumber}@${env.APPLICATION_NAME}`;
+        }
+      },
+      requireVerification: true
+    }),
+    twoFactor({
+      otpOptions: {
+        async sendOTP({ user, otp }) {
+          mailer.sendMail({
+            html: `Enter ${otp} to verify your identity.`,
+            subject: 'Verify OTP',
+            to: user.email
+          });
+        }
+      },
+      allowPasswordless: true
+    }),
+    anonymous({ emailDomainName: `guest.${env.APPLICATION_NAME}.com` }),
+    username()
+  ],
   emailAndPassword: {
     async sendResetPassword({ user, url }) {
       mailer.sendMail({
@@ -57,22 +93,6 @@ export const auth = betterAuth({
     revokeSessionsOnPasswordReset: true,
     enabled: true
   },
-  plugins: [
-    username(),
-    anonymous({ emailDomainName: 'guest.task-manager.com' }),
-    twoFactor({
-      otpOptions: {
-        async sendOTP({ user, otp }) {
-          mailer.sendMail({
-            html: `Enter ${otp} to verify your identity.`,
-            subject: 'Verify OTP',
-            to: user.email
-          });
-        }
-      },
-      allowPasswordless: true
-    })
-  ],
   emailVerification: {
     async sendVerificationEmail({ user, url }) {
       mailer.sendMail({

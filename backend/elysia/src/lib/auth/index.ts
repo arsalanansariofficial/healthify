@@ -2,6 +2,7 @@ import {
   phoneNumber,
   anonymous,
   twoFactor,
+  magicLink,
   username
 } from 'better-auth/plugins';
 import { APIError as BetterAuthError, betterAuth } from 'better-auth';
@@ -16,6 +17,46 @@ import { remove } from '@/lib/file';
 import { env } from '@/lib/config';
 
 export const auth = betterAuth({
+  plugins: [
+    phoneNumber({
+      async sendOTP({ phoneNumber, code }) {
+        mailer.sendMail({
+          html: `Enter ${code} for ${phoneNumber} to verify your identity.`,
+          to: `${phoneNumber}@gmail.com`,
+          subject: 'Verify OTP'
+        });
+      },
+      signUpOnVerification: {
+        getTempEmail(phoneNumber) {
+          return `${phoneNumber}@${env.APPLICATION_NAME}`;
+        }
+      },
+      requireVerification: true
+    }),
+    twoFactor({
+      otpOptions: {
+        async sendOTP({ user, otp }) {
+          mailer.sendMail({
+            html: `Enter ${otp} to verify your identity.`,
+            subject: 'Verify OTP',
+            to: user.email
+          });
+        }
+      },
+      allowPasswordless: true
+    }),
+    magicLink({
+      sendMagicLink({ email, url }) {
+        mailer.sendMail({
+          html: `Click the link to sign in to your account: ${url}`,
+          subject: 'Link to sign in',
+          to: email
+        });
+      }
+    }),
+    anonymous({ emailDomainName: `guest.${env.APPLICATION_NAME}.com` }),
+    username()
+  ],
   user: {
     deleteUser: {
       async beforeDelete(user) {
@@ -48,37 +89,6 @@ export const auth = betterAuth({
     },
     changeEmail: { updateEmailWithoutVerification: true, enabled: true }
   },
-  plugins: [
-    phoneNumber({
-      async sendOTP({ phoneNumber, code }) {
-        mailer.sendMail({
-          html: `Enter ${code} for ${phoneNumber} to verify your identity.`,
-          to: `${phoneNumber}@gmail.com`,
-          subject: 'Verify OTP'
-        });
-      },
-      signUpOnVerification: {
-        getTempEmail(phoneNumber) {
-          return `${phoneNumber}@${env.APPLICATION_NAME}`;
-        }
-      },
-      requireVerification: true
-    }),
-    twoFactor({
-      otpOptions: {
-        async sendOTP({ user, otp }) {
-          mailer.sendMail({
-            html: `Enter ${otp} to verify your identity.`,
-            subject: 'Verify OTP',
-            to: user.email
-          });
-        }
-      },
-      allowPasswordless: true
-    }),
-    anonymous({ emailDomainName: `guest.${env.APPLICATION_NAME}.com` }),
-    username()
-  ],
   emailAndPassword: {
     async sendResetPassword({ user, url }) {
       mailer.sendMail({

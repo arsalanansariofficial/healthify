@@ -39,6 +39,19 @@ const setPassword = z.object(
   'setPassword should be a valid object.'
 );
 
+const status = z
+  .object(
+    {
+      backupCodes: z.array(
+        z.string('backupCode should be a valid string.'),
+        'backupCodes should be a valid array.'
+      ),
+      status: z.boolean('status should be valid boolean.')
+    },
+    'status should be a valid object.'
+  )
+  .partial();
+
 const verifyPassword = z.object(
   {
     password: z
@@ -57,19 +70,6 @@ const userWithProfile = z.deepPartial(
     user: model.user.extend({ image: schema.fileOrUrl('image').nullable() })
   })
 );
-
-const status = z
-  .object(
-    {
-      backupCodes: z.array(
-        z.string('backupCode should be a valid string.'),
-        'backupCodes should be a valid array.'
-      ),
-      status: z.boolean('status should be valid boolean.')
-    },
-    'status should be a valid object.'
-  )
-  .partial();
 
 const viewBackupCodes = z.object(
   { userId: model.user.shape.id },

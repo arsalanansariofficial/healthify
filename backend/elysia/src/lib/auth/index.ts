@@ -10,6 +10,8 @@ import { prismaAdapter } from 'better-auth/adapters/prisma';
 import { HttpStatusCode } from 'axios';
 import { Elysia } from 'elysia';
 
+import type { Model } from '@/modules/user/model';
+
 import { hasValidAuthMethod, isFileError, mailer } from '@/lib/util';
 import { UnauthorizedError, ApiError } from '@/lib/error';
 import { prisma } from '@/lib/prisma';
@@ -155,15 +157,13 @@ export const loadAuthContext = new Elysia({ name: 'AuthContext.Plugin' })
     const session = await auth.api.getSession({ headers: request.headers });
     if (!session) throw new UnauthorizedError();
     return {
-      ...session,
       user: {
         ...session.user,
         profile: await prisma.userProfile.findUnique({
           where: { userId: session.user.id }
-        }),
-        twoFactorEnabled: session.user.twoFactorEnabled as boolean | null,
-        image: session.user.image as string | null
-      }
+        })
+      } as Model['userWithProfile'],
+      session: session.session
     };
   })
   .as('scoped');

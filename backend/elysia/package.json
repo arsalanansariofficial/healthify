@@ -14,6 +14,7 @@
   "scripts": {
     "build": "bun build --minify --compile --minify-whitespace --minify-syntax --target bun --outfile server src/index.ts",
     "build:js": "bun build src/index.ts --target=bun --minify-whitespace --minify-syntax --outfile dist/index.js",
+    "clean": "rm -rf node_modules generated",
     "dev": "bun --watch src/server.ts",
     "fix": "eslint --fix && prettier -w .",
     "prisma:create": "prisma migrate dev --config src/lib/prisma/prisma.config.ts --create-only",
@@ -21,11 +22,13 @@
     "prisma:generate": "prisma generate --config src/lib/prisma/prisma.config.ts",
     "prisma:migrate": "prisma migrate dev --config src/lib/prisma/prisma.config.ts",
     "prisma:reset": "prisma migrate reset -f --config src/lib/prisma/prisma.config.ts",
+    "setup": "bun clean && bun i && bun prisma:deploy && bun prisma:generate",
     "start": "bun --watch src/index.ts",
     "start:js": "bun --watch dist/index.js",
     "test": "bun test --watch",
     "test:prisma:deploy": "prisma migrate deploy --config src/lib/prisma/prisma.test.config.ts",
-    "test:prisma:reset": "prisma migrate reset -f --config src/lib/prisma/prisma.test.config.ts"
+    "test:prisma:reset": "prisma migrate reset -f --config src/lib/prisma/prisma.test.config.ts",
+    "test:setup": "bun clean && bun i && bun test:prisma:deploy && bun prisma:generate"
   },
   "dependencies": {
     "@elysia/cors": "^1.4.2",

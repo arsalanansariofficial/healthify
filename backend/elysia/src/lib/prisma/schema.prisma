@@ -8,13 +8,17 @@ model User {
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
 
-  image               String?  @db.Text
-  username            String?  @unique
-  phoneNumber         String?  @unique
+  image               String?   @db.Text
+  username            String?   @unique
+  phoneNumber         String?   @unique
+  banExpires          DateTime?
   twoFactorEnabled    Boolean?
   isAnonymous         Boolean?
   phoneNumberVerified Boolean?
+  banned              Boolean?
   displayUsername     String?
+  role                String?
+  banReason           String?
 
   profile UserProfile?
 
@@ -61,8 +65,9 @@ model Session {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  ipAddress String? @db.Text
-  userAgent String? @db.Text
+  ipAddress      String? @db.Text
+  userAgent      String? @db.Text
+  impersonatedBy String?
 
   @@index([userId])
 }

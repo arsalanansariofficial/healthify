@@ -23,14 +23,26 @@ const user = z.toZod<User>()(
         .toLowerCase()
         .trim()
         .nullable(),
+      banReason: z
+        .string('banReason should be a valid string.')
+        .nonempty('banReason should not be empty.')
+        .toLowerCase()
+        .trim()
+        .nullable(),
       username: z
         .string('username should be a valid string.')
         .nonempty('username should not be empty.')
         .toLowerCase()
         .trim()
         .nullable(),
+      role: z
+        .string('role should be a valid string.')
+        .nonempty('role should not be empty.')
+        .toLowerCase()
+        .trim()
+        .nullable(),
       name: z
-        .string('name should be valid string.')
+        .string('name should be a valid string.')
         .nonempty('name should not be empty.')
         .toLowerCase()
         .trim(),
@@ -39,10 +51,6 @@ const user = z.toZod<User>()(
         .nonempty('image should not be empty.')
         .trim()
         .nullable(),
-      twoFactorEnabled: z
-        .boolean('twoFactorEnabled should be a valid boolean.')
-        .default(false)
-        .nullable(),
       email: z
         .email('email should be a valid.')
         .nonempty('email should not be empty.')
@@ -50,15 +58,20 @@ const user = z.toZod<User>()(
       phoneNumberVerified: z
         .boolean('phoneNumberVerified should be a valid boolean.')
         .nullable(),
+      twoFactorEnabled: z
+        .boolean('twoFactorEnabled should be a valid boolean.')
+        .nullable(),
       emailVerified: z
         .boolean('emailVerified should be a valid boolean.')
         .default(false),
       isAnonymous: z
         .boolean('isAnonymous should be a valid boolean.')
         .nullable(),
-      id: schema.uuid('id').nonempty('id should not be empty.').trim(),
+      banned: z.boolean('banned should be a valid boolean.').nullable(),
+      banExpires: schema.date('banExpires').nullable(),
+      updatedAt: schema.date('updatedAt'),
       createdAt: schema.date('createdAt'),
-      updatedAt: schema.date('updatedAt')
+      id: schema.uuid('id')
     },
     'user should be a valid object.'
   )

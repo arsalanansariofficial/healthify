@@ -3,7 +3,8 @@ import {
   anonymous,
   twoFactor,
   magicLink,
-  username
+  username,
+  admin
 } from 'better-auth/plugins';
 import { APIError as BetterAuthError, betterAuth } from 'better-auth';
 import { prismaAdapter } from 'better-auth/adapters/prisma';
@@ -14,6 +15,7 @@ import type { Model } from '@/modules/user/model';
 
 import { hasValidAuthMethod, isFileError, mailer } from '@/lib/util';
 import { UnauthorizedError, ApiError } from '@/lib/error';
+import { permissions } from '@/lib/auth/permissions';
 import { prisma } from '@/lib/prisma';
 import { remove } from '@/lib/file';
 import { env } from '@/lib/config';
@@ -55,6 +57,10 @@ export const auth = betterAuth({
           to: email
         });
       }
+    }),
+    admin({
+      impersonationSessionDuration: env.BETTER_AUTH_SESSION_EXPIRES_IN,
+      ...permissions
     }),
     anonymous({ emailDomainName: `guest.${env.APPLICATION_NAME}.com` }),
     username()

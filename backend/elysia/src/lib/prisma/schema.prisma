@@ -22,10 +22,13 @@ model User {
 
   profile UserProfile?
 
-  TwoFactor TwoFactor[]
-  sessions  Session[]
-  accounts  Account[]
-  tasks     Task[]
+  invitations Invitation[]
+  teamMembers TeamMember[]
+  TwoFactor   TwoFactor[]
+  sessions    Session[]
+  accounts    Account[]
+  members     Member[]
+  tasks       Task[]
 }
 
 model Account {
@@ -65,11 +68,52 @@ model Session {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  ipAddress      String? @db.Text
-  userAgent      String? @db.Text
-  impersonatedBy String?
+  ipAddress            String? @db.Text
+  userAgent            String? @db.Text
+  activeOrganizationId String?
+  impersonatedBy       String?
+  activeTeamId         String?
 
   @@index([userId])
+}
+
+model Invitation {
+  id String @id
+
+  inviterId String
+  inviter   User   @relation(fields: [inviterId], references: [id], onDelete: Cascade)
+
+  organizationId String
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  expiresAt DateTime
+  status    String
+  email     String
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  role   String?
+  teamId String?
+}
+
+model Organization {
+  id String @id @default(uuid())
+
+  slug String @unique
+
+  name String
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  logo     String?
+  metadata String?
+
+  organizationRoles OrganizationRole[]
+  invitations       Invitation[]
+  members           Member[]
+  teams             Team[]
 }
 
 model TwoFactor {
@@ -87,6 +131,64 @@ model TwoFactor {
   updatedAt DateTime @updatedAt
 
   lockedUntil DateTime?
+}
+
+model TeamMember {
+  id String @id @default(uuid())
+
+  teamId String
+  team   Team   @relation(fields: [teamId], references: [id], onDelete: Cascade)
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  membershipKey String?
+}
+
+model Member {
+  id String @id @default(uuid())
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  organizationId String
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  role String
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Team {
+  id String @id @default(uuid())
+
+  organizationId String
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  name        String
+  memberCount Int
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  teamMembers TeamMember[]
+}
+
+model OrganizationRole {
+  id String @id @default(uuid())
+
+  organizationId String
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  permission String
+  role       String
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 model Verification {

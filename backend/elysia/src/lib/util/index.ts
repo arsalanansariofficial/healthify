@@ -32,3 +32,7 @@ export function hasValidAuthMethod(method: string) {
 export function isFile(payload?: string | File | null): payload is File {
   return Boolean(payload && payload instanceof File);
 }
+
+export function isUnknownError(e: Error): e is Record<string, unknown> & Error {
+  return Boolean(e);
+}

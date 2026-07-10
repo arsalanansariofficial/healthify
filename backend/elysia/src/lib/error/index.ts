@@ -10,7 +10,7 @@ import { Elysia } from 'elysia';
 
 import type { Err } from '@/lib/util/types';
 
-import { isFileError } from '@/lib/util';
+import { isUnknownError, isFileError } from '@/lib/util';
 
 export class ApiError extends Error {
   constructor(
@@ -126,11 +126,14 @@ export const errorPlugin = new Elysia({ name: 'Error.Plugin' })
           )
         });
 
-      case code === 'UNKNOWN':
-        return status(HttpStatusCode.InternalServerError, {
+      case code === 'UNKNOWN' && isUnknownError(error):
+        const statusCode =
+          (error?.statusCode as number) || HttpStatusCode.InternalServerError;
+        return status(statusCode, {
           ...new ApiError(
             [{ message: error.message, path: [path] }],
-            error.name
+            error.name,
+            statusCode
           )
         });
 

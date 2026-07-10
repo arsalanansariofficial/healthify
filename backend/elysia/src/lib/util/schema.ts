@@ -22,6 +22,19 @@ function file(attribute: string): z.ZodFile {
     .mime([`image/png`], `${attribute} should be in 'png' format.`);
 }
 
+function stringOrArrayOfStrings(attribute: string) {
+  const role = z
+    .string(`${attribute} should not be empty.`)
+    .nonempty(`${attribute} should not be empty.`)
+    .toLowerCase()
+    .trim();
+
+  return z.union([
+    role,
+    z.array(role, `${attribute} should be a valid array of strings.`)
+  ]);
+}
+
 function nullish(attribute: string) {
   return z.union(
     [
@@ -43,12 +56,23 @@ function fileOrUrl(attribute: string) {
   ]);
 }
 
+function uuid(attribute: string) {
+  return z
+    .uuid(`${attribute} should be a valid UUID.`)
+    .nonempty(`${attribute} should not be empty.`)
+    .toLowerCase()
+    .trim();
+}
+
 function date(attribute: string) {
   return z.date(`${attribute} should be a valid date.`);
 }
 
-function uuid(attribute: string) {
-  return z.uuid(`${attribute} should be valid UUID.`);
-}
-
-export const schema = { fileOrUrl, nullish, uuid, date, file } as const;
+export const schema = {
+  stringOrArrayOfStrings,
+  fileOrUrl,
+  nullish,
+  uuid,
+  date,
+  file
+} as const;

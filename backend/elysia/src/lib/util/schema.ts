@@ -23,15 +23,15 @@ function file(attribute: string): z.ZodFile {
 }
 
 function stringOrArrayOfStrings(attribute: string) {
-  const role = z
+  const schema = z
     .string(`${attribute} should not be empty.`)
     .nonempty(`${attribute} should not be empty.`)
     .toLowerCase()
     .trim();
 
   return z.union([
-    role,
-    z.array(role, `${attribute} should be a valid array of strings.`)
+    schema,
+    z.array(schema, `${attribute} should be a valid array of strings.`)
   ]);
 }
 

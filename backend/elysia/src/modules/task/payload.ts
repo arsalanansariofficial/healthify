@@ -8,7 +8,7 @@ import { schema } from '@/lib/util/schema';
 export type Payload = ModelType<typeof payload>;
 
 const taskId = z.object(
-  { id: schema.uuid('id').nonempty('taskId should not be empty.').trim() },
+  { id: schema.uuid('id') },
   'taskId params should be valid object.'
 );
 

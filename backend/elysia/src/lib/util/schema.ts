@@ -45,23 +45,38 @@ function nullish(attribute: string) {
   );
 }
 
-function fileOrUrl(attribute: string) {
-  return z.union([
-    z
-      .url(`${attribute} should be a valid url.`)
-      .nonempty(`${attribute} should not be empty.`)
-      .toLowerCase()
-      .trim(),
-    file(attribute)
-  ]);
+function string(attribute: string) {
+  return z
+    .string(`${attribute} should be a valid string.`)
+    .nonempty(`${attribute} should not be empty.`)
+    .toLowerCase()
+    .trim();
 }
 
 function uuid(attribute: string) {
   return z
     .uuid(`${attribute} should be a valid UUID.`)
     .nonempty(`${attribute} should not be empty.`)
+    .trim();
+}
+
+function url(attribute: string) {
+  return z
+    .url(`${attribute} should be a valid url.`)
+    .nonempty(`${attribute} should not be empty.`)
+    .trim();
+}
+
+function email() {
+  return z
+    .email(`email should be valid.`)
+    .nonempty(`email should not be empty.`)
     .toLowerCase()
     .trim();
+}
+
+function fileOrUrl(attribute: string) {
+  return z.union([url(attribute), file(attribute)]);
 }
 
 function date(attribute: string) {
@@ -72,7 +87,10 @@ export const schema = {
   stringOrArrayOfStrings,
   fileOrUrl,
   nullish,
+  string,
+  email,
   uuid,
   date,
-  file
+  file,
+  url
 } as const;

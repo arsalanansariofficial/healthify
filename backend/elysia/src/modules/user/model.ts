@@ -11,50 +11,6 @@ export type Model = ModelType<typeof model>;
 const user = z.toZod<User>()(
   z.object(
     {
-      displayUsername: z
-        .string('displayUsername should be a valid string.')
-        .nonempty('displayUsername should not be empty.')
-        .toLowerCase()
-        .trim()
-        .nullable(),
-      phoneNumber: z
-        .string('phoneNumber should be a valid string.')
-        .nonempty('phoneNumber should not be empty.')
-        .toLowerCase()
-        .trim()
-        .nullable(),
-      banReason: z
-        .string('banReason should be a valid string.')
-        .nonempty('banReason should not be empty.')
-        .toLowerCase()
-        .trim()
-        .nullable(),
-      username: z
-        .string('username should be a valid string.')
-        .nonempty('username should not be empty.')
-        .toLowerCase()
-        .trim()
-        .nullable(),
-      role: z
-        .string('role should be a valid string.')
-        .nonempty('role should not be empty.')
-        .toLowerCase()
-        .trim()
-        .nullable(),
-      name: z
-        .string('name should be a valid string.')
-        .nonempty('name should not be empty.')
-        .toLowerCase()
-        .trim(),
-      image: z
-        .url('image should be a valid url.')
-        .nonempty('image should not be empty.')
-        .trim()
-        .nullable(),
-      email: z
-        .email('email should be a valid.')
-        .nonempty('email should not be empty.')
-        .trim(),
       phoneNumberVerified: z
         .boolean('phoneNumberVerified should be a valid boolean.')
         .nullable(),
@@ -68,9 +24,17 @@ const user = z.toZod<User>()(
         .boolean('isAnonymous should be a valid boolean.')
         .nullable(),
       banned: z.boolean('banned should be a valid boolean.').nullable(),
+      displayUsername: schema.string('displayUsername').nullable(),
+      phoneNumber: schema.string('phoneNumber').nullable(),
       banExpires: schema.date('banExpires').nullable(),
+      banReason: schema.string('banReason').nullable(),
+      username: schema.string('username').nullable(),
+      role: schema.string('role').nullable(),
+      image: schema.url('image').nullable(),
       updatedAt: schema.date('updatedAt'),
       createdAt: schema.date('createdAt'),
+      name: schema.string('name').trim(),
+      email: schema.email(),
       id: schema.uuid('id')
     },
     'user should be a valid object.'
@@ -80,31 +44,11 @@ const user = z.toZod<User>()(
 const userProfile = z.toZod<UserProfile>()(
   z.object(
     {
-      phoneNumber: z
-        .string('phoneNumber should be a valid string.')
-        .nonempty('phoneNumber should not be empty.')
-        .toLowerCase()
-        .trim()
-        .nullable(),
-      address: z
-        .string('address should be a valid string.')
-        .nonempty('address should not be empty.')
-        .toLowerCase()
-        .trim()
-        .nullable(),
-      cover: z
-        .url('cover should be a valid url.')
-        .nonempty('cover should not be empty.')
-        .toLowerCase()
-        .trim()
-        .nullable(),
-      bio: z
-        .string('bio should be a valid string.')
-        .nonempty('bio should not be empty.')
-        .toLowerCase()
-        .trim()
-        .nullable(),
       gender: z.enum(Gender, `gender should be ${Gender}.`).nullable(),
+      phoneNumber: schema.string('phoneNumber').nullable(),
+      address: schema.string('address').nullable(),
+      cover: schema.url('cover').nullable(),
+      bio: schema.string('bio').nullable(),
       updatedAt: schema.date('updatedAt'),
       createdAt: schema.date('createdAt'),
       userId: schema.uuid('userId')

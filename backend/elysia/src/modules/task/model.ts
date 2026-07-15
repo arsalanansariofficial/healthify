@@ -11,28 +11,16 @@ export type Model = ModelType<typeof model>;
 const task = z.toZod<Task>()(
   z.object(
     {
-      description: z
-        .string('description should be a valid string.')
-        .nonempty('description should not be empty.')
-        .toLowerCase()
-        .trim()
-        .nullable(),
-      title: z
-        .string('title should be a valid string.')
-        .nonempty('title should not be empty.')
-        .toLowerCase()
-        .trim(),
       status: z
         .enum(Status, `status should be valid, ex: ${Object.values(Status)}.`)
         .default(Status.incomplete)
         .nullable(),
-      userId: schema
-        .uuid('userId')
-        .nonempty('userId should not be empty.')
-        .trim(),
-      id: schema.uuid('id').nonempty('id should not be empty.').trim(),
+      description: schema.string('description').nullable(),
       createdAt: schema.date('createdAt'),
-      updatedAt: schema.date('updatedAt')
+      updatedAt: schema.date('updatedAt'),
+      userId: schema.uuid('userId'),
+      title: schema.string('title'),
+      id: schema.uuid('id')
     },
     'task should be a valid object.'
   )

@@ -6,6 +6,7 @@ export const envSchema = z.object(
       .string('BETTER_AUTH_SECRET should be a valid string.')
       .nonempty('BETTER_AUTH_SECRET should not be empty.')
       .min(32, 'BETTER_AUTH_SECRET should be at least 32 characters long.')
+      .trim()
       .default('aJEj11jdjesEdzi8AuGGA2G4FzZ9YbWA')
       .meta({
         description:
@@ -14,10 +15,29 @@ export const envSchema = z.object(
     GITHUB_CLIENT_SECRET: z
       .string('GITHUB_CLIENT_SECRET should be valid string.')
       .nonempty('GITHUB_CLIENT_SECRET should not be empty.')
+      .trim()
       .optional()
       .meta({
         description:
           'OAuth application password to verify with the GitHub provider, ex: example_secret_1234567890abcdef.'
+      }),
+    SESSION_COOKIE_NAME: z
+      .string('SESSION_COOKIE_NAME should be a valid string.')
+      .nonempty('SESSION_COOKIE_NAME should not be empty.')
+      .trim()
+      .default('session_token')
+      .meta({
+        description:
+          'Name of better-auth session cookie, defaults to session_token.'
+      }),
+    GITHUB_CLIENT_ID: z
+      .string('GITHUB_CLIENT_ID should be a valid string.')
+      .nonempty('GITHUB_CLIENT_ID should not be empty.')
+      .trim()
+      .optional()
+      .meta({
+        description:
+          'OAuth application name to verify with the GitHub provider, ex: Iv1.example123456789.'
       }),
     BETTER_AUTH_ACCEPT_METHODS: z
       .array(
@@ -29,6 +49,15 @@ export const envSchema = z.object(
         description:
           'HTTP authentication methods for better-auth, defaults to POST and GET methods.'
       }),
+    UPLOAD_DIR: z
+      .string('UPLOAD_DIR should be a valid string.')
+      .nonempty('UPLOAD_DIR should not be empty.')
+      .trim()
+      .default('public')
+      .meta({
+        description:
+          'Directory to which all images, files, documents etc. should be uploaded, defaults to public.'
+      }),
     BETTER_AUTH_COOKIE_CACHE_TIMEOUT: z.coerce
       .number(
         'BETTER_AUTH_COOKIE_CACHE_TIMEOUT should be a valid number in milliseconds.'
@@ -38,29 +67,14 @@ export const envSchema = z.object(
         description:
           'Time until the session cookie is cached (seconds), defaults to 15 minutes.'
       }),
-    SESSION_COOKIE_NAME: z
-      .string('SESSION_COOKIE_NAME should be a valid string.')
-      .nonempty('SESSION_COOKIE_NAME should not be empty.')
-      .default('session_token')
+    BETTER_AUTH_URL: z
+      .url('BETTER_AUTH_URL should be valid url.')
+      .nonempty('BETTER_AUTH_URL should not be empty.')
+      .trim()
+      .default('http://localhost:3000')
       .meta({
         description:
-          'Name of better-auth session cookie, defaults to session_token.'
-      }),
-    GITHUB_CLIENT_ID: z
-      .string('GITHUB_CLIENT_ID should be a valid string.')
-      .nonempty('GITHUB_CLIENT_ID should not be empty.')
-      .optional()
-      .meta({
-        description:
-          'OAuth application name to verify with the GitHub provider, ex: Iv1.example123456789.'
-      }),
-    UPLOAD_DIR: z
-      .string('UPLOAD_DIR should be a valid string.')
-      .nonempty('UPLOAD_DIR should not be empty.')
-      .default('public')
-      .meta({
-        description:
-          'Directory to which all images, files, documents etc. should be uploaded, defaults to public.'
+          'Server url of better-auth, defaults to http://localhost:3000.'
       }),
     BETTER_AUTH_SESSION_EXPIRES_IN: z.coerce
       .number(
@@ -71,6 +85,14 @@ export const envSchema = z.object(
         description:
           'Time remaining until automatic logout (seconds), defaults to 1 hour.'
       }),
+    APPLICATION_NAME: z
+      .string('APPLICATION_NAME should be a valid string.')
+      .nonempty('APPLICATION_NAME should not be empty.')
+      .trim()
+      .default('task-manager')
+      .meta({
+        description: 'Name of the application, defaults to task-manager.'
+      }),
     AXIOS_REQUEST_TIMEOUT: z.coerce
       .number('AXIOS_REQUEST_TIMEOUT should be a valid number in milliseconds.')
       .default(5 * 1000)
@@ -78,12 +100,21 @@ export const envSchema = z.object(
         description:
           'Timeout for failing network requests (milliseconds), defaults to 5 seconds.'
       }),
-    APPLICATION_NAME: z
-      .string('APPLICATION_NAME should be a valid string.')
-      .nonempty('APPLICATION_NAME should not be empty.')
-      .default('task-manager')
+    DATABASE_URL: z
+      .url('DATABASE_URL should be a valid url.')
+      .nonempty('DATABASE_URL should not be empty.')
+      .trim()
       .meta({
-        description: 'Name of the application, defaults to task-manager.'
+        description:
+          'Database connection url, ex: mysql://user:password@localhost:3306/database-name'
+      }),
+    SMTP_URL: z
+      .url('SMTP_URL should be a valid url.')
+      .nonempty('SMTP_URL should not be empty.')
+      .trim()
+      .meta({
+        description:
+          'Password for SMTP server, ex: smtps://username@domain.com:password@smtp.example.com:465.'
       }),
     BETTER_AUTH_MAX_PASSWORD_LENGTH: z.coerce
       .number('BETTER_AUTH_MAX_PASSWORD_LENGTH should be a valid number.')
@@ -98,6 +129,14 @@ export const envSchema = z.object(
       .meta({
         description:
           'Minimum number of characters a password should be, defaults to 8.'
+      }),
+    BASE_URL: z
+      .url('BASE_URL should be valid url.')
+      .nonempty('BASE_URL should not be empty.')
+      .trim()
+      .default('http://localhost:3000')
+      .meta({
+        description: 'Base server url, defaults to http://localhost:3000.'
       }),
     NODE_ENV: z
       .enum(
@@ -122,37 +161,12 @@ export const envSchema = z.object(
         description:
           'Minimum number of bytes for a valid file upload, defaults to 10 KB.'
       }),
-    BETTER_AUTH_URL: z
-      .url('BETTER_AUTH_URL should be valid url.')
-      .default('http://localhost:3000')
-      .meta({
-        description:
-          'Server url of better-auth, defaults to http://localhost:3000.'
-      }),
-    SMTP_URL: z
-      .url('SMTP_URL should be a valid url.')
-      .meta({
-        description:
-          'Password for SMTP server, ex: smtps://username@domain.com:password@smtp.example.com:465.'
-      }),
-    DATABASE_URL: z
-      .url('DATABASE_URL should be a valid url.')
-      .meta({
-        description:
-          'Database connection url, ex: mysql://user:password@localhost:3306/database-name'
-      }),
     PORT: z.coerce
       .number('PORT should be valid number.')
       .default(3000)
       .meta({
         description:
           'Port at which the elysia server is running, defaults to 3000.'
-      }),
-    BASE_URL: z
-      .url('BASE_URL should be valid url.')
-      .default('http://localhost:3000')
-      .meta({
-        description: 'Base server url, defaults to http://localhost:3000.'
       })
   },
   'envSchema should be a valid object.'

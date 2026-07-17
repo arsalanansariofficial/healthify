@@ -1,5 +1,6 @@
 import type { HTTPHeaders } from 'elysia/types';
 
+import type { Permissions, Roles } from '@/lib/auth/permissions';
 import type { Payload } from '@/modules/user/payload';
 import type { Model } from '@/modules/user/model';
 
@@ -53,6 +54,16 @@ async function update(args: {
   return updated || args.user;
 }
 
+async function userHasPermission(payload: Payload['userHasPermission']) {
+  return await auth.api.userHasPermission({
+    body: {
+      ...payload,
+      permissions: payload.permissions as Permissions,
+      role: payload.role as Roles
+    }
+  });
+}
+
 async function setPassword(args: { newPassword: string; headers: Headers }) {
   return await auth.api.setPassword({
     body: { newPassword: args.newPassword },
@@ -72,6 +83,7 @@ async function getBackupCodes({ userId }: Payload['viewBackupCodes']) {
 }
 
 export const userService = {
+  userHasPermission,
   getBackupCodes,
   verifyPassword,
   setPassword,

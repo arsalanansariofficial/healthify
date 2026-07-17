@@ -5,7 +5,7 @@ import { payload } from '@/modules/user/payload';
 import { model } from '@/modules/user/model';
 import { loadAuthContext } from '@/lib/auth';
 
-export const userRoutes = new Elysia({ name: 'User.Routes', prefix: '/users' })
+const privateRoutes = new Elysia({ name: 'User.Private.Routes' })
   .use(loadAuthContext)
   .get('/me', ({ user }) => user, { response: model.userWithProfile })
   .patch(
@@ -32,3 +32,13 @@ export const userRoutes = new Elysia({ name: 'User.Routes', prefix: '/users' })
       await userService.verifyPassword({ password, headers }),
     { body: payload.verifyPassword, response: payload.status }
   );
+
+const publicRoutes = new Elysia({ name: 'User.Public.Routes' }).post(
+  '/user-has-permission',
+  async ({ body }) => await userService.userHasPermission(body),
+  { body: payload.userHasPermission, response: payload.status }
+);
+
+export const userRoutes = new Elysia({ name: 'User.Routes', prefix: '/users' })
+  .use(privateRoutes)
+  .use(publicRoutes);

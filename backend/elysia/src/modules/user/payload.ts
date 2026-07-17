@@ -46,7 +46,9 @@ const status = z
         z.string('backupCode should be a valid string.'),
         'backupCodes should be a valid array.'
       ),
-      status: z.boolean('status should be valid boolean.')
+      success: z.boolean('success should be valid boolean.'),
+      status: z.boolean('status should be valid boolean.'),
+      error: schema.string('error').nullable()
     },
     'status should be a valid object.'
   )
@@ -76,7 +78,23 @@ const viewBackupCodes = z.object(
   'viewBackupCodes should be a valid object.'
 );
 
+const userHasPermission = z.object(
+  {
+    permissions: z.record(
+      schema.string('key'),
+      z.array(
+        schema.string('value').optional(),
+        'permissions should be a valid array of strings.'
+      )
+    ),
+    role: schema.stringOrArrayOfStrings('role').optional(),
+    userId: model.user.shape.id.optional()
+  },
+  'userHasPermission should be a valid object.'
+);
+
 export const payload = {
+  userHasPermission,
   userWithProfile,
   viewBackupCodes,
   verifyPassword,

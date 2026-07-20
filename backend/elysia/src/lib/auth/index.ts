@@ -1,4 +1,5 @@
 import {
+  organization,
   phoneNumber,
   anonymous,
   twoFactor,
@@ -22,6 +23,9 @@ import { env } from '@/lib/config';
 
 export const auth = betterAuth({
   plugins: [
+    organization({
+      ...permissions
+    }),
     phoneNumber({
       async sendOTP({ phoneNumber, code }) {
         mailer.sendMail({

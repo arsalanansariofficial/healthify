@@ -24,6 +24,9 @@ import { env } from '@/lib/config';
 export const auth = betterAuth({
   plugins: [
     organization({
+      async allowUserToCreateOrganization(user) {
+        return user.role.includes('admin');
+      },
       ...permissions
     }),
     phoneNumber({

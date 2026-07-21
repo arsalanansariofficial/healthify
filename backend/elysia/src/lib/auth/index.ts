@@ -24,6 +24,13 @@ import { env } from '@/lib/config';
 export const auth = betterAuth({
   plugins: [
     organization({
+      async sendInvitationEmail(data) {
+        mailer.sendMail({
+          html: `Please click the following link to join the orgnaization ${env.BASE_URL}/organizations/accept-invitation/${data.id}`,
+          subject: `Invitation to join ${data.organization.name} from ${data.inviter.user.name}`,
+          to: data.email
+        });
+      },
       async allowUserToCreateOrganization(user) {
         return user.role.includes('admin');
       },

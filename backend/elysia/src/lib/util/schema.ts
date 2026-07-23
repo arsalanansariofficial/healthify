@@ -22,17 +22,14 @@ function file(attribute: string): z.ZodFile {
     .mime([`image/png`], `${attribute} should be in 'png' format.`);
 }
 
-function stringOrArrayOfStrings(attribute: string) {
-  const schema = z
-    .string(`${attribute} should not be empty.`)
-    .nonempty(`${attribute} should not be empty.`)
-    .toLowerCase()
-    .trim();
+function typeOrArray(type: z.ZodType) {
+  const key = type.meta()?.title || 'property';
+  const value = type.meta()?.type || 'type';
 
-  return z.union([
-    schema,
-    z.array(schema, `${attribute} should be a valid array of strings.`)
-  ]);
+  return z.union(
+    [z.array(type), type],
+    `${key} should either be ${value} or ${value}[].`
+  );
 }
 
 function nullish(attribute: string) {
@@ -84,7 +81,7 @@ function date(attribute: string) {
 }
 
 export const schema = {
-  stringOrArrayOfStrings,
+  typeOrArray,
   fileOrUrl,
   nullish,
   string,

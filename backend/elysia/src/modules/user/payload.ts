@@ -2,9 +2,11 @@ import z from 'zod';
 
 import type { ModelType } from '@/lib/util/types';
 
+import { Roles } from '@/lib/auth/permissions';
 import { model } from '@/modules/user/model';
 import { schema } from '@/lib/util/schema';
 import { env } from '@/lib/config';
+import { join } from '@/lib/util';
 
 export type Payload = ModelType<typeof payload>;
 
@@ -87,7 +89,10 @@ const userHasPermission = z.object(
         'permissions should be a valid array of strings.'
       )
     ),
-    role: schema.stringOrArrayOfStrings('role').optional(),
+    role: z
+      .enum(Roles, `role should be valid, ex: ${join(Roles)}.`)
+      .meta({ type: join(Roles), title: 'role' })
+      .optional(),
     userId: model.user.shape.id.optional()
   },
   'userHasPermission should be a valid object.'

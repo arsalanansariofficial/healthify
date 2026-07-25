@@ -32,3 +32,5 @@ export const permissions = {
   },
   ac
 };
+
+export const Roles = Object.keys(permissions.roles) as Roles[];

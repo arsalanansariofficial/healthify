@@ -2,6 +2,7 @@ import { staticPlugin } from '@elysia/static';
 import { cors } from '@elysia/cors';
 import { Elysia } from 'elysia';
 
+import { organizationRoutes } from '@/modules/organization';
 import { userRoutes } from '@/modules/user';
 import { taskRoutes } from '@/modules/task';
 import { errorPlugin } from '@/lib/error';
@@ -14,6 +15,7 @@ export const app = new Elysia({ name: 'App.Routes' })
   .use(staticPlugin())
   .use(errorPlugin)
   .use(cors())
+  .use(organizationRoutes)
   .use(authRoutes)
   .use(userRoutes)
   .use(taskRoutes);

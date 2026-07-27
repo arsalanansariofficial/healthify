@@ -34,6 +34,8 @@ export const auth = betterAuth({
       async allowUserToCreateOrganization(user) {
         return user.role.includes('admin');
       },
+      teams: { allowRemovingAllTeams: true, enabled: true },
+      dynamicAccessControl: { enabled: true },
       ...permissions
     }),
     phoneNumber({

@@ -24,5 +24,5 @@ export async function upload(file: File) {
 export async function remove(url?: string | null) {
   if (!url) return;
   const [, name] = url.split(env.UPLOAD_DIR);
-  return await unlink(`${env.UPLOAD_DIR}/${name}`);
+  return await unlink(`${env.UPLOAD_DIR}${name}`);
 }

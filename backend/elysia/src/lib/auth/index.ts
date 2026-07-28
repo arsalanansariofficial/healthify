@@ -1,5 +1,6 @@
 import {
   organization,
+  multiSession,
   phoneNumber,
   anonymous,
   twoFactor,
@@ -79,6 +80,7 @@ export const auth = betterAuth({
       ...permissions
     }),
     anonymous({ emailDomainName: `guest.${env.APPLICATION_NAME}.com` }),
+    multiSession(),
     username()
   ],
   user: {

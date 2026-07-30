@@ -6,6 +6,7 @@ import {
   twoFactor,
   magicLink,
   username,
+  openAPI,
   admin
 } from 'better-auth/plugins';
 import { APIError as BetterAuthError, betterAuth } from 'better-auth';
@@ -81,7 +82,8 @@ export const auth = betterAuth({
     }),
     anonymous({ emailDomainName: `guest.${env.APPLICATION_NAME}.com` }),
     multiSession(),
-    username()
+    username(),
+    openAPI()
   ],
   user: {
     deleteUser: {

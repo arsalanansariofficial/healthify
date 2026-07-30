@@ -106,14 +106,16 @@ export const auth = betterAuth({
             });
         }
       },
-      async sendDeleteAccountVerification({ user, url }) {
-        mailer.sendMail({
-          html: `Click the link to delete your account: ${url}`,
-          subject: 'Verification to delete your account',
-          to: user.email
-        });
-      },
-      enabled: true
+      enabled: true,
+      ...(env.NODE_ENV !== 'test' && {
+        async sendDeleteAccountVerification({ user, url }) {
+          mailer.sendMail({
+            html: `Click the link to delete your account: ${url}`,
+            subject: 'Verification to delete your account',
+            to: user.email
+          });
+        }
+      })
     },
     changeEmail: { updateEmailWithoutVerification: true, enabled: true }
   },

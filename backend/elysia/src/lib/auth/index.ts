@@ -5,6 +5,7 @@ import {
   anonymous,
   twoFactor,
   magicLink,
+  testUtils,
   username,
   openAPI,
   admin
@@ -82,6 +83,7 @@ export const auth = betterAuth({
     }),
     anonymous({ emailDomainName: `guest.${env.APPLICATION_NAME}.com` }),
     multiSession(),
+    testUtils(),
     username(),
     openAPI()
   ],
@@ -208,3 +210,5 @@ export const authRoutes = new Elysia({ name: 'BetterAuth.Routes' }).all(
     );
   }
 );
+
+export const { test: ctx } = await auth.$context;

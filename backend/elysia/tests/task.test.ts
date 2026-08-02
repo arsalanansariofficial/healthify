@@ -1,67 +1,59 @@
-import { beforeEach, afterAll, expect, test } from 'bun:test';
-import { HttpStatusCode } from 'axios';
+import { beforeEach, afterAll, describe, expect, test } from 'bun:test';
+import { StatusMap } from 'elysia';
 
 import type { Task } from '~/generated/prisma/client';
 
 import {
   getSessionCookie,
+  kevinsTasks,
   resetDisk,
   setupDb,
   resetDb,
-  kevin,
   gwen,
   api,
   ben
 } from '@/tests/fixtures/db';
 import { prisma } from '@/lib/prisma';
-import { auth } from '@/lib/auth';
+import { ctx } from '@/lib/auth';
 
-afterAll(async () => {
-  await Promise.all([resetDb(), resetDisk()]);
-  await prisma.$disconnect();
-});
-beforeEach(setupDb);
-
-test('should create task for user', async () => {
-  const { headers } = await auth.api.signInEmail({
-    returnHeaders: true,
-    body: { ...gwen }
+describe('tests for task resource', () => {
+  afterAll(async () => {
+    await Promise.all([resetDb(), resetDisk()]);
+    await prisma.$disconnect();
   });
 
-  const { status, data } = await api.tasks.post(
-    { title: 'Work with Charm Caster' },
-    getSessionCookie(headers)
-  );
+  beforeEach(setupDb);
 
-  const task = await prisma.task.findUnique({ where: { id: data?.id } });
-  expect(task?.status).toBe('incomplete');
-  expect(status).toBe(HttpStatusCode.Ok);
-  expect(task).not.toBeNull();
-});
+  test('should create task for user', async () => {
+    const headers = await ctx.getAuthHeaders({ userId: gwen.id });
+    const { status, data } = await api.tasks.post(
+      { title: 'Work with Charm Caster' },
+      getSessionCookie(headers)
+    );
 
-test('ben should not delete task created by kevin', async () => {
-  const [$task] = kevin.tasks as [Task];
-  const { headers } = await auth.api.signInEmail({
-    returnHeaders: true,
-    body: { ...ben }
+    const task = await prisma.task.findUnique({ where: { id: data?.id } });
+    expect(task?.status).toBe('incomplete');
+    expect(status).toBe(StatusMap.OK);
+    expect(task).not.toBeNull();
   });
 
-  const { status } = await api
-    .tasks({ id: $task.id })
-    .delete(undefined, getSessionCookie(headers));
+  test('ben should not delete task created by kevin', async () => {
+    const headers = await ctx.getAuthHeaders({ userId: ben.id });
+    const [$task] = kevinsTasks as [Task];
 
-  const task = await prisma.task.findUnique({ where: { id: $task.id } });
-  expect(status).toBe(HttpStatusCode.BadRequest);
-  expect(task).not.toBeNull();
-});
+    const { status } = await api
+      .tasks({ id: $task.id })
+      .delete(undefined, getSessionCookie(headers));
+    expect(status).toBe(StatusMap['Bad Request']);
 
-test('should fetch tasks for user', async () => {
-  const { headers } = await auth.api.signInEmail({
-    returnHeaders: true,
-    body: { ...gwen }
+    const task = await prisma.task.findUnique({ where: { id: $task.id } });
+    expect(task).not.toBeNull();
   });
 
-  const { status, data } = await api.tasks.get(getSessionCookie(headers));
-  expect(status).toBe(HttpStatusCode.Ok);
-  expect(data?.length).toBe(1);
+  test('should fetch tasks for user', async () => {
+    const headers = await ctx.getAuthHeaders({ userId: gwen.id });
+    const { status, data } = await api.tasks.get(getSessionCookie(headers));
+    expect(status).toBe(StatusMap.OK);
+    expect(data?.length).toBe(1);
+  });
 });

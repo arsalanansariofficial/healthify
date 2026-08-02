@@ -37,7 +37,6 @@ model Account {
   userId String
   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  issuer     String @db.VarChar(191)
   accountId  String @db.VarChar(191)
   providerId String @db.Text
 
@@ -52,7 +51,6 @@ model Account {
   accessTokenExpiresAt  DateTime?
   refreshTokenExpiresAt DateTime?
 
-  @@unique([issuer, accountId])
   @@index([userId])
 }
 

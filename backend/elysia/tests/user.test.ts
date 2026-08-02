@@ -1,153 +1,119 @@
-import { beforeEach, afterAll, expect, test } from 'bun:test';
-import { HttpStatusCode } from 'axios';
+import { beforeEach, afterAll, describe, expect, test } from 'bun:test';
+import { APIError } from 'better-auth';
+import { StatusMap } from 'elysia';
 
 import type { Payload } from '@/modules/user/payload';
 
 import {
   getSessionCookie,
-  axiosClient,
   resetDisk,
   setupDb,
   resetDb,
   unknown,
   gwen,
-  api,
-  ben
+  api
 } from '@/tests/fixtures/db';
+import { auth, ctx } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
-import { env } from '@/lib/config';
-import { auth } from '@/lib/auth';
 
-afterAll(async () => {
-  await Promise.all([resetDb(), resetDisk()]);
-  await prisma.$disconnect();
-});
-beforeEach(setupDb);
-
-test('should upload profile picture for a user', async () => {
-  const { headers } = await auth.api.signInEmail({
-    returnHeaders: true,
-    body: { ...gwen }
+describe('tests for user resource', () => {
+  afterAll(async () => {
+    await Promise.all([resetDb(), resetDisk()]);
+    await prisma.$disconnect();
   });
 
-  const fd = new FormData();
-  fd.append('user.image', Bun.file('tests/fixtures/images/image.png'));
+  beforeEach(setupDb);
 
-  const { status, data } = await axiosClient.patch(
-    '/users/me',
-    fd,
-    getSessionCookie(headers)
-  );
+  test('should signup a new user', async () => {
+    const payload = {
+      password: 'Charm.Caster@123',
+      email: 'charm@cn.com',
+      name: 'Charm Caster'
+    };
 
-  const user = await prisma.user.findUnique({ where: { id: data?.id } });
+    const { token, user } = await auth.api.signUpEmail({ body: payload });
+    expect(token).not.toBeNull();
+    expect(user).not.toBeNull();
 
-  expect(status).toBe(HttpStatusCode.Ok);
-  expect(user?.image).toBeString();
-  expect(user?.image).toBeTruthy();
-});
-
-test('should signup a new user', async () => {
-  const payload = {
-    password: 'Charm.Caster@123',
-    email: 'charm@cn.com',
-    name: 'Charm Caster'
-  };
-
-  const { token, user } = await auth.api.signUpEmail({ body: payload });
-  expect(token).not.toBeNull();
-  expect(user).not.toBeNull();
-
-  const userFromDb = await prisma.user.findUnique({ where: { id: user.id } });
-  expect(userFromDb?.email).toBe(payload.email);
-  expect(userFromDb).not.toBeNull();
-});
-
-test('should login an existing user', async () => {
-  const { token, user } = await auth.api.signInEmail({ body: { ...gwen } });
-  expect(user).not.toBe(null);
-  expect(token).not.toBe(null);
-
-  const userFromDb = await prisma.user.findUnique({ where: { id: user.id } });
-  expect(userFromDb).not.toBe(null);
-});
-
-test('should update valid user fields', async () => {
-  const bio = 'Max Tennyson';
-  const { headers } = await auth.api.signInEmail({
-    returnHeaders: true,
-    body: { ...ben }
+    const userFromDb = await prisma.user.findUnique({ where: { id: user.id } });
+    expect(userFromDb?.email).toBe(payload.email);
+    expect(userFromDb).not.toBeNull();
   });
 
-  const { status, data } = await api.users.me.patch(
-    { profile: { bio } },
-    getSessionCookie(headers)
-  );
+  test('should update valid user fields', async () => {
+    const headers = await ctx.getAuthHeaders({ userId: gwen.id });
+    const bio = 'max tennyson';
 
-  const userProfile = await prisma.userProfile.findUnique({
-    where: { userId: data?.id }
-  });
-  expect(userProfile?.bio).toBe(bio.toLocaleLowerCase());
-  expect(status).toBe(HttpStatusCode.Ok);
-});
+    const { status, data } = await api.users.me.patch(
+      { profile: { bio } },
+      getSessionCookie(headers)
+    );
 
-test('should not update invalid user fields', async () => {
-  const { status } = await api.users.me.patch({
-    profile: { age: 1 },
-    user: { name: 1 }
-  } as unknown as Payload['userWithProfile']);
-
-  expect(status).toBe(HttpStatusCode.UnprocessableEntity);
-});
-
-test('should not login a non existing user', async () => {
-  expect(auth.api.signInEmail({ body: unknown })).rejects.toThrowError(
-    'Invalid email or password'
-  );
-});
-
-test('should get profile for a user', async () => {
-  const { headers } = await auth.api.signInEmail({
-    returnHeaders: true,
-    body: { ...ben }
+    const userProfile = await prisma.userProfile.findUnique({
+      where: { userId: data?.id }
+    });
+    expect(status).toBe(StatusMap.OK);
+    expect(userProfile?.bio).toBe(bio);
   });
 
-  const { status } = await api.users.me.get(getSessionCookie(headers));
+  test('should upload profile picture for a user', async () => {
+    const headers = await ctx.getAuthHeaders({ userId: gwen.id });
+    const { status, data } = await api.users.me.patch(
+      {
+        'user.image': Bun.file('tests/fixtures/images/image.png')
+      } as Payload['userWithProfile'],
+      getSessionCookie(headers)
+    );
 
-  expect(status).toBe(HttpStatusCode.Ok);
-});
-
-test('should delete account for authenticated user', async () => {
-  const { headers } = await auth.api.signInEmail({
-    returnHeaders: true,
-    body: { ...ben }
+    const user = await prisma.user.findUnique({ where: { id: data?.id } });
+    expect(status).toBe(StatusMap.OK);
+    expect(user?.image).toBeString();
+    expect(user?.image).toBeTruthy();
   });
 
-  const { status } = await auth.handler(
-    new Request(`${env.BETTER_AUTH_URL}/api/auth/delete-user`, {
-      headers: {
-        cookie: getSessionCookie(headers).headers.cookie?.toString(),
-        'content-type': 'application/json'
-      },
-      body: JSON.stringify({}),
-      method: 'post'
-    })
-  );
+  test('should delete account for authenticated user', async () => {
+    const headers = await ctx.getAuthHeaders({ userId: gwen.id });
 
-  expect(status).toBe(HttpStatusCode.Ok);
-});
+    const response = await auth.api.deleteUser({ body: {}, headers });
+    expect(response.success).toBeTrue();
 
-test('should not get profile for unauthenticated user', async () => {
-  const { status } = await api.users.me.get();
-  expect(status).toBe(HttpStatusCode.Unauthorized);
-});
+    const user = await prisma.user.findUnique({ where: { id: gwen.id } });
+    expect(user).toBeNull();
+  });
 
-test('should not delete account for unauthenticated user', async () => {
-  const { status } = await auth.handler(
-    new Request(`${env.BETTER_AUTH_URL}/api/auth/delete-user`, {
-      headers: { 'content-type': 'application/json' },
-      body: JSON.stringify({}),
-      method: 'post'
-    })
-  );
-  expect(status).toBe(HttpStatusCode.Unauthorized);
+  test('should not update invalid user fields', async () => {
+    const { status } = await api.users.me.patch({
+      profile: { age: 1 },
+      user: { name: 1 }
+    } as unknown as Payload['userWithProfile']);
+
+    expect(status).toBe(StatusMap['Unprocessable Content']);
+  });
+
+  test('should not login a non existing user', async () => {
+    expect(auth.api.signInEmail({ body: unknown })).rejects.toThrowError(
+      'Invalid email or password'
+    );
+  });
+
+  test('should get profile for a user', async () => {
+    const headers = await ctx.getAuthHeaders({ userId: gwen.id });
+    const { status } = await api.users.me.get(getSessionCookie(headers));
+    expect(status).toBe(StatusMap.OK);
+  });
+
+  test('should login an existing user', async () => {
+    const { session, user } = await ctx.login({ userId: gwen.id });
+    expect(user).not.toBe(null);
+    expect(session.token).not.toBe(null);
+  });
+
+  test('should not get profile for unauthenticated user', async () => {
+    const { status } = await api.users.me.get();
+    expect(status).toBe(StatusMap.Unauthorized);
+  });
+
+  test('should not delete account for unauthenticated user', async () => {
+    expect(auth.api.deleteUser({ body: {} })).rejects.toBeInstanceOf(APIError);
+  });
 });

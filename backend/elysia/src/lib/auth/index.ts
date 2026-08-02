@@ -12,8 +12,7 @@ import {
 } from 'better-auth/plugins';
 import { APIError as BetterAuthError, betterAuth } from 'better-auth';
 import { prismaAdapter } from 'better-auth/adapters/prisma';
-import { HttpStatusCode } from 'axios';
-import { Elysia } from 'elysia';
+import { StatusMap, Elysia } from 'elysia';
 
 import type { Model } from '@/modules/user/model';
 
@@ -99,11 +98,11 @@ export const auth = betterAuth({
           if (profile?.cover) await remove(profile.cover);
         } catch (error) {
           if (error instanceof Error && isFileError(error))
-            throw new BetterAuthError(HttpStatusCode.BadRequest, {
+            throw new BetterAuthError(StatusMap['Bad Request'], {
               ...new ApiError(
                 [{ path: [error.path as string], message: error.message }],
                 error.code,
-                HttpStatusCode.BadRequest
+                StatusMap['Bad Request']
               )
             });
         }
@@ -206,7 +205,7 @@ export const authRoutes = new Elysia({ name: 'BetterAuth.Routes' }).all(
     throw new ApiError(
       [{ message: `Method: ${method}, is not allowed.`, path: [path] }],
       'Method not allowed.',
-      HttpStatusCode.MethodNotAllowed
+      StatusMap['Method Not Allowed']
     );
   }
 );

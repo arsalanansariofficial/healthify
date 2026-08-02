@@ -5,8 +5,7 @@ import {
   PrismaClientValidationError,
   PrismaClientRustPanicError
 } from '@prisma/client/runtime/client';
-import { HttpStatusCode } from 'axios';
-import { Elysia } from 'elysia';
+import { StatusMap, Elysia } from 'elysia';
 
 import type { Err } from '@/lib/util/types';
 
@@ -18,7 +17,7 @@ export class ApiError extends Error {
       { message: 'An unknown error occurred.', path: ['unknown'] }
     ],
     public override message = 'An unknown error occurred.',
-    public status = HttpStatusCode.InternalServerError
+    public status: number = StatusMap['Internal Server Error']
   ) {
     super();
   }
@@ -33,7 +32,7 @@ export class UnauthorizedError extends ApiError {
       }
     ],
     public override message = 'Unauthorized.',
-    public override status = HttpStatusCode.Unauthorized
+    public override status = StatusMap.Unauthorized
   ) {
     super();
   }
@@ -45,7 +44,7 @@ export class TaskNotFoundError extends ApiError {
       { message: 'Requested task not found.', path: ['task'] }
     ],
     public override message = 'Task not found.',
-    public override status = HttpStatusCode.BadRequest
+    public override status = StatusMap['Bad Request']
   ) {
     super();
   }
@@ -56,11 +55,11 @@ export const errorPlugin = new Elysia({ name: 'Error.Plugin' })
   .onError(({ status, error, code, path }) => {
     switch (true) {
       case error instanceof Error && isFileError(error):
-        return status(HttpStatusCode.BadRequest, {
+        return status(StatusMap['Bad Request'], {
           ...new ApiError(
             [{ path: [error.path as string], message: error.message }],
             error.name,
-            HttpStatusCode.BadRequest
+            StatusMap['Bad Request']
           )
         });
 
@@ -128,7 +127,7 @@ export const errorPlugin = new Elysia({ name: 'Error.Plugin' })
 
       case code === 'UNKNOWN' && isUnknownError(error):
         const statusCode =
-          (error?.statusCode as number) || HttpStatusCode.InternalServerError;
+          (error?.statusCode as number) || StatusMap['Internal Server Error'];
         return status(statusCode, {
           ...new ApiError(
             [{ message: error.message, path: [path] }],
@@ -138,16 +137,16 @@ export const errorPlugin = new Elysia({ name: 'Error.Plugin' })
         });
 
       case error instanceof PrismaClientInitializationError:
-        return status(HttpStatusCode.BadRequest, {
+        return status(StatusMap['Bad Request'], {
           ...new ApiError(
             [{ path: [path, String(error.errorCode)], message: error.message }],
             error.name,
-            HttpStatusCode.BadRequest
+            StatusMap['Bad Request']
           )
         });
 
       case error instanceof PrismaClientKnownRequestError:
-        return status(HttpStatusCode.BadRequest, {
+        return status(StatusMap['Bad Request'], {
           ...new ApiError(
             [
               {
@@ -156,12 +155,12 @@ export const errorPlugin = new Elysia({ name: 'Error.Plugin' })
               }
             ],
             error.name,
-            HttpStatusCode.BadRequest
+            StatusMap['Bad Request']
           )
         });
 
       case error instanceof PrismaClientUnknownRequestError:
-        return status(HttpStatusCode.BadRequest, {
+        return status(StatusMap['Bad Request'], {
           ...new ApiError(
             [
               {
@@ -170,25 +169,25 @@ export const errorPlugin = new Elysia({ name: 'Error.Plugin' })
               }
             ],
             error.name,
-            HttpStatusCode.BadRequest
+            StatusMap['Bad Request']
           )
         });
 
       case error instanceof PrismaClientRustPanicError:
-        return status(HttpStatusCode.BadRequest, {
+        return status(StatusMap['Bad Request'], {
           ...new ApiError(
             [{ message: error.message, path: [path] }],
             error.name,
-            HttpStatusCode.BadRequest
+            StatusMap['Bad Request']
           )
         });
 
       case error instanceof PrismaClientValidationError:
-        return status(HttpStatusCode.BadRequest, {
+        return status(StatusMap['Bad Request'], {
           ...new ApiError(
             [{ message: error.message, path: [path] }],
             error.name,
-            HttpStatusCode.BadRequest
+            StatusMap['Bad Request']
           )
         });
 
@@ -196,7 +195,7 @@ export const errorPlugin = new Elysia({ name: 'Error.Plugin' })
         return status(error.status, { ...error });
 
       default:
-        return status(HttpStatusCode.InternalServerError, {
+        return status(StatusMap['Internal Server Error'], {
           ...new ApiError()
         });
     }

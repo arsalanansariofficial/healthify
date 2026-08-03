@@ -10,6 +10,7 @@ import { StatusMap, Elysia } from 'elysia';
 import type { Err } from '@/lib/util/types';
 
 import { isUnknownError, isFileError } from '@/lib/util';
+import { env } from '@/lib/config';
 
 export class ApiError extends Error {
   constructor(
@@ -28,7 +29,7 @@ export class UnauthorizedError extends ApiError {
     public override errors: [Err, ...Array<Err>] = [
       {
         message: 'Invalid session token provided.',
-        path: ['task-manager.session_token']
+        path: [env.SESSION_COOKIE_NAME]
       }
     ],
     public override message = 'Unauthorized.',

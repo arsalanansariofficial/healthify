@@ -93,13 +93,6 @@ export const envSchema = z.object(
       .meta({
         description: 'Name of the application, defaults to task-manager.'
       }),
-    AXIOS_REQUEST_TIMEOUT: z.coerce
-      .number('AXIOS_REQUEST_TIMEOUT should be a valid number in milliseconds.')
-      .default(5 * 1000)
-      .meta({
-        description:
-          'Timeout for failing network requests (milliseconds), defaults to 5 seconds.'
-      }),
     DATABASE_URL: z
       .url('DATABASE_URL should be a valid url.')
       .nonempty('DATABASE_URL should not be empty.')

@@ -1,8 +1,19 @@
 ### Features
 
-- Dashboards for Users
-- Tasks Search & Filtering
-- Fully typed with TypeScript
+- Automatic account linking
+- Cookie cache for low response time
+- OAuth using GitHub
+- Email verification
+- OpenAPI for route documentation
+- Username login and signup
+- Test utilities for authenticated tests
+- Multiple sessions
+- Anonymous login
+- Admin accounts
+- Login with Magic Link
+- Two-factor authentication
+- Phone number login and signup
+- Organizations and teams with dynamic access control
 
 ### Requirements
 
@@ -19,7 +30,7 @@ bun i
 ### Development
 
 ```bash
-bun run dev
+bun dev
 ```
 
 ### Environment Variables
@@ -32,8 +43,6 @@ Use the .env.example file to configure:
 
 _Arsalan Ansari_
 
-[<img src="https://raw.githubusercontent.com/arsalanansariofficial/resources/refs/heads/main/images/icons/website.png" alt="Website" width="25">](https://arsalanansariofficial.github.io/arsalanansariofficial)&nbsp;&nbsp;
-[<img src="https://raw.githubusercontent.com/arsalanansariofficial/resources/refs/heads/main/images/icons/discord.png" alt="Discord" width="25">](https://discordapp.com/users/1343911893852491869)&nbsp;&nbsp;
-[<img src="https://raw.githubusercontent.com/arsalanansariofficial/resources/refs/heads/main/images/icons/linkedin.png" alt="LinkedIn" width="25">](https://www.linkedin.com/in/arsalanansariofficial/)&nbsp;&nbsp;
-[<img src="https://raw.githubusercontent.com/arsalanansariofficial/resources/refs/heads/main/images/icons/email.png" alt="Email" width="25">](mailto:theansaricompany@gmail.com?subject=Mail%20To%20Arsalan%20Ansari)&nbsp;&nbsp;
-[<img src="https://raw.githubusercontent.com/arsalanansariofficial/resources/refs/heads/main/images/icons/frontendmentor.png" alt="Frontend Mentor" width="25">](https://www.frontendmentor.io/profile/arsalanansariofficial)
+[Website](https://arsalanansariofficial.github.io/arsalanansariofficial)
+[LinkedIn](https://www.linkedin.com/in/arsalanansariofficial/)
+[Email](mailto:theansaricompany@gmail.com?subject=Mail%20To%20Arsalan%20Ansari)

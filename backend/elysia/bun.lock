@@ -3,7 +3,7 @@
   "configVersion": 1,
   "workspaces": {
     "": {
-      "name": "task-manager-api",
+      "name": "server",
       "dependencies": {
         "@elysia/cors": "^1.4.2",
         "@elysia/eden": "^1.4.10",

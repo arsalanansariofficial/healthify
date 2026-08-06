@@ -85,14 +85,6 @@ export const envSchema = z.object(
         description:
           'Time remaining until automatic logout (seconds), defaults to 1 hour.'
       }),
-    APPLICATION_NAME: z
-      .string('APPLICATION_NAME should be a valid string.')
-      .nonempty('APPLICATION_NAME should not be empty.')
-      .trim()
-      .default('task-manager')
-      .meta({
-        description: 'Name of the application, defaults to task-manager.'
-      }),
     DATABASE_URL: z
       .url('DATABASE_URL should be a valid url.')
       .nonempty('DATABASE_URL should not be empty.')
@@ -140,6 +132,12 @@ export const envSchema = z.object(
       .meta({
         description: 'Server running environment, defaults to development.'
       }),
+    APPLICATION_NAME: z
+      .string('APPLICATION_NAME should be a valid string.')
+      .nonempty('APPLICATION_NAME should not be empty.')
+      .trim()
+      .default('server')
+      .meta({ description: 'Name of the application, defaults to server.' }),
     MAX_FILE_SIZE: z.coerce
       .number('MAX_FILE_SIZE should be a valid number in bytes.')
       .default(1 * 1_000 * 1_000)

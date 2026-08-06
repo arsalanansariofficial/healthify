@@ -39,18 +39,6 @@ export class UnauthorizedError extends ApiError {
   }
 }
 
-export class TaskNotFoundError extends ApiError {
-  constructor(
-    public override errors: [Err, ...Array<Err>] = [
-      { message: 'Requested task not found.', path: ['task'] }
-    ],
-    public override message = 'Task not found.',
-    public override status = StatusMap['Bad Request']
-  ) {
-    super();
-  }
-}
-
 export const errorPlugin = new Elysia({ name: 'Error.Plugin' })
   .error({ ApiError })
   .onError(({ status, error, code, path }) => {

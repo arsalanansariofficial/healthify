@@ -8,13 +8,6 @@ import { ctx } from '@/lib/auth';
 import { app } from '@/server';
 
 export const unknown = {
-  tasks: [
-    {
-      title: 'Learn about SwampFire',
-      status: 'incomplete' as const,
-      id: crypto.randomUUID()
-    }
-  ],
   password: 'Unknown.Password@123',
   email: 'unknown@cn.com',
   name: 'Ben Tennyson'
@@ -41,33 +34,6 @@ export const kevin = {
   email: 'kevin@cn.com'
 };
 
-export const bensTasks = [
-  {
-    title: 'Learn about SwampFire',
-    status: 'incomplete' as const,
-    id: crypto.randomUUID(),
-    userId: ben.id
-  }
-];
-
-export const gwensTasks = [
-  {
-    status: 'incomplete' as const,
-    title: 'Meet Charm Caster',
-    id: crypto.randomUUID(),
-    userId: gwen.id
-  }
-];
-
-export const kevinsTasks = [
-  {
-    status: 'complete' as const,
-    id: crypto.randomUUID(),
-    title: 'Stop aggregor',
-    userId: kevin.id
-  }
-];
-
 export const api = treaty(app);
 
 export async function resetDb() {
@@ -91,17 +57,10 @@ export async function resetDb() {
 
 export async function setupDb() {
   await Promise.all([resetDb(), resetDisk()]);
-
   await Promise.all([
     ctx.saveUser(ctx.createUser(ben)),
     ctx.saveUser(ctx.createUser(gwen)),
     ctx.saveUser(ctx.createUser(kevin))
-  ]);
-
-  await prisma.$transaction([
-    prisma.task.createMany({ data: bensTasks }),
-    prisma.task.createMany({ data: gwensTasks }),
-    prisma.task.createMany({ data: kevinsTasks })
   ]);
 }
 

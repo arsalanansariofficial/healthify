@@ -4,7 +4,6 @@ import { Elysia } from 'elysia';
 
 import { organizationRoutes } from '@/modules/organization';
 import { userRoutes } from '@/modules/user';
-import { taskRoutes } from '@/modules/task';
 import { errorPlugin } from '@/lib/error';
 import { authRoutes } from '@/lib/auth';
 import { env } from '@/lib/config';
@@ -17,7 +16,6 @@ export const app = new Elysia({ name: 'App.Routes' })
   .use(cors())
   .use(organizationRoutes)
   .use(authRoutes)
-  .use(userRoutes)
-  .use(taskRoutes);
+  .use(userRoutes);
 
 app.listen(env.PORT);

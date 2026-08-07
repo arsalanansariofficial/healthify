@@ -28,7 +28,6 @@ model User {
   sessions    Session[]
   accounts    Account[]
   members     Member[]
-  tasks       Task[]
 }
 
 model Account {
@@ -214,21 +213,6 @@ model UserProfile {
   bio         String?
   address     String?
   gender      Gender?
-}
-
-model Task {
-  id String @id @default(uuid())
-
-  userId String
-  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  title String
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  status      Status?
-  description String?
 }
 
 enum Gender {

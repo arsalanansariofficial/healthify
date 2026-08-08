@@ -7,14 +7,14 @@ import {
 } from '@prisma/client/runtime/client';
 import { StatusMap, Elysia } from 'elysia';
 
-import type { Err } from '@/lib/util/types';
+import type { Errors } from '@/lib/util/types';
 
 import { isUnknownError, isFileError } from '@/lib/util';
 import { env } from '@/lib/config';
 
 export class ApiError extends Error {
   constructor(
-    public errors: [Err, ...Array<Err>] = [
+    public errors: Errors = [
       { message: 'An unknown error occurred.', path: ['unknown'] }
     ],
     public override message = 'An unknown error occurred.',
@@ -26,7 +26,7 @@ export class ApiError extends Error {
 
 export class UnauthorizedError extends ApiError {
   constructor(
-    public override errors: [Err, ...Array<Err>] = [
+    public override errors: Errors = [
       {
         message: 'Invalid session token provided.',
         path: [env.SESSION_COOKIE_NAME]
@@ -96,10 +96,10 @@ export const errorPlugin = new Elysia({ name: 'Error.Plugin' })
       case code === 'VALIDATION':
         return status(error.status, {
           ...new ApiError(
-            error.all?.map(issue => ({
+            error.all.map(issue => ({
               message: issue.message,
-              path: issue.path
-            })) as unknown as [Err, ...Array<Err>],
+              path: [issue.path]
+            })) as Errors,
             error.name,
             error.status
           )
@@ -116,7 +116,7 @@ export const errorPlugin = new Elysia({ name: 'Error.Plugin' })
 
       case code === 'UNKNOWN' && isUnknownError(error):
         const statusCode =
-          (error?.statusCode as number) || StatusMap['Internal Server Error'];
+          (error.statusCode as number) || StatusMap['Internal Server Error'];
         return status(statusCode, {
           ...new ApiError(
             [{ message: error.message, path: [path] }],

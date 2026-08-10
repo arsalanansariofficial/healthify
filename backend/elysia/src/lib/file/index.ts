@@ -1,4 +1,3 @@
-import { unlink } from 'node:fs/promises';
 import { extname } from 'node:path';
 
 import type { Schema } from '@/lib/util/schema';
@@ -24,5 +23,5 @@ export async function upload(file: File) {
 export async function remove(url?: string | null) {
   if (!url) return;
   const [, name] = url.split(env.UPLOAD_DIR);
-  return await unlink(`${env.UPLOAD_DIR}${name}`);
+  return await Bun.file(`${env.UPLOAD_DIR}${name}`).delete();
 }

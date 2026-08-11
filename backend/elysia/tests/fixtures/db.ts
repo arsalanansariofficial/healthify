@@ -1,6 +1,5 @@
 import { mkdir, rm } from 'node:fs/promises';
 import { treaty } from '@elysia/eden';
-import path from 'node:path';
 
 import { prisma } from '@/lib/prisma';
 import { env } from '@/lib/config';
@@ -66,7 +65,7 @@ export async function setupDb() {
 
 export async function resetDisk() {
   await rm(env.UPLOAD_DIR, { recursive: true, force: true });
-  await mkdir(path.dirname(env.UPLOAD_DIR), { recursive: true });
+  await mkdir(env.UPLOAD_DIR, { recursive: true });
   await Bun.write(`${env.UPLOAD_DIR}/.gitkeep`, String());
 }
 

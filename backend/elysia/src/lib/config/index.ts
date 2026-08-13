@@ -1,5 +1,29 @@
 import z from 'zod';
 
+declare module 'bun' {
+  interface Env {
+    NODE_ENV?: 'development' | 'production' | undefined | string | 'test';
+    BETTER_AUTH_ACCEPT_METHODS: ('post' | 'get')[];
+    GITHUB_CLIENT_SECRET?: undefined | string;
+    BETTER_AUTH_COOKIE_CACHE_TIMEOUT: number;
+    BETTER_AUTH_MAX_PASSWORD_LENGTH: number;
+    BETTER_AUTH_MIN_PASSWORD_LENGTH: number;
+    BETTER_AUTH_SESSION_EXPIRES_IN: number;
+    GITHUB_CLIENT_ID?: undefined | string;
+    SESSION_COOKIE_NAME: string;
+    BETTER_AUTH_SECRET: string;
+    APPLICATION_NAME: string;
+    BETTER_AUTH_URL: string;
+    MAX_FILE_SIZE: number;
+    MIN_FILE_SIZE: number;
+    DATABASE_URL: string;
+    UPLOAD_DIR: string;
+    SMTP_URL: string;
+    BASE_URL: string;
+    PORT: number;
+  }
+}
+
 export const envSchema = z.object(
   {
     BETTER_AUTH_SECRET: z

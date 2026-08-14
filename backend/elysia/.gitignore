@@ -48,6 +48,5 @@ dist
 # testing
 /coverage
 
-# database
-*.db
-db
+# sqlite
+*.sqlite

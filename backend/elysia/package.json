@@ -12,7 +12,8 @@
   "type": "module",
   "module": "src/index.ts",
   "scripts": {
-    "admin:create": "bun x auth@latest create-admin --email admin@server.com --password admin --name admin --role admin --yes",
+    "admin:create": "bunx --bun auth@latest create-admin --email admin@server.com --password admin --name admin --role admin --yes",
+    "auth:generate": "bunx --bun auth@latest generate",
     "build": "bun build --minify --compile --minify-whitespace --minify-syntax --target bun --outfile server src/index.ts",
     "build:js": "bun build src/index.ts --target=bun --minify-whitespace --minify-syntax --outfile dist/index.js",
     "clean": "rm -rf node_modules generated",

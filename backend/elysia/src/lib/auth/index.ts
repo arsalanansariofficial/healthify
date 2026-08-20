@@ -11,7 +11,7 @@ import {
   admin
 } from 'better-auth/plugins';
 import { APIError as BetterAuthError, betterAuth } from 'better-auth';
-import { prismaAdapter } from 'better-auth/adapters/prisma';
+import { drizzleAdapter } from 'better-auth/adapters/drizzle';
 import { StatusMap, Elysia } from 'elysia';
 
 import type { Model } from '@/modules/user/model';
@@ -22,6 +22,7 @@ import { permissions } from '@/lib/auth/permissions';
 import { prisma } from '@/lib/prisma';
 import { remove } from '@/lib/file';
 import { env } from '@/lib/config';
+import { db } from '@/lib/db';
 
 export const auth = betterAuth({
   plugins: [
@@ -177,7 +178,7 @@ export const auth = betterAuth({
       allowUnlinkingAll: true
     }
   },
-  database: prismaAdapter(prisma, { provider: 'mysql' }),
+  database: drizzleAdapter(db, { provider: 'sqlite' }),
   appName: env.APPLICATION_NAME
 });
 

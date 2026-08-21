@@ -1,5 +1,7 @@
 import { globalIgnores, defineConfig } from 'eslint/config';
 import perfectionist from 'eslint-plugin-perfectionist';
+import tsParser from '@typescript-eslint/parser';
+import drizzle from 'eslint-plugin-drizzle';
 import tseslint from 'typescript-eslint';
 import globals from 'globals';
 import js from '@eslint/js';
@@ -11,9 +13,18 @@ export default defineConfig([
   js.configs.recommended,
   {
     rules: {
+      ...drizzle.configs.all.rules,
       '@typescript-eslint/no-unused-vars': [
         'error',
         { argsIgnorePattern: '^_', args: 'all' }
+      ],
+      'drizzle/enforce-delete-with-where': [
+        'error',
+        { drizzleObjectName: 'db' }
+      ],
+      'drizzle/enforce-update-with-where': [
+        'error',
+        { drizzleObjectName: 'db' }
       ],
       'react-refresh/only-export-components': 'off',
       'arrow-body-style': ['error', 'as-needed'],
@@ -173,12 +184,15 @@ export default defineConfig([
     },
     languageOptions: {
       globals: {
+        ...globals.bunBuiltin,
         ...globals.browser,
         ...globals.node,
-        ...globals.bunBuiltin,
         NodeJS: 'readonly'
       },
-      ecmaVersion: 'latest'
-    }
+      parserOptions: { project: 'tsconfig.json' },
+      ecmaVersion: 'latest',
+      parser: tsParser
+    },
+    plugins: { drizzle }
   }
 ]);

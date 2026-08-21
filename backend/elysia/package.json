@@ -42,9 +42,12 @@
     "@elysia/static": "^1.4.11",
     "@prisma/adapter-mariadb": "^7.9.0",
     "@prisma/client": "^7.9.0",
+    "@typescript-eslint/eslint-plugin": "^8.70.1",
+    "@typescript-eslint/parser": "^8.70.1",
     "better-auth": "^1.7.5",
     "drizzle-orm": "^1.0.0-rc.4",
     "elysia": "latest",
+    "eslint-plugin-drizzle": "^0.2.3",
     "nodemailer": "^9.0.5",
     "zod": "^4.6.1"
   },

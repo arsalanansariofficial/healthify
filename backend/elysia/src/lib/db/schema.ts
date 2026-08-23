@@ -1,286 +1,342 @@
-import { sqliteTable, integer, index, text } from 'drizzle-orm/sqlite-core';
-import { relations } from 'drizzle-orm/_relations';
+import { defineRelations } from 'drizzle-orm';
+import * as t from 'drizzle-orm/sqlite-core';
 
-export const user = sqliteTable('user', {
-  updatedAt: integer('updated_at', { mode: 'timestamp_ms' })
-    .$onUpdate(() => new Date())
-    .notNull(),
-  emailVerified: integer('email_verified', { mode: 'boolean' })
-    .default(false)
-    .notNull(),
-  twoFactorEnabled: integer('two_factor_enabled', { mode: 'boolean' }).default(
-    false
-  ),
-  phoneNumberVerified: integer('phone_number_verified', { mode: 'boolean' }),
-  isAnonymous: integer('is_anonymous', { mode: 'boolean' }).default(false),
-  createdAt: integer('created_at', { mode: 'timestamp_ms' }).notNull(),
-  banned: integer('banned', { mode: 'boolean' }).default(false),
-  banExpires: integer('ban_expires', { mode: 'timestamp_ms' }),
-  phoneNumber: text('phone_number').unique(),
-  displayUsername: text('display_username'),
-  email: text('email').notNull().unique(),
-  username: text('username').unique(),
-  banReason: text('ban_reason'),
-  name: text('name').notNull(),
-  id: text('id').primaryKey(),
-  image: text('image'),
-  role: text('role')
+export const User = t.snakeCase.table('user', {
+  updatedAt: t
+    .text()
+    .$default(() => new Date().toISOString())
+    .$onUpdate(() => new Date().toISOString()),
+  phoneNumber: t.text().unique('user_phone_number_unique_index'),
+  emailVerified: t.integer({ mode: 'boolean' }).default(false),
+  createdAt: t.text().$default(() => new Date().toISOString()),
+  email: t.text().unique('user_email_unique_index').notNull(),
+  username: t.text().unique('user_username_unique_index'),
+  id: t.text().primaryKey().default(Bun.randomUUIDv7()),
+  phoneNumberVerified: t.integer({ mode: 'boolean' }),
+  twoFactorEnabled: t.integer({ mode: 'boolean' }),
+  isAnonymous: t.integer({ mode: 'boolean' }),
+  banned: t.integer({ mode: 'boolean' }),
+  displayUsername: t.text(),
+  name: t.text().notNull(),
+  banExpires: t.text(),
+  banReason: t.text(),
+  image: t.text(),
+  role: t.text()
 });
 
-export const session = sqliteTable(
-  'session',
+export const UserProfile = t.snakeCase.table(
+  'user_profile',
   {
-    updatedAt: integer('updated_at', { mode: 'timestamp_ms' })
-      .$onUpdate(() => new Date())
-      .notNull(),
-    userId: text('user_id')
-      .notNull()
-      .references(() => user.id, { onDelete: 'cascade' }),
-    expiresAt: integer('expires_at', { mode: 'timestamp_ms' }).notNull(),
-    createdAt: integer('created_at', { mode: 'timestamp_ms' }).notNull(),
-    activeOrganizationId: text('active_organization_id'),
-    token: text('token').notNull().unique(),
-    impersonatedBy: text('impersonated_by'),
-    activeTeamId: text('active_team_id'),
-    ipAddress: text('ip_address'),
-    userAgent: text('user_agent'),
-    id: text('id').primaryKey()
+    updatedAt: t
+      .text()
+      .$default(() => new Date().toISOString())
+      .$onUpdate(() => new Date().toISOString()),
+    userId: t
+      .text()
+      .primaryKey()
+      .references(() => User.id),
+    phoneNumber: t.text().unique('user_profile_phone_number_unique_index'),
+    createdAt: t.text().$default(() => new Date().toISOString()),
+    gender: t.text().$type<'female' | 'male'>(),
+    address: t.text(),
+    cover: t.text(),
+    bio: t.text()
   },
-  table => [index('session_userId_idx').on(table.userId)]
+  table => [t.index('user_profile_user_id_index').on(table.userId)]
 );
 
-export const account = sqliteTable(
+export const Account = t.snakeCase.table(
   'account',
   {
-    updatedAt: integer('updated_at', { mode: 'timestamp_ms' })
-      .$onUpdate(() => new Date())
-      .notNull(),
-    userId: text('user_id')
+    updatedAt: t
+      .text()
+      .$default(() => new Date().toISOString())
+      .$onUpdate(() => new Date().toISOString()),
+    userId: t
+      .text()
       .notNull()
-      .references(() => user.id, { onDelete: 'cascade' }),
-    refreshTokenExpiresAt: integer('refresh_token_expires_at', {
-      mode: 'timestamp_ms'
-    }),
-    accessTokenExpiresAt: integer('access_token_expires_at', {
-      mode: 'timestamp_ms'
-    }),
-    createdAt: integer('created_at', { mode: 'timestamp_ms' }).notNull(),
-    providerId: text('provider_id').notNull(),
-    accountId: text('account_id').notNull(),
-    refreshToken: text('refresh_token'),
-    accessToken: text('access_token'),
-    id: text('id').primaryKey(),
-    password: text('password'),
-    idToken: text('id_token'),
-    scope: text('scope')
+      .references(() => User.id),
+    createdAt: t.text().$default(() => new Date().toISOString()),
+    id: t.text().primaryKey().default(Bun.randomUUIDv7()),
+    gender: t.text().$type<'female' | 'male'>(),
+    refreshTokenExpiresAt: t.text(),
+    providerId: t.text().notNull(),
+    accessTokenExpiresAt: t.text(),
+    accountId: t.text().notNull(),
+    refreshToken: t.text(),
+    accessToken: t.text(),
+    password: t.text(),
+    address: t.text(),
+    idToken: t.text(),
+    cover: t.text(),
+    scope: t.text(),
+    bio: t.text()
   },
-  table => [index('account_userId_idx').on(table.userId)]
+  table => [t.index('account_user_id_index').on(table.userId)]
 );
 
-export const verification = sqliteTable(
-  'verification',
+export const Session = t.snakeCase.table(
+  'session',
   {
-    updatedAt: integer('updated_at', { mode: 'timestamp_ms' })
-      .$onUpdate(() => new Date())
-      .notNull(),
-    expiresAt: integer('expires_at', { mode: 'timestamp_ms' }).notNull(),
-    createdAt: integer('created_at', { mode: 'timestamp_ms' }).notNull(),
-    identifier: text('identifier').notNull(),
-    value: text('value').notNull(),
-    id: text('id').primaryKey()
+    updatedAt: t
+      .text()
+      .$default(() => new Date().toISOString())
+      .$onUpdate(() => new Date().toISOString()),
+    userId: t
+      .text()
+      .notNull()
+      .references(() => User.id),
+    token: t.text().notNull().unique('session_token_unique_index'),
+    createdAt: t.text().$default(() => new Date().toISOString()),
+    id: t.text().primaryKey().default(Bun.randomUUIDv7()),
+    activeOrganizationId: t.text(),
+    expiresAt: t.text().notNull(),
+    impersonatedBy: t.text(),
+    activeTeamId: t.text(),
+    ipAddress: t.text(),
+    userAgent: t.text()
   },
-  table => [index('verification_identifier_idx').on(table.identifier)]
+  table => [t.index('session_user_id_index').on(table.userId)]
 );
 
-export const organization = sqliteTable('organization', {
-  createdAt: integer('created_at', { mode: 'timestamp_ms' }).notNull(),
-  slug: text('slug').notNull().unique(),
-  name: text('name').notNull(),
-  id: text('id').primaryKey(),
-  metadata: text('metadata'),
-  logo: text('logo')
+export const Organization = t.snakeCase.table('organization', {
+  updatedAt: t
+    .text()
+    .$default(() => new Date().toISOString())
+    .$onUpdate(() => new Date().toISOString()),
+  slug: t.text().unique('organization_slug_unique_index').notNull(),
+  createdAt: t.text().$default(() => new Date().toISOString()),
+  id: t.text().primaryKey().default(Bun.randomUUIDv7()),
+  name: t.text().notNull(),
+  metadata: t.text(),
+  logo: t.text()
 });
 
-export const organizationRole = sqliteTable(
-  'organization_role',
-  {
-    organizationId: text('organization_id')
-      .notNull()
-      .references(() => organization.id, { onDelete: 'cascade' }),
-    updatedAt: integer('updated_at', { mode: 'timestamp_ms' }).$onUpdate(
-      () => new Date()
-    ),
-    createdAt: integer('created_at', { mode: 'timestamp_ms' }).notNull(),
-    permission: text('permission').notNull(),
-    role: text('role').notNull(),
-    id: text('id').primaryKey()
-  },
-  table => [
-    index('organizationRole_organizationId_idx').on(table.organizationId),
-    index('organizationRole_role_idx').on(table.role)
-  ]
-);
-
-export const team = sqliteTable(
-  'team',
-  {
-    organizationId: text('organization_id')
-      .notNull()
-      .references(() => organization.id, { onDelete: 'cascade' }),
-    updatedAt: integer('updated_at', { mode: 'timestamp_ms' }).$onUpdate(
-      () => new Date()
-    ),
-    createdAt: integer('created_at', { mode: 'timestamp_ms' }).notNull(),
-    memberCount: integer('member_count').default(0).notNull(),
-    name: text('name').notNull(),
-    id: text('id').primaryKey()
-  },
-  table => [index('team_organizationId_idx').on(table.organizationId)]
-);
-
-export const teamMember = sqliteTable(
-  'team_member',
-  {
-    teamId: text('team_id')
-      .notNull()
-      .references(() => team.id, { onDelete: 'cascade' }),
-    userId: text('user_id')
-      .notNull()
-      .references(() => user.id, { onDelete: 'cascade' }),
-    createdAt: integer('created_at', { mode: 'timestamp_ms' }),
-    membershipKey: text('membership_key').unique(),
-    id: text('id').primaryKey()
-  },
-  table => [
-    index('teamMember_teamId_idx').on(table.teamId),
-    index('teamMember_userId_idx').on(table.userId)
-  ]
-);
-
-export const member = sqliteTable(
-  'member',
-  {
-    organizationId: text('organization_id')
-      .notNull()
-      .references(() => organization.id, { onDelete: 'cascade' }),
-    userId: text('user_id')
-      .notNull()
-      .references(() => user.id, { onDelete: 'cascade' }),
-    createdAt: integer('created_at', { mode: 'timestamp_ms' }).notNull(),
-    role: text('role').default('member').notNull(),
-    id: text('id').primaryKey()
-  },
-  table => [
-    index('member_organizationId_idx').on(table.organizationId),
-    index('member_userId_idx').on(table.userId)
-  ]
-);
-
-export const invitation = sqliteTable(
-  'invitation',
-  {
-    organizationId: text('organization_id')
-      .notNull()
-      .references(() => organization.id, { onDelete: 'cascade' }),
-    inviterId: text('inviter_id')
-      .notNull()
-      .references(() => user.id, { onDelete: 'cascade' }),
-    expiresAt: integer('expires_at', { mode: 'timestamp_ms' }).notNull(),
-    createdAt: integer('created_at', { mode: 'timestamp_ms' }).notNull(),
-    status: text('status').default('pending').notNull(),
-    email: text('email').notNull(),
-    id: text('id').primaryKey(),
-    teamId: text('team_id'),
-    role: text('role')
-  },
-  table => [
-    index('invitation_organizationId_idx').on(table.organizationId),
-    index('invitation_email_idx').on(table.email)
-  ]
-);
-
-export const twoFactor = sqliteTable(
+export const TwoFactor = t.snakeCase.table(
   'two_factor',
   {
-    userId: text('user_id')
+    updatedAt: t
+      .text()
+      .$default(() => new Date().toISOString())
+      .$onUpdate(() => new Date().toISOString()),
+    userId: t
+      .text()
       .notNull()
-      .references(() => user.id, { onDelete: 'cascade' }),
-    failedVerificationCount: integer('failed_verification_count').default(0),
-    verified: integer('verified', { mode: 'boolean' }).default(true),
-    lockedUntil: integer('locked_until', { mode: 'timestamp_ms' }),
-    backupCodes: text('backup_codes').notNull(),
-    secret: text('secret').notNull(),
-    id: text('id').primaryKey()
+      .references(() => User.id),
+    createdAt: t.text().$default(() => new Date().toISOString()),
+    id: t.text().primaryKey().default(Bun.randomUUIDv7()),
+    verified: t.integer({ mode: 'boolean' }).notNull(),
+    failedVerificationCount: t.integer().notNull(),
+    backupCodes: t.text().notNull(),
+    secret: t.text().notNull(),
+    lockedUntil: t.text()
+  },
+  table => [t.index('two_factor_user_id_index').on(table.userId)]
+);
+
+export const TeamMember = t.snakeCase.table(
+  'team_member',
+  {
+    updatedAt: t
+      .text()
+      .$default(() => new Date().toISOString())
+      .$onUpdate(() => new Date().toISOString()),
+    userId: t
+      .text()
+      .notNull()
+      .references(() => User.id),
+    teamId: t
+      .text()
+      .notNull()
+      .references(() => Team.id),
+    createdAt: t.text().$default(() => new Date().toISOString()),
+    id: t.text().primaryKey().default(Bun.randomUUIDv7()),
+    membershipKey: t.text()
   },
   table => [
-    index('twoFactor_secret_idx').on(table.secret),
-    index('twoFactor_userId_idx').on(table.userId)
+    t.index('team_member_user_id_index').on(table.userId),
+    t.index('team_member_team_id_index').on(table.teamId)
   ]
 );
 
-export const userRelations = relations(user, ({ many }) => ({
-  teamMembers: many(teamMember),
-  invitations: many(invitation),
-  twoFactors: many(twoFactor),
-  sessions: many(session),
-  accounts: many(account),
-  members: many(member)
-}));
-
-export const sessionRelations = relations(session, ({ one }) => ({
-  user: one(user, { fields: [session.userId], references: [user.id] })
-}));
-
-export const accountRelations = relations(account, ({ one }) => ({
-  user: one(user, { fields: [account.userId], references: [user.id] })
-}));
-
-export const organizationRelations = relations(organization, ({ many }) => ({
-  organizationRoles: many(organizationRole),
-  invitations: many(invitation),
-  members: many(member),
-  teams: many(team)
-}));
-
-export const organizationRoleRelations = relations(
-  organizationRole,
-  ({ one }) => ({
-    organization: one(organization, {
-      fields: [organizationRole.organizationId],
-      references: [organization.id]
-    })
-  })
+export const Member = t.snakeCase.table(
+  'member',
+  {
+    updatedAt: t
+      .text()
+      .$default(() => new Date().toISOString())
+      .$onUpdate(() => new Date().toISOString()),
+    organizationId: t
+      .text()
+      .notNull()
+      .references(() => Organization.id),
+    userId: t
+      .text()
+      .notNull()
+      .references(() => User.id),
+    createdAt: t.text().$default(() => new Date().toISOString()),
+    id: t.text().primaryKey().default(Bun.randomUUIDv7()),
+    role: t.text().notNull()
+  },
+  table => [
+    t.index('member_user_id_index').on(table.userId),
+    t.index('member_organization_id_index').on(table.organizationId)
+  ]
 );
 
-export const teamRelations = relations(team, ({ many, one }) => ({
-  organization: one(organization, {
-    fields: [team.organizationId],
-    references: [organization.id]
-  }),
-  teamMembers: many(teamMember)
-}));
+export const Team = t.snakeCase.table(
+  'team',
+  {
+    updatedAt: t
+      .text()
+      .$default(() => new Date().toISOString())
+      .$onUpdate(() => new Date().toISOString()),
+    organizationId: t
+      .text()
+      .notNull()
+      .references(() => Organization.id),
+    createdAt: t.text().$default(() => new Date().toISOString()),
+    id: t.text().primaryKey().default(Bun.randomUUIDv7()),
+    memberCount: t.integer().notNull(),
+    name: t.text().notNull()
+  },
+  table => [t.index('team_organization_id_index').on(table.organizationId)]
+);
 
-export const teamMemberRelations = relations(teamMember, ({ one }) => ({
-  team: one(team, { fields: [teamMember.teamId], references: [team.id] }),
-  user: one(user, { fields: [teamMember.userId], references: [user.id] })
-}));
+export const OrganizationRole = t.snakeCase.table(
+  'organization_role',
+  {
+    updatedAt: t
+      .text()
+      .$default(() => new Date().toISOString())
+      .$onUpdate(() => new Date().toISOString()),
+    organizationId: t
+      .text()
+      .notNull()
+      .references(() => Organization.id),
+    createdAt: t.text().$default(() => new Date().toISOString()),
+    id: t.text().primaryKey().default(Bun.randomUUIDv7()),
+    permission: t.text().notNull(),
+    role: t.text().notNull()
+  },
+  table => [
+    t.index('organization_role_organization_id_index').on(table.organizationId)
+  ]
+);
 
-export const memberRelations = relations(member, ({ one }) => ({
-  organization: one(organization, {
-    fields: [member.organizationId],
-    references: [organization.id]
-  }),
-  user: one(user, { fields: [member.userId], references: [user.id] })
-}));
+export const Verification = t.snakeCase.table(
+  'verification',
+  {
+    updatedAt: t
+      .text()
+      .$default(() => new Date().toISOString())
+      .$onUpdate(() => new Date().toISOString()),
+    createdAt: t.text().$default(() => new Date().toISOString()),
+    id: t.text().primaryKey().default(Bun.randomUUIDv7()),
+    identifier: t.text().notNull(),
+    expiresAt: t.text().notNull(),
+    value: t.text().notNull()
+  },
+  table => [t.index('verification_identifier_index').on(table.identifier)]
+);
 
-export const invitationRelations = relations(invitation, ({ one }) => ({
-  organization: one(organization, {
-    fields: [invitation.organizationId],
-    references: [organization.id]
-  }),
-  user: one(user, { fields: [invitation.inviterId], references: [user.id] })
-}));
+export const Invitation = t.snakeCase.table(
+  'invitation',
+  {
+    updatedAt: t
+      .text()
+      .$default(() => new Date().toISOString())
+      .$onUpdate(() => new Date().toISOString()),
+    organizationId: t
+      .text()
+      .notNull()
+      .references(() => Organization.id),
+    inviterId: t
+      .text()
+      .notNull()
+      .references(() => User.id),
+    createdAt: t.text().$default(() => new Date().toISOString()),
+    id: t.text().primaryKey().default(Bun.randomUUIDv7()),
+    expiresAt: t.text().notNull(),
+    status: t.text().notNull(),
+    email: t.text().notNull(),
+    teamId: t.text(),
+    role: t.text()
+  },
+  table => [
+    t.index('invitation_organization_id_index').on(table.organizationId),
+    t.index('invitation_inviter_id_index').on(table.inviterId)
+  ]
+);
 
-export const twoFactorRelations = relations(twoFactor, ({ one }) => ({
-  user: one(user, { fields: [twoFactor.userId], references: [user.id] })
-}));
+export const relations = defineRelations(
+  {
+    OrganizationRole,
+    Organization,
+    Verification,
+    UserProfile,
+    TeamMember,
+    Invitation,
+    TwoFactor,
+    Account,
+    Session,
+    Member,
+    User,
+    Team
+  },
+  r => ({
+    User: {
+      profile: r.one.UserProfile({ to: r.UserProfile.userId, from: r.User.id }),
+      invitations: r.many.Invitation(),
+      teamMembers: r.many.TeamMember(),
+      TwoFactor: r.many.TwoFactor(),
+      sessions: r.many.Session(),
+      accounts: r.many.Account(),
+      members: r.many.Member()
+    },
+    Invitation: {
+      organization: r.one.Organization({
+        from: r.Invitation.organizationId,
+        to: r.Organization.id
+      }),
+      inviter: r.one.User({ from: r.Invitation.inviterId, to: r.User.id })
+    },
+    Member: {
+      organization: r.one.Organization({
+        from: r.Member.organizationId,
+        to: r.Organization.id
+      }),
+      user: r.one.User({ from: r.Member.userId, to: r.User.id })
+    },
+    Organization: {
+      organizationRoles: r.many.OrganizationRole(),
+      invitations: r.many.Invitation(),
+      members: r.many.Member(),
+      teams: r.many.Team()
+    },
+    TeamMember: {
+      user: r.one.User({ from: r.TeamMember.userId, to: r.User.id }),
+      team: r.one.Team({ from: r.TeamMember.teamId, to: r.Team.id })
+    },
+    OrganizationRole: {
+      organization: r.one.Organization({
+        from: r.OrganizationRole.organizationId,
+        to: r.Organization.id
+      })
+    },
+    Team: {
+      organization: r.one.Organization({
+        from: r.Team.organizationId,
+        to: r.Organization.id
+      })
+    },
+    UserProfile: {
+      User: r.one.User({ from: r.UserProfile.userId, to: r.User.id })
+    },
+    TwoFactor: {
+      user: r.one.User({ from: r.TwoFactor.userId, to: r.User.id })
+    },
+    Session: { user: r.one.User({ from: r.Session.userId, to: r.User.id }) },
+    Account: { user: r.one.User({ from: r.Account.userId, to: r.User.id }) }
+  })
+);

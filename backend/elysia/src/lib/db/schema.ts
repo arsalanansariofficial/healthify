@@ -1,14 +1,40 @@
 import { defineRelations } from 'drizzle-orm';
 import * as t from 'drizzle-orm/sqlite-core';
 
+export enum Gender {
+  female = 'female',
+  male = 'male'
+}
+
+export type SchemaSelect = {
+  [K in keyof typeof schema]: (typeof schema)[K]['$inferSelect'];
+};
+
+export type SchemaInsert = {
+  [K in keyof typeof schema]: (typeof schema)[K]['$inferInsert'];
+};
+
+export type SchemaUpdate = {
+  [K in keyof SchemaSelect]: Partial<SchemaSelect[K]>;
+};
+
 export const User = t.snakeCase.table('user', {
+  banExpires: t
+    .text()
+    .$type<Date>()
+    .$default(() => new Date())
+    .$onUpdate(() => new Date()),
   updatedAt: t
     .text()
-    .$default(() => new Date().toISOString())
-    .$onUpdate(() => new Date().toISOString()),
+    .$type<Date>()
+    .$default(() => new Date())
+    .$onUpdate(() => new Date()),
+  createdAt: t
+    .text()
+    .$type<Date>()
+    .$default(() => new Date()),
   phoneNumber: t.text().unique('user_phone_number_unique_index'),
   emailVerified: t.integer({ mode: 'boolean' }).default(false),
-  createdAt: t.text().$default(() => new Date().toISOString()),
   email: t.text().unique('user_email_unique_index').notNull(),
   username: t.text().unique('user_username_unique_index'),
   id: t.text().primaryKey().default(Bun.randomUUIDv7()),
@@ -18,7 +44,6 @@ export const User = t.snakeCase.table('user', {
   banned: t.integer({ mode: 'boolean' }),
   displayUsername: t.text(),
   name: t.text().notNull(),
-  banExpires: t.text(),
   banReason: t.text(),
   image: t.text(),
   role: t.text()
@@ -29,15 +54,18 @@ export const UserProfile = t.snakeCase.table(
   {
     updatedAt: t
       .text()
-      .$default(() => new Date().toISOString())
-      .$onUpdate(() => new Date().toISOString()),
+      .$type<Date>()
+      .$default(() => new Date()),
+    createdAt: t
+      .text()
+      .$type<Date>()
+      .$default(() => new Date()),
     userId: t
       .text()
       .primaryKey()
       .references(() => User.id),
     phoneNumber: t.text().unique('user_profile_phone_number_unique_index'),
-    createdAt: t.text().$default(() => new Date().toISOString()),
-    gender: t.text().$type<'female' | 'male'>(),
+    gender: t.text().$type<Gender>(),
     address: t.text(),
     cover: t.text(),
     bio: t.text()
@@ -52,11 +80,14 @@ export const Account = t.snakeCase.table(
       .text()
       .$default(() => new Date().toISOString())
       .$onUpdate(() => new Date().toISOString()),
+    createdAt: t
+      .text()
+      .$type<Date>()
+      .$default(() => new Date()),
     userId: t
       .text()
       .notNull()
       .references(() => User.id),
-    createdAt: t.text().$default(() => new Date().toISOString()),
     id: t.text().primaryKey().default(Bun.randomUUIDv7()),
     gender: t.text().$type<'female' | 'male'>(),
     refreshTokenExpiresAt: t.text(),
@@ -82,12 +113,15 @@ export const Session = t.snakeCase.table(
       .text()
       .$default(() => new Date().toISOString())
       .$onUpdate(() => new Date().toISOString()),
+    createdAt: t
+      .text()
+      .$type<Date>()
+      .$default(() => new Date()),
     userId: t
       .text()
       .notNull()
       .references(() => User.id),
     token: t.text().notNull().unique('session_token_unique_index'),
-    createdAt: t.text().$default(() => new Date().toISOString()),
     id: t.text().primaryKey().default(Bun.randomUUIDv7()),
     activeOrganizationId: t.text(),
     expiresAt: t.text().notNull(),
@@ -104,8 +138,11 @@ export const Organization = t.snakeCase.table('organization', {
     .text()
     .$default(() => new Date().toISOString())
     .$onUpdate(() => new Date().toISOString()),
+  createdAt: t
+    .text()
+    .$type<Date>()
+    .$default(() => new Date()),
   slug: t.text().unique('organization_slug_unique_index').notNull(),
-  createdAt: t.text().$default(() => new Date().toISOString()),
   id: t.text().primaryKey().default(Bun.randomUUIDv7()),
   name: t.text().notNull(),
   metadata: t.text(),
@@ -119,11 +156,14 @@ export const TwoFactor = t.snakeCase.table(
       .text()
       .$default(() => new Date().toISOString())
       .$onUpdate(() => new Date().toISOString()),
+    createdAt: t
+      .text()
+      .$type<Date>()
+      .$default(() => new Date()),
     userId: t
       .text()
       .notNull()
       .references(() => User.id),
-    createdAt: t.text().$default(() => new Date().toISOString()),
     id: t.text().primaryKey().default(Bun.randomUUIDv7()),
     verified: t.integer({ mode: 'boolean' }).notNull(),
     failedVerificationCount: t.integer().notNull(),
@@ -141,6 +181,10 @@ export const TeamMember = t.snakeCase.table(
       .text()
       .$default(() => new Date().toISOString())
       .$onUpdate(() => new Date().toISOString()),
+    createdAt: t
+      .text()
+      .$type<Date>()
+      .$default(() => new Date()),
     userId: t
       .text()
       .notNull()
@@ -149,7 +193,6 @@ export const TeamMember = t.snakeCase.table(
       .text()
       .notNull()
       .references(() => Team.id),
-    createdAt: t.text().$default(() => new Date().toISOString()),
     id: t.text().primaryKey().default(Bun.randomUUIDv7()),
     membershipKey: t.text()
   },
@@ -170,11 +213,14 @@ export const Member = t.snakeCase.table(
       .text()
       .notNull()
       .references(() => Organization.id),
+    createdAt: t
+      .text()
+      .$type<Date>()
+      .$default(() => new Date()),
     userId: t
       .text()
       .notNull()
       .references(() => User.id),
-    createdAt: t.text().$default(() => new Date().toISOString()),
     id: t.text().primaryKey().default(Bun.randomUUIDv7()),
     role: t.text().notNull()
   },
@@ -195,7 +241,10 @@ export const Team = t.snakeCase.table(
       .text()
       .notNull()
       .references(() => Organization.id),
-    createdAt: t.text().$default(() => new Date().toISOString()),
+    createdAt: t
+      .text()
+      .$type<Date>()
+      .$default(() => new Date()),
     id: t.text().primaryKey().default(Bun.randomUUIDv7()),
     memberCount: t.integer().notNull(),
     name: t.text().notNull()
@@ -214,7 +263,10 @@ export const OrganizationRole = t.snakeCase.table(
       .text()
       .notNull()
       .references(() => Organization.id),
-    createdAt: t.text().$default(() => new Date().toISOString()),
+    createdAt: t
+      .text()
+      .$type<Date>()
+      .$default(() => new Date()),
     id: t.text().primaryKey().default(Bun.randomUUIDv7()),
     permission: t.text().notNull(),
     role: t.text().notNull()
@@ -231,7 +283,10 @@ export const Verification = t.snakeCase.table(
       .text()
       .$default(() => new Date().toISOString())
       .$onUpdate(() => new Date().toISOString()),
-    createdAt: t.text().$default(() => new Date().toISOString()),
+    createdAt: t
+      .text()
+      .$type<Date>()
+      .$default(() => new Date()),
     id: t.text().primaryKey().default(Bun.randomUUIDv7()),
     identifier: t.text().notNull(),
     expiresAt: t.text().notNull(),
@@ -251,11 +306,14 @@ export const Invitation = t.snakeCase.table(
       .text()
       .notNull()
       .references(() => Organization.id),
+    createdAt: t
+      .text()
+      .$type<Date>()
+      .$default(() => new Date()),
     inviterId: t
       .text()
       .notNull()
       .references(() => User.id),
-    createdAt: t.text().$default(() => new Date().toISOString()),
     id: t.text().primaryKey().default(Bun.randomUUIDv7()),
     expiresAt: t.text().notNull(),
     status: t.text().notNull(),
@@ -340,3 +398,18 @@ export const relations = defineRelations(
     Account: { user: r.one.User({ from: r.Account.userId, to: r.User.id }) }
   })
 );
+
+export const schema = {
+  OrganizationRole,
+  Organization,
+  Verification,
+  UserProfile,
+  TeamMember,
+  Invitation,
+  TwoFactor,
+  Account,
+  Session,
+  Member,
+  User,
+  Team
+};

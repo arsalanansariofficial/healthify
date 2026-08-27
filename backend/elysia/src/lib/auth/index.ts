@@ -19,7 +19,6 @@ import type { Model } from '@/modules/user/model';
 import { hasValidAuthMethod, isFileError, mailer } from '@/lib/util';
 import { UnauthorizedError, ApiError } from '@/lib/error';
 import { permissions } from '@/lib/auth/permissions';
-import { prisma } from '@/lib/prisma';
 import { remove } from '@/lib/file';
 import { env } from '@/lib/config';
 import { db } from '@/lib/db';
@@ -91,7 +90,7 @@ export const auth = betterAuth({
     deleteUser: {
       async beforeDelete(user) {
         try {
-          const profile = await prisma.userProfile.findUnique({
+          const profile = await db.query.UserProfile.findFirst({
             where: { userId: user.id }
           });
 
@@ -189,7 +188,7 @@ export const loadAuthContext = new Elysia({ name: 'AuthContext.Plugin' })
     return {
       user: {
         ...session.user,
-        profile: await prisma.userProfile.findUnique({
+        profile: await db.query.UserProfile.findFirst({
           where: { userId: session.user.id }
         })
       } as Model['userWithProfile'],

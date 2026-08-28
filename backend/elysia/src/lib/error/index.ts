@@ -1,10 +1,4 @@
-import {
-  PrismaClientInitializationError,
-  PrismaClientUnknownRequestError,
-  PrismaClientKnownRequestError,
-  PrismaClientValidationError,
-  PrismaClientRustPanicError
-} from '@prisma/client/runtime/client';
+import { DrizzleQueryError } from 'drizzle-orm/errors';
 import { StatusMap, Elysia } from 'elysia';
 
 import type { Errors } from '@/lib/util/types';
@@ -43,12 +37,40 @@ export const errorPlugin = new Elysia({ name: 'Error.Plugin' })
   .error({ ApiError })
   .onError(({ status, error, code, path }) => {
     switch (true) {
-      case error instanceof Error && isFileError(error):
-        return status(StatusMap['Bad Request'], {
+      case code === 'INVALID_FILE_TYPE':
+        return status(error.status, {
           ...new ApiError(
-            [{ path: [error.path as string], message: error.message }],
+            [
+              {
+                path: [error.property, `expected ${error.expected}`],
+                message: error.message
+              }
+            ],
             error.name,
-            StatusMap['Bad Request']
+            error.status
+          )
+        });
+
+      case code === 'VALIDATION':
+        return status(error.status, {
+          ...new ApiError(
+            error.all.map(issue => ({
+              message: issue.message,
+              path: [issue.path]
+            })) as Errors,
+            error.name,
+            error.status
+          )
+        });
+
+      case code === 'UNKNOWN' && isUnknownError(error):
+        const statusCode =
+          (error.statusCode as number) || StatusMap['Internal Server Error'];
+        return status(statusCode, {
+          ...new ApiError(
+            [{ message: error.message, path: [path] }],
+            error.name,
+            statusCode
           )
         });
 
@@ -70,36 +92,10 @@ export const errorPlugin = new Elysia({ name: 'Error.Plugin' })
           )
         });
 
-      case code === 'INVALID_FILE_TYPE':
-        return status(error.status, {
-          ...new ApiError(
-            [
-              {
-                path: [error.property, `expected ${error.expected}`],
-                message: error.message
-              }
-            ],
-            error.name,
-            error.status
-          )
-        });
-
       case code === 'NOT_FOUND':
         return status(error.status, {
           ...new ApiError(
             [{ message: error.message, path: [path] }],
-            error.name,
-            error.status
-          )
-        });
-
-      case code === 'VALIDATION':
-        return status(error.status, {
-          ...new ApiError(
-            error.all.map(issue => ({
-              message: issue.message,
-              path: [issue.path]
-            })) as Errors,
             error.name,
             error.status
           )
@@ -114,67 +110,19 @@ export const errorPlugin = new Elysia({ name: 'Error.Plugin' })
           )
         });
 
-      case code === 'UNKNOWN' && isUnknownError(error):
-        const statusCode =
-          (error.statusCode as number) || StatusMap['Internal Server Error'];
-        return status(statusCode, {
-          ...new ApiError(
-            [{ message: error.message, path: [path] }],
-            error.name,
-            statusCode
-          )
-        });
-
-      case error instanceof PrismaClientInitializationError:
+      case error instanceof Error && isFileError(error):
         return status(StatusMap['Bad Request'], {
           ...new ApiError(
-            [{ path: [path, String(error.errorCode)], message: error.message }],
+            [{ path: [error.path as string], message: error.message }],
             error.name,
             StatusMap['Bad Request']
           )
         });
 
-      case error instanceof PrismaClientKnownRequestError:
+      case error instanceof DrizzleQueryError:
         return status(StatusMap['Bad Request'], {
           ...new ApiError(
-            [
-              {
-                path: [path, error.code, String(error.batchRequestIdx)],
-                message: error.message
-              }
-            ],
-            error.name,
-            StatusMap['Bad Request']
-          )
-        });
-
-      case error instanceof PrismaClientUnknownRequestError:
-        return status(StatusMap['Bad Request'], {
-          ...new ApiError(
-            [
-              {
-                path: [path, String(error.batchRequestIdx)],
-                message: error.message
-              }
-            ],
-            error.name,
-            StatusMap['Bad Request']
-          )
-        });
-
-      case error instanceof PrismaClientRustPanicError:
-        return status(StatusMap['Bad Request'], {
-          ...new ApiError(
-            [{ message: error.message, path: [path] }],
-            error.name,
-            StatusMap['Bad Request']
-          )
-        });
-
-      case error instanceof PrismaClientValidationError:
-        return status(StatusMap['Bad Request'], {
-          ...new ApiError(
-            [{ message: error.message, path: [path] }],
+            [{ message: error.message, path: error.params }],
             error.name,
             StatusMap['Bad Request']
           )

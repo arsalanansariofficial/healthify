@@ -78,8 +78,8 @@ export const Account = t.snakeCase.table(
   {
     updatedAt: t
       .text()
-      .$default(() => new Date().toISOString())
-      .$onUpdate(() => new Date().toISOString()),
+      .$type<Date>()
+      .$default(() => new Date()),
     createdAt: t
       .text()
       .$type<Date>()
@@ -111,8 +111,8 @@ export const Session = t.snakeCase.table(
   {
     updatedAt: t
       .text()
-      .$default(() => new Date().toISOString())
-      .$onUpdate(() => new Date().toISOString()),
+      .$type<Date>()
+      .$default(() => new Date()),
     createdAt: t
       .text()
       .$type<Date>()
@@ -136,8 +136,8 @@ export const Session = t.snakeCase.table(
 export const Organization = t.snakeCase.table('organization', {
   updatedAt: t
     .text()
-    .$default(() => new Date().toISOString())
-    .$onUpdate(() => new Date().toISOString()),
+    .$type<Date>()
+    .$default(() => new Date()),
   createdAt: t
     .text()
     .$type<Date>()
@@ -154,8 +154,8 @@ export const TwoFactor = t.snakeCase.table(
   {
     updatedAt: t
       .text()
-      .$default(() => new Date().toISOString())
-      .$onUpdate(() => new Date().toISOString()),
+      .$type<Date>()
+      .$default(() => new Date()),
     createdAt: t
       .text()
       .$type<Date>()
@@ -179,8 +179,8 @@ export const TeamMember = t.snakeCase.table(
   {
     updatedAt: t
       .text()
-      .$default(() => new Date().toISOString())
-      .$onUpdate(() => new Date().toISOString()),
+      .$type<Date>()
+      .$default(() => new Date()),
     createdAt: t
       .text()
       .$type<Date>()
@@ -205,14 +205,14 @@ export const TeamMember = t.snakeCase.table(
 export const Member = t.snakeCase.table(
   'member',
   {
-    updatedAt: t
-      .text()
-      .$default(() => new Date().toISOString())
-      .$onUpdate(() => new Date().toISOString()),
     organizationId: t
       .text()
       .notNull()
       .references(() => Organization.id),
+    updatedAt: t
+      .text()
+      .$type<Date>()
+      .$default(() => new Date()),
     createdAt: t
       .text()
       .$type<Date>()
@@ -233,14 +233,14 @@ export const Member = t.snakeCase.table(
 export const Team = t.snakeCase.table(
   'team',
   {
-    updatedAt: t
-      .text()
-      .$default(() => new Date().toISOString())
-      .$onUpdate(() => new Date().toISOString()),
     organizationId: t
       .text()
       .notNull()
       .references(() => Organization.id),
+    updatedAt: t
+      .text()
+      .$type<Date>()
+      .$default(() => new Date()),
     createdAt: t
       .text()
       .$type<Date>()
@@ -255,14 +255,14 @@ export const Team = t.snakeCase.table(
 export const OrganizationRole = t.snakeCase.table(
   'organization_role',
   {
-    updatedAt: t
-      .text()
-      .$default(() => new Date().toISOString())
-      .$onUpdate(() => new Date().toISOString()),
     organizationId: t
       .text()
       .notNull()
       .references(() => Organization.id),
+    updatedAt: t
+      .text()
+      .$type<Date>()
+      .$default(() => new Date()),
     createdAt: t
       .text()
       .$type<Date>()
@@ -281,8 +281,8 @@ export const Verification = t.snakeCase.table(
   {
     updatedAt: t
       .text()
-      .$default(() => new Date().toISOString())
-      .$onUpdate(() => new Date().toISOString()),
+      .$type<Date>()
+      .$default(() => new Date()),
     createdAt: t
       .text()
       .$type<Date>()
@@ -298,15 +298,19 @@ export const Verification = t.snakeCase.table(
 export const Invitation = t.snakeCase.table(
   'invitation',
   {
-    updatedAt: t
-      .text()
-      .$default(() => new Date().toISOString())
-      .$onUpdate(() => new Date().toISOString()),
     organizationId: t
       .text()
       .notNull()
       .references(() => Organization.id),
+    updatedAt: t
+      .text()
+      .$type<Date>()
+      .$default(() => new Date()),
     createdAt: t
+      .text()
+      .$type<Date>()
+      .$default(() => new Date()),
+    expiresAt: t
       .text()
       .$type<Date>()
       .$default(() => new Date()),
@@ -315,7 +319,6 @@ export const Invitation = t.snakeCase.table(
       .notNull()
       .references(() => User.id),
     id: t.text().primaryKey().default(Bun.randomUUIDv7()),
-    expiresAt: t.text().notNull(),
     status: t.text().notNull(),
     email: t.text().notNull(),
     teamId: t.text(),

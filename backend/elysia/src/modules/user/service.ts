@@ -4,9 +4,10 @@ import type { Permissions, Roles } from '@/lib/auth/permissions';
 import type { Payload } from '@/modules/user/payload';
 import type { Model } from '@/modules/user/model';
 
-import { prisma } from '@/lib/prisma';
+import { UserProfile } from '@/lib/db/schema';
 import { replace } from '@/lib/file';
 import { auth } from '@/lib/auth';
+import { db } from '@/lib/db';
 
 async function update(args: {
   payload: Payload['userWithProfile'];
@@ -32,11 +33,13 @@ async function update(args: {
       url: args.user.profile?.cover,
       replaceWith: $profile.cover
     });
-    await prisma.userProfile.upsert({
-      create: { ...$profile, userId: args.user.id, cover },
-      where: { userId: args.user.id },
-      update: { ...$profile, cover }
-    });
+    await db
+      .insert(UserProfile)
+      .values({ ...$profile, userId: args.user.id, cover })
+      .onConflictDoUpdate({
+        set: { ...$profile, cover },
+        target: UserProfile.userId
+      });
   }
 
   const { headers: cookie } = await auth.api.getSession({
@@ -45,9 +48,9 @@ async function update(args: {
     returnHeaders: true
   });
 
-  const updated = await prisma.user.findUnique({
+  const updated = await db.query.User.findFirst({
     where: { id: args.user.id },
-    include: { profile: true }
+    with: { profile: true }
   });
 
   args.set.headers['set-cookie'] = cookie.getSetCookie();

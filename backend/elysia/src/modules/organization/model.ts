@@ -1,23 +1,19 @@
 import z from 'zod';
 
-import type {
-  Organization,
-  Invitation,
-  Member
-} from '~/generated/prisma/client';
+import type { SchemaSelect } from '@/lib/db/schema';
 import type { ModelType } from '@/lib/util/types';
 
 import { schema } from '@/lib/util/schema';
 
 export type Model = ModelType<typeof model>;
 
-const organization = z.toZod<Organization>()(
+const organization = z.toZod<SchemaSelect['Organization']>()(
   z.object(
     {
+      updatedAt: schema.date('updatedAt').nullable(),
+      createdAt: schema.date('createdAt').nullable(),
       metadata: schema.url('metadata').nullable(),
       logo: schema.url('logo').nullable(),
-      updatedAt: schema.date('updatedAt'),
-      createdAt: schema.date('createdAt'),
       name: schema.string('name').trim(),
       slug: schema.string('slug'),
       id: schema.uuid('id')
@@ -26,12 +22,12 @@ const organization = z.toZod<Organization>()(
   )
 );
 
-const member = z.toZod<Member>()(
+const member = z.toZod<SchemaSelect['Member']>()(
   z.object(
     {
       organizationId: schema.string('organizationId'),
-      updatedAt: schema.date('updatedAt'),
-      createdAt: schema.date('createdAt'),
+      updatedAt: schema.date('updatedAt').nullable(),
+      createdAt: schema.date('createdAt').nullable(),
       userId: schema.string('userId'),
       role: schema.string('role'),
       id: schema.uuid('id')
@@ -40,16 +36,16 @@ const member = z.toZod<Member>()(
   )
 );
 
-const invitation = z.toZod<Invitation>()(
+const invitation = z.toZod<SchemaSelect['Invitation']>()(
   z.object(
     {
       organizationId: schema.string('organizationId'),
+      expiresAt: schema.date('expiresAt').nullable(),
+      updatedAt: schema.date('updatedAt').nullable(),
+      createdAt: schema.date('createdAt').nullable(),
       teamId: schema.string('teamId').nullable(),
       role: schema.string('role').nullable(),
       inviterId: schema.string('inviterId'),
-      expiresAt: schema.date('expiresAt'),
-      updatedAt: schema.date('updatedAt'),
-      createdAt: schema.date('createdAt'),
       status: schema.string('status'),
       email: schema.email(),
       id: schema.uuid('id')
@@ -58,9 +54,14 @@ const invitation = z.toZod<Invitation>()(
   )
 );
 
-const invitationAndMember = z.object(
-  { invitation, member },
-  'invitationAndMember should be a valid object.'
+const invitationAndMember = z.toZod<{
+  invitation: SchemaSelect['Invitation'];
+  member: SchemaSelect['Member'];
+}>()(
+  z.object(
+    { invitation, member },
+    'invitationAndMember should be a valid object.'
+  )
 );
 
 export const model = {

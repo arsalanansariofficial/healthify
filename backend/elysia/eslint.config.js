@@ -85,7 +85,6 @@ export default defineConfig([
       'no-implicit-globals': 'error',
       'no-unneeded-ternary': 'error',
       'no-unreachable-loop': 'error',
-      'no-warning-comments': 'error',
       'operator-assignment': 'error',
       'no-case-declarations': 'off',
       'default-param-last': 'error',

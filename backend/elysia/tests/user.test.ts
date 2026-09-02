@@ -14,12 +14,12 @@ import {
   api
 } from '@/tests/fixtures/db';
 import { auth, ctx } from '@/lib/auth';
-import { prisma } from '@/lib/prisma';
+import { db } from '@/lib/db';
 
 describe('tests for user resource', () => {
   afterAll(async () => {
     await Promise.all([resetDb(), resetDisk()]);
-    await prisma.$disconnect();
+    db.$client.close();
   });
 
   beforeEach(setupDb);
@@ -35,7 +35,10 @@ describe('tests for user resource', () => {
     expect(token).not.toBeNull();
     expect(user).not.toBeNull();
 
-    const userFromDb = await prisma.user.findUnique({ where: { id: user.id } });
+    const userFromDb = await db.query.User.findFirst({
+      where: { id: user.id }
+    });
+
     expect(userFromDb?.email).toBe(payload.email);
     expect(userFromDb).not.toBeNull();
   });
@@ -49,9 +52,10 @@ describe('tests for user resource', () => {
       getSessionCookie(headers)
     );
 
-    const userProfile = await prisma.userProfile.findUnique({
+    const userProfile = await db.query.UserProfile.findFirst({
       where: { userId: data?.id }
     });
+
     expect(status).toBe(StatusMap.OK);
     expect(userProfile?.bio).toBe(bio);
   });
@@ -65,7 +69,7 @@ describe('tests for user resource', () => {
       getSessionCookie(headers)
     );
 
-    const user = await prisma.user.findUnique({ where: { id: data?.id } });
+    const user = await db.query.User.findFirst({ where: { id: data?.id } });
     expect(status).toBe(StatusMap.OK);
     expect(user?.image).toBeString();
     expect(user?.image).toBeTruthy();
@@ -77,7 +81,7 @@ describe('tests for user resource', () => {
     const response = await auth.api.deleteUser({ body: {}, headers });
     expect(response.success).toBeTrue();
 
-    const user = await prisma.user.findUnique({ where: { id: gwen.id } });
+    const user = await db.query.User.findFirst({ where: { id: gwen.id } });
     expect(user).toBeNull();
   });
 

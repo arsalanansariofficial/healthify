@@ -1,7 +1,6 @@
 import { mkdir, rm } from 'node:fs/promises';
 import { treaty } from '@elysia/eden';
 
-import { prisma } from '@/lib/prisma';
 import { env } from '@/lib/config';
 import { ctx } from '@/lib/auth';
 import { app } from '@/server';
@@ -35,25 +34,6 @@ export const kevin = {
 
 export const api = treaty(app);
 
-export async function resetDb() {
-  await prisma.$transaction(async prisma => {
-    await prisma.$executeRawUnsafe('SET FOREIGN_KEY_CHECKS = 0');
-
-    const tables = await prisma.$queryRaw<{ TABLE_NAME: string }[]>`
-      select TABLE_NAME from information_schema.TABLES
-      where TABLE_SCHEMA = database ()
-    `;
-
-    await Promise.all(
-      tables.map(({ TABLE_NAME }) =>
-        prisma.$executeRawUnsafe(`truncate table ${TABLE_NAME}`)
-      )
-    );
-
-    await prisma.$executeRawUnsafe('set FOREIGN_KEY_CHECKS = 1');
-  });
-}
-
 export async function setupDb() {
   await Promise.all([resetDb(), resetDisk()]);
   await Promise.all([
@@ -67,6 +47,11 @@ export async function resetDisk() {
   await rm(env.UPLOAD_DIR, { recursive: true, force: true });
   await mkdir(env.UPLOAD_DIR, { recursive: true });
   await Bun.write(`${env.UPLOAD_DIR}/.gitkeep`, String());
+}
+
+export async function resetDb() {
+  // TODO: Implement functionality for resetting the database
+  console.log('Resetting database is not currently supported.');
 }
 
 export function getSessionCookie(headers: Headers) {

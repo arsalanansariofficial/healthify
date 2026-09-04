@@ -1,9 +1,12 @@
 import { mkdir, rm } from 'node:fs/promises';
 import { treaty } from '@elysia/eden';
+import { reset } from 'drizzle-seed';
 
+import { schema } from '@/lib/db/schema';
 import { env } from '@/lib/config';
 import { ctx } from '@/lib/auth';
 import { app } from '@/server';
+import { db } from '@/lib/db';
 
 export const unknown = {
   password: 'Unknown.Password@123',
@@ -49,11 +52,10 @@ export async function resetDisk() {
   await Bun.write(`${env.UPLOAD_DIR}/.gitkeep`, String());
 }
 
-export async function resetDb() {
-  // TODO: Implement functionality for resetting the database
-  console.log('Resetting database is not currently supported.');
-}
-
 export function getSessionCookie(headers: Headers) {
   return { headers: { cookie: headers.get('cookie') } };
+}
+
+export async function resetDb() {
+  await reset(db, schema);
 }

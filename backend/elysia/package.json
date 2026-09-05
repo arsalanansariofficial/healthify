@@ -32,6 +32,7 @@
     "start": "bun --watch src/index.ts",
     "start:js": "bun --watch dist/index.js",
     "test": "bun test --watch",
+    "test:db:push": "bun --bun --env-file=.env.test.local drizzle-kit push --config src/lib/db/config.ts",
     "test:prisma:deploy": "prisma migrate deploy --config src/lib/prisma/prisma.test.config.ts",
     "test:prisma:reset": "prisma migrate reset -f --config src/lib/prisma/prisma.test.config.ts",
     "test:setup": "bun clean && bun i && bun test:prisma:deploy && bun prisma:generate"

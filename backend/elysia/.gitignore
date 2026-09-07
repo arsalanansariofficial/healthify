@@ -42,11 +42,9 @@ dist
 /.next/
 /out/
 
-# prisma
-/generated/prisma
+# sqlite
+*.sqlite
+*.db
 
 # testing
 /coverage
-
-# sqlite
-*.sqlite

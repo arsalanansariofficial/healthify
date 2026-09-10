@@ -35,8 +35,6 @@
     "@elysia/cors": "^1.4.2",
     "@elysia/eden": "^1.4.10",
     "@elysia/static": "^1.4.11",
-    "@prisma/adapter-mariadb": "^7.9.0",
-    "@prisma/client": "^7.9.0",
     "@typescript-eslint/eslint-plugin": "^8.70.1",
     "@typescript-eslint/parser": "^8.70.1",
     "better-auth": "^1.7.5",
@@ -56,9 +54,7 @@
     "eslint-plugin-perfectionist": "^5.10.0",
     "globals": "^17.7.0",
     "prettier": "^3.9.6",
-    "prettier-plugin-prisma": "^5.0.0",
     "prettier-plugin-sql": "^0.20.0",
-    "prisma": "^7.9.0",
     "typescript-eslint": "^8.65.0"
   }
 }

@@ -18,13 +18,14 @@ export type SchemaUpdate = {
   [K in keyof SchemaSelect]: Partial<SchemaSelect[K]>;
 };
 
-export const User = t.snakeCase.table('user', {
-  banExpires: t
+export const user = t.snakeCase.table('user', {
+  updatedAt: t
     .text()
     .$type<Date>()
     .$default(() => new Date())
-    .$onUpdate(() => new Date()),
-  updatedAt: t
+    .$onUpdate(() => new Date())
+    .notNull(),
+  banExpires: t
     .text()
     .$type<Date>()
     .$default(() => new Date())
@@ -32,9 +33,10 @@ export const User = t.snakeCase.table('user', {
   createdAt: t
     .text()
     .$type<Date>()
-    .$default(() => new Date()),
+    .$default(() => new Date())
+    .notNull(),
+  emailVerified: t.integer({ mode: 'boolean' }).default(false).notNull(),
   phoneNumber: t.text().unique('user_phone_number_unique_index'),
-  emailVerified: t.integer({ mode: 'boolean' }).default(false),
   email: t.text().unique('user_email_unique_index').notNull(),
   username: t.text().unique('user_username_unique_index'),
   id: t.text().primaryKey().default(Bun.randomUUIDv7()),
@@ -49,21 +51,23 @@ export const User = t.snakeCase.table('user', {
   role: t.text()
 });
 
-export const UserProfile = t.snakeCase.table(
+export const userProfile = t.snakeCase.table(
   'user_profile',
   {
     updatedAt: t
       .text()
       .$type<Date>()
-      .$default(() => new Date()),
+      .$default(() => new Date())
+      .notNull(),
     createdAt: t
       .text()
       .$type<Date>()
-      .$default(() => new Date()),
+      .$default(() => new Date())
+      .notNull(),
     userId: t
       .text()
       .primaryKey()
-      .references(() => User.id),
+      .references(() => user.id),
     phoneNumber: t.text().unique('user_profile_phone_number_unique_index'),
     gender: t.text().$type<Gender>(),
     address: t.text(),
@@ -73,21 +77,23 @@ export const UserProfile = t.snakeCase.table(
   table => [t.index('user_profile_user_id_index').on(table.userId)]
 );
 
-export const Account = t.snakeCase.table(
+export const account = t.snakeCase.table(
   'account',
   {
     updatedAt: t
       .text()
       .$type<Date>()
-      .$default(() => new Date()),
+      .$default(() => new Date())
+      .notNull(),
     createdAt: t
       .text()
       .$type<Date>()
-      .$default(() => new Date()),
+      .$default(() => new Date())
+      .notNull(),
     userId: t
       .text()
       .notNull()
-      .references(() => User.id),
+      .references(() => user.id),
     id: t.text().primaryKey().default(Bun.randomUUIDv7()),
     gender: t.text().$type<'female' | 'male'>(),
     refreshTokenExpiresAt: t.text(),
@@ -106,21 +112,23 @@ export const Account = t.snakeCase.table(
   table => [t.index('account_user_id_index').on(table.userId)]
 );
 
-export const Session = t.snakeCase.table(
+export const session = t.snakeCase.table(
   'session',
   {
     updatedAt: t
       .text()
       .$type<Date>()
-      .$default(() => new Date()),
+      .$default(() => new Date())
+      .notNull(),
     createdAt: t
       .text()
       .$type<Date>()
-      .$default(() => new Date()),
+      .$default(() => new Date())
+      .notNull(),
     userId: t
       .text()
       .notNull()
-      .references(() => User.id),
+      .references(() => user.id),
     token: t.text().notNull().unique('session_token_unique_index'),
     id: t.text().primaryKey().default(Bun.randomUUIDv7()),
     activeOrganizationId: t.text(),
@@ -133,15 +141,17 @@ export const Session = t.snakeCase.table(
   table => [t.index('session_user_id_index').on(table.userId)]
 );
 
-export const Organization = t.snakeCase.table('organization', {
+export const organization = t.snakeCase.table('organization', {
   updatedAt: t
     .text()
     .$type<Date>()
-    .$default(() => new Date()),
+    .$default(() => new Date())
+    .notNull(),
   createdAt: t
     .text()
     .$type<Date>()
-    .$default(() => new Date()),
+    .$default(() => new Date())
+    .notNull(),
   slug: t.text().unique('organization_slug_unique_index').notNull(),
   id: t.text().primaryKey().default(Bun.randomUUIDv7()),
   name: t.text().notNull(),
@@ -149,24 +159,26 @@ export const Organization = t.snakeCase.table('organization', {
   logo: t.text()
 });
 
-export const TwoFactor = t.snakeCase.table(
+export const twoFactor = t.snakeCase.table(
   'two_factor',
   {
     updatedAt: t
       .text()
       .$type<Date>()
-      .$default(() => new Date()),
+      .$default(() => new Date())
+      .notNull(),
     createdAt: t
       .text()
       .$type<Date>()
-      .$default(() => new Date()),
+      .$default(() => new Date())
+      .notNull(),
     userId: t
       .text()
       .notNull()
-      .references(() => User.id),
+      .references(() => user.id),
+    verified: t.integer({ mode: 'boolean' }).default(true),
     id: t.text().primaryKey().default(Bun.randomUUIDv7()),
-    verified: t.integer({ mode: 'boolean' }).notNull(),
-    failedVerificationCount: t.integer().notNull(),
+    failedVerificationCount: t.integer().default(0),
     backupCodes: t.text().notNull(),
     secret: t.text().notNull(),
     lockedUntil: t.text()
@@ -174,25 +186,27 @@ export const TwoFactor = t.snakeCase.table(
   table => [t.index('two_factor_user_id_index').on(table.userId)]
 );
 
-export const TeamMember = t.snakeCase.table(
+export const teamMember = t.snakeCase.table(
   'team_member',
   {
     updatedAt: t
       .text()
       .$type<Date>()
-      .$default(() => new Date()),
+      .$default(() => new Date())
+      .notNull(),
     createdAt: t
       .text()
       .$type<Date>()
-      .$default(() => new Date()),
+      .$default(() => new Date())
+      .notNull(),
     userId: t
       .text()
       .notNull()
-      .references(() => User.id),
+      .references(() => user.id),
     teamId: t
       .text()
       .notNull()
-      .references(() => Team.id),
+      .references(() => team.id),
     id: t.text().primaryKey().default(Bun.randomUUIDv7()),
     membershipKey: t.text()
   },
@@ -202,25 +216,27 @@ export const TeamMember = t.snakeCase.table(
   ]
 );
 
-export const Member = t.snakeCase.table(
+export const member = t.snakeCase.table(
   'member',
   {
-    organizationId: t
-      .text()
-      .notNull()
-      .references(() => Organization.id),
     updatedAt: t
       .text()
       .$type<Date>()
-      .$default(() => new Date()),
+      .$default(() => new Date())
+      .notNull(),
     createdAt: t
       .text()
       .$type<Date>()
-      .$default(() => new Date()),
+      .$default(() => new Date())
+      .notNull(),
+    organizationId: t
+      .text()
+      .notNull()
+      .references(() => organization.id),
     userId: t
       .text()
       .notNull()
-      .references(() => User.id),
+      .references(() => user.id),
     id: t.text().primaryKey().default(Bun.randomUUIDv7()),
     role: t.text().notNull()
   },
@@ -230,21 +246,23 @@ export const Member = t.snakeCase.table(
   ]
 );
 
-export const Team = t.snakeCase.table(
+export const team = t.snakeCase.table(
   'team',
   {
-    organizationId: t
-      .text()
-      .notNull()
-      .references(() => Organization.id),
     updatedAt: t
       .text()
       .$type<Date>()
-      .$default(() => new Date()),
+      .$default(() => new Date())
+      .notNull(),
     createdAt: t
       .text()
       .$type<Date>()
-      .$default(() => new Date()),
+      .$default(() => new Date())
+      .notNull(),
+    organizationId: t
+      .text()
+      .notNull()
+      .references(() => organization.id),
     id: t.text().primaryKey().default(Bun.randomUUIDv7()),
     memberCount: t.integer().notNull(),
     name: t.text().notNull()
@@ -252,21 +270,23 @@ export const Team = t.snakeCase.table(
   table => [t.index('team_organization_id_index').on(table.organizationId)]
 );
 
-export const OrganizationRole = t.snakeCase.table(
+export const organizationRole = t.snakeCase.table(
   'organization_role',
   {
-    organizationId: t
-      .text()
-      .notNull()
-      .references(() => Organization.id),
     updatedAt: t
       .text()
       .$type<Date>()
-      .$default(() => new Date()),
+      .$default(() => new Date())
+      .notNull(),
     createdAt: t
       .text()
       .$type<Date>()
-      .$default(() => new Date()),
+      .$default(() => new Date())
+      .notNull(),
+    organizationId: t
+      .text()
+      .notNull()
+      .references(() => organization.id),
     id: t.text().primaryKey().default(Bun.randomUUIDv7()),
     permission: t.text().notNull(),
     role: t.text().notNull()
@@ -276,17 +296,19 @@ export const OrganizationRole = t.snakeCase.table(
   ]
 );
 
-export const Verification = t.snakeCase.table(
+export const verification = t.snakeCase.table(
   'verification',
   {
     updatedAt: t
       .text()
       .$type<Date>()
-      .$default(() => new Date()),
+      .$default(() => new Date())
+      .notNull(),
     createdAt: t
       .text()
       .$type<Date>()
-      .$default(() => new Date()),
+      .$default(() => new Date())
+      .notNull(),
     id: t.text().primaryKey().default(Bun.randomUUIDv7()),
     identifier: t.text().notNull(),
     expiresAt: t.text().notNull(),
@@ -295,29 +317,32 @@ export const Verification = t.snakeCase.table(
   table => [t.index('verification_identifier_index').on(table.identifier)]
 );
 
-export const Invitation = t.snakeCase.table(
+export const invitation = t.snakeCase.table(
   'invitation',
   {
-    organizationId: t
-      .text()
-      .notNull()
-      .references(() => Organization.id),
     updatedAt: t
       .text()
       .$type<Date>()
-      .$default(() => new Date()),
+      .$default(() => new Date())
+      .notNull(),
     createdAt: t
       .text()
       .$type<Date>()
-      .$default(() => new Date()),
+      .$default(() => new Date())
+      .notNull(),
     expiresAt: t
       .text()
       .$type<Date>()
-      .$default(() => new Date()),
+      .$default(() => new Date())
+      .notNull(),
+    organizationId: t
+      .text()
+      .notNull()
+      .references(() => organization.id),
     inviterId: t
       .text()
       .notNull()
-      .references(() => User.id),
+      .references(() => user.id),
     id: t.text().primaryKey().default(Bun.randomUUIDv7()),
     status: t.text().notNull(),
     email: t.text().notNull(),
@@ -332,87 +357,87 @@ export const Invitation = t.snakeCase.table(
 
 export const relations = defineRelations(
   {
-    OrganizationRole,
-    Organization,
-    Verification,
-    UserProfile,
-    TeamMember,
-    Invitation,
-    TwoFactor,
-    Account,
-    Session,
-    Member,
-    User,
-    Team
+    organizationRole,
+    organization,
+    verification,
+    userProfile,
+    teamMember,
+    invitation,
+    twoFactor,
+    account,
+    session,
+    member,
+    user,
+    team
   },
   r => ({
-    User: {
-      profile: r.one.UserProfile({ to: r.UserProfile.userId, from: r.User.id }),
-      invitations: r.many.Invitation(),
-      teamMembers: r.many.TeamMember(),
-      TwoFactor: r.many.TwoFactor(),
-      sessions: r.many.Session(),
-      accounts: r.many.Account(),
-      members: r.many.Member()
+    user: {
+      profile: r.one.userProfile({ to: r.userProfile.userId, from: r.user.id }),
+      invitations: r.many.invitation(),
+      teamMembers: r.many.teamMember(),
+      TwoFactor: r.many.twoFactor(),
+      sessions: r.many.session(),
+      accounts: r.many.account(),
+      members: r.many.member()
     },
-    Invitation: {
-      organization: r.one.Organization({
-        from: r.Invitation.organizationId,
-        to: r.Organization.id
+    invitation: {
+      organization: r.one.organization({
+        from: r.invitation.organizationId,
+        to: r.organization.id
       }),
-      inviter: r.one.User({ from: r.Invitation.inviterId, to: r.User.id })
+      inviter: r.one.user({ from: r.invitation.inviterId, to: r.user.id })
     },
-    Member: {
-      organization: r.one.Organization({
-        from: r.Member.organizationId,
-        to: r.Organization.id
+    member: {
+      organization: r.one.organization({
+        from: r.member.organizationId,
+        to: r.organization.id
       }),
-      user: r.one.User({ from: r.Member.userId, to: r.User.id })
+      user: r.one.user({ from: r.member.userId, to: r.user.id })
     },
-    Organization: {
-      organizationRoles: r.many.OrganizationRole(),
-      invitations: r.many.Invitation(),
-      members: r.many.Member(),
-      teams: r.many.Team()
+    organization: {
+      organizationRoles: r.many.organizationRole(),
+      invitations: r.many.invitation(),
+      members: r.many.member(),
+      teams: r.many.team()
     },
-    TeamMember: {
-      user: r.one.User({ from: r.TeamMember.userId, to: r.User.id }),
-      team: r.one.Team({ from: r.TeamMember.teamId, to: r.Team.id })
+    teamMember: {
+      user: r.one.user({ from: r.teamMember.userId, to: r.user.id }),
+      team: r.one.team({ from: r.teamMember.teamId, to: r.team.id })
     },
-    OrganizationRole: {
-      organization: r.one.Organization({
-        from: r.OrganizationRole.organizationId,
-        to: r.Organization.id
+    organizationRole: {
+      organization: r.one.organization({
+        from: r.organizationRole.organizationId,
+        to: r.organization.id
       })
     },
-    Team: {
-      organization: r.one.Organization({
-        from: r.Team.organizationId,
-        to: r.Organization.id
+    team: {
+      organization: r.one.organization({
+        from: r.team.organizationId,
+        to: r.organization.id
       })
     },
-    UserProfile: {
-      User: r.one.User({ from: r.UserProfile.userId, to: r.User.id })
+    userProfile: {
+      User: r.one.user({ from: r.userProfile.userId, to: r.user.id })
     },
-    TwoFactor: {
-      user: r.one.User({ from: r.TwoFactor.userId, to: r.User.id })
+    twoFactor: {
+      user: r.one.user({ from: r.twoFactor.userId, to: r.user.id })
     },
-    Session: { user: r.one.User({ from: r.Session.userId, to: r.User.id }) },
-    Account: { user: r.one.User({ from: r.Account.userId, to: r.User.id }) }
+    session: { user: r.one.user({ from: r.session.userId, to: r.user.id }) },
+    account: { user: r.one.user({ from: r.account.userId, to: r.user.id }) }
   })
 );
 
 export const schema = {
-  OrganizationRole,
-  Organization,
-  Verification,
-  UserProfile,
-  TeamMember,
-  Invitation,
-  TwoFactor,
-  Account,
-  Session,
-  Member,
-  User,
-  Team
+  organizationRole,
+  organization,
+  verification,
+  userProfile,
+  teamMember,
+  invitation,
+  twoFactor,
+  account,
+  session,
+  member,
+  user,
+  team
 };

@@ -90,7 +90,7 @@ export const auth = betterAuth({
     deleteUser: {
       async beforeDelete(user) {
         try {
-          const profile = await db.query.UserProfile.findFirst({
+          const profile = await db.query.userProfile.findFirst({
             where: { userId: user.id }
           });
 
@@ -188,7 +188,7 @@ export const loadAuthContext = new Elysia({ name: 'AuthContext.Plugin' })
     return {
       user: {
         ...session.user,
-        profile: await db.query.UserProfile.findFirst({
+        profile: await db.query.userProfile.findFirst({
           where: { userId: session.user.id }
         })
       } as Model['userWithProfile'],

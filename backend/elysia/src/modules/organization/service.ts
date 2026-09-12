@@ -14,10 +14,10 @@ async function acceptInvitation(args: {
     body: args.payload
   });
   return {
-    invitation: (await db.query.Invitation.findFirst({
+    invitation: (await db.query.invitation.findFirst({
       where: { id: invitation.id }
     })) as Model['invitation'],
-    member: (await db.query.Member.findFirst({
+    member: (await db.query.member.findFirst({
       where: { id: member.id }
     })) as Model['member']
   };
@@ -27,7 +27,7 @@ async function addMember(payload: Payload['addMember']) {
   const { id } = await auth.api.addMember({
     body: { ...payload, role: payload.role as Roles[] | Roles }
   });
-  return (await db.query.Member.findFirst({
+  return (await db.query.member.findFirst({
     where: { id }
   })) as Model['member'];
 }

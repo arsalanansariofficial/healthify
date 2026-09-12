@@ -4,7 +4,7 @@ import type { Permissions, Roles } from '@/lib/auth/permissions';
 import type { Payload } from '@/modules/user/payload';
 import type { Model } from '@/modules/user/model';
 
-import { UserProfile } from '@/lib/db/schema';
+import { userProfile } from '@/lib/db/schema';
 import { replace } from '@/lib/file';
 import { auth } from '@/lib/auth';
 import { db } from '@/lib/db';
@@ -34,11 +34,11 @@ async function update(args: {
       replaceWith: $profile.cover
     });
     await db
-      .insert(UserProfile)
+      .insert(userProfile)
       .values({ ...$profile, userId: args.user.id, cover })
       .onConflictDoUpdate({
         set: { ...$profile, cover },
-        target: UserProfile.userId
+        target: userProfile.userId
       });
   }
 
@@ -48,7 +48,7 @@ async function update(args: {
     returnHeaders: true
   });
 
-  const updated = await db.query.User.findFirst({
+  const updated = await db.query.user.findFirst({
     where: { id: args.user.id },
     with: { profile: true }
   });

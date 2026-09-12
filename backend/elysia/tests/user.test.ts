@@ -35,7 +35,7 @@ describe('tests for user resource', () => {
     expect(token).not.toBeNull();
     expect(user).not.toBeNull();
 
-    const userFromDb = await db.query.User.findFirst({
+    const userFromDb = await db.query.user.findFirst({
       where: { id: user.id }
     });
 
@@ -52,7 +52,7 @@ describe('tests for user resource', () => {
       getSessionCookie(headers)
     );
 
-    const userProfile = await db.query.UserProfile.findFirst({
+    const userProfile = await db.query.userProfile.findFirst({
       where: { userId: data?.id }
     });
 
@@ -69,7 +69,7 @@ describe('tests for user resource', () => {
       getSessionCookie(headers)
     );
 
-    const user = await db.query.User.findFirst({ where: { id: data?.id } });
+    const user = await db.query.user.findFirst({ where: { id: data?.id } });
     expect(status).toBe(StatusMap.OK);
     expect(user?.image).toBeString();
     expect(user?.image).toBeTruthy();
@@ -81,7 +81,7 @@ describe('tests for user resource', () => {
     const response = await auth.api.deleteUser({ body: {}, headers });
     expect(response.success).toBeTrue();
 
-    const user = await db.query.User.findFirst({ where: { id: gwen.id } });
+    const user = await db.query.user.findFirst({ where: { id: gwen.id } });
     expect(user).toBeNull();
   });
 

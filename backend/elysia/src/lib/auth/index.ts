@@ -19,6 +19,7 @@ import type { Model } from '@/modules/user/model';
 import { hasValidAuthMethod, isFileError, mailer } from '@/lib/util';
 import { UnauthorizedError, ApiError } from '@/lib/error';
 import { permissions } from '@/lib/auth/permissions';
+import { schema } from '@/lib/db/schema';
 import { remove } from '@/lib/file';
 import { env } from '@/lib/config';
 import { db } from '@/lib/db';
@@ -177,7 +178,7 @@ export const auth = betterAuth({
       allowUnlinkingAll: true
     }
   },
-  database: drizzleAdapter(db, { provider: 'sqlite' }),
+  database: drizzleAdapter(db, { provider: 'sqlite', schema }),
   appName: env.APPLICATION_NAME
 });
 

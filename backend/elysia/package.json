@@ -29,7 +29,7 @@
     "start:js": "bun --watch dist/index.js",
     "test": "bun test --watch",
     "test:db:push": "bun --bun --env-file=.env.test.local drizzle-kit push --config src/lib/db/config.ts",
-    "test:setup": "bun clean && bun i && bun --bun --env-file=.env.test.local drizzle-kit migrate --config src/lib/db/config.ts"
+    "test:setup": "bun clean && bun i && bun --bun --env-file=.env.test.local drizzle-kit push --config src/lib/db/config.ts"
   },
   "dependencies": {
     "@elysia/cors": "^1.4.2",

@@ -10,8 +10,8 @@ import {
   openAPI,
   admin
 } from 'better-auth/plugins';
+import { drizzleAdapter } from '@better-auth/drizzle-adapter/relations-v2';
 import { APIError as BetterAuthError, betterAuth } from 'better-auth';
-import { drizzleAdapter } from 'better-auth/adapters/drizzle';
 import { StatusMap, Elysia } from 'elysia';
 
 import type { Model } from '@/modules/user/model';

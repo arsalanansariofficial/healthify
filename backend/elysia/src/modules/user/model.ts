@@ -57,7 +57,9 @@ const userProfile = z.toZod<SchemaSelect['userProfile']>()(
 );
 
 const userWithProfile = z.toZod<
-  { profile: SchemaSelect['userProfile'] | null } & SchemaSelect['user']
->()(user.extend({ profile: userProfile.nullable() }));
+  {
+    profile?: SchemaSelect['userProfile'] | undefined | null;
+  } & SchemaSelect['user']
+>()(user.extend({ profile: userProfile.nullish() }));
 
 export const model = { userWithProfile, userProfile, user } as const;

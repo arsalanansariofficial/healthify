@@ -82,7 +82,7 @@ describe('tests for user resource', () => {
     expect(response.success).toBeTrue();
 
     const user = await db.query.user.findFirst({ where: { id: gwen.id } });
-    expect(user).toBeNull();
+    expect(user).toBeUndefined();
   });
 
   test('should not update invalid user fields', async () => {

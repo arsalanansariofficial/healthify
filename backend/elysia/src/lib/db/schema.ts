@@ -18,28 +18,29 @@ export type SchemaUpdate = {
   [K in keyof SchemaSelect]: Partial<SchemaSelect[K]>;
 };
 
-export const user = t.snakeCase.table('user', {
-  updatedAt: t
-    .text()
-    .$type<Date>()
+export const date = t.customType<{ driverData: string; data: Date }>({
+  fromDriver: (value: string) => new Date(value),
+  toDriver: (value: Date) => value.toISOString(),
+  dataType: () => 'text'
+});
+
+export const timestamps = {
+  updatedAt: date()
     .$default(() => new Date())
     .$onUpdate(() => new Date())
     .notNull(),
-  banExpires: t
-    .text()
-    .$type<Date>()
+  createdAt: date()
     .$default(() => new Date())
-    .$onUpdate(() => new Date()),
-  createdAt: t
-    .text()
-    .$type<Date>()
-    .$default(() => new Date())
-    .notNull(),
+    .notNull()
+};
+
+export const id = t.text().primaryKey().default(Bun.randomUUIDv7());
+
+export const user = t.snakeCase.table('user', {
   emailVerified: t.integer({ mode: 'boolean' }).default(false).notNull(),
   phoneNumber: t.text().unique('user_phone_number_unique_index'),
   email: t.text().unique('user_email_unique_index').notNull(),
   username: t.text().unique('user_username_unique_index'),
-  id: t.text().primaryKey().default(Bun.randomUUIDv7()),
   phoneNumberVerified: t.integer({ mode: 'boolean' }),
   twoFactorEnabled: t.integer({ mode: 'boolean' }),
   isAnonymous: t.integer({ mode: 'boolean' }),
@@ -47,23 +48,16 @@ export const user = t.snakeCase.table('user', {
   displayUsername: t.text(),
   name: t.text().notNull(),
   banReason: t.text(),
+  banExpires: date(),
   image: t.text(),
-  role: t.text()
+  role: t.text(),
+  ...timestamps,
+  id
 });
 
 export const userProfile = t.snakeCase.table(
   'user_profile',
   {
-    updatedAt: t
-      .text()
-      .$type<Date>()
-      .$default(() => new Date())
-      .notNull(),
-    createdAt: t
-      .text()
-      .$type<Date>()
-      .$default(() => new Date())
-      .notNull(),
     userId: t
       .text()
       .primaryKey()
@@ -72,7 +66,8 @@ export const userProfile = t.snakeCase.table(
     gender: t.text().$type<Gender>(),
     address: t.text(),
     cover: t.text(),
-    bio: t.text()
+    bio: t.text(),
+    ...timestamps
   },
   table => [t.index('user_profile_user_id_index').on(table.userId)]
 );
@@ -80,22 +75,11 @@ export const userProfile = t.snakeCase.table(
 export const account = t.snakeCase.table(
   'account',
   {
-    updatedAt: t
-      .text()
-      .$type<Date>()
-      .$default(() => new Date())
-      .notNull(),
-    createdAt: t
-      .text()
-      .$type<Date>()
-      .$default(() => new Date())
-      .notNull(),
     userId: t
       .text()
       .notNull()
       .references(() => user.id),
-    id: t.text().primaryKey().default(Bun.randomUUIDv7()),
-    gender: t.text().$type<'female' | 'male'>(),
+    gender: t.text().$type<Gender>(),
     refreshTokenExpiresAt: t.text(),
     providerId: t.text().notNull(),
     accessTokenExpiresAt: t.text(),
@@ -107,7 +91,9 @@ export const account = t.snakeCase.table(
     idToken: t.text(),
     cover: t.text(),
     scope: t.text(),
-    bio: t.text()
+    bio: t.text(),
+    ...timestamps,
+    id
   },
   table => [t.index('account_user_id_index').on(table.userId)]
 );
@@ -115,73 +101,46 @@ export const account = t.snakeCase.table(
 export const session = t.snakeCase.table(
   'session',
   {
-    updatedAt: t
-      .text()
-      .$type<Date>()
-      .$default(() => new Date())
-      .notNull(),
-    createdAt: t
-      .text()
-      .$type<Date>()
-      .$default(() => new Date())
-      .notNull(),
     userId: t
       .text()
       .notNull()
       .references(() => user.id),
     token: t.text().notNull().unique('session_token_unique_index'),
-    id: t.text().primaryKey().default(Bun.randomUUIDv7()),
     activeOrganizationId: t.text(),
-    expiresAt: t.text().notNull(),
+    expiresAt: date().notNull(),
     impersonatedBy: t.text(),
     activeTeamId: t.text(),
     ipAddress: t.text(),
-    userAgent: t.text()
+    userAgent: t.text(),
+    ...timestamps,
+    id
   },
   table => [t.index('session_user_id_index').on(table.userId)]
 );
 
 export const organization = t.snakeCase.table('organization', {
-  updatedAt: t
-    .text()
-    .$type<Date>()
-    .$default(() => new Date())
-    .notNull(),
-  createdAt: t
-    .text()
-    .$type<Date>()
-    .$default(() => new Date())
-    .notNull(),
   slug: t.text().unique('organization_slug_unique_index').notNull(),
-  id: t.text().primaryKey().default(Bun.randomUUIDv7()),
   name: t.text().notNull(),
   metadata: t.text(),
-  logo: t.text()
+  logo: t.text(),
+  ...timestamps,
+  id
 });
 
 export const twoFactor = t.snakeCase.table(
   'two_factor',
   {
-    updatedAt: t
-      .text()
-      .$type<Date>()
-      .$default(() => new Date())
-      .notNull(),
-    createdAt: t
-      .text()
-      .$type<Date>()
-      .$default(() => new Date())
-      .notNull(),
     userId: t
       .text()
       .notNull()
       .references(() => user.id),
     verified: t.integer({ mode: 'boolean' }).default(true),
-    id: t.text().primaryKey().default(Bun.randomUUIDv7()),
     failedVerificationCount: t.integer().default(0),
     backupCodes: t.text().notNull(),
     secret: t.text().notNull(),
-    lockedUntil: t.text()
+    lockedUntil: t.text(),
+    ...timestamps,
+    id
   },
   table => [t.index('two_factor_user_id_index').on(table.userId)]
 );
@@ -189,16 +148,6 @@ export const twoFactor = t.snakeCase.table(
 export const teamMember = t.snakeCase.table(
   'team_member',
   {
-    updatedAt: t
-      .text()
-      .$type<Date>()
-      .$default(() => new Date())
-      .notNull(),
-    createdAt: t
-      .text()
-      .$type<Date>()
-      .$default(() => new Date())
-      .notNull(),
     userId: t
       .text()
       .notNull()
@@ -207,8 +156,9 @@ export const teamMember = t.snakeCase.table(
       .text()
       .notNull()
       .references(() => team.id),
-    id: t.text().primaryKey().default(Bun.randomUUIDv7()),
-    membershipKey: t.text()
+    membershipKey: t.text(),
+    ...timestamps,
+    id
   },
   table => [
     t.index('team_member_user_id_index').on(table.userId),
@@ -219,16 +169,6 @@ export const teamMember = t.snakeCase.table(
 export const member = t.snakeCase.table(
   'member',
   {
-    updatedAt: t
-      .text()
-      .$type<Date>()
-      .$default(() => new Date())
-      .notNull(),
-    createdAt: t
-      .text()
-      .$type<Date>()
-      .$default(() => new Date())
-      .notNull(),
     organizationId: t
       .text()
       .notNull()
@@ -237,8 +177,9 @@ export const member = t.snakeCase.table(
       .text()
       .notNull()
       .references(() => user.id),
-    id: t.text().primaryKey().default(Bun.randomUUIDv7()),
-    role: t.text().notNull()
+    role: t.text().notNull(),
+    ...timestamps,
+    id
   },
   table => [
     t.index('member_user_id_index').on(table.userId),
@@ -249,23 +190,14 @@ export const member = t.snakeCase.table(
 export const team = t.snakeCase.table(
   'team',
   {
-    updatedAt: t
-      .text()
-      .$type<Date>()
-      .$default(() => new Date())
-      .notNull(),
-    createdAt: t
-      .text()
-      .$type<Date>()
-      .$default(() => new Date())
-      .notNull(),
     organizationId: t
       .text()
       .notNull()
       .references(() => organization.id),
-    id: t.text().primaryKey().default(Bun.randomUUIDv7()),
     memberCount: t.integer().notNull(),
-    name: t.text().notNull()
+    name: t.text().notNull(),
+    ...timestamps,
+    id
   },
   table => [t.index('team_organization_id_index').on(table.organizationId)]
 );
@@ -273,23 +205,14 @@ export const team = t.snakeCase.table(
 export const organizationRole = t.snakeCase.table(
   'organization_role',
   {
-    updatedAt: t
-      .text()
-      .$type<Date>()
-      .$default(() => new Date())
-      .notNull(),
-    createdAt: t
-      .text()
-      .$type<Date>()
-      .$default(() => new Date())
-      .notNull(),
     organizationId: t
       .text()
       .notNull()
       .references(() => organization.id),
-    id: t.text().primaryKey().default(Bun.randomUUIDv7()),
     permission: t.text().notNull(),
-    role: t.text().notNull()
+    role: t.text().notNull(),
+    ...timestamps,
+    id
   },
   table => [
     t.index('organization_role_organization_id_index').on(table.organizationId)
@@ -299,20 +222,11 @@ export const organizationRole = t.snakeCase.table(
 export const verification = t.snakeCase.table(
   'verification',
   {
-    updatedAt: t
-      .text()
-      .$type<Date>()
-      .$default(() => new Date())
-      .notNull(),
-    createdAt: t
-      .text()
-      .$type<Date>()
-      .$default(() => new Date())
-      .notNull(),
-    id: t.text().primaryKey().default(Bun.randomUUIDv7()),
     identifier: t.text().notNull(),
-    expiresAt: t.text().notNull(),
-    value: t.text().notNull()
+    expiresAt: date().notNull(),
+    value: t.text().notNull(),
+    ...timestamps,
+    id
   },
   table => [t.index('verification_identifier_index').on(table.identifier)]
 );
@@ -320,21 +234,6 @@ export const verification = t.snakeCase.table(
 export const invitation = t.snakeCase.table(
   'invitation',
   {
-    updatedAt: t
-      .text()
-      .$type<Date>()
-      .$default(() => new Date())
-      .notNull(),
-    createdAt: t
-      .text()
-      .$type<Date>()
-      .$default(() => new Date())
-      .notNull(),
-    expiresAt: t
-      .text()
-      .$type<Date>()
-      .$default(() => new Date())
-      .notNull(),
     organizationId: t
       .text()
       .notNull()
@@ -343,11 +242,13 @@ export const invitation = t.snakeCase.table(
       .text()
       .notNull()
       .references(() => user.id),
-    id: t.text().primaryKey().default(Bun.randomUUIDv7()),
+    expiresAt: date().notNull(),
     status: t.text().notNull(),
     email: t.text().notNull(),
     teamId: t.text(),
-    role: t.text()
+    role: t.text(),
+    ...timestamps,
+    id
   },
   table => [
     t.index('invitation_organization_id_index').on(table.organizationId),

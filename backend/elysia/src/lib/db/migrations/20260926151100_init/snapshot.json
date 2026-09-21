@@ -1,7 +1,7 @@
 {
   "version": "7",
   "dialect": "sqlite",
-  "id": "ac571f93-98de-4a9f-adc3-cce6b359b548",
+  "id": "bd327aa2-782c-400e-852b-ca3314dc8325",
   "prevIds": ["00000000-0000-0000-0000-000000000000"],
   "ddl": [
     { "name": "account", "entityType": "tables" },
@@ -18,41 +18,11 @@
     { "name": "verification", "entityType": "tables" },
     {
       "type": "text",
-      "notNull": false,
-      "autoincrement": false,
-      "default": null,
-      "generated": null,
-      "name": "updated_at",
-      "entityType": "columns",
-      "table": "account"
-    },
-    {
-      "type": "text",
       "notNull": true,
       "autoincrement": false,
       "default": null,
       "generated": null,
       "name": "user_id",
-      "entityType": "columns",
-      "table": "account"
-    },
-    {
-      "type": "text",
-      "notNull": false,
-      "autoincrement": false,
-      "default": null,
-      "generated": null,
-      "name": "created_at",
-      "entityType": "columns",
-      "table": "account"
-    },
-    {
-      "type": "text",
-      "notNull": false,
-      "autoincrement": false,
-      "default": "'01a0d3c0-b420-75bf-ad56-ab93f2a163e5'",
-      "generated": null,
-      "name": "id",
       "entityType": "columns",
       "table": "account"
     },
@@ -188,13 +158,33 @@
     },
     {
       "type": "text",
-      "notNull": false,
+      "notNull": true,
       "autoincrement": false,
       "default": null,
       "generated": null,
       "name": "updated_at",
       "entityType": "columns",
-      "table": "invitation"
+      "table": "account"
+    },
+    {
+      "type": "text",
+      "notNull": true,
+      "autoincrement": false,
+      "default": null,
+      "generated": null,
+      "name": "created_at",
+      "entityType": "columns",
+      "table": "account"
+    },
+    {
+      "type": "text",
+      "notNull": false,
+      "autoincrement": false,
+      "default": "'01a0de45-0440-7241-8e38-4856d008c1c4'",
+      "generated": null,
+      "name": "id",
+      "entityType": "columns",
+      "table": "account"
     },
     {
       "type": "text",
@@ -213,26 +203,6 @@
       "default": null,
       "generated": null,
       "name": "inviter_id",
-      "entityType": "columns",
-      "table": "invitation"
-    },
-    {
-      "type": "text",
-      "notNull": false,
-      "autoincrement": false,
-      "default": null,
-      "generated": null,
-      "name": "created_at",
-      "entityType": "columns",
-      "table": "invitation"
-    },
-    {
-      "type": "text",
-      "notNull": false,
-      "autoincrement": false,
-      "default": "'01a0d3c0-b421-759b-880d-32dd19eb903b'",
-      "generated": null,
-      "name": "id",
       "entityType": "columns",
       "table": "invitation"
     },
@@ -288,13 +258,33 @@
     },
     {
       "type": "text",
-      "notNull": false,
+      "notNull": true,
       "autoincrement": false,
       "default": null,
       "generated": null,
       "name": "updated_at",
       "entityType": "columns",
-      "table": "member"
+      "table": "invitation"
+    },
+    {
+      "type": "text",
+      "notNull": true,
+      "autoincrement": false,
+      "default": null,
+      "generated": null,
+      "name": "created_at",
+      "entityType": "columns",
+      "table": "invitation"
+    },
+    {
+      "type": "text",
+      "notNull": false,
+      "autoincrement": false,
+      "default": "'01a0de45-0440-7241-8e38-4856d008c1c4'",
+      "generated": null,
+      "name": "id",
+      "entityType": "columns",
+      "table": "invitation"
     },
     {
       "type": "text",
@@ -318,26 +308,6 @@
     },
     {
       "type": "text",
-      "notNull": false,
-      "autoincrement": false,
-      "default": null,
-      "generated": null,
-      "name": "created_at",
-      "entityType": "columns",
-      "table": "member"
-    },
-    {
-      "type": "text",
-      "notNull": false,
-      "autoincrement": false,
-      "default": "'01a0d3c0-b421-7597-bdd8-b5ba80a536b8'",
-      "generated": null,
-      "name": "id",
-      "entityType": "columns",
-      "table": "member"
-    },
-    {
-      "type": "text",
       "notNull": true,
       "autoincrement": false,
       "default": null,
@@ -348,13 +318,33 @@
     },
     {
       "type": "text",
-      "notNull": false,
+      "notNull": true,
       "autoincrement": false,
       "default": null,
       "generated": null,
       "name": "updated_at",
       "entityType": "columns",
-      "table": "organization"
+      "table": "member"
+    },
+    {
+      "type": "text",
+      "notNull": true,
+      "autoincrement": false,
+      "default": null,
+      "generated": null,
+      "name": "created_at",
+      "entityType": "columns",
+      "table": "member"
+    },
+    {
+      "type": "text",
+      "notNull": false,
+      "autoincrement": false,
+      "default": "'01a0de45-0440-7241-8e38-4856d008c1c4'",
+      "generated": null,
+      "name": "id",
+      "entityType": "columns",
+      "table": "member"
     },
     {
       "type": "text",
@@ -363,26 +353,6 @@
       "default": null,
       "generated": null,
       "name": "slug",
-      "entityType": "columns",
-      "table": "organization"
-    },
-    {
-      "type": "text",
-      "notNull": false,
-      "autoincrement": false,
-      "default": null,
-      "generated": null,
-      "name": "created_at",
-      "entityType": "columns",
-      "table": "organization"
-    },
-    {
-      "type": "text",
-      "notNull": false,
-      "autoincrement": false,
-      "default": "'01a0d3c0-b421-7594-80d2-2f480df8f5e2'",
-      "generated": null,
-      "name": "id",
       "entityType": "columns",
       "table": "organization"
     },
@@ -418,13 +388,33 @@
     },
     {
       "type": "text",
-      "notNull": false,
+      "notNull": true,
       "autoincrement": false,
       "default": null,
       "generated": null,
       "name": "updated_at",
       "entityType": "columns",
-      "table": "organization_role"
+      "table": "organization"
+    },
+    {
+      "type": "text",
+      "notNull": true,
+      "autoincrement": false,
+      "default": null,
+      "generated": null,
+      "name": "created_at",
+      "entityType": "columns",
+      "table": "organization"
+    },
+    {
+      "type": "text",
+      "notNull": false,
+      "autoincrement": false,
+      "default": "'01a0de45-0440-7241-8e38-4856d008c1c4'",
+      "generated": null,
+      "name": "id",
+      "entityType": "columns",
+      "table": "organization"
     },
     {
       "type": "text",
@@ -433,26 +423,6 @@
       "default": null,
       "generated": null,
       "name": "organization_id",
-      "entityType": "columns",
-      "table": "organization_role"
-    },
-    {
-      "type": "text",
-      "notNull": false,
-      "autoincrement": false,
-      "default": null,
-      "generated": null,
-      "name": "created_at",
-      "entityType": "columns",
-      "table": "organization_role"
-    },
-    {
-      "type": "text",
-      "notNull": false,
-      "autoincrement": false,
-      "default": "'01a0d3c0-b421-7599-942b-2d093d024406'",
-      "generated": null,
-      "name": "id",
       "entityType": "columns",
       "table": "organization_role"
     },
@@ -478,13 +448,33 @@
     },
     {
       "type": "text",
-      "notNull": false,
+      "notNull": true,
       "autoincrement": false,
       "default": null,
       "generated": null,
       "name": "updated_at",
       "entityType": "columns",
-      "table": "session"
+      "table": "organization_role"
+    },
+    {
+      "type": "text",
+      "notNull": true,
+      "autoincrement": false,
+      "default": null,
+      "generated": null,
+      "name": "created_at",
+      "entityType": "columns",
+      "table": "organization_role"
+    },
+    {
+      "type": "text",
+      "notNull": false,
+      "autoincrement": false,
+      "default": "'01a0de45-0440-7241-8e38-4856d008c1c4'",
+      "generated": null,
+      "name": "id",
+      "entityType": "columns",
+      "table": "organization_role"
     },
     {
       "type": "text",
@@ -503,26 +493,6 @@
       "default": null,
       "generated": null,
       "name": "token",
-      "entityType": "columns",
-      "table": "session"
-    },
-    {
-      "type": "text",
-      "notNull": false,
-      "autoincrement": false,
-      "default": null,
-      "generated": null,
-      "name": "created_at",
-      "entityType": "columns",
-      "table": "session"
-    },
-    {
-      "type": "text",
-      "notNull": false,
-      "autoincrement": false,
-      "default": "'01a0d3c0-b421-7593-a8d2-cf76ecff848b'",
-      "generated": null,
-      "name": "id",
       "entityType": "columns",
       "table": "session"
     },
@@ -588,13 +558,33 @@
     },
     {
       "type": "text",
-      "notNull": false,
+      "notNull": true,
       "autoincrement": false,
       "default": null,
       "generated": null,
       "name": "updated_at",
       "entityType": "columns",
-      "table": "team"
+      "table": "session"
+    },
+    {
+      "type": "text",
+      "notNull": true,
+      "autoincrement": false,
+      "default": null,
+      "generated": null,
+      "name": "created_at",
+      "entityType": "columns",
+      "table": "session"
+    },
+    {
+      "type": "text",
+      "notNull": false,
+      "autoincrement": false,
+      "default": "'01a0de45-0440-7241-8e38-4856d008c1c4'",
+      "generated": null,
+      "name": "id",
+      "entityType": "columns",
+      "table": "session"
     },
     {
       "type": "text",
@@ -603,26 +593,6 @@
       "default": null,
       "generated": null,
       "name": "organization_id",
-      "entityType": "columns",
-      "table": "team"
-    },
-    {
-      "type": "text",
-      "notNull": false,
-      "autoincrement": false,
-      "default": null,
-      "generated": null,
-      "name": "created_at",
-      "entityType": "columns",
-      "table": "team"
-    },
-    {
-      "type": "text",
-      "notNull": false,
-      "autoincrement": false,
-      "default": "'01a0d3c0-b421-7598-9db1-a956cd2fefe5'",
-      "generated": null,
-      "name": "id",
       "entityType": "columns",
       "table": "team"
     },
@@ -648,13 +618,33 @@
     },
     {
       "type": "text",
-      "notNull": false,
+      "notNull": true,
       "autoincrement": false,
       "default": null,
       "generated": null,
       "name": "updated_at",
       "entityType": "columns",
-      "table": "team_member"
+      "table": "team"
+    },
+    {
+      "type": "text",
+      "notNull": true,
+      "autoincrement": false,
+      "default": null,
+      "generated": null,
+      "name": "created_at",
+      "entityType": "columns",
+      "table": "team"
+    },
+    {
+      "type": "text",
+      "notNull": false,
+      "autoincrement": false,
+      "default": "'01a0de45-0440-7241-8e38-4856d008c1c4'",
+      "generated": null,
+      "name": "id",
+      "entityType": "columns",
+      "table": "team"
     },
     {
       "type": "text",
@@ -682,6 +672,26 @@
       "autoincrement": false,
       "default": null,
       "generated": null,
+      "name": "membership_key",
+      "entityType": "columns",
+      "table": "team_member"
+    },
+    {
+      "type": "text",
+      "notNull": true,
+      "autoincrement": false,
+      "default": null,
+      "generated": null,
+      "name": "updated_at",
+      "entityType": "columns",
+      "table": "team_member"
+    },
+    {
+      "type": "text",
+      "notNull": true,
+      "autoincrement": false,
+      "default": null,
+      "generated": null,
       "name": "created_at",
       "entityType": "columns",
       "table": "team_member"
@@ -690,31 +700,11 @@
       "type": "text",
       "notNull": false,
       "autoincrement": false,
-      "default": "'01a0d3c0-b421-7596-a92d-72463855a83d'",
+      "default": "'01a0de45-0440-7241-8e38-4856d008c1c4'",
       "generated": null,
       "name": "id",
       "entityType": "columns",
       "table": "team_member"
-    },
-    {
-      "type": "text",
-      "notNull": false,
-      "autoincrement": false,
-      "default": null,
-      "generated": null,
-      "name": "membership_key",
-      "entityType": "columns",
-      "table": "team_member"
-    },
-    {
-      "type": "text",
-      "notNull": false,
-      "autoincrement": false,
-      "default": null,
-      "generated": null,
-      "name": "updated_at",
-      "entityType": "columns",
-      "table": "two_factor"
     },
     {
       "type": "text",
@@ -727,30 +717,10 @@
       "table": "two_factor"
     },
     {
-      "type": "text",
-      "notNull": false,
-      "autoincrement": false,
-      "default": null,
-      "generated": null,
-      "name": "created_at",
-      "entityType": "columns",
-      "table": "two_factor"
-    },
-    {
-      "type": "text",
-      "notNull": false,
-      "autoincrement": false,
-      "default": "'01a0d3c0-b421-7595-acca-e1cfae1e9755'",
-      "generated": null,
-      "name": "id",
-      "entityType": "columns",
-      "table": "two_factor"
-    },
-    {
       "type": "integer",
-      "notNull": true,
+      "notNull": false,
       "autoincrement": false,
-      "default": null,
+      "default": "true",
       "generated": null,
       "name": "verified",
       "entityType": "columns",
@@ -758,9 +728,9 @@
     },
     {
       "type": "integer",
-      "notNull": true,
+      "notNull": false,
       "autoincrement": false,
-      "default": null,
+      "default": "0",
       "generated": null,
       "name": "failed_verification_count",
       "entityType": "columns",
@@ -798,27 +768,37 @@
     },
     {
       "type": "text",
-      "notNull": false,
+      "notNull": true,
       "autoincrement": false,
       "default": null,
       "generated": null,
       "name": "updated_at",
       "entityType": "columns",
-      "table": "user"
+      "table": "two_factor"
+    },
+    {
+      "type": "text",
+      "notNull": true,
+      "autoincrement": false,
+      "default": null,
+      "generated": null,
+      "name": "created_at",
+      "entityType": "columns",
+      "table": "two_factor"
     },
     {
       "type": "text",
       "notNull": false,
       "autoincrement": false,
-      "default": null,
+      "default": "'01a0de45-0440-7241-8e38-4856d008c1c4'",
       "generated": null,
-      "name": "phone_number",
+      "name": "id",
       "entityType": "columns",
-      "table": "user"
+      "table": "two_factor"
     },
     {
       "type": "integer",
-      "notNull": false,
+      "notNull": true,
       "autoincrement": false,
       "default": "false",
       "generated": null,
@@ -832,7 +812,7 @@
       "autoincrement": false,
       "default": null,
       "generated": null,
-      "name": "created_at",
+      "name": "phone_number",
       "entityType": "columns",
       "table": "user"
     },
@@ -853,16 +833,6 @@
       "default": null,
       "generated": null,
       "name": "username",
-      "entityType": "columns",
-      "table": "user"
-    },
-    {
-      "type": "text",
-      "notNull": false,
-      "autoincrement": false,
-      "default": "'01a0d3c0-b420-75be-82e4-b9fe709df54b'",
-      "generated": null,
-      "name": "id",
       "entityType": "columns",
       "table": "user"
     },
@@ -932,7 +902,7 @@
       "autoincrement": false,
       "default": null,
       "generated": null,
-      "name": "ban_expires",
+      "name": "ban_reason",
       "entityType": "columns",
       "table": "user"
     },
@@ -942,7 +912,7 @@
       "autoincrement": false,
       "default": null,
       "generated": null,
-      "name": "ban_reason",
+      "name": "ban_expires",
       "entityType": "columns",
       "table": "user"
     },
@@ -968,13 +938,33 @@
     },
     {
       "type": "text",
-      "notNull": false,
+      "notNull": true,
       "autoincrement": false,
       "default": null,
       "generated": null,
       "name": "updated_at",
       "entityType": "columns",
-      "table": "user_profile"
+      "table": "user"
+    },
+    {
+      "type": "text",
+      "notNull": true,
+      "autoincrement": false,
+      "default": null,
+      "generated": null,
+      "name": "created_at",
+      "entityType": "columns",
+      "table": "user"
+    },
+    {
+      "type": "text",
+      "notNull": false,
+      "autoincrement": false,
+      "default": "'01a0de45-0440-7241-8e38-4856d008c1c4'",
+      "generated": null,
+      "name": "id",
+      "entityType": "columns",
+      "table": "user"
     },
     {
       "type": "text",
@@ -993,16 +983,6 @@
       "default": null,
       "generated": null,
       "name": "phone_number",
-      "entityType": "columns",
-      "table": "user_profile"
-    },
-    {
-      "type": "text",
-      "notNull": false,
-      "autoincrement": false,
-      "default": null,
-      "generated": null,
-      "name": "created_at",
       "entityType": "columns",
       "table": "user_profile"
     },
@@ -1048,33 +1028,23 @@
     },
     {
       "type": "text",
-      "notNull": false,
+      "notNull": true,
       "autoincrement": false,
       "default": null,
       "generated": null,
       "name": "updated_at",
       "entityType": "columns",
-      "table": "verification"
+      "table": "user_profile"
     },
     {
       "type": "text",
-      "notNull": false,
+      "notNull": true,
       "autoincrement": false,
       "default": null,
       "generated": null,
       "name": "created_at",
       "entityType": "columns",
-      "table": "verification"
-    },
-    {
-      "type": "text",
-      "notNull": false,
-      "autoincrement": false,
-      "default": "'01a0d3c0-b421-759a-811a-b13ee163d4c5'",
-      "generated": null,
-      "name": "id",
-      "entityType": "columns",
-      "table": "verification"
+      "table": "user_profile"
     },
     {
       "type": "text",
@@ -1103,6 +1073,36 @@
       "default": null,
       "generated": null,
       "name": "value",
+      "entityType": "columns",
+      "table": "verification"
+    },
+    {
+      "type": "text",
+      "notNull": true,
+      "autoincrement": false,
+      "default": null,
+      "generated": null,
+      "name": "updated_at",
+      "entityType": "columns",
+      "table": "verification"
+    },
+    {
+      "type": "text",
+      "notNull": true,
+      "autoincrement": false,
+      "default": null,
+      "generated": null,
+      "name": "created_at",
+      "entityType": "columns",
+      "table": "verification"
+    },
+    {
+      "type": "text",
+      "notNull": false,
+      "autoincrement": false,
+      "default": "'01a0de45-0440-7241-8e38-4856d008c1c4'",
+      "generated": null,
+      "name": "id",
       "entityType": "columns",
       "table": "verification"
     },

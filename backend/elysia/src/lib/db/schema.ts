@@ -61,7 +61,7 @@ export const userProfile = t.snakeCase.table(
     userId: t
       .text()
       .primaryKey()
-      .references(() => user.id),
+      .references(() => user.id, { onDelete: 'cascade' }),
     phoneNumber: t.text().unique('user_profile_phone_number_unique_index'),
     gender: t.text().$type<Gender>(),
     address: t.text(),
@@ -78,7 +78,7 @@ export const account = t.snakeCase.table(
     userId: t
       .text()
       .notNull()
-      .references(() => user.id),
+      .references(() => user.id, { onDelete: 'cascade' }),
     gender: t.text().$type<Gender>(),
     refreshTokenExpiresAt: t.text(),
     providerId: t.text().notNull(),
@@ -104,7 +104,7 @@ export const session = t.snakeCase.table(
     userId: t
       .text()
       .notNull()
-      .references(() => user.id),
+      .references(() => user.id, { onDelete: 'cascade' }),
     token: t.text().notNull().unique('session_token_unique_index'),
     activeOrganizationId: t.text(),
     expiresAt: date().notNull(),
@@ -133,7 +133,7 @@ export const twoFactor = t.snakeCase.table(
     userId: t
       .text()
       .notNull()
-      .references(() => user.id),
+      .references(() => user.id, { onDelete: 'cascade' }),
     verified: t.integer({ mode: 'boolean' }).default(true),
     failedVerificationCount: t.integer().default(0),
     backupCodes: t.text().notNull(),
@@ -151,11 +151,11 @@ export const teamMember = t.snakeCase.table(
     userId: t
       .text()
       .notNull()
-      .references(() => user.id),
+      .references(() => user.id, { onDelete: 'cascade' }),
     teamId: t
       .text()
       .notNull()
-      .references(() => team.id),
+      .references(() => team.id, { onDelete: 'cascade' }),
     membershipKey: t.text(),
     ...timestamps,
     id
@@ -172,11 +172,11 @@ export const member = t.snakeCase.table(
     organizationId: t
       .text()
       .notNull()
-      .references(() => organization.id),
+      .references(() => organization.id, { onDelete: 'cascade' }),
     userId: t
       .text()
       .notNull()
-      .references(() => user.id),
+      .references(() => user.id, { onDelete: 'cascade' }),
     role: t.text().notNull(),
     ...timestamps,
     id
@@ -193,7 +193,7 @@ export const team = t.snakeCase.table(
     organizationId: t
       .text()
       .notNull()
-      .references(() => organization.id),
+      .references(() => organization.id, { onDelete: 'cascade' }),
     memberCount: t.integer().notNull(),
     name: t.text().notNull(),
     ...timestamps,
@@ -208,7 +208,7 @@ export const organizationRole = t.snakeCase.table(
     organizationId: t
       .text()
       .notNull()
-      .references(() => organization.id),
+      .references(() => organization.id, { onDelete: 'cascade' }),
     permission: t.text().notNull(),
     role: t.text().notNull(),
     ...timestamps,
@@ -237,11 +237,11 @@ export const invitation = t.snakeCase.table(
     organizationId: t
       .text()
       .notNull()
-      .references(() => organization.id),
+      .references(() => organization.id, { onDelete: 'cascade' }),
     inviterId: t
       .text()
       .notNull()
-      .references(() => user.id),
+      .references(() => user.id, { onDelete: 'cascade' }),
     expiresAt: date().notNull(),
     status: t.text().notNull(),
     email: t.text().notNull(),

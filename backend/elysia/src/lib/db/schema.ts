@@ -273,10 +273,10 @@ export const relations = defineRelations(
   },
   r => ({
     user: {
-      profile: r.one.userProfile({ to: r.userProfile.userId, from: r.user.id }),
       invitations: r.many.invitation(),
       teamMembers: r.many.teamMember(),
       TwoFactor: r.many.twoFactor(),
+      profile: r.one.userProfile(),
       sessions: r.many.session(),
       accounts: r.many.account(),
       members: r.many.member()
@@ -301,6 +301,13 @@ export const relations = defineRelations(
       members: r.many.member(),
       teams: r.many.team()
     },
+    team: {
+      organization: r.one.organization({
+        from: r.team.organizationId,
+        to: r.organization.id
+      }),
+      teamMembers: r.many.teamMember()
+    },
     teamMember: {
       user: r.one.user({ from: r.teamMember.userId, to: r.user.id }),
       team: r.one.team({ from: r.teamMember.teamId, to: r.team.id })
@@ -308,12 +315,6 @@ export const relations = defineRelations(
     organizationRole: {
       organization: r.one.organization({
         from: r.organizationRole.organizationId,
-        to: r.organization.id
-      })
-    },
-    team: {
-      organization: r.one.organization({
-        from: r.team.organizationId,
         to: r.organization.id
       })
     },

@@ -34,9 +34,18 @@ export class UnauthorizedError extends ApiError {
 }
 
 export const errorPlugin = new Elysia({ name: 'Error.Plugin' })
-  .error({ ApiError })
+  .error({ DrizzleQueryError, ApiError })
   .onError(({ status, error, code, path }) => {
     switch (true) {
+      case error instanceof Error && isFileError(error):
+        return status(StatusMap['Bad Request'], {
+          ...new ApiError(
+            [{ path: [error.path as string], message: error.message }],
+            error.name,
+            StatusMap['Bad Request']
+          )
+        });
+
       case code === 'INVALID_FILE_TYPE':
         return status(error.status, {
           ...new ApiError(
@@ -110,16 +119,7 @@ export const errorPlugin = new Elysia({ name: 'Error.Plugin' })
           )
         });
 
-      case error instanceof Error && isFileError(error):
-        return status(StatusMap['Bad Request'], {
-          ...new ApiError(
-            [{ path: [error.path as string], message: error.message }],
-            error.name,
-            StatusMap['Bad Request']
-          )
-        });
-
-      case error instanceof DrizzleQueryError:
+      case code === 'DrizzleQueryError':
         return status(StatusMap['Bad Request'], {
           ...new ApiError(
             [{ message: error.message, path: error.params }],

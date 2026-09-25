@@ -1,5 +1,3 @@
-import type { File } from 'zod/v4/core';
-
 import nodemailer from 'nodemailer';
 import os from 'node:os';
 
@@ -15,6 +13,12 @@ export function isFileError(
     typeof e.code === 'string' &&
     Object.keys(os.constants.errno).includes(e.code)
   );
+}
+
+export function toPositiveInteger(value: unknown, fallback: number) {
+  const parsed = Number(value);
+  const isInteger = Number.isInteger(parsed);
+  return isInteger && parsed > 0 ? parsed : fallback;
 }
 
 export function removeUndefinedProps<T extends Record<string, unknown>>(

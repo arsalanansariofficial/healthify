@@ -1,5 +1,6 @@
 import z from 'zod';
 
+import type { PaginationResult } from '@/lib/pagination';
 import type { ModelType } from '@/lib/util/types';
 
 import { env } from '@/lib/config';
@@ -7,6 +8,28 @@ import { env } from '@/lib/config';
 export type Schema = ModelType<{
   [K in keyof typeof schema]: ReturnType<(typeof schema)[K]>;
 }>;
+
+function pagination<T>(schema: z.ZodType<T>) {
+  return z.toZod<PaginationResult<T>>()(
+    z.object(
+      {
+        data: z.array(
+          schema,
+          `${schema.meta()?.title} should be a valid array.`
+        ),
+        hasPreviousPage: z.boolean(
+          'hasPreviousPage should be a valid boolean.'
+        ),
+        hasNextPage: z.boolean('hasNextPage should be a valid boolean.'),
+        totalPages: z.number('totalPages should be a valid number.'),
+        pageSize: z.number('pageSize should be a valid number.'),
+        total: z.number('total should be a valid number.'),
+        page: z.number('page should be a valid number.')
+      },
+      'pagination should be a valid object.'
+    )
+  );
+}
 
 function file(attribute: string): z.ZodFile {
   return z
@@ -82,6 +105,7 @@ function date(attribute: string) {
 
 export const schema = {
   typeOrArray,
+  pagination,
   fileOrUrl,
   nullish,
   string,

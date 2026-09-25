@@ -11,11 +11,14 @@ declare module 'bun' {
     BETTER_AUTH_SESSION_EXPIRES_IN: number;
     GITHUB_CLIENT_ID?: undefined | string;
     SESSION_COOKIE_NAME: string;
+    DEFAULT_PAGE_NUMBER: number;
     BETTER_AUTH_SECRET: string;
+    DEFAULT_PAGE_SIZE: number;
     APPLICATION_NAME: string;
     BETTER_AUTH_URL: string;
     MAX_FILE_SIZE: number;
     MIN_FILE_SIZE: number;
+    MAX_PAGE_SIZE: number;
     DATABASE_URL: string;
     UPLOAD_DIR: string;
     SMTP_URL: string;
@@ -187,6 +190,25 @@ export const envSchema = z.object(
       .meta({
         description:
           'Minimum number of bytes for a valid file upload, defaults to 10 KB.'
+      }),
+    MAX_PAGE_SIZE: z.coerce
+      .number('MAX_PAGE_SIZE should be a valid number.')
+      .default(100)
+      .meta({
+        description:
+          'Maximum number of records per page, defaults to 100 records.'
+      }),
+    DEFAULT_PAGE_NUMBER: z.coerce
+      .number('DEFAULT_PAGE_NUMBER should be a valid number.')
+      .default(1)
+      .meta({
+        description: 'Default page to start with, defaults to first page.'
+      }),
+    DEFAULT_PAGE_SIZE: z.coerce
+      .number('DEFAULT_PAGE_SIZE should be a valid number.')
+      .default(10)
+      .meta({
+        description: 'Number of records per page, defaults to 10 records.'
       }),
     PORT: z.coerce
       .number('PORT should be valid number.')

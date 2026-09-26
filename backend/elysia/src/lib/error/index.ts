@@ -1,5 +1,6 @@
 import { DrizzleQueryError } from 'drizzle-orm/errors';
 import { StatusMap, Elysia } from 'elysia';
+import { SQLiteError } from 'bun:sqlite';
 
 import type { Errors } from '@/lib/util/types';
 
@@ -73,15 +74,16 @@ export const errorPlugin = new Elysia({ name: 'Error.Plugin' })
         });
 
       case code === 'UNKNOWN' && isUnknownError(error):
-        const statusCode =
-          (error.statusCode as number) || StatusMap['Internal Server Error'];
-        return status(statusCode, {
-          ...new ApiError(
-            [{ message: error.message, path: [path] }],
-            error.name,
-            statusCode
-          )
-        });
+        return status(
+          (error.statusCode as number) || StatusMap['Internal Server Error'],
+          {
+            ...new ApiError(
+              [{ message: error.message, path: [path] }],
+              error.name,
+              (error.statusCode as number) || undefined
+            )
+          }
+        );
 
       case code === 'INVALID_COOKIE_SIGNATURE':
         return status(error.status, {
@@ -122,7 +124,12 @@ export const errorPlugin = new Elysia({ name: 'Error.Plugin' })
       case code === 'DrizzleQueryError':
         return status(StatusMap['Bad Request'], {
           ...new ApiError(
-            [{ message: error.message, path: error.params }],
+            [
+              {
+                path: [(error.cause as SQLiteError)?.code as string],
+                message: error.message
+              }
+            ],
             error.name,
             StatusMap['Bad Request']
           )

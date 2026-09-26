@@ -34,10 +34,16 @@ export const timestamps = {
     .notNull()
 };
 
-export const id = t.text().primaryKey().default(Bun.randomUUIDv7());
+export const id = t
+  .text()
+  .primaryKey()
+  .$default(() => Bun.randomUUIDv7());
 
 export const user = t.snakeCase.table('user', {
-  emailVerified: t.integer({ mode: 'boolean' }).default(false).notNull(),
+  emailVerified: t
+    .integer({ mode: 'boolean' })
+    .$default(() => false)
+    .notNull(),
   phoneNumber: t.text().unique('user_phone_number_unique_index'),
   email: t.text().unique('user_email_unique_index').notNull(),
   username: t.text().unique('user_username_unique_index'),
@@ -134,8 +140,8 @@ export const twoFactor = t.snakeCase.table(
       .text()
       .notNull()
       .references(() => user.id, { onDelete: 'cascade' }),
-    verified: t.integer({ mode: 'boolean' }).default(true),
-    failedVerificationCount: t.integer().default(0),
+    verified: t.integer({ mode: 'boolean' }).$default(() => true),
+    failedVerificationCount: t.integer().$default(() => 0),
     backupCodes: t.text().notNull(),
     secret: t.text().notNull(),
     lockedUntil: t.text(),

@@ -68,6 +68,16 @@ export const envSchema = z.object(
         description:
           'OAuth application password to verify with the GitHub provider, ex: example_secret_1234567890abcdef.'
       }),
+    BETTER_AUTH_ACCEPT_METHODS: z
+      .array(
+        z.enum(['post', 'get']),
+        'BETTER_AUTH_ACCEPT_METHODS should be valid http verb.'
+      )
+      .default(['post', 'get'])
+      .meta({
+        description:
+          'HTTP authentication methods for better-auth, defaults to POST and GET methods.'
+      }),
     SESSION_COOKIE_NAME: z
       .string('SESSION_COOKIE_NAME should be a valid string.')
       .nonempty('SESSION_COOKIE_NAME should not be empty.')
@@ -85,16 +95,6 @@ export const envSchema = z.object(
       .meta({
         description:
           'OAuth application name to verify with the GitHub provider, ex: Iv1.example123456789.'
-      }),
-    BETTER_AUTH_ACCEPT_METHODS: z
-      .array(
-        z.enum(['post', 'get']),
-        'BETTER_AUTH_SECRET should be valid http verb.'
-      )
-      .default(['post', 'get'])
-      .meta({
-        description:
-          'HTTP authentication methods for better-auth, defaults to POST and GET methods.'
       }),
     UPLOAD_DIR: z
       .string('UPLOAD_DIR should be a valid string.')

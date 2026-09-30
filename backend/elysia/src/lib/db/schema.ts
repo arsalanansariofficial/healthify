@@ -335,6 +335,27 @@ export const relations = defineRelations(
   })
 );
 
+export const doctor = t.snakeCase.table(
+  'doctor',
+  {
+    userId: t
+      .text()
+      .primaryKey()
+      .references(() => user.id, { onDelete: 'cascade' }),
+    experienceYears: t
+      .integer()
+      .$default(() => 0)
+      .notNull(),
+    consultationFee: t
+      .integer()
+      .$default(() => 0)
+      .notNull(),
+    licenseNumber: t.text().notNull(),
+    ...timestamps
+  },
+  table => [t.index('doctor_user_id_index').on(table.userId)]
+);
+
 export const schema = {
   organizationRole,
   organization,
@@ -345,6 +366,7 @@ export const schema = {
   twoFactor,
   account,
   session,
+  doctor,
   member,
   user,
   team

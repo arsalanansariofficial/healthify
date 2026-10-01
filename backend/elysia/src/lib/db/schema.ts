@@ -1,5 +1,28 @@
-import { defineRelations } from 'drizzle-orm';
+import { defineRelations, sql } from 'drizzle-orm';
 import * as t from 'drizzle-orm/sqlite-core';
+
+export enum Day {
+  wednesday = 'wednesday',
+  thursday = 'thursday',
+  saturday = 'saturday',
+  tuesday = 'tuesday',
+  sunday = 'sunday',
+  monday = 'monday',
+  friday = 'friday'
+}
+
+export enum Status {
+  confirmed = 'confirmed',
+  cancelled = 'cancelled',
+  pending = 'pending'
+}
+
+export enum Priority {
+  normal = 'normal',
+  urgent = 'urgent',
+  high = 'high',
+  low = 'low'
+}
 
 export enum Gender {
   female = 'female',
@@ -262,12 +285,28 @@ export const invitation = t.snakeCase.table(
   ]
 );
 
+export const schedule = t.snakeCase.table(
+  'schedule',
+  {
+    doctorId: t
+      .text()
+      .notNull()
+      .references(() => doctor.userId, { onDelete: 'cascade' }),
+    day: t.text().$type<Day>().notNull(),
+    from: t.text().notNull(),
+    to: t.text().notNull(),
+    ...timestamps
+  },
+  table => [t.index('idx_schedule_doctor_id').on(table.doctorId)]
+);
+
 export const doctor = t.snakeCase.table(
   'doctor',
   {
     userId: t
       .text()
       .primaryKey()
+      .notNull()
       .references(() => user.id, { onDelete: 'cascade' }),
     experienceYears: t
       .integer()
@@ -283,15 +322,80 @@ export const doctor = t.snakeCase.table(
   table => [t.index('fk_doctor_user_id').on(table.userId)]
 );
 
+export const doctorToSpecialization = t.snakeCase.table(
+  'doctor_to_specialization',
+  {
+    specializationId: t
+      .text()
+      .notNull()
+      .references(() => specialization.id, { onDelete: 'cascade' }),
+    doctorId: t
+      .text()
+      .notNull()
+      .references(() => doctor.userId, { onDelete: 'cascade' }),
+    ...timestamps
+  },
+  table => [t.primaryKey({ columns: [table.doctorId, table.specializationId] })]
+);
+
+export const specialization = t.snakeCase.table('specialization', {
+  name: t.text().unique('ux_specialization_name').notNull(),
+  ...timestamps,
+  id
+});
+
+export const appointment = t.snakeCase.table(
+  'appointment',
+  {
+    doctorId: t
+      .text()
+      .notNull()
+      .references(() => doctor.userId, { onDelete: 'cascade' }),
+    priority: t
+      .text()
+      .$type<Priority>()
+      .$default(() => Priority.normal)
+      .notNull(),
+    patientId: t
+      .text()
+      .notNull()
+      .references(() => user.id, { onDelete: 'cascade' }),
+    queue: t.integer().notNull(),
+    from: t.text().notNull(),
+    date: date().notNull(),
+    to: t.text().notNull(),
+    presription: t.text(),
+    rating: t.integer(),
+    notes: t.text(),
+    id
+  },
+  table => [
+    t.check(
+      'chk_appointment_valid_rating',
+      sql`${table.rating} between 1 and 5`
+    ),
+    t
+      .index('ux_appointment_doctor_id_patient_id_date_from_to')
+      .on(table.doctorId, table.patientId, table.date, table.from),
+    t.check('chk_appointment_valid_time', sql`${table.from} < ${table.to}`),
+    t.index('fk_appointment_patient_id').on(table.patientId),
+    t.index('fk_appointment_doctor_id').on(table.doctorId)
+  ]
+);
+
 export const relations = defineRelations(
   {
+    doctorToSpecialization,
     organizationRole,
+    specialization,
     organization,
     verification,
+    appointment,
     userProfile,
     teamMember,
     invitation,
     twoFactor,
+    schedule,
     account,
     session,
     doctor,
@@ -300,7 +404,19 @@ export const relations = defineRelations(
     team
   },
   r => ({
+    doctor: {
+      specializations: r.many.specialization({
+        to: r.specialization.id.through(
+          r.doctorToSpecialization.specializationId
+        ),
+        from: r.doctor.userId.through(r.doctorToSpecialization.doctorId)
+      }),
+      user: r.one.user({ from: r.doctor.userId, to: r.user.id }),
+      appointments: r.many.appointment(),
+      schedules: r.many.schedule()
+    },
     user: {
+      appointments: r.many.appointment(),
       invitations: r.many.invitation(),
       teamMembers: r.many.teamMember(),
       TwoFactor: r.many.twoFactor(),
@@ -316,6 +432,13 @@ export const relations = defineRelations(
         to: r.organization.id
       }),
       inviter: r.one.user({ from: r.invitation.inviterId, to: r.user.id })
+    },
+    appointment: {
+      doctor: r.one.doctor({
+        from: r.appointment.doctorId,
+        to: r.doctor.userId
+      }),
+      patient: r.one.user({ from: r.appointment.patientId, to: r.user.id })
     },
     member: {
       organization: r.one.organization({
@@ -347,6 +470,9 @@ export const relations = defineRelations(
         to: r.organization.id
       })
     },
+    schedule: {
+      doctor: r.one.doctor({ from: r.schedule.doctorId, to: r.doctor.userId })
+    },
     userProfile: {
       User: r.one.user({ from: r.userProfile.userId, to: r.user.id })
     },
@@ -355,18 +481,22 @@ export const relations = defineRelations(
     },
     session: { user: r.one.user({ from: r.session.userId, to: r.user.id }) },
     account: { user: r.one.user({ from: r.account.userId, to: r.user.id }) },
-    doctor: { user: r.one.user({ from: r.doctor.userId, to: r.user.id }) }
+    specialization: { doctors: r.many.doctor() }
   })
 );
 
 export const schema = {
+  doctorToSpecialization,
   organizationRole,
+  specialization,
   organization,
   verification,
   userProfile,
+  appointment,
   teamMember,
   invitation,
   twoFactor,
+  schedule,
   account,
   session,
   doctor,

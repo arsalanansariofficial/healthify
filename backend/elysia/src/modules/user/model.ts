@@ -43,7 +43,9 @@ const user = z.toZod<SchemaSelect['user']>()(
 const userProfile = z.toZod<SchemaSelect['userProfile']>()(
   z.object(
     {
-      gender: z.enum(Gender, `gender should be ${Gender}.`).nullable(),
+      gender: z
+        .enum(Gender, `gender should be ${Object.values(Gender)}.`)
+        .nullable(),
       phoneNumber: schema.string('phoneNumber').nullable(),
       address: schema.string('address').nullable(),
       cover: schema.url('cover').nullable(),

@@ -14,10 +14,13 @@ export type Permissions = Partial<{
 export type Roles = keyof typeof permissions.roles;
 
 const ac = createAccessControl({
+  appointment: ['create', 'read', 'update', 'delete', 'confirm', 'cancel'],
   ...defaultOrganizationStatements,
   ...defaultAdminStatements
 });
 
+const doctor = ac.newRole({ appointment: ['read', 'confirm', 'cancel'] });
+const user = ac.newRole({ appointment: ['create', 'read', 'cancel'] });
 const admin = ac.newRole(ac.statements);
 
 export const permissions = {
@@ -25,7 +28,9 @@ export const permissions = {
     ...defaultOrganizationRoles,
     ...defaultAdminRoles,
     owner: admin,
-    admin
+    doctor,
+    admin,
+    user
   },
   ac
 };

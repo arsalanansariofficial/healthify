@@ -51,8 +51,8 @@ async function update(args: {
   });
 
   const updated = await db.query.user.findFirst({
-    where: { id: args.user.id },
-    with: { profile: true }
+    with: { profile: true, doctor: true },
+    where: { id: args.user.id }
   });
 
   if (!updated) throw new ApiError();

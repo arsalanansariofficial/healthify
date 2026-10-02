@@ -2,6 +2,7 @@ import z from 'zod';
 
 import type { ModelType } from '@/lib/util/types';
 
+import { model as doctorModel } from '@/modules/doctor/model';
 import { type SchemaSelect, Gender } from '@/lib/db/schema';
 import { schema } from '@/lib/util/schema';
 
@@ -31,22 +32,6 @@ const user = z.toZod<
           'userProfile should be a valid object'
         )
         .nullish(),
-      doctor: z
-        .object(
-          {
-            ...schema.timestamps().shape,
-            experienceYears: z.coerce
-              .number('experienceYears should be a valid number.')
-              .default(0),
-            consultationFee: z.coerce
-              .number('consultationFee should be a valid number.')
-              .default(0),
-            licenseNumber: schema.string('licenseNumber'),
-            userId: schema.uuid('userId')
-          },
-          'doctor should be valid object.'
-        )
-        .nullish(),
       phoneNumberVerified: z
         .boolean('phoneNumberVerified should be a valid boolean.')
         .nullable(),
@@ -65,6 +50,7 @@ const user = z.toZod<
       username: schema.string('username').nullable(),
       role: schema.string('role').nullable(),
       image: schema.url('image').nullable(),
+      doctor: doctorModel.doctor.nullish(),
       name: schema.string('name').trim(),
       ...schema.timestamps().shape,
       email: schema.email(),

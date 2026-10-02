@@ -3,6 +3,7 @@ import { cors } from '@elysia/cors';
 import { Elysia } from 'elysia';
 
 import { organizationRoutes } from '@/modules/organization';
+import { doctorRoutes } from '@/modules/doctor';
 import { userRoutes } from '@/modules/user';
 import { errorPlugin } from '@/lib/error';
 import { authRoutes } from '@/lib/auth';
@@ -15,6 +16,7 @@ export const app = new Elysia({ name: 'App.Routes' })
   .use(errorPlugin)
   .use(cors())
   .use(organizationRoutes)
+  .use(doctorRoutes)
   .use(authRoutes)
   .use(userRoutes);
 

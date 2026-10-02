@@ -4,42 +4,44 @@ import type { Permissions, Roles } from '@/lib/auth/permissions';
 import type { Payload } from '@/modules/user/payload';
 import type { Model } from '@/modules/user/model';
 
+import { containsSomeValue } from '@/lib/util';
 import { userProfile } from '@/lib/db/schema';
+import { ApiError } from '@/lib/error';
 import { replace } from '@/lib/file';
 import { auth } from '@/lib/auth';
 import { db } from '@/lib/db';
 
 async function update(args: {
-  payload: Payload['userWithProfile'];
-  user: Model['userWithProfile'];
   set: { headers: HTTPHeaders };
+  payload: Payload['user'];
+  user: Model['user'];
   headers: Headers;
 }) {
-  const { profile: $profile, user: $user } = args.payload;
+  const { profile, ...user } = args.payload;
 
-  if ($user) {
-    const image = await replace({
-      replaceWith: $user.image,
-      url: args.user.image
-    });
-    await auth.api.updateUser({
-      body: { ...$user, image },
-      headers: args.headers
-    });
-  }
-
-  if ($profile) {
+  if (containsSomeValue(profile)) {
     const cover = await replace({
       url: args.user.profile?.cover,
-      replaceWith: $profile.cover
+      replaceWith: profile?.cover
     });
     await db
       .insert(userProfile)
-      .values({ ...$profile, userId: args.user.id, cover })
+      .values({ ...profile, userId: args.user.id, cover })
       .onConflictDoUpdate({
-        set: { ...$profile, cover },
+        set: { ...profile, cover },
         target: userProfile.userId
       });
+  }
+
+  if (containsSomeValue(user)) {
+    const image = await replace({
+      replaceWith: user.image,
+      url: args.user.image
+    });
+    await auth.api.updateUser({
+      body: { ...user, image },
+      headers: args.headers
+    });
   }
 
   const { headers: cookie } = await auth.api.getSession({
@@ -53,8 +55,10 @@ async function update(args: {
     with: { profile: true }
   });
 
+  if (!updated) throw new ApiError();
+
   args.set.headers['set-cookie'] = cookie.getSetCookie();
-  return updated || args.user;
+  return updated;
 }
 
 async function userHasPermission(payload: Payload['userHasPermission']) {

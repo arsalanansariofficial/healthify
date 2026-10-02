@@ -192,7 +192,7 @@ export const loadAuthContext = new Elysia({ name: 'AuthContext.Plugin' })
         profile: await db.query.userProfile.findFirst({
           where: { userId: session.user.id }
         })
-      } as Model['userWithProfile'],
+      } as Model['user'],
       session: session.session
     };
   })

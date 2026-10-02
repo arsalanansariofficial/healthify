@@ -1,5 +1,6 @@
 import z from 'zod';
 
+import type { SchemaUpdate } from '@/lib/db/schema';
 import type { ModelType } from '@/lib/util/types';
 
 import { Roles } from '@/lib/auth/permissions';
@@ -66,13 +67,28 @@ const verifyPassword = z.object(
   'password should be valid object.'
 );
 
-const userWithProfile = z.deepPartial(
-  z.object({
-    profile: model.userProfile.extend({
-      cover: schema.fileOrUrl('cover').nullable()
-    }),
-    user: model.user.extend({ image: schema.fileOrUrl('image').nullable() })
-  })
+const user = z.toZod<
+  {
+    profile?: SchemaUpdate['userProfile'] | null;
+    doctor?: SchemaUpdate['doctor'] | null;
+  } & SchemaUpdate['user']
+>()(
+  z.deepPartial(
+    model.user.extend({
+      profile: model.user.shape.profile
+        .unwrap()
+        .unwrap()
+        .extend({
+          cover: schema
+            .fileOrUrl('cover')
+            .nullable() as unknown as z.ZodNullable<z.ZodURL>
+        })
+        .nullable(),
+      image: schema
+        .fileOrUrl('image')
+        .nullable() as unknown as z.ZodNullable<z.ZodURL>
+    })
+  )
 );
 
 const viewBackupCodes = z.object(
@@ -87,7 +103,8 @@ const userHasPermission = z.object(
       z.array(
         schema.string('value').optional(),
         'permissions should be a valid array of strings.'
-      )
+      ),
+      'permissions should be a valid object.'
     ),
     role: z
       .enum(Roles, `role should be valid, ex: ${join(Roles)}.`)
@@ -100,9 +117,9 @@ const userHasPermission = z.object(
 
 export const payload = {
   userHasPermission,
-  userWithProfile,
   viewBackupCodes,
   verifyPassword,
   setPassword,
-  status
+  status,
+  user
 } as const;

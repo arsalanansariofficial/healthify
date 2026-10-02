@@ -29,6 +29,11 @@ export function removeUndefinedProps<T extends Record<string, unknown>>(
   );
 }
 
+export function containsSomeValue(payload?: unknown) {
+  const values = Object.values(payload || {});
+  return values && values.length && values.some(v => v !== undefined);
+}
+
 export function hasValidAuthMethod(method: string) {
   return env.BETTER_AUTH_ACCEPT_METHODS.includes(method as 'post' | 'get');
 }

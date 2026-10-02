@@ -7,21 +7,56 @@ import { schema } from '@/lib/util/schema';
 
 export type Model = ModelType<typeof model>;
 
-const user = z.toZod<SchemaSelect['user']>()(
+const user = z.toZod<
+  {
+    profile?: SchemaSelect['userProfile'] | null;
+    doctor?: SchemaSelect['doctor'] | null;
+  } & SchemaSelect['user']
+>()(
   z.object(
     {
+      profile: z
+        .object(
+          {
+            gender: z
+              .enum(Gender, `gender should be ${Object.values(Gender)}.`)
+              .nullable(),
+            phoneNumber: schema.string('phoneNumber').nullable(),
+            address: schema.string('address').nullable(),
+            cover: schema.url('cover').nullable(),
+            bio: schema.string('bio').nullable(),
+            userId: schema.uuid('userId'),
+            ...schema.timestamps().shape
+          },
+          'userProfile should be a valid object'
+        )
+        .nullish(),
+      doctor: z
+        .object(
+          {
+            ...schema.timestamps().shape,
+            experienceYears: z.coerce
+              .number('experienceYears should be a valid number.')
+              .default(0),
+            consultationFee: z.coerce
+              .number('consultationFee should be a valid number.')
+              .default(0),
+            licenseNumber: schema.string('licenseNumber'),
+            userId: schema.uuid('userId')
+          },
+          'doctor should be valid object.'
+        )
+        .nullish(),
       phoneNumberVerified: z
         .boolean('phoneNumberVerified should be a valid boolean.')
         .nullable(),
       twoFactorEnabled: z
         .boolean('twoFactorEnabled should be a valid boolean.')
         .nullable(),
-      emailVerified: z
-        .boolean('emailVerified should be a valid boolean.')
-        .default(false),
       isAnonymous: z
         .boolean('isAnonymous should be a valid boolean.')
         .nullable(),
+      emailVerified: z.boolean('emailVerified should be a valid boolean.'),
       banned: z.boolean('banned should be a valid boolean.').nullable(),
       displayUsername: schema.string('displayUsername').nullable(),
       phoneNumber: schema.string('phoneNumber').nullable(),
@@ -30,9 +65,8 @@ const user = z.toZod<SchemaSelect['user']>()(
       username: schema.string('username').nullable(),
       role: schema.string('role').nullable(),
       image: schema.url('image').nullable(),
-      updatedAt: schema.date('updatedAt'),
-      createdAt: schema.date('createdAt'),
       name: schema.string('name').trim(),
+      ...schema.timestamps().shape,
       email: schema.email(),
       id: schema.uuid('id')
     },
@@ -40,28 +74,4 @@ const user = z.toZod<SchemaSelect['user']>()(
   )
 );
 
-const userProfile = z.toZod<SchemaSelect['userProfile']>()(
-  z.object(
-    {
-      gender: z
-        .enum(Gender, `gender should be ${Object.values(Gender)}.`)
-        .nullable(),
-      phoneNumber: schema.string('phoneNumber').nullable(),
-      address: schema.string('address').nullable(),
-      cover: schema.url('cover').nullable(),
-      bio: schema.string('bio').nullable(),
-      updatedAt: schema.date('updatedAt'),
-      createdAt: schema.date('createdAt'),
-      userId: schema.uuid('userId')
-    },
-    'userProfile should be a valid object'
-  )
-);
-
-const userWithProfile = z.toZod<
-  {
-    profile?: SchemaSelect['userProfile'] | undefined | null;
-  } & SchemaSelect['user']
->()(user.extend({ profile: userProfile.nullish() }));
-
-export const model = { userWithProfile, userProfile, user } as const;
+export const model = { user } as const;

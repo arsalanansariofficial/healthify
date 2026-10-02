@@ -31,7 +31,7 @@ function pagination<T>(schema: z.ZodType<T>) {
   );
 }
 
-function file(attribute: string): z.ZodFile {
+function file(attribute: string) {
   return z
     .file(`${attribute} should be a valid file.`)
     .max(
@@ -62,6 +62,16 @@ function nullish(attribute: string) {
       z.null(`${attribute} should be null.`)
     ],
     `${attribute} should be either null or undefined.`
+  );
+}
+
+function timestamps() {
+  return z.object(
+    {
+      updatedAt: schema.date('updatedAt'),
+      createdAt: schema.date('createdAt')
+    },
+    'timestamps should be valid object.'
   );
 }
 
@@ -106,6 +116,7 @@ function date(attribute: string) {
 export const schema = {
   typeOrArray,
   pagination,
+  timestamps,
   fileOrUrl,
   nullish,
   string,

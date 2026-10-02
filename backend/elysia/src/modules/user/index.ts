@@ -7,12 +7,12 @@ import { loadAuthContext } from '@/lib/auth';
 
 const privateRoutes = new Elysia({ name: 'User.Private.Routes' })
   .use(loadAuthContext)
-  .get('/me', ({ user }) => user, { response: model.userWithProfile })
+  .get('/me', ({ user }) => user, { response: model.user })
   .patch(
     '/me',
     async ({ request: { headers }, user, body, set }) =>
       await userService.update({ payload: body, headers, user, set }),
-    { response: model.userWithProfile, body: payload.userWithProfile }
+    { response: model.user, body: payload.user }
   )
   .post(
     '/view-backup-codes',

@@ -64,8 +64,8 @@ describe('tests for user resource', () => {
     const headers = await ctx.getAuthHeaders({ userId: gwen.id });
     const { status, data } = await api.users.me.patch(
       {
-        'user.image': Bun.file('tests/fixtures/images/image.png')
-      } as Payload['userWithProfile'],
+        image: Bun.file('tests/fixtures/images/image.png') as unknown as string
+      },
       getSessionCookie(headers)
     );
 
@@ -88,8 +88,8 @@ describe('tests for user resource', () => {
   test('should not update invalid user fields', async () => {
     const { status } = await api.users.me.patch({
       profile: { age: 1 },
-      user: { name: 1 }
-    } as unknown as Payload['userWithProfile']);
+      name: 1
+    } as unknown as Payload['user']);
 
     expect(status).toBe(StatusMap['Unprocessable Content']);
   });

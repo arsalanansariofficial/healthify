@@ -16,6 +16,7 @@
     "allowUnusedLabels": false,
     "moduleDetection": "force",
     "noImplicitOverride": true,
+    "noErrorTruncation": true,
     "noImplicitReturns": true,
     "resolveJsonModule": true,
     "noUnusedLocals": false,

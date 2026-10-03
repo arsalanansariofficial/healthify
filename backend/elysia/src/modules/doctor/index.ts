@@ -20,5 +20,11 @@ export const doctorRoutes = new Elysia({
     '/register',
     async ({ request: { headers }, user, body, set }) =>
       await doctorService.register({ payload: body, headers, user, set }),
-    { response: model.user, body: payload.doctor }
+    { body: payload.register, response: model.user }
+  )
+  .post(
+    '/update',
+    async ({ request: { headers }, user, body, set }) =>
+      await doctorService.update({ payload: body, headers, user, set }),
+    { body: payload.register, response: model.user }
   );

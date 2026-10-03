@@ -2,7 +2,7 @@ import z from 'zod';
 
 import type { ModelType } from '@/lib/util/types';
 
-import { type SchemaSelect } from '@/lib/db/schema';
+import { type SchemaSelect, Day } from '@/lib/db/schema';
 import { schema } from '@/lib/util/schema';
 
 export type Model = ModelType<typeof model>;
@@ -24,4 +24,24 @@ const doctor = z.toZod<SchemaSelect['doctor']>()(
   )
 );
 
-export const model = { doctor } as const;
+const schedule = z.toZod<SchemaSelect['schedule']>()(
+  z.object(
+    {
+      ...schema.timestamps().shape,
+      day: z.enum(Day, `day should be ${Object.values(Day)}.`),
+      doctorId: schema.uuid('doctorId'),
+      from: schema.string('from'),
+      to: schema.string('to')
+    },
+    'schedule should be valid object.'
+  )
+);
+
+const specialization = z.toZod<SchemaSelect['specialization']>()(
+  z.object(
+    { ...schema.timestamps().shape, name: schema.string('name') },
+    'specialization should be valid object.'
+  )
+);
+
+export const model = { specialization, schedule, doctor } as const;

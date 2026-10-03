@@ -30,8 +30,8 @@ const schedule = z.toZod<SchemaSelect['schedule']>()(
       ...schema.timestamps().shape,
       day: z.enum(Day, `day should be ${Object.values(Day)}.`),
       doctorId: schema.uuid('doctorId'),
-      from: schema.string('from'),
-      to: schema.string('to')
+      from: schema.time('from'),
+      to: schema.time('to')
     },
     'schedule should be valid object.'
   )

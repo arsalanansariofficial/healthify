@@ -97,6 +97,13 @@ function url(attribute: string) {
     .trim();
 }
 
+function time(attribute: string) {
+  return string(attribute).regex(
+    /^(?:[01]\d|2[0-3]):[0-5]\d$/,
+    `${attribute} is in invalid time format.`
+  );
+}
+
 function email() {
   return z
     .email(`email should be valid.`)
@@ -124,5 +131,6 @@ export const schema = {
   uuid,
   date,
   file,
+  time,
   url
 } as const;

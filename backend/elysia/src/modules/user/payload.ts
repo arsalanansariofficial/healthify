@@ -71,15 +71,9 @@ const user = z.deepPartial(
     profile: model.user.shape.profile
       .unwrap()
       .unwrap()
-      .extend({
-        cover: schema
-          .fileOrUrl('cover')
-          .nullable() as unknown as z.ZodNullable<z.ZodURL>
-      })
+      .extend({ cover: schema.fileOrUrl('cover').nullable() })
       .nullable(),
-    image: schema
-      .fileOrUrl('image')
-      .nullable() as unknown as z.ZodNullable<z.ZodURL>
+    image: schema.fileOrUrl('image').nullable()
   })
 );
 

@@ -23,6 +23,17 @@ async function register(args: {
   user: Model['user'];
   headers: Headers;
 }) {
+  const $doctor = await db.query.doctor.findFirst({
+    where: { userId: args.user.id }
+  });
+
+  if ($doctor)
+    throw new ApiError(
+      [{ message: 'Doctor profile already exists.', path: [args.user.id] }],
+      'User already registered.',
+      StatusMap['Bad Request']
+    );
+
   db.transaction(transaction => {
     transaction
       .update(user)
@@ -132,6 +143,7 @@ function checkSpecializations(args: {
       'Invalid specialization.',
       StatusMap['Bad Request']
     );
+
 }
 
 async function deRegister(args: {
@@ -147,11 +159,6 @@ async function deRegister(args: {
       .execute();
 
     transaction.delete(doctor).where(eq(doctor.userId, args.user.id)).execute();
-
-    transaction
-      .delete(schedule)
-      .where(eq(schedule.doctorId, args.user.id))
-      .execute();
   });
 
   return updateAndReturn({

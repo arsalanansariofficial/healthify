@@ -1,6 +1,5 @@
 import z from 'zod';
 
-import type { SchemaUpdate } from '@/lib/db/schema';
 import type { ModelType } from '@/lib/util/types';
 
 import { Roles } from '@/lib/auth/permissions';
@@ -67,28 +66,21 @@ const verifyPassword = z.object(
   'password should be valid object.'
 );
 
-const user = z.toZod<
-  {
-    profile?: SchemaUpdate['userProfile'] | null;
-    doctor?: SchemaUpdate['doctor'] | null;
-  } & SchemaUpdate['user']
->()(
-  z.deepPartial(
-    model.user.extend({
-      profile: model.user.shape.profile
-        .unwrap()
-        .unwrap()
-        .extend({
-          cover: schema
-            .fileOrUrl('cover')
-            .nullable() as unknown as z.ZodNullable<z.ZodURL>
-        })
-        .nullable(),
-      image: schema
-        .fileOrUrl('image')
-        .nullable() as unknown as z.ZodNullable<z.ZodURL>
-    })
-  )
+const user = z.deepPartial(
+  model.user.extend({
+    profile: model.user.shape.profile
+      .unwrap()
+      .unwrap()
+      .extend({
+        cover: schema
+          .fileOrUrl('cover')
+          .nullable() as unknown as z.ZodNullable<z.ZodURL>
+      })
+      .nullable(),
+    image: schema
+      .fileOrUrl('image')
+      .nullable() as unknown as z.ZodNullable<z.ZodURL>
+  })
 );
 
 const viewBackupCodes = z.object(

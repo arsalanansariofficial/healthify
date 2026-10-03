@@ -6,6 +6,7 @@ import type { Model } from '@/modules/user/model';
 
 import { containsSomeValue } from '@/lib/util';
 import { userProfile } from '@/lib/db/schema';
+import { session } from '@/lib/session';
 import { ApiError } from '@/lib/error';
 import { replace } from '@/lib/file';
 import { auth } from '@/lib/auth';
@@ -44,20 +45,14 @@ async function update(args: {
     });
   }
 
-  const { headers: cookie } = await auth.api.getSession({
-    query: { disableCookieCache: true },
-    headers: args.headers,
-    returnHeaders: true
-  });
-
   const updated = await db.query.user.findFirst({
-    with: { profile: true, doctor: true },
-    where: { id: args.user.id }
+    where: { id: args.user.id },
+    with: { profile: true }
   });
 
   if (!updated) throw new ApiError();
 
-  args.set.headers['set-cookie'] = cookie.getSetCookie();
+  await session.update({ headers: args.headers, set: args.set });
   return updated;
 }
 

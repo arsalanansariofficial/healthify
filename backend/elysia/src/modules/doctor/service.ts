@@ -23,23 +23,12 @@ async function register(args: {
   user: Model['user'];
   headers: Headers;
 }) {
-  const $doctor = await db.query.doctor.findFirst({
-    where: { userId: args.user.id }
-  });
-
-  if ($doctor)
-    throw new ApiError(
-      [{ message: 'Doctor profile already exists.', path: [args.user.id] }],
-      'User already registered.',
-      StatusMap['Bad Request']
-    );
-
   db.transaction(transaction => {
     transaction
       .update(user)
       .set({ role: Role.doctor })
       .where(eq(user.id, args.user.id))
-      .execute();
+      .run();
 
     transaction
       .insert(doctor)
@@ -48,25 +37,31 @@ async function register(args: {
         userId: args.payload.doctor.userId || args.user.id
       })
       .onConflictDoUpdate({ set: args.payload.doctor, target: doctor.userId })
-      .execute();
+      .run();
 
     checkSpecializations({
       specializations: args.payload.specializations,
       transaction
     });
 
+    db.delete(doctorToSpecialization)
+      .where(eq(doctorToSpecialization.doctorId, args.user.id))
+      .run();
+
+    db.delete(schedule).where(eq(schedule.doctorId, args.user.id)).run();
+
     args.payload.specializations.forEach(specialization =>
       transaction
         .insert(doctorToSpecialization)
         .values({ doctorId: args.user.id, specialization })
-        .execute()
+        .run()
     );
 
     args.payload.schedule.forEach($schedule => {
       transaction
         .insert(schedule)
         .values({ doctorId: args.user.id, ...$schedule })
-        .execute();
+        .run();
     });
   });
 
@@ -92,25 +87,25 @@ async function update(args: {
     transaction
       .delete(doctorToSpecialization)
       .where(eq(doctorToSpecialization.doctorId, args.user.id))
-      .execute();
+      .run();
 
     transaction
       .delete(schedule)
       .where(eq(schedule.doctorId, args.user.id))
-      .execute();
+      .run();
 
     args.payload.specializations.forEach(specialization =>
       transaction
         .insert(doctorToSpecialization)
         .values({ doctorId: args.user.id, specialization })
-        .execute()
+        .run()
     );
 
     args.payload.schedule.forEach($schedule => {
       transaction
         .insert(schedule)
         .values({ doctorId: args.user.id, ...$schedule })
-        .execute();
+        .run();
     });
   });
 
@@ -129,10 +124,7 @@ function checkSpecializations(args: {
     .findMany({ where: { name: { in: args.specializations } } })
     .sync();
 
-  if (
-    !$specializations ||
-    $specializations.length !== args.specializations.length
-  )
+  if ($specializations.length !== args.specializations.length)
     throw new ApiError(
       [
         {
@@ -143,7 +135,6 @@ function checkSpecializations(args: {
       'Invalid specialization.',
       StatusMap['Bad Request']
     );
-
 }
 
 async function deRegister(args: {
@@ -156,9 +147,9 @@ async function deRegister(args: {
       .update(user)
       .set({ role: Role.user })
       .where(eq(user.id, args.user.id))
-      .execute();
+      .run();
 
-    transaction.delete(doctor).where(eq(doctor.userId, args.user.id)).execute();
+    transaction.delete(doctor).where(eq(doctor.userId, args.user.id)).run();
   });
 
   return updateAndReturn({

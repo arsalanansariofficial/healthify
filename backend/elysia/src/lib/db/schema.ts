@@ -325,23 +325,22 @@ export const doctor = t.snakeCase.table(
 export const doctorToSpecialization = t.snakeCase.table(
   'doctor_to_specialization',
   {
-    specializationId: t
+    specialization: t
       .text()
       .notNull()
-      .references(() => specialization.id, { onDelete: 'cascade' }),
+      .references(() => specialization.name, { onDelete: 'cascade' }),
     doctorId: t
       .text()
       .notNull()
       .references(() => doctor.userId, { onDelete: 'cascade' }),
     ...timestamps
   },
-  table => [t.primaryKey({ columns: [table.doctorId, table.specializationId] })]
+  table => [t.primaryKey({ columns: [table.doctorId, table.specialization] })]
 );
 
 export const specialization = t.snakeCase.table('specialization', {
-  name: t.text().unique('ux_specialization_name').notNull(),
-  ...timestamps,
-  id
+  name: t.text().primaryKey(),
+  ...timestamps
 });
 
 export const appointment = t.snakeCase.table(
@@ -406,8 +405,8 @@ export const relations = defineRelations(
   r => ({
     doctor: {
       specializations: r.many.specialization({
-        to: r.specialization.id.through(
-          r.doctorToSpecialization.specializationId
+        to: r.specialization.name.through(
+          r.doctorToSpecialization.specialization
         ),
         from: r.doctor.userId.through(r.doctorToSpecialization.doctorId)
       }),

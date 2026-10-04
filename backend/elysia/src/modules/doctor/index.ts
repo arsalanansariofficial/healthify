@@ -1,7 +1,6 @@
 import { Elysia } from 'elysia';
 
 import { doctorService } from '@/modules/doctor/service';
-import { model as dm } from '@/modules/doctor/model';
 import { payload } from '@/modules/doctor/payload';
 import { loadAuthContext } from '@/lib/auth';
 import { model } from '@/modules/user/model';
@@ -10,10 +9,6 @@ export const doctorRoutes = new Elysia({
   name: 'Doctor.Routes',
   prefix: '/doctors'
 })
-  .get('/', async ({ query }) => await doctorService.getAll(query), {
-    response: dm.paginatedDoctors,
-    query: payload.query
-  })
   .use(loadAuthContext)
   .patch(
     '/register',

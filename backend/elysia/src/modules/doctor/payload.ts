@@ -19,4 +19,11 @@ const register = z.object({
   doctor: model.doctor.partial().required({ licenseNumber: true })
 });
 
-export const payload = { register } as const;
+const query = model.doctor
+  .extend({
+    pageSize: z.coerce.number('pageSize should be a valid number.'),
+    page: z.coerce.number('page should be a valid number.')
+  })
+  .partial();
+
+export const payload = { register, query } as const;

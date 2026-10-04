@@ -13,6 +13,8 @@ import {
   user as u,
   Role
 } from '@/lib/db/schema';
+import { removeUndefinedProps } from '@/lib/util';
+import { paginate } from '@/lib/pagination';
 import { session } from '@/lib/session';
 import { ApiError } from '@/lib/error';
 import { db } from '@/lib/db';
@@ -99,4 +101,21 @@ async function deRegister(args: {
   return updated;
 }
 
-export const doctorService = { deRegister, register } as const;
+async function getAll(params: Payload['query']) {
+  return await paginate({
+    async getData({ offset, limit }) {
+      return await db.query.doctor.findMany({
+        orderBy: { createdAt: 'desc', updatedAt: 'desc' },
+        where: removeUndefinedProps(params),
+        offset,
+        limit
+      });
+    },
+    async getTotal() {
+      return await db.$count(s).execute();
+    },
+    ...params
+  });
+}
+
+export const doctorService = { deRegister, register, getAll } as const;

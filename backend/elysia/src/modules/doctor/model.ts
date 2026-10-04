@@ -37,11 +37,6 @@ const schedule = z.toZod<SchemaSelect['schedule']>()(
   )
 );
 
-const specialization = z.toZod<SchemaSelect['specialization']>()(
-  z.object(
-    { ...schema.timestamps().shape, name: schema.string('name') },
-    'specialization should be valid object.'
-  )
-);
+const paginatedDoctors = schema.pagination(doctor);
 
-export const model = { specialization, schedule, doctor } as const;
+export const model = { paginatedDoctors, schedule, doctor } as const;

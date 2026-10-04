@@ -2,6 +2,7 @@ import z from 'zod';
 
 import type { ModelType } from '@/lib/util/types';
 
+import { model as sm } from '@/modules/specialization/model';
 import { type SchemaSelect, Gender } from '@/lib/db/schema';
 import { model as dm } from '@/modules/doctor/model';
 import { schema } from '@/lib/util/schema';
@@ -59,7 +60,7 @@ const user = $user.extend({
   doctor: dm.doctor
     .extend({
       specializations: z
-        .array(dm.specialization, 'specializations should be a valid array.')
+        .array(sm.specialization, 'specializations should be a valid array.')
         .nullish(),
       schedule: z
         .array(dm.schedule, 'schedule should be a valid array.')

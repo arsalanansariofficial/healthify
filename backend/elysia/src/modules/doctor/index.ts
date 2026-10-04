@@ -10,21 +10,15 @@ export const doctorRoutes = new Elysia({
   prefix: '/doctors'
 })
   .use(loadAuthContext)
-  .get(
-    '/de-register',
-    async ({ request: { headers }, user, set }) =>
-      await doctorService.deRegister({ headers, user, set }),
-    { response: model.user }
-  )
-  .post(
+  .patch(
     '/register',
     async ({ request: { headers }, user, body, set }) =>
       await doctorService.register({ payload: body, headers, user, set }),
     { body: payload.register, response: model.user }
   )
-  .post(
-    '/update',
-    async ({ request: { headers }, user, body, set }) =>
-      await doctorService.update({ payload: body, headers, user, set }),
-    { body: payload.register, response: model.user }
+  .delete(
+    '/de-register',
+    async ({ request: { headers }, user, set }) =>
+      await doctorService.deRegister({ headers, user, set }),
+    { response: model.user }
   );

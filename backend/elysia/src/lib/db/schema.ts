@@ -29,6 +29,11 @@ export enum Gender {
   male = 'male'
 }
 
+export enum Role {
+  doctor = 'doctor',
+  user = 'user'
+}
+
 export type SchemaSelect = {
   [K in keyof typeof schema]: (typeof schema)[K]['$inferSelect'];
 };
@@ -412,7 +417,7 @@ export const relations = defineRelations(
       }),
       user: r.one.user({ from: r.doctor.userId, to: r.user.id }),
       appointments: r.many.appointment(),
-      schedules: r.many.schedule()
+      schedule: r.many.schedule()
     },
     user: {
       appointments: r.many.appointment(),

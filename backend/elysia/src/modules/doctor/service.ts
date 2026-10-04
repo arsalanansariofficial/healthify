@@ -1,21 +1,21 @@
 import type { HTTPHeaders } from 'elysia/types';
 
-import { StatusMap } from 'elysia';
-import { eq } from 'drizzle-orm';
+import { InvertedStatusMap, StatusMap } from 'elysia';
+import { sql, eq } from 'drizzle-orm';
 
 import type { Payload } from '@/modules/doctor/payload';
 import type { Model } from '@/modules/user/model';
 
 import {
-  doctorToSpecialization,
-  schedule,
-  doctor,
-  user
+  doctorToSpecialization as dts,
+  schedule as s,
+  doctor as d,
+  user as u,
+  Role
 } from '@/lib/db/schema';
-import { type Transaction, db } from '@/lib/db';
-import { Role } from '@/modules/user/types';
 import { session } from '@/lib/session';
 import { ApiError } from '@/lib/error';
+import { db } from '@/lib/db';
 
 async function register(args: {
   set: { headers: HTTPHeaders };
@@ -23,118 +23,55 @@ async function register(args: {
   user: Model['user'];
   headers: Headers;
 }) {
-  db.transaction(transaction => {
-    transaction
-      .update(user)
-      .set({ role: Role.doctor })
-      .where(eq(user.id, args.user.id))
+  const { specializations, schedule, doctor } = args.payload;
+  const { headers, user, set } = args;
+
+  db.transaction(tx => {
+    db.delete(dts).where(eq(dts.doctorId, args.user.id)).run();
+    db.delete(s).where(eq(s.doctorId, args.user.id)).run();
+
+    tx.update(u).set({ role: Role.doctor }).where(eq(u.id, user.id)).run();
+    tx.insert(d)
+      .values({ ...doctor, userId: doctor.userId || user.id })
+      .onConflictDoUpdate({ set: args.payload.doctor, target: d.userId })
       .run();
 
-    transaction
-      .insert(doctor)
-      .values({
-        ...args.payload.doctor,
-        userId: args.payload.doctor.userId || args.user.id
-      })
-      .onConflictDoUpdate({ set: args.payload.doctor, target: doctor.userId })
-      .run();
+    const $specializations = tx.query.specialization
+      .findMany({ where: { name: { in: specializations } } })
+      .sync();
 
-    checkSpecializations({
-      specializations: args.payload.specializations,
-      transaction
-    });
+    if (!$specializations.length)
+      throw new ApiError(
+        [{ message: 'Invalid specialization.', path: specializations }],
+        InvertedStatusMap[StatusMap['Bad Request']],
+        StatusMap['Bad Request']
+      );
 
-    db.delete(doctorToSpecialization)
-      .where(eq(doctorToSpecialization.doctorId, args.user.id))
-      .run();
-
-    db.delete(schedule).where(eq(schedule.doctorId, args.user.id)).run();
-
-    args.payload.specializations.forEach(specialization =>
-      transaction
-        .insert(doctorToSpecialization)
-        .values({ doctorId: args.user.id, specialization })
+    $specializations.forEach(({ name }) =>
+      tx
+        .insert(dts)
+        .values({ doctorId: args.user.id, specialization: name })
         .run()
     );
 
-    args.payload.schedule.forEach($schedule => {
-      transaction
-        .insert(schedule)
-        .values({ doctorId: args.user.id, ...$schedule })
+    schedule.forEach(sch => {
+      tx.insert(s)
+        .values({ doctorId: args.user.id, ...sch })
         .run();
     });
   });
 
-  return await updateAndReturn({
-    headers: args.headers,
-    user: args.user,
-    set: args.set
-  });
-}
-
-async function update(args: {
-  set: { headers: HTTPHeaders };
-  payload: Payload['register'];
-  user: Model['user'];
-  headers: Headers;
-}) {
-  db.transaction(transaction => {
-    checkSpecializations({
-      specializations: args.payload.specializations,
-      transaction
-    });
-
-    transaction
-      .delete(doctorToSpecialization)
-      .where(eq(doctorToSpecialization.doctorId, args.user.id))
-      .run();
-
-    transaction
-      .delete(schedule)
-      .where(eq(schedule.doctorId, args.user.id))
-      .run();
-
-    args.payload.specializations.forEach(specialization =>
-      transaction
-        .insert(doctorToSpecialization)
-        .values({ doctorId: args.user.id, specialization })
-        .run()
-    );
-
-    args.payload.schedule.forEach($schedule => {
-      transaction
-        .insert(schedule)
-        .values({ doctorId: args.user.id, ...$schedule })
-        .run();
-    });
+  const updated = await db.query.user.findFirst({
+    with: {
+      doctor: { with: { specializations: true, schedule: true } },
+      profile: true
+    },
+    where: { id: args.user.id }
   });
 
-  return await updateAndReturn({
-    headers: args.headers,
-    user: args.user,
-    set: args.set
-  });
-}
-
-function checkSpecializations(args: {
-  specializations: string[];
-  transaction: Transaction;
-}) {
-  const $specializations = args.transaction.query.specialization
-    .findMany({ where: { name: { in: args.specializations } } })
-    .sync();
-
-  if ($specializations.length !== args.specializations.length)
-    throw new ApiError(
-      [
-        {
-          message: 'One of the speciailizations are invalid.',
-          path: args.specializations
-        }
-      ],
-      'Invalid specialization.',
-      StatusMap['Bad Request']
-    );
+  if (!updated) throw new ApiError();
+  await session.update({ headers, set });
+  return updated;
 }
 
 async function deRegister(args: {
@@ -142,40 +79,24 @@ async function deRegister(args: {
   user: Model['user'];
   headers: Headers;
 }) {
-  db.transaction(transaction => {
-    transaction
-      .update(user)
-      .set({ role: Role.user })
-      .where(eq(user.id, args.user.id))
-      .run();
+  db.run(sql`pragma foreign_keys = on`);
 
-    transaction.delete(doctor).where(eq(doctor.userId, args.user.id)).run();
+  db.transaction(tx => {
+    tx.update(u).set({ role: Role.user }).where(eq(u.id, args.user.id)).run();
+    tx.delete(d).where(eq(d.userId, args.user.id)).run();
   });
 
-  return updateAndReturn({
-    headers: args.headers,
-    user: args.user,
-    set: args.set
-  });
-}
-
-async function updateAndReturn(args: {
-  set: { headers: HTTPHeaders };
-  user: Model['user'];
-  headers: Headers;
-}) {
   const updated = await db.query.user.findFirst({
     with: {
-      doctor: { with: { specializations: true, schedules: true } },
+      doctor: { with: { specializations: true, schedule: true } },
       profile: true
     },
     where: { id: args.user.id }
   });
 
   if (!updated) throw new ApiError();
-
   await session.update({ headers: args.headers, set: args.set });
   return updated;
 }
 
-export const doctorService = { deRegister, register, update } as const;
+export const doctorService = { deRegister, register } as const;

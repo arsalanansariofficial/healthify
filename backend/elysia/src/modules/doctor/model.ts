@@ -10,7 +10,6 @@ export type Model = ModelType<typeof model>;
 const doctor = z.toZod<SchemaSelect['doctor']>()(
   z.object(
     {
-      ...schema.timestamps().shape,
       experienceYears: z.coerce
         .number('experienceYears should be a valid number.')
         .default(0),
@@ -18,7 +17,8 @@ const doctor = z.toZod<SchemaSelect['doctor']>()(
         .number('consultationFee should be a valid number.')
         .default(0),
       licenseNumber: schema.string('licenseNumber'),
-      userId: schema.uuid('userId')
+      userId: schema.uuid('userId'),
+      ...schema.timestamps().shape
     },
     'doctor should be valid object.'
   )
@@ -27,11 +27,11 @@ const doctor = z.toZod<SchemaSelect['doctor']>()(
 const schedule = z.toZod<SchemaSelect['schedule']>()(
   z.object(
     {
-      ...schema.timestamps().shape,
       day: z.enum(Day, `day should be ${Object.values(Day)}.`),
       doctorId: schema.uuid('doctorId'),
       from: schema.time('from'),
-      to: schema.time('to')
+      to: schema.time('to'),
+      ...schema.timestamps().shape
     },
     'schedule should be valid object.'
   )

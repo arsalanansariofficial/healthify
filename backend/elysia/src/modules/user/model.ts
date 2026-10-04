@@ -2,36 +2,15 @@ import z from 'zod';
 
 import type { ModelType } from '@/lib/util/types';
 
-import { model as doctorModel } from '@/modules/doctor/model';
 import { type SchemaSelect, Gender } from '@/lib/db/schema';
+import { model as dm } from '@/modules/doctor/model';
 import { schema } from '@/lib/util/schema';
 
 export type Model = ModelType<typeof model>;
 
-const user = z.toZod<
-  {
-    profile?: SchemaSelect['userProfile'] | null;
-    doctor?: SchemaSelect['doctor'] | null;
-  } & SchemaSelect['user']
->()(
+const $user = z.toZod<SchemaSelect['user']>()(
   z.object(
     {
-      profile: z
-        .object(
-          {
-            gender: z
-              .enum(Gender, `gender should be ${Object.values(Gender)}.`)
-              .nullable(),
-            phoneNumber: schema.string('phoneNumber').nullable(),
-            address: schema.string('address').nullable(),
-            cover: schema.url('cover').nullable(),
-            bio: schema.string('bio').nullable(),
-            userId: schema.uuid('userId'),
-            ...schema.timestamps().shape
-          },
-          'userProfile should be a valid object'
-        )
-        .nullish(),
       phoneNumberVerified: z
         .boolean('phoneNumberVerified should be a valid boolean.')
         .nullable(),
@@ -50,14 +29,44 @@ const user = z.toZod<
       username: schema.string('username').nullable(),
       role: schema.string('role').nullable(),
       image: schema.url('image').nullable(),
-      doctor: doctorModel.doctor.nullish(),
       name: schema.string('name').trim(),
-      ...schema.timestamps().shape,
       email: schema.email(),
-      id: schema.uuid('id')
+      id: schema.uuid('id'),
+      ...schema.timestamps().shape
     },
     'user should be a valid object.'
   )
 );
 
-export const model = { user } as const;
+const userProfile = z.toZod<SchemaSelect['userProfile']>()(
+  z.object(
+    {
+      gender: z
+        .enum(Gender, `gender should be ${Object.values(Gender)}.`)
+        .nullable(),
+      phoneNumber: schema.string('phoneNumber').nullable(),
+      address: schema.string('address').nullable(),
+      cover: schema.url('cover').nullable(),
+      bio: schema.string('bio').nullable(),
+      userId: schema.uuid('userId'),
+      ...schema.timestamps().shape
+    },
+    'userProfile should be a valid object'
+  )
+);
+
+const user = $user.extend({
+  doctor: dm.doctor
+    .extend({
+      specializations: z
+        .array(dm.specialization, 'specializations should be a valid array.')
+        .nullish(),
+      schedule: z
+        .array(dm.schedule, 'schedule should be a valid array.')
+        .nullish()
+    })
+    .nullish(),
+  profile: userProfile.nullish()
+});
+
+export const model = { userProfile, user } as const;

@@ -68,12 +68,10 @@ const verifyPassword = z.object(
 
 const user = z.deepPartial(
   model.user.extend({
-    profile: model.user.shape.profile
-      .unwrap()
-      .unwrap()
+    profile: model.userProfile
       .extend({ cover: schema.fileOrUrl('cover').nullable() })
-      .nullable(),
-    image: schema.fileOrUrl('image').nullable()
+      .nullish(),
+    image: schema.fileOrUrl('image').nullish()
   })
 );
 

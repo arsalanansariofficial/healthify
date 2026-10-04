@@ -17,10 +17,10 @@ export const app = new Elysia({ name: 'App.Routes' })
   .use(staticPlugin())
   .use(errorPlugin)
   .use(cors())
+  .use(publicRoutes)
   .use(specializationRoutes)
   .use(organizationRoutes)
   .use(doctorRoutes)
-  .use(publicRoutes)
   .use(authRoutes)
   .use(userRoutes);
 

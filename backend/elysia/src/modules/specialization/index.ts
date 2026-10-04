@@ -10,10 +10,6 @@ export const specializationRoutes = new Elysia({
   prefix: '/specializations'
 })
   .use(loadAuthContext)
-  .get('/', async ({ query }) => await specializationService.getAll(query), {
-    response: model.paginatedSpecialization,
-    query: payload.query
-  })
   .get(
     '/:name',
     async ({ params: { name } }) => await specializationService.get(name),

@@ -321,6 +321,10 @@ export const doctor = t.snakeCase.table(
       .integer()
       .$default(() => 0)
       .notNull(),
+    rating: t
+      .integer()
+      .$default(() => 0)
+      .notNull(),
     licenseNumber: t.text().notNull(),
     ...timestamps
   },

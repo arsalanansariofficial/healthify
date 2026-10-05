@@ -9,11 +9,13 @@ import { ApiError } from '@/lib/error';
 import { db } from '@/lib/db';
 
 async function getAll(params: Payload['query']) {
+  const { pageSize, page, ...query } = params;
+
   return await paginate({
     async getData({ offset, limit }) {
       return await db.query.specialization.findMany({
         orderBy: { createdAt: 'desc', name: 'desc' },
-        where: params,
+        where: query,
         offset,
         limit
       });
@@ -21,7 +23,8 @@ async function getAll(params: Payload['query']) {
     async getTotal() {
       return await db.$count(s).execute();
     },
-    ...params
+    pageSize,
+    page
   });
 }
 

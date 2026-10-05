@@ -102,11 +102,13 @@ async function deRegister(args: {
 }
 
 async function getAll(params: Payload['query']) {
+  const { pageSize, page, ...query } = params;
+
   return await paginate({
     async getData({ offset, limit }) {
       return await db.query.doctor.findMany({
         orderBy: { createdAt: 'desc', updatedAt: 'desc' },
-        where: removeUndefinedProps(params),
+        where: removeUndefinedProps(query),
         offset,
         limit
       });
@@ -114,7 +116,8 @@ async function getAll(params: Payload['query']) {
     async getTotal() {
       return await db.$count(s).execute();
     },
-    ...params
+    pageSize,
+    page
   });
 }
 

@@ -16,6 +16,7 @@ const doctor = z.toZod<SchemaSelect['doctor']>()(
       consultationFee: z.coerce
         .number('consultationFee should be a valid number.')
         .default(0),
+      rating: z.coerce.number('rating should be a valid number.').default(0),
       licenseNumber: schema.string('licenseNumber'),
       userId: schema.uuid('userId'),
       ...schema.timestamps().shape

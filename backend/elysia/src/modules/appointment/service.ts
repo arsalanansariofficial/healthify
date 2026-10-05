@@ -1,11 +1,11 @@
 import { InvertedStatusMap, StatusMap } from 'elysia';
-import { eq } from 'drizzle-orm';
+import { avg, eq } from 'drizzle-orm';
 
 import type { Payload } from '@/modules/appointment/payload';
 import type { Model } from '@/modules/user/model';
 
+import { appointment as a, Status, doctor, Day } from '@/lib/db/schema';
 import { removeUndefinedProps, containsSomeValue } from '@/lib/util';
-import { appointment as a, Status, Day } from '@/lib/db/schema';
 import { paginate } from '@/lib/pagination';
 import { ApiError } from '@/lib/error';
 import { auth } from '@/lib/auth';
@@ -154,18 +154,29 @@ async function update({
       StatusMap['Bad Request']
     );
 
-  if (containsSomeValue(payload)) {
-    const [updated] = await db
-      .update(a)
-      .set(payload)
-      .where(eq(a.id, id))
-      .returning();
+  if (!containsSomeValue(payload)) return appointment;
 
-    if (!updated) throw new Error('Failed to update appointment status.');
-    return updated;
+  const [updated] = await db
+    .update(a)
+    .set(payload)
+    .where(eq(a.id, id))
+    .returning();
+
+  if (!updated) throw new Error('Failed to update appointment status.');
+
+  if (updated.rating) {
+    const [{ average }] = (await db
+      .select({ average: avg(a.rating) })
+      .from(a)
+      .where(eq(a.doctorId, appointment.doctorId))) as [{ average: string }];
+
+    await db
+      .update(doctor)
+      .set({ rating: Number(average) })
+      .where(eq(doctor.userId, appointment.doctorId));
   }
 
-  return appointment;
+  return updated;
 }
 
 async function create({

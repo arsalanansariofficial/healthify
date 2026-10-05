@@ -332,6 +332,127 @@ function changeQueue({
   });
 }
 
+async function rateAppointment({
+  rating,
+  user,
+  id
+}: {
+  user: Model['user'];
+  rating: number;
+  id: string;
+}) {
+  const error = new Error() as Record<string, unknown> & Error;
+
+  const { success: canRate } = await auth.api.userHasPermission({
+    body: { permissions: { appointment: ['rate'] }, userId: user.id }
+  });
+
+  if (!canRate) {
+    error.message = 'No permission to rate the appointment.';
+    error.statusCode = StatusMap.Forbidden;
+    throw error;
+  }
+
+  const appointment = await db.query.appointment.findFirst({
+    where: { OR: [{ doctorId: user.id }, { patientId: user.id }], id }
+  });
+
+  if (!appointment) {
+    error.message = `Appointment with id ${id} does not exists.`;
+    error.statusCode = StatusMap['Not Found'];
+    throw error;
+  }
+
+  const [hours, minutes] = appointment.from.split(':').map(Number) as [
+    number,
+    number
+  ];
+
+  const appointmentDate = new Date(
+    new Date(appointment.date).setHours(hours, minutes)
+  );
+
+  if (new Date() < appointmentDate) {
+    error.message = 'You can not rate the appointment until it is completed.';
+    error.statusCode = StatusMap['Bad Request'];
+    throw error;
+  }
+
+  const updated = db
+    .update(a)
+    .set({ rating })
+    .where(eq(a.id, id))
+    .returning()
+    .get();
+
+  const average = db
+    .select({ rating: avg(a.rating) })
+    .from(a)
+    .where(eq(a.doctorId, appointment.doctorId))
+    .get();
+
+  db.update(doctor)
+    .set({ rating: Number(average?.rating || 0) })
+    .where(eq(doctor.userId, appointment.doctorId))
+    .run();
+
+  return updated;
+}
+
+async function updateAppointment({
+  payload,
+  user,
+  id
+}: {
+  payload: { prescription?: string | null; notes?: string | null };
+  user: Model['user'];
+  id: string;
+}) {
+  const error = new Error() as Record<string, unknown> & Error;
+
+  const { success: canUpdate } = await auth.api.userHasPermission({
+    body: { permissions: { appointment: ['update'] }, userId: user.id }
+  });
+
+  if (!canUpdate) {
+    error.message = 'No permission to update the appointment.';
+    error.statusCode = StatusMap.Forbidden;
+    throw error;
+  }
+
+  const appointment = await db.query.appointment.findFirst({
+    where: { OR: [{ doctorId: user.id }, { patientId: user.id }], id }
+  });
+
+  if (!appointment) {
+    error.message = `Appointment with id ${id} does not exists.`;
+    error.statusCode = StatusMap['Not Found'];
+    throw error;
+  }
+
+  const [hours, minutes] = appointment.from.split(':').map(Number) as [
+    number,
+    number
+  ];
+
+  const appointmentDate = new Date(
+    new Date(appointment.date).setHours(hours, minutes)
+  );
+
+  if (new Date() < appointmentDate) {
+    error.message = `You can not update appointment until it is completed.`;
+    error.statusCode = StatusMap['Bad Request'];
+    throw error;
+  }
+
+  return db
+    .update(a)
+    .set(removeUndefinedProps(payload))
+    .where(eq(a.id, id))
+    .returning()
+    .get();
+}
+
 async function getAll({
   params,
   user
@@ -375,6 +496,68 @@ async function getAll({
     pageSize,
     page
   });
+}
+
+async function confirm({ user, id }: { user: Model['user']; id: string }) {
+  const error = new Error() as Record<string, unknown> & Error;
+
+  const { success: canConfirm } = await auth.api.userHasPermission({
+    body: { permissions: { appointment: ['confirm'] }, userId: user.id }
+  });
+
+  if (!canConfirm) {
+    error.message = 'No permission to confirm the appointment.';
+    error.statusCode = StatusMap.Forbidden;
+    throw error;
+  }
+
+  const appointment = await db.query.appointment.findFirst({
+    where: { OR: [{ doctorId: user.id }, { patientId: user.id }], id }
+  });
+
+  if (!appointment) {
+    error.message = `Appointment with id ${id} does not exists.`;
+    error.statusCode = StatusMap['Not Found'];
+    throw error;
+  }
+
+  return db
+    .update(a)
+    .set({ status: Status.confirmed })
+    .where(eq(a.id, id))
+    .returning()
+    .get();
+}
+
+async function cancel({ user, id }: { user: Model['user']; id: string }) {
+  const error = new Error() as Record<string, unknown> & Error;
+
+  const { success: canCancel } = await auth.api.userHasPermission({
+    body: { permissions: { appointment: ['cancel'] }, userId: user.id }
+  });
+
+  if (!canCancel) {
+    error.message = 'No permission to cancel the appointment.';
+    error.statusCode = StatusMap.Forbidden;
+    throw error;
+  }
+
+  const appointment = await db.query.appointment.findFirst({
+    where: { OR: [{ doctorId: user.id }, { patientId: user.id }], id }
+  });
+
+  if (!appointment) {
+    error.message = `Appointment with id ${id} does not exists.`;
+    error.statusCode = StatusMap['Not Found'];
+    throw error;
+  }
+
+  return db
+    .update(a)
+    .set({ status: Status.cancelled })
+    .where(eq(a.id, id))
+    .returning()
+    .get();
 }
 
 async function get({ user, id }: { user: Model['user']; id: string }) {
@@ -431,9 +614,13 @@ async function deleteAppointment({
 
 export const appointmentService = {
   deleteAppointment,
+  updateAppointment,
+  rateAppointment,
   changeQueue,
+  confirm,
   update,
   create,
+  cancel,
   getAll,
   get
 } as const;

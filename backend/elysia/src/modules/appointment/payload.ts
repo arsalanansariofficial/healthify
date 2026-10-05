@@ -17,7 +17,8 @@ const appointment = model.appointment.pick({
 const query = model.appointment
   .extend({
     pageSize: z.coerce.number('pageSize should be a valid number.'),
-    page: z.coerce.number('page should be a valid number.')
+    page: z.coerce.number('page should be a valid number.'),
+    rating: model.appointment.shape.rating.unwrap()
   })
   .omit({ patientId: true, doctorId: true })
   .partial();

@@ -22,6 +22,38 @@ export const appointmentRoutes = new Elysia({
       await appointmentService.update({ payload: body, user, id }),
     { response: model.appointment, params: payload.params, body: payload.query }
   )
+  .patch(
+    '/confirm/:id',
+    async ({ params: { id }, user }) =>
+      await appointmentService.confirm({ user, id }),
+    { response: model.appointment, params: payload.params }
+  )
+  .patch(
+    '/cancel/:id',
+    async ({ params: { id }, user }) =>
+      await appointmentService.cancel({ user, id }),
+    { response: model.appointment, params: payload.params }
+  )
+  .patch(
+    '/update/:id',
+    async ({ params: { id }, user, body }) =>
+      await appointmentService.updateAppointment({ payload: body, user, id }),
+    {
+      body: model.appointment.pick({ prescription: true, notes: true }),
+      response: model.appointment,
+      params: payload.params
+    }
+  )
+  .patch(
+    '/rate/:id',
+    async ({ body: { rating }, params: { id }, user }) =>
+      await appointmentService.rateAppointment({ rating, user, id }),
+    {
+      body: payload.query.required({ rating: true }),
+      response: model.appointment,
+      params: payload.params
+    }
+  )
   .get(
     '/:id',
     async ({ params: { id }, user }) =>

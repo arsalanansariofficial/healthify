@@ -22,6 +22,7 @@ const query = model.appointment
   .omit({ patientId: true, doctorId: true })
   .partial();
 
+const changeQueue = model.appointment.pick({ queue: true });
 const params = model.appointment.pick({ id: true });
 
-export const payload = { appointment, params, query } as const;
+export const payload = { changeQueue, appointment, params, query } as const;

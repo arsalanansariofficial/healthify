@@ -28,6 +28,19 @@ export const appointmentRoutes = new Elysia({
       await appointmentService.get({ user, id }),
     { response: model.appointment, params: payload.params }
   )
+  .patch(
+    '/change-queue/:id',
+    ({ params: { id }, body }) =>
+      appointmentService.changeQueue({
+        newQueue: body.queue,
+        appointmentId: id
+      }),
+    {
+      response: model.appointment,
+      body: payload.changeQueue,
+      params: payload.params
+    }
+  )
   .delete(
     '/:id',
     async ({ params: { id }, user }) =>

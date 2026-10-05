@@ -1,5 +1,5 @@
+import { count, and, avg, sql, gte, lte, eq, lt, gt } from 'drizzle-orm';
 import { InvertedStatusMap, StatusMap } from 'elysia';
-import { avg, eq } from 'drizzle-orm';
 
 import type { Payload } from '@/modules/appointment/payload';
 import type { Model } from '@/modules/user/model';
@@ -259,6 +259,79 @@ async function create({
   return appointment;
 }
 
+function changeQueue({
+  appointmentId,
+  newQueue
+}: {
+  appointmentId: string;
+  newQueue: number;
+}) {
+  db.run(sql`pragma foreign_keys = on`);
+
+  return db.transaction(tx => {
+    const currentAppointment = tx.query.appointment
+      .findFirst({ where: { id: appointmentId } })
+      .sync();
+
+    if (!currentAppointment) throw new Error('Appointment not found');
+
+    const oldQueue = currentAppointment.queue;
+
+    if (oldQueue === newQueue) return currentAppointment;
+
+    const { aptCount } = tx
+      .select({ aptCount: count() })
+      .from(a)
+      .where(
+        and(
+          eq(a.doctorId, currentAppointment.doctorId),
+          eq(a.date, currentAppointment.date)
+        )
+      )
+      .orderBy(a.queue)
+      .get() as { aptCount: number };
+
+    if (newQueue > aptCount)
+      throw new Error(`Queue cannot be greater than ${aptCount}`);
+
+    if (newQueue < oldQueue)
+      tx.update(a)
+        .set({ queue: sql`${a.queue} + 1` })
+        .where(
+          and(
+            eq(a.doctorId, currentAppointment.doctorId),
+            eq(a.date, currentAppointment.date),
+            gte(a.queue, newQueue),
+            lt(a.queue, oldQueue)
+          )
+        )
+        .run();
+
+    if (newQueue > oldQueue)
+      tx.update(a)
+        .set({ queue: sql`${a.queue} - 1` })
+        .where(
+          and(
+            eq(a.doctorId, currentAppointment.doctorId),
+            eq(a.date, currentAppointment.date),
+            gt(a.queue, oldQueue),
+            lte(a.queue, newQueue)
+          )
+        )
+        .run();
+
+    const updated = tx
+      .update(a)
+      .set({ queue: newQueue })
+      .where(eq(a.id, appointmentId))
+      .returning()
+      .get();
+
+    if (!updated) throw new Error('Failed to updated appointment.');
+    return updated;
+  });
+}
+
 async function getAll({
   params,
   user
@@ -358,6 +431,7 @@ async function deleteAppointment({
 
 export const appointmentService = {
   deleteAppointment,
+  changeQueue,
   update,
   create,
   getAll,

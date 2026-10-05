@@ -62,10 +62,11 @@ export const appointmentRoutes = new Elysia({
   )
   .patch(
     '/change-queue/:id',
-    ({ params: { id }, body }) =>
-      appointmentService.changeQueue({
+    async ({ params: { id }, user, body }) =>
+      await appointmentService.changeQueue({
         newQueue: body.queue,
-        appointmentId: id
+        appointmentId: id,
+        user
       }),
     {
       response: model.appointment,

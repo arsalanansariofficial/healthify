@@ -179,6 +179,93 @@ async function update({
   return updated;
 }
 
+async function changeQueue({
+  appointmentId,
+  newQueue,
+  user
+}: {
+  appointmentId: string;
+  user: Model['user'];
+  newQueue: number;
+}) {
+  const error = new Error() as Record<string, unknown> & Error;
+
+  const { success: canUpdate } = await auth.api.userHasPermission({
+    body: { permissions: { appointment: ['update'] }, userId: user.id }
+  });
+
+  if (!canUpdate) {
+    error.message = 'No permission to update the appointment.';
+    error.statusCode = StatusMap.Forbidden;
+    throw error;
+  }
+
+  db.run(sql`pragma foreign_keys = on`);
+
+  return db.transaction(tx => {
+    const currentAppointment = tx.query.appointment
+      .findFirst({ where: { id: appointmentId } })
+      .sync();
+
+    if (!currentAppointment) throw new Error('Appointment not found');
+
+    const oldQueue = currentAppointment.queue;
+
+    if (oldQueue === newQueue) return currentAppointment;
+
+    const { aptCount } = tx
+      .select({ aptCount: count() })
+      .from(a)
+      .where(
+        and(
+          eq(a.doctorId, currentAppointment.doctorId),
+          eq(a.date, currentAppointment.date)
+        )
+      )
+      .orderBy(a.queue)
+      .get() as { aptCount: number };
+
+    if (newQueue > aptCount)
+      throw new Error(`Queue cannot be greater than ${aptCount}`);
+
+    if (newQueue < oldQueue)
+      tx.update(a)
+        .set({ queue: sql`${a.queue} + 1` })
+        .where(
+          and(
+            eq(a.doctorId, currentAppointment.doctorId),
+            eq(a.date, currentAppointment.date),
+            gte(a.queue, newQueue),
+            lt(a.queue, oldQueue)
+          )
+        )
+        .run();
+
+    if (newQueue > oldQueue)
+      tx.update(a)
+        .set({ queue: sql`${a.queue} - 1` })
+        .where(
+          and(
+            eq(a.doctorId, currentAppointment.doctorId),
+            eq(a.date, currentAppointment.date),
+            gt(a.queue, oldQueue),
+            lte(a.queue, newQueue)
+          )
+        )
+        .run();
+
+    const updated = tx
+      .update(a)
+      .set({ queue: newQueue })
+      .where(eq(a.id, appointmentId))
+      .returning()
+      .get();
+
+    if (!updated) throw new Error('Failed to updated appointment.');
+    return updated;
+  });
+}
+
 async function create({
   payload,
   user
@@ -257,79 +344,6 @@ async function create({
 
   if (!appointment) throw new Error('Failed to create appointment.');
   return appointment;
-}
-
-function changeQueue({
-  appointmentId,
-  newQueue
-}: {
-  appointmentId: string;
-  newQueue: number;
-}) {
-  db.run(sql`pragma foreign_keys = on`);
-
-  return db.transaction(tx => {
-    const currentAppointment = tx.query.appointment
-      .findFirst({ where: { id: appointmentId } })
-      .sync();
-
-    if (!currentAppointment) throw new Error('Appointment not found');
-
-    const oldQueue = currentAppointment.queue;
-
-    if (oldQueue === newQueue) return currentAppointment;
-
-    const { aptCount } = tx
-      .select({ aptCount: count() })
-      .from(a)
-      .where(
-        and(
-          eq(a.doctorId, currentAppointment.doctorId),
-          eq(a.date, currentAppointment.date)
-        )
-      )
-      .orderBy(a.queue)
-      .get() as { aptCount: number };
-
-    if (newQueue > aptCount)
-      throw new Error(`Queue cannot be greater than ${aptCount}`);
-
-    if (newQueue < oldQueue)
-      tx.update(a)
-        .set({ queue: sql`${a.queue} + 1` })
-        .where(
-          and(
-            eq(a.doctorId, currentAppointment.doctorId),
-            eq(a.date, currentAppointment.date),
-            gte(a.queue, newQueue),
-            lt(a.queue, oldQueue)
-          )
-        )
-        .run();
-
-    if (newQueue > oldQueue)
-      tx.update(a)
-        .set({ queue: sql`${a.queue} - 1` })
-        .where(
-          and(
-            eq(a.doctorId, currentAppointment.doctorId),
-            eq(a.date, currentAppointment.date),
-            gt(a.queue, oldQueue),
-            lte(a.queue, newQueue)
-          )
-        )
-        .run();
-
-    const updated = tx
-      .update(a)
-      .set({ queue: newQueue })
-      .where(eq(a.id, appointmentId))
-      .returning()
-      .get();
-
-    if (!updated) throw new Error('Failed to updated appointment.');
-    return updated;
-  });
 }
 
 async function rateAppointment({

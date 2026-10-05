@@ -4,6 +4,7 @@ import { Elysia } from 'elysia';
 
 import { specializationRoutes } from '@/modules/specialization';
 import { organizationRoutes } from '@/modules/organization';
+import { appointmentRoutes } from '@/modules/appointment';
 import { doctorRoutes } from '@/modules/doctor';
 import { publicRoutes } from '@/modules/public';
 import { userRoutes } from '@/modules/user';
@@ -20,6 +21,7 @@ export const app = new Elysia({ name: 'App.Routes' })
   .use(publicRoutes)
   .use(specializationRoutes)
   .use(organizationRoutes)
+  .use(appointmentRoutes)
   .use(doctorRoutes)
   .use(authRoutes)
   .use(userRoutes);

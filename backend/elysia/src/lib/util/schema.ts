@@ -112,12 +112,12 @@ function email() {
     .trim();
 }
 
-function fileOrUrl(attribute: string) {
-  return z.union([url(attribute), file(attribute)]);
+function date(attribute: string) {
+  return z.coerce.date(`${attribute} should be a valid date.`);
 }
 
-function date(attribute: string) {
-  return z.date(`${attribute} should be a valid date.`);
+function fileOrUrl(attribute: string) {
+  return z.union([url(attribute), file(attribute)]);
 }
 
 export const schema = {

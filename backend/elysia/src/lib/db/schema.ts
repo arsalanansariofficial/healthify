@@ -386,7 +386,7 @@ export const appointment = t.snakeCase.table(
     ),
     t
       .unique('ux_appointment_doctor_id_patient_id_date_from_to')
-      .on(table.doctorId, table.patientId, table.date, table.from),
+      .on(table.doctorId, table.patientId, table.date, table.from, table.to),
     t.check('chk_appointment_valid_time', sql`${table.from} < ${table.to}`),
     t.index('fk_appointment_patient_id').on(table.patientId),
     t.index('fk_appointment_doctor_id').on(table.doctorId)

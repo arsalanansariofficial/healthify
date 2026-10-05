@@ -364,13 +364,15 @@ export const appointment = t.snakeCase.table(
       .text()
       .notNull()
       .references(() => user.id, { onDelete: 'cascade' }),
+    status: t.text().$type<Status>().default(Status.pending).notNull(),
     queue: t.integer().notNull(),
     from: t.text().notNull(),
     date: date().notNull(),
     to: t.text().notNull(),
-    presription: t.text(),
+    prescription: t.text(),
     rating: t.integer(),
     notes: t.text(),
+    ...timestamps,
     id
   },
   table => [
@@ -379,7 +381,7 @@ export const appointment = t.snakeCase.table(
       sql`${table.rating} between 1 and 5`
     ),
     t
-      .index('ux_appointment_doctor_id_patient_id_date_from_to')
+      .unique('ux_appointment_doctor_id_patient_id_date_from_to')
       .on(table.doctorId, table.patientId, table.date, table.from),
     t.check('chk_appointment_valid_time', sql`${table.from} < ${table.to}`),
     t.index('fk_appointment_patient_id').on(table.patientId),

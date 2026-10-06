@@ -67,7 +67,6 @@ export default defineConfig([
       'no-restricted-imports': 'error',
       'no-unused-expressions': 'error',
       'no-useless-assignment': 'error',
-      'prefer-arrow-callback': 'error',
       'prefer-object-has-own': 'error',
       'prefer-regex-literals': 'error',
       'no-array-constructor': 'error',

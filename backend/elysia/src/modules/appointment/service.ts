@@ -197,24 +197,24 @@ async function create(params: {
 
 async function update(params: {
   body: Payload['update'];
+  params: Payload['id'];
   user: Model['user'];
 }) {
-  const { user, body } = params;
-
   const { success: canUpdate } = await auth.api.userHasPermission({
-    body: { permissions: { appointment: ['update'] }, userId: user.id }
+    body: { permissions: { appointment: ['update'] }, userId: params.user.id }
   });
 
   if (!canUpdate) throw new ApiError('Permission denied.', 'Forbidden');
-
-  if (!body || !body?.id) throw new ApiError('Invalid updates.');
+  if (!params.body) throw new ApiError('Invalid updates.');
 
   const appointment = await db.query.appointment.findFirst({
-    where: { OR: [{ doctorId: user.id }, { patientId: user.id }], id: body.id }
+    where: { id: params.params.id }
   });
 
   if (!appointment)
-    throw new ApiError(`Appointment with id ${body.id} does not exists.`);
+    throw new ApiError(
+      `Appointment with id ${params.params.id} does not exists.`
+    );
 
   const [hours, minutes] = appointment.from.split(':').map(Number) as [
     number,
@@ -230,8 +230,8 @@ async function update(params: {
 
   return db
     .update(schema.appointment)
-    .set(body)
-    .where(eq(schema.appointment.id, body.id))
+    .set(params.body)
+    .where(eq(schema.appointment.id, params.params.id))
     .returning()
     .get();
 }

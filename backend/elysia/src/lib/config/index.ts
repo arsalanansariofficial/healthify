@@ -1,6 +1,5 @@
 import z from 'zod';
 
-
 declare module 'bun' {
   interface Env {
     NODE_ENV?: 'development' | 'production' | undefined | string | 'test';

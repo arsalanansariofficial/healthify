@@ -50,6 +50,7 @@ export const appointmentRoutes = new Elysia({
     '/:id',
     async function (params) {
       return await appointmentService.update({
+        params: params.params,
         body: params.body,
         user: params.user
       });

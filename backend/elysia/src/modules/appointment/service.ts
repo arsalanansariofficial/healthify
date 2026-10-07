@@ -3,24 +3,20 @@ import { InvertedStatusMap, StatusMap } from 'elysia';
 
 import type { Payload } from '@/modules/appointment/payload';
 import type { Model } from '@/modules/user/model';
+import type { Schema } from '@/lib/util/schema';
 
-import { appointment as a, Status, doctor, Day } from '@/lib/db/schema';
-import { removeUndefinedProps } from '@/lib/util';
+import { Status, schema, Day } from '@/lib/db/schema';
 import { paginate } from '@/lib/pagination';
 import { ApiError } from '@/lib/error';
 import { auth } from '@/lib/auth';
 import { db } from '@/lib/db';
 
-async function changeQueue({
-  appointmentId,
-  newQueue,
-  user
-}: {
-  appointmentId: string;
+async function changeQueue(params: {
+  body: Payload['changeQueue'];
   user: Model['user'];
-  newQueue: number;
 }) {
   const error = new Error() as Record<string, unknown> & Error;
+  const { user, body } = params;
 
   const { success: canUpdate } = await auth.api.userHasPermission({
     body: { permissions: { appointment: ['update'] }, userId: user.id }
@@ -36,60 +32,60 @@ async function changeQueue({
 
   return db.transaction(tx => {
     const currentAppointment = tx.query.appointment
-      .findFirst({ where: { id: appointmentId } })
+      .findFirst({ where: { id: body.id } })
       .sync();
 
     if (!currentAppointment) throw new Error('Appointment not found');
 
     const oldQueue = currentAppointment.queue;
 
-    if (oldQueue === newQueue) return currentAppointment;
+    if (oldQueue === body.queue) return currentAppointment;
 
     const { aptCount } = tx
       .select({ aptCount: count() })
-      .from(a)
+      .from(schema.appointment)
       .where(
         and(
-          eq(a.doctorId, currentAppointment.doctorId),
-          eq(a.date, currentAppointment.date)
+          eq(schema.appointment.doctorId, currentAppointment.doctorId),
+          eq(schema.appointment.date, currentAppointment.date)
         )
       )
-      .orderBy(a.queue)
+      .orderBy(schema.appointment.queue)
       .get() as { aptCount: number };
 
-    if (newQueue > aptCount)
+    if (body.queue > aptCount)
       throw new Error(`Queue cannot be greater than ${aptCount}`);
 
-    if (newQueue < oldQueue)
-      tx.update(a)
-        .set({ queue: sql`${a.queue} + 1` })
+    if (body.queue < oldQueue)
+      tx.update(schema.appointment)
+        .set({ queue: sql`${schema.appointment.queue} + 1` })
         .where(
           and(
-            eq(a.doctorId, currentAppointment.doctorId),
-            eq(a.date, currentAppointment.date),
-            gte(a.queue, newQueue),
-            lt(a.queue, oldQueue)
+            eq(schema.appointment.doctorId, currentAppointment.doctorId),
+            eq(schema.appointment.date, currentAppointment.date),
+            gte(schema.appointment.queue, body.queue),
+            lt(schema.appointment.queue, oldQueue)
           )
         )
         .run();
 
-    if (newQueue > oldQueue)
-      tx.update(a)
-        .set({ queue: sql`${a.queue} - 1` })
+    if (body.queue > oldQueue)
+      tx.update(schema.appointment)
+        .set({ queue: sql`${schema.appointment.queue} - 1` })
         .where(
           and(
-            eq(a.doctorId, currentAppointment.doctorId),
-            eq(a.date, currentAppointment.date),
-            gt(a.queue, oldQueue),
-            lte(a.queue, newQueue)
+            eq(schema.appointment.doctorId, currentAppointment.doctorId),
+            eq(schema.appointment.date, currentAppointment.date),
+            gt(schema.appointment.queue, oldQueue),
+            lte(schema.appointment.queue, body.queue)
           )
         )
         .run();
 
     const updated = tx
-      .update(a)
-      .set({ queue: newQueue })
-      .where(eq(a.id, appointmentId))
+      .update(schema.appointment)
+      .set({ queue: body.queue })
+      .where(eq(schema.appointment.id, body.id))
       .returning()
       .get();
 
@@ -98,13 +94,12 @@ async function changeQueue({
   });
 }
 
-async function create({
-  payload,
-  user
-}: {
-  payload: Payload['appointment'];
+async function create(params: {
+  body: Payload['create'];
   user: Model['user'];
 }) {
+  const { user, body } = params;
+
   const hasPermission = await auth.api.userHasPermission({
     body: { permissions: { appointment: ['create'] }, userId: user.id }
   });
@@ -123,11 +118,11 @@ async function create({
 
   const scheduleExist = await db.query.schedule.findFirst({
     where: {
-      day: payload.date
+      day: body.date
         .toLocaleDateString('en', { weekday: 'long' })
         .toLowerCase() as Day,
-      from: payload.from,
-      to: payload.to
+      from: body.from,
+      to: body.to
     }
   });
 
@@ -136,20 +131,17 @@ async function create({
       [
         {
           message: 'Doctor is not available at this schedule.',
-          path: [payload.from, payload.to]
+          path: [body.from, body.to]
         }
       ],
       InvertedStatusMap[400],
       StatusMap['Bad Request']
     );
 
-  const [hours, minutes] = payload.from.split(':').map(Number) as [
-    number,
-    number
-  ];
+  const [hours, minutes] = body.from.split(':').map(Number) as [number, number];
 
   const appointmentDate = new Date(
-    new Date(payload.date).setHours(hours, minutes)
+    new Date(body.date).setHours(hours, minutes)
   );
 
   if (new Date() > appointmentDate)
@@ -157,7 +149,7 @@ async function create({
       [
         {
           message: 'You can not book appointment in the past.',
-          path: [payload.date.toString()]
+          path: [body.date.toString()]
         }
       ],
       InvertedStatusMap[400],
@@ -166,28 +158,25 @@ async function create({
 
   const appointments = await db
     .select()
-    .from(a)
-    .where(eq(a.date, payload.date));
+    .from(schema.appointment)
+    .where(eq(schema.appointment.date, body.date));
 
   const [appointment] = await db
-    .insert(a)
-    .values({ ...payload, queue: ++appointments.length, patientId: user.id })
+    .insert(schema.appointment)
+    .values({ ...body, queue: ++appointments.length, patientId: user.id })
     .returning();
 
   if (!appointment) throw new Error('Failed to create appointment.');
   return appointment;
 }
 
-async function rateAppointment({
-  rating,
-  user,
-  id
-}: {
+async function rate(params: {
+  body: Payload['rate'];
+  params: Payload['id'];
   user: Model['user'];
-  rating: number;
-  id: string;
 }) {
   const error = new Error() as Record<string, unknown> & Error;
+  const { params: qp, user, body } = params;
 
   const { success: canRate } = await auth.api.userHasPermission({
     body: { permissions: { appointment: ['rate'] }, userId: user.id }
@@ -200,11 +189,11 @@ async function rateAppointment({
   }
 
   const appointment = await db.query.appointment.findFirst({
-    where: { OR: [{ doctorId: user.id }, { patientId: user.id }], id }
+    where: { OR: [{ doctorId: user.id }, { patientId: user.id }], id: qp.id }
   });
 
   if (!appointment) {
-    error.message = `Appointment with id ${id} does not exists.`;
+    error.message = `Appointment with id ${qp.id} does not exists.`;
     error.statusCode = StatusMap['Not Found'];
     throw error;
   }
@@ -225,36 +214,32 @@ async function rateAppointment({
   }
 
   const updated = db
-    .update(a)
-    .set({ rating })
-    .where(eq(a.id, id))
+    .update(schema.appointment)
+    .set(body)
+    .where(eq(schema.appointment.id, qp.id))
     .returning()
     .get();
 
   const average = db
-    .select({ rating: avg(a.rating) })
-    .from(a)
-    .where(eq(a.doctorId, appointment.doctorId))
+    .select({ rating: avg(schema.appointment.rating) })
+    .from(schema.appointment)
+    .where(eq(schema.appointment.doctorId, appointment.doctorId))
     .get();
 
-  db.update(doctor)
+  db.update(schema.doctor)
     .set({ rating: Number(average?.rating || 0) })
-    .where(eq(doctor.userId, appointment.doctorId))
+    .where(eq(schema.doctor.userId, appointment.doctorId))
     .run();
 
   return updated;
 }
 
-async function updateAppointment({
-  payload,
-  user,
-  id
-}: {
-  payload: { prescription?: string | null; notes?: string | null };
+async function update(params: {
+  body: Payload['update'];
   user: Model['user'];
-  id: string;
 }) {
   const error = new Error() as Record<string, unknown> & Error;
+  const { user, body } = params;
 
   const { success: canUpdate } = await auth.api.userHasPermission({
     body: { permissions: { appointment: ['update'] }, userId: user.id }
@@ -266,12 +251,14 @@ async function updateAppointment({
     throw error;
   }
 
+  if (!body || !body?.id) throw error;
+
   const appointment = await db.query.appointment.findFirst({
-    where: { OR: [{ doctorId: user.id }, { patientId: user.id }], id }
+    where: { OR: [{ doctorId: user.id }, { patientId: user.id }], id: body.id }
   });
 
   if (!appointment) {
-    error.message = `Appointment with id ${id} does not exists.`;
+    error.message = `Appointment with id ${body.id} does not exists.`;
     error.statusCode = StatusMap['Not Found'];
     throw error;
   }
@@ -292,20 +279,20 @@ async function updateAppointment({
   }
 
   return db
-    .update(a)
-    .set(removeUndefinedProps(payload))
-    .where(eq(a.id, id))
+    .update(schema.appointment)
+    .set(body)
+    .where(eq(schema.appointment.id, body.id))
     .returning()
     .get();
 }
 
-async function getAll({
-  params,
-  user
-}: {
-  params: Payload['query'];
+async function getAll(params: {
+  query: Schema['pageQuery'];
+  where: Payload['where'];
   user: Model['user'];
 }) {
+  const { where, query, user } = params;
+
   const hasPermission = await auth.api.userHasPermission({
     body: { permissions: { appointment: ['read'] }, userId: user.id }
   });
@@ -322,14 +309,12 @@ async function getAll({
       StatusMap.Forbidden
     );
 
-  const { pageSize, page, ...query } = params;
-
   return await paginate({
     async getData({ offset, limit }) {
       return await db.query.appointment.findMany({
         where: {
           OR: [{ patientId: user.id }, { doctorId: user.id }],
-          ...removeUndefinedProps(query)
+          ...where
         },
         orderBy: { createdAt: 'desc', updatedAt: 'desc' },
         offset,
@@ -337,14 +322,21 @@ async function getAll({
       });
     },
     async getTotal() {
-      return await db.$count(a);
+      return await db.$count(schema.appointment);
     },
-    pageSize,
-    page
+    ...query
   });
 }
 
-async function confirm({ user, id }: { user: Model['user']; id: string }) {
+async function confirm({
+  user,
+  body
+}: {
+  user: Model['user'];
+  body: Payload['id'];
+}) {
+  const { id } = body;
+
   const error = new Error() as Record<string, unknown> & Error;
 
   const { success: canConfirm } = await auth.api.userHasPermission({
@@ -368,14 +360,22 @@ async function confirm({ user, id }: { user: Model['user']; id: string }) {
   }
 
   return db
-    .update(a)
+    .update(schema.appointment)
     .set({ status: Status.confirmed })
-    .where(eq(a.id, id))
+    .where(eq(schema.appointment.id, id))
     .returning()
     .get();
 }
 
-async function cancel({ user, id }: { user: Model['user']; id: string }) {
+async function cancel({
+  user,
+  body
+}: {
+  user: Model['user'];
+  body: Payload['id'];
+}) {
+  const { id } = body;
+
   const error = new Error() as Record<string, unknown> & Error;
 
   const { success: canCancel } = await auth.api.userHasPermission({
@@ -399,14 +399,55 @@ async function cancel({ user, id }: { user: Model['user']; id: string }) {
   }
 
   return db
-    .update(a)
+    .update(schema.appointment)
     .set({ status: Status.cancelled })
-    .where(eq(a.id, id))
+    .where(eq(schema.appointment.id, id))
     .returning()
     .get();
 }
 
-async function get({ user, id }: { user: Model['user']; id: string }) {
+async function deleteAppointment({
+  body,
+  user
+}: {
+  user: Model['user'];
+  body: Payload['id'];
+}) {
+  const { id } = body;
+
+  const hasPermission = await auth.api.userHasPermission({
+    body: { permissions: { appointment: ['delete'] }, userId: user.id }
+  });
+
+  if (!hasPermission.success)
+    throw new ApiError(
+      [
+        {
+          message: 'You do not have permission to delete this appointment.',
+          path: [id]
+        }
+      ],
+      InvertedStatusMap[403],
+      StatusMap.Forbidden
+    );
+
+  const [appointment] = await db
+    .delete(schema.appointment)
+    .where(eq(schema.appointment.id, id))
+    .returning();
+  if (!appointment) throw new Error('Failed to delete the appointment.');
+  return appointment;
+}
+
+async function get({
+  user,
+  body
+}: {
+  user: Model['user'];
+  body: Payload['id'];
+}) {
+  const { id } = body;
+
   const hasPermission = await auth.api.userHasPermission({
     body: { permissions: { appointment: ['read'] }, userId: user.id }
   });
@@ -430,42 +471,14 @@ async function get({ user, id }: { user: Model['user']; id: string }) {
   return appointment;
 }
 
-async function deleteAppointment({
-  user,
-  id
-}: {
-  user: Model['user'];
-  id: string;
-}) {
-  const hasPermission = await auth.api.userHasPermission({
-    body: { permissions: { appointment: ['delete'] }, userId: user.id }
-  });
-
-  if (!hasPermission.success)
-    throw new ApiError(
-      [
-        {
-          message: 'You do not have permission to delete this appointment.',
-          path: [id]
-        }
-      ],
-      InvertedStatusMap[403],
-      StatusMap.Forbidden
-    );
-
-  const [appointment] = await db.delete(a).where(eq(a.id, id)).returning();
-  if (!appointment) throw new Error('Failed to delete the appointment.');
-  return appointment;
-}
-
 export const appointmentService = {
   deleteAppointment,
-  updateAppointment,
-  rateAppointment,
   changeQueue,
   confirm,
+  update,
   create,
   cancel,
   getAll,
+  rate,
   get
 } as const;

@@ -5,13 +5,13 @@ import type { Schema } from '@/lib/util/schema';
 import { isFile } from '@/lib/util';
 import { env } from '@/lib/config';
 
-export async function replace(args: {
+export async function replace(params: {
   replaceWith?: Schema['fileOrUrl'] | null;
   url?: string | null;
 }) {
-  if (args.replaceWith !== undefined && args.url) await remove(args.url);
-  if (isFile(args.replaceWith)) return await upload(args.replaceWith);
-  return args.replaceWith;
+  if (params.replaceWith !== undefined && params.url) await remove(params.url);
+  if (isFile(params.replaceWith)) return await upload(params.replaceWith);
+  return params.replaceWith;
 }
 
 export async function upload(file: File) {

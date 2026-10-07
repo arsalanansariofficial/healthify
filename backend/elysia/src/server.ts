@@ -6,7 +6,6 @@ import { specializationRoutes } from '@/modules/specialization';
 import { organizationRoutes } from '@/modules/organization';
 import { appointmentRoutes } from '@/modules/appointment';
 import { doctorRoutes } from '@/modules/doctor';
-import { publicRoutes } from '@/modules/public';
 import { userRoutes } from '@/modules/user';
 import { errorPlugin } from '@/lib/error';
 import { authRoutes } from '@/lib/auth';
@@ -18,7 +17,6 @@ export const app = new Elysia({ name: 'App.Routes' })
   .use(staticPlugin())
   .use(errorPlugin)
   .use(cors())
-  .use(publicRoutes)
   .use(specializationRoutes)
   .use(organizationRoutes)
   .use(appointmentRoutes)

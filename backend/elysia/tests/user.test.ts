@@ -87,7 +87,7 @@ describe('tests for user resource', () => {
     const { status } = await api.users.me.patch({
       profile: { age: 1 },
       name: 1
-    } as unknown as Payload['user']);
+    } as unknown as Payload['update']);
 
     expect(status).toBe(StatusMap['Unprocessable Content']);
   });

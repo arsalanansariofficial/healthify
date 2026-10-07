@@ -2,81 +2,107 @@ import { Elysia } from 'elysia';
 
 import { appointmentService } from '@/modules/appointment/service';
 import { payload } from '@/modules/appointment/payload';
-import { model } from '@/modules/appointment/model';
 import { loadAuthContext } from '@/lib/auth';
+import { schema } from '@/lib/util/schema';
 
 export const appointmentRoutes = new Elysia({
   name: 'Appointment.Routes',
   prefix: '/appointments'
 })
   .use(loadAuthContext)
-  .patch(
-    '/change-queue/:id',
-    async ({ params: { id }, user, body }) =>
-      await appointmentService.changeQueue({
-        newQueue: body.queue,
-        appointmentId: id,
-        user
-      }),
+  .get(
+    '/',
+    async function (params) {
+      return await appointmentService.getAll({
+        query: params.query,
+        where: params.body,
+        user: params.user
+      });
+    },
     {
-      response: model.appointment,
-      body: payload.changeQueue,
-      params: payload.params
+      response: payload.paginated,
+      query: schema.pageQuery(),
+      body: payload.where
     }
   )
   .patch(
     '/rate/:id',
-    async ({ body: { rating }, params: { id }, user }) =>
-      await appointmentService.rateAppointment({ rating, user, id }),
-    {
-      body: payload.query.required({ rating: true }),
-      response: model.appointment,
-      params: payload.params
-    }
+    async function (params) {
+      return await appointmentService.rate({
+        params: params.params,
+        body: params.body,
+        user: params.user
+      });
+    },
+    { response: payload.read, body: payload.rate, params: payload.id }
+  )
+  .patch(
+    '/change-queue/:id',
+    async function (params) {
+      return await appointmentService.changeQueue({
+        user: params.user,
+        body: params.body
+      });
+    },
+    { body: payload.changeQueue, response: payload.read, params: payload.id }
   )
   .patch(
     '/:id',
-    async ({ params: { id }, user, body }) =>
-      await appointmentService.updateAppointment({ payload: body, user, id }),
-    {
-      body: model.appointment.pick({ prescription: true, notes: true }),
-      response: model.appointment,
-      params: payload.params
-    }
-  )
-  .get(
-    '/',
-    async ({ query, user }) =>
-      await appointmentService.getAll({ params: query, user }),
-    { response: model.paginatedAppointments, query: payload.query }
-  )
-  .post(
-    '/',
-    async ({ user, body }) =>
-      await appointmentService.create({ payload: body, user }),
-    { response: model.appointment, body: payload.appointment }
+    async function (params) {
+      return await appointmentService.update({
+        body: params.body,
+        user: params.user
+      });
+    },
+    { response: payload.read, body: payload.update, params: payload.id }
   )
   .delete(
     '/:id',
-    async ({ params: { id }, user }) =>
-      await appointmentService.deleteAppointment({ user, id }),
-    { response: model.appointment, params: payload.params }
+    async function (params) {
+      return await appointmentService.deleteAppointment({
+        body: params.params,
+        user: params.user
+      });
+    },
+    { response: payload.read, params: payload.id }
+  )
+  .post(
+    '/',
+    async function (params) {
+      return await appointmentService.create({
+        body: params.body,
+        user: params.user
+      });
+    },
+    { response: payload.read, body: payload.create }
   )
   .patch(
     '/confirm/:id',
-    async ({ params: { id }, user }) =>
-      await appointmentService.confirm({ user, id }),
-    { response: model.appointment, params: payload.params }
+    async function (params) {
+      return await appointmentService.confirm({
+        body: params.params,
+        user: params.user
+      });
+    },
+    { response: payload.read, params: payload.id }
   )
   .patch(
     '/cancel/:id',
-    async ({ params: { id }, user }) =>
-      await appointmentService.cancel({ user, id }),
-    { response: model.appointment, params: payload.params }
+    async function (params) {
+      return await appointmentService.cancel({
+        body: params.params,
+        user: params.user
+      });
+    },
+    { response: payload.read, params: payload.id }
   )
   .get(
     '/:id',
-    async ({ params: { id }, user }) =>
-      await appointmentService.get({ user, id }),
-    { response: model.appointment, params: payload.params }
+    async function (params) {
+      return await appointmentService.get({
+        body: params.params,
+        user: params.user
+      });
+    },
+    { response: payload.read, params: payload.id }
   );

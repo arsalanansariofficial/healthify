@@ -1,41 +1,39 @@
-import type { HTTPHeaders } from 'elysia/types';
-
 import { InvertedStatusMap, StatusMap } from 'elysia';
 import { sql, eq } from 'drizzle-orm';
 
 import type { Payload } from '@/modules/doctor/payload';
+import type { WithHeaders } from '@/lib/util/types';
 import type { Model } from '@/modules/user/model';
 
-import {
-  doctorToSpecialization as dts,
-  schedule as s,
-  doctor as d,
-  user as u,
-  Role
-} from '@/lib/db/schema';
-import { removeUndefinedProps } from '@/lib/util';
+import { schema, Role } from '@/lib/db/schema';
 import { paginate } from '@/lib/pagination';
 import { session } from '@/lib/session';
 import { ApiError } from '@/lib/error';
 import { db } from '@/lib/db';
 
-async function register(args: {
-  set: { headers: HTTPHeaders };
-  payload: Payload['register'];
-  user: Model['user'];
-  headers: Headers;
-}) {
-  const { specializations, schedule, doctor } = args.payload;
-  const { headers, user, set } = args;
+async function register(
+  params: WithHeaders<{ body: Payload['create']; user: Model['user'] }>
+) {
+  const { specializations, schedule, doctor } = params.body;
+  const { headers, user, set } = params;
 
   db.transaction(tx => {
-    db.delete(dts).where(eq(dts.doctorId, args.user.id)).run();
-    db.delete(s).where(eq(s.doctorId, args.user.id)).run();
+    db.delete(schema.doctorToSpecialization)
+      .where(eq(schema.doctorToSpecialization.doctorId, params.user.id))
+      .run();
 
-    tx.update(u).set({ role: Role.doctor }).where(eq(u.id, user.id)).run();
-    tx.insert(d)
+    db.delete(schema.schedule)
+      .where(eq(schema.schedule.doctorId, params.user.id))
+      .run();
+
+    tx.update(schema.user)
+      .set({ role: Role.doctor })
+      .where(eq(schema.user.id, user.id))
+      .run();
+
+    tx.insert(schema.doctor)
       .values({ ...doctor, userId: doctor.userId || user.id })
-      .onConflictDoUpdate({ set: args.payload.doctor, target: d.userId })
+      .onConflictDoUpdate({ target: schema.doctor.userId, set: doctor })
       .run();
 
     const $specializations = tx.query.specialization
@@ -51,14 +49,14 @@ async function register(args: {
 
     $specializations.forEach(({ name }) =>
       tx
-        .insert(dts)
-        .values({ doctorId: args.user.id, specialization: name })
+        .insert(schema.doctorToSpecialization)
+        .values({ doctorId: params.user.id, specialization: name })
         .run()
     );
 
-    schedule.forEach(sch => {
-      tx.insert(s)
-        .values({ doctorId: args.user.id, ...sch })
+    schedule.forEach(schedule => {
+      tx.insert(schema.schedule)
+        .values({ doctorId: params.user.id, ...schedule })
         .run();
     });
   });
@@ -68,7 +66,7 @@ async function register(args: {
       doctor: { with: { specializations: true, schedule: true } },
       profile: true
     },
-    where: { id: args.user.id }
+    where: { id: params.user.id }
   });
 
   if (!updated) throw new ApiError();
@@ -76,16 +74,18 @@ async function register(args: {
   return updated;
 }
 
-async function deRegister(args: {
-  set: { headers: HTTPHeaders };
-  user: Model['user'];
-  headers: Headers;
-}) {
+async function deRegister(params: WithHeaders<{ user: Model['user'] }>) {
   db.run(sql`pragma foreign_keys = on`);
 
   db.transaction(tx => {
-    tx.update(u).set({ role: Role.user }).where(eq(u.id, args.user.id)).run();
-    tx.delete(d).where(eq(d.userId, args.user.id)).run();
+    tx.update(schema.user)
+      .set({ role: Role.user })
+      .where(eq(schema.user.id, params.user.id))
+      .run();
+
+    tx.delete(schema.doctor)
+      .where(eq(schema.doctor.userId, params.user.id))
+      .run();
   });
 
   const updated = await db.query.user.findFirst({
@@ -93,32 +93,32 @@ async function deRegister(args: {
       doctor: { with: { specializations: true, schedule: true } },
       profile: true
     },
-    where: { id: args.user.id }
+    where: { id: params.user.id }
   });
 
   if (!updated) throw new ApiError();
-  await session.update({ headers: args.headers, set: args.set });
+  await session.update({ headers: params.headers, set: params.set });
   return updated;
 }
 
-async function getAll(params: Payload['query']) {
-  const { pageSize, page, ...query } = params;
+async function getAll(params: { where: Payload['where'] }) {
+  const { pageSize, page, ...where } = params.where;
 
   return await paginate({
     async getData({ offset, limit }) {
       return await db.query.doctor.findMany({
         orderBy: { createdAt: 'desc', updatedAt: 'desc' },
-        where: removeUndefinedProps(query),
         offset,
+        where,
         limit
       });
     },
     async getTotal() {
-      return await db.$count(s).execute();
+      return await db.$count(schema.schedule).execute();
     },
     pageSize,
     page
   });
 }
 
-export const doctorService = { deRegister, register, getAll } as const;
+export const doctorService = { deRegister, register, getAll };

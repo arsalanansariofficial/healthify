@@ -393,108 +393,6 @@ export const appointment = t.snakeCase.table(
   ]
 );
 
-export const relations = defineRelations(
-  {
-    doctorToSpecialization,
-    organizationRole,
-    specialization,
-    organization,
-    verification,
-    appointment,
-    userProfile,
-    teamMember,
-    invitation,
-    twoFactor,
-    schedule,
-    account,
-    session,
-    doctor,
-    member,
-    user,
-    team
-  },
-  r => ({
-    doctor: {
-      specializations: r.many.specialization({
-        to: r.specialization.name.through(
-          r.doctorToSpecialization.specialization
-        ),
-        from: r.doctor.userId.through(r.doctorToSpecialization.doctorId)
-      }),
-      user: r.one.user({ from: r.doctor.userId, to: r.user.id }),
-      appointments: r.many.appointment(),
-      schedule: r.many.schedule()
-    },
-    user: {
-      appointments: r.many.appointment(),
-      invitations: r.many.invitation(),
-      teamMembers: r.many.teamMember(),
-      TwoFactor: r.many.twoFactor(),
-      profile: r.one.userProfile(),
-      sessions: r.many.session(),
-      accounts: r.many.account(),
-      members: r.many.member(),
-      doctor: r.one.doctor()
-    },
-    invitation: {
-      organization: r.one.organization({
-        from: r.invitation.organizationId,
-        to: r.organization.id
-      }),
-      inviter: r.one.user({ from: r.invitation.inviterId, to: r.user.id })
-    },
-    appointment: {
-      doctor: r.one.doctor({
-        from: r.appointment.doctorId,
-        to: r.doctor.userId
-      }),
-      patient: r.one.user({ from: r.appointment.patientId, to: r.user.id })
-    },
-    member: {
-      organization: r.one.organization({
-        from: r.member.organizationId,
-        to: r.organization.id
-      }),
-      user: r.one.user({ from: r.member.userId, to: r.user.id })
-    },
-    organization: {
-      organizationRoles: r.many.organizationRole(),
-      invitations: r.many.invitation(),
-      members: r.many.member(),
-      teams: r.many.team()
-    },
-    team: {
-      organization: r.one.organization({
-        from: r.team.organizationId,
-        to: r.organization.id
-      }),
-      teamMembers: r.many.teamMember()
-    },
-    teamMember: {
-      user: r.one.user({ from: r.teamMember.userId, to: r.user.id }),
-      team: r.one.team({ from: r.teamMember.teamId, to: r.team.id })
-    },
-    organizationRole: {
-      organization: r.one.organization({
-        from: r.organizationRole.organizationId,
-        to: r.organization.id
-      })
-    },
-    schedule: {
-      doctor: r.one.doctor({ from: r.schedule.doctorId, to: r.doctor.userId })
-    },
-    userProfile: {
-      User: r.one.user({ from: r.userProfile.userId, to: r.user.id })
-    },
-    twoFactor: {
-      user: r.one.user({ from: r.twoFactor.userId, to: r.user.id })
-    },
-    session: { user: r.one.user({ from: r.session.userId, to: r.user.id }) },
-    account: { user: r.one.user({ from: r.account.userId, to: r.user.id }) },
-    specialization: { doctors: r.many.doctor() }
-  })
-);
-
 export const schema = {
   doctorToSpecialization,
   organizationRole,
@@ -514,3 +412,79 @@ export const schema = {
   user,
   team
 };
+
+export const relations = defineRelations(schema, r => ({
+  doctor: {
+    specializations: r.many.specialization({
+      to: r.specialization.name.through(
+        r.doctorToSpecialization.specialization
+      ),
+      from: r.doctor.userId.through(r.doctorToSpecialization.doctorId)
+    }),
+    user: r.one.user({ from: r.doctor.userId, to: r.user.id }),
+    appointments: r.many.appointment(),
+    schedule: r.many.schedule()
+  },
+  user: {
+    appointments: r.many.appointment(),
+    invitations: r.many.invitation(),
+    teamMembers: r.many.teamMember(),
+    TwoFactor: r.many.twoFactor(),
+    profile: r.one.userProfile(),
+    sessions: r.many.session(),
+    accounts: r.many.account(),
+    members: r.many.member(),
+    doctor: r.one.doctor()
+  },
+  invitation: {
+    organization: r.one.organization({
+      from: r.invitation.organizationId,
+      to: r.organization.id
+    }),
+    inviter: r.one.user({ from: r.invitation.inviterId, to: r.user.id })
+  },
+  member: {
+    organization: r.one.organization({
+      from: r.member.organizationId,
+      to: r.organization.id
+    }),
+    user: r.one.user({ from: r.member.userId, to: r.user.id })
+  },
+  appointment: {
+    doctor: r.one.doctor({ from: r.appointment.doctorId, to: r.doctor.userId }),
+    patient: r.one.user({ from: r.appointment.patientId, to: r.user.id })
+  },
+  organization: {
+    organizationRoles: r.many.organizationRole(),
+    invitations: r.many.invitation(),
+    members: r.many.member(),
+    teams: r.many.team()
+  },
+  team: {
+    organization: r.one.organization({
+      from: r.team.organizationId,
+      to: r.organization.id
+    }),
+    teamMembers: r.many.teamMember()
+  },
+  teamMember: {
+    user: r.one.user({ from: r.teamMember.userId, to: r.user.id }),
+    team: r.one.team({ from: r.teamMember.teamId, to: r.team.id })
+  },
+  organizationRole: {
+    organization: r.one.organization({
+      from: r.organizationRole.organizationId,
+      to: r.organization.id
+    })
+  },
+  schedule: {
+    doctor: r.one.doctor({ from: r.schedule.doctorId, to: r.doctor.userId })
+  },
+  userProfile: {
+    User: r.one.user({ from: r.userProfile.userId, to: r.user.id })
+  },
+  twoFactor: { user: r.one.user({ from: r.twoFactor.userId, to: r.user.id }) },
+  session: { user: r.one.user({ from: r.session.userId, to: r.user.id }) },
+  account: { user: r.one.user({ from: r.account.userId, to: r.user.id }) },
+  specialization: { doctors: r.many.doctor() }
+}));

@@ -9,16 +9,34 @@ export const doctorRoutes = new Elysia({
   name: 'Doctor.Routes',
   prefix: '/doctors'
 })
+  .get(
+    '/',
+    async function (params) {
+      return await doctorService.getAll({ where: params.query });
+    },
+    { response: payload.paginate, query: payload.where }
+  )
   .use(loadAuthContext)
   .patch(
     '/register',
-    async ({ request: { headers }, user, body, set }) =>
-      await doctorService.register({ payload: body, headers, user, set }),
-    { body: payload.register, response: model.user }
+    async function (params) {
+      return await doctorService.register({
+        headers: params.request.headers,
+        body: params.body,
+        user: params.user,
+        set: params.set
+      });
+    },
+    { response: model.user, body: payload.create }
   )
   .delete(
     '/de-register',
-    async ({ request: { headers }, user, set }) =>
-      await doctorService.deRegister({ headers, user, set }),
+    async function (params) {
+      return await doctorService.deRegister({
+        headers: params.request.headers,
+        user: params.user,
+        set: params.set
+      });
+    },
     { response: model.user }
   );

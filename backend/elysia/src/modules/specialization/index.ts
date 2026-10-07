@@ -2,38 +2,50 @@ import { Elysia } from 'elysia';
 
 import { specializationService } from '@/modules/specialization/service';
 import { payload } from '@/modules/specialization/payload';
-import { model } from '@/modules/specialization/model';
 import { loadAuthContext } from '@/lib/auth';
 
 export const specializationRoutes = new Elysia({
   name: 'Specialization.Routes',
   prefix: '/specializations'
 })
-  .use(loadAuthContext)
   .get(
-    '/:name',
-    async ({ params: { name } }) => await specializationService.get(name),
-    { response: model.specialization, params: payload.params }
-  )
-  .post(
     '/',
-    async ({ user, body }) =>
-      await specializationService.insert({ payload: body, user }),
-    { response: model.specialization, body: payload.specialization }
+    async function (params) {
+      return await specializationService.getAll({ where: params.query });
+    },
+    { response: payload.paginate, query: payload.where }
   )
+  .use(loadAuthContext)
   .patch(
     '/:name',
-    async ({ params: { name }, user, body }) =>
-      await specializationService.update({ payload: body, user, name }),
-    {
-      response: model.specialization,
-      body: payload.specialization,
-      params: payload.params
-    }
+    async function (params) {
+      return await specializationService.update({
+        params: params.params,
+        body: params.body
+      });
+    },
+    { response: payload.read, body: payload.update, params: payload.name }
   )
   .delete(
     '/:name',
-    async ({ params: { name } }) =>
-      await specializationService.deleteSpecialization(name),
-    { response: model.specialization, params: payload.params }
+    function (params) {
+      return specializationService.deleteSpecialization({
+        params: params.params
+      });
+    },
+    { response: payload.read, params: payload.name }
+  )
+  .get(
+    '/:name',
+    async function (params) {
+      return await specializationService.get({ params: params.params });
+    },
+    { response: payload.read, params: payload.name }
+  )
+  .post(
+    '/',
+    function (params) {
+      return specializationService.create({ body: params.body });
+    },
+    { response: payload.read, body: payload.create }
   );

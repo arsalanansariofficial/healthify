@@ -1,4 +1,3 @@
-import { InvertedStatusMap, StatusMap } from 'elysia';
 import { sql, eq } from 'drizzle-orm';
 
 import type { Payload } from '@/modules/doctor/payload';
@@ -40,12 +39,7 @@ async function register(
       .findMany({ where: { name: { in: specializations } } })
       .sync();
 
-    if (!$specializations.length)
-      throw new ApiError(
-        [{ message: 'Invalid specialization.', path: specializations }],
-        InvertedStatusMap[StatusMap['Bad Request']],
-        StatusMap['Bad Request']
-      );
+    if (!$specializations.length) throw new ApiError('Invalid specialization.');
 
     $specializations.forEach(({ name }) =>
       tx
@@ -69,7 +63,12 @@ async function register(
     where: { id: params.user.id }
   });
 
-  if (!updated) throw new ApiError();
+  if (!updated)
+    throw new ApiError(
+      'Failed to update appointment.',
+      'Internal Server Error'
+    );
+
   await session.update({ headers, set });
   return updated;
 }
@@ -96,7 +95,12 @@ async function deRegister(params: WithHeaders<{ user: Model['user'] }>) {
     where: { id: params.user.id }
   });
 
-  if (!updated) throw new ApiError();
+  if (!updated)
+    throw new ApiError(
+      'Failed to update appointment.',
+      'Internal Server Error'
+    );
+
   await session.update({ headers: params.headers, set: params.set });
   return updated;
 }

@@ -11,15 +11,15 @@ import {
   admin
 } from 'better-auth/plugins';
 import { drizzleAdapter } from '@better-auth/drizzle-adapter/relations-v2';
-import { APIError as BetterAuthError, betterAuth } from 'better-auth';
-import { StatusMap, Elysia } from 'elysia';
+import { betterAuth } from 'better-auth';
+import { Elysia } from 'elysia';
 
 import type { Model } from '@/modules/user/model';
 
-import { hasValidAuthMethod, isFileError, mailer } from '@/lib/util';
-import { UnauthorizedError, ApiError } from '@/lib/error';
+import { hasValidAuthMethod, mailer } from '@/lib/util';
 import { permissions } from '@/lib/auth/permissions';
 import { schema } from '@/lib/db/schema';
+import { ApiError } from '@/lib/error';
 import { remove } from '@/lib/file';
 import { env } from '@/lib/config';
 import { db } from '@/lib/db';
@@ -90,23 +90,12 @@ export const auth = betterAuth({
   user: {
     deleteUser: {
       async beforeDelete(user) {
-        try {
-          const profile = await db.query.userProfile.findFirst({
-            where: { userId: user.id }
-          });
+        const profile = await db.query.userProfile.findFirst({
+          where: { userId: user.id }
+        });
 
-          if (user.image) await remove(user.image);
-          if (profile?.cover) await remove(profile.cover);
-        } catch (error) {
-          if (error instanceof Error && isFileError(error))
-            throw new BetterAuthError(StatusMap['Bad Request'], {
-              ...new ApiError(
-                [{ path: [error.path as string], message: error.message }],
-                error.code,
-                StatusMap['Bad Request']
-              )
-            });
-        }
+        if (profile?.cover) await remove(profile.cover);
+        if (user.image) await remove(user.image);
       },
       enabled: true,
       ...(env.NODE_ENV !== 'test' && {
@@ -185,7 +174,8 @@ export const auth = betterAuth({
 export const loadAuthContext = new Elysia({ name: 'AuthContext.Plugin' })
   .resolve(async ({ request }) => {
     const session = await auth.api.getSession({ headers: request.headers });
-    if (!session) throw new UnauthorizedError();
+    if (!session)
+      throw new ApiError('Please login to continue.', 'Unauthorized');
     return {
       user: {
         ...session.user,
@@ -200,13 +190,13 @@ export const loadAuthContext = new Elysia({ name: 'AuthContext.Plugin' })
 
 export const authRoutes = new Elysia({ name: 'BetterAuth.Routes' }).all(
   '/api/auth/*',
-  ({ request, path }) => {
-    const method = request.method.toLowerCase();
-    if (hasValidAuthMethod(method)) return auth.handler(request);
+  function (params) {
+    if (hasValidAuthMethod(params.request.method))
+      return auth.handler(params.request);
+
     throw new ApiError(
-      [{ message: `Method: ${method}, is not allowed.`, path: [path] }],
-      'Method not allowed.',
-      StatusMap['Method Not Allowed']
+      `Allowed methods includes 'POST' | 'GET'.`,
+      'Method Not Allowed'
     );
   }
 );

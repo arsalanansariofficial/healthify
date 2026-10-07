@@ -7,6 +7,34 @@ import { schema } from '@/lib/db/schema';
 import { ApiError } from '@/lib/error';
 import { db } from '@/lib/db';
 
+async function update(params: {
+  body: Payload['update'];
+  params: Payload['name'];
+}) {
+  const { params: p, body } = params;
+
+  if (!body) {
+    const specialization = await db.query.specialization.findFirst({
+      where: { name: p.name }
+    });
+
+    if (!specialization)
+      throw new ApiError(
+        'Failed to update specialization.',
+        'Internal Server Error'
+      );
+
+    return specialization;
+  }
+
+  return db
+    .update(schema.specialization)
+    .set(body)
+    .where(eq(schema.specialization.name, p.name))
+    .returning()
+    .get();
+}
+
 async function getAll(params: { where: Payload['where'] }) {
   const { pageSize, page, ...where } = params.where;
 
@@ -27,29 +55,6 @@ async function getAll(params: { where: Payload['where'] }) {
   });
 }
 
-async function update(params: {
-  body: Payload['update'];
-  params: Payload['name'];
-}) {
-  const { params: p, body } = params;
-
-  if (!body) {
-    const specialization = await db.query.specialization.findFirst({
-      where: { name: p.name }
-    });
-
-    if (!specialization) throw new Error();
-    return specialization;
-  }
-
-  return db
-    .update(schema.specialization)
-    .set(body)
-    .where(eq(schema.specialization.name, p.name))
-    .returning()
-    .get();
-}
-
 function deleteSpecialization(params: { params: Payload['name'] }) {
   const specialization = db
     .delete(schema.specialization)
@@ -57,7 +62,12 @@ function deleteSpecialization(params: { params: Payload['name'] }) {
     .returning()
     .get();
 
-  if (!specialization) throw new Error();
+  if (!specialization)
+    throw new ApiError(
+      'Failed to delte specialization.',
+      'Internal Server Error'
+    );
+
   return specialization;
 }
 
@@ -66,7 +76,12 @@ async function get(params: { params: Payload['name'] }) {
     where: params.params
   });
 
-  if (!specialization) throw new ApiError();
+  if (!specialization)
+    throw new ApiError(
+      'Failed to fetch specialization details.',
+      'Internal Server Error'
+    );
+
   return specialization;
 }
 

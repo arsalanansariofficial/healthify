@@ -1,5 +1,6 @@
 import z from 'zod';
 
+
 declare module 'bun' {
   interface Env {
     NODE_ENV?: 'development' | 'production' | undefined | string | 'test';
@@ -222,3 +223,4 @@ export const envSchema = z.object(
 );
 
 export const env = envSchema.parse(process.env);
+export type Env = z.infer<typeof envSchema>;

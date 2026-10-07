@@ -89,7 +89,7 @@ describe('tests for user resource', () => {
       name: 1
     } as unknown as Payload['update']);
 
-    expect(status).toBe(StatusMap['Unprocessable Content']);
+    expect(status).toBe(StatusMap['Bad Request']);
   });
 
   test('should not login a non existing user', async () => {

@@ -3,7 +3,7 @@ import os from 'node:os';
 
 import type { FactoryResults, WhereTuple, NonNullish } from '@/lib/util/types';
 
-import { env } from '@/lib/config';
+import { type Env, env } from '@/lib/config';
 
 export const mailer = nodemailer.createTransport(env.SMTP_URL);
 
@@ -65,7 +65,9 @@ export function toPositiveInteger(value: unknown, fallback: number) {
 }
 
 export function hasValidAuthMethod(method: string) {
-  return env.BETTER_AUTH_ACCEPT_METHODS.includes(method as 'post' | 'get');
+  return env.BETTER_AUTH_ACCEPT_METHODS.includes(
+    method.toLowerCase() as Env['BETTER_AUTH_ACCEPT_METHODS'][number]
+  );
 }
 
 export function isFile(payload?: string | File | null): payload is File {

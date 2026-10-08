@@ -68,10 +68,7 @@ export const id = t
   .$default(() => Bun.randomUUIDv7());
 
 export const user = t.snakeCase.table('user', {
-  emailVerified: t
-    .integer({ mode: 'boolean' })
-    .$default(() => false)
-    .notNull(),
+  emailVerified: t.integer({ mode: 'boolean' }).default(false).notNull(),
   phoneNumber: t.text().unique('ux_user_phone_number'),
   phoneNumberVerified: t.integer({ mode: 'boolean' }),
   email: t.text().unique('ux_user_email').notNull(),
@@ -168,8 +165,8 @@ export const twoFactor = t.snakeCase.table(
       .text()
       .notNull()
       .references(() => user.id, { onDelete: 'cascade' }),
-    verified: t.integer({ mode: 'boolean' }).$default(() => true),
-    failedVerificationCount: t.integer().$default(() => 0),
+    verified: t.integer({ mode: 'boolean' }).default(true),
+    failedVerificationCount: t.integer().default(0),
     backupCodes: t.text().notNull(),
     secret: t.text().notNull(),
     lockedUntil: t.text(),
@@ -313,18 +310,9 @@ export const doctor = t.snakeCase.table(
       .primaryKey()
       .notNull()
       .references(() => user.id, { onDelete: 'cascade' }),
-    experienceYears: t
-      .integer()
-      .$default(() => 0)
-      .notNull(),
-    consultationFee: t
-      .integer()
-      .$default(() => 0)
-      .notNull(),
-    rating: t
-      .integer()
-      .$default(() => 0)
-      .notNull(),
+    experienceYears: t.integer().default(0).notNull(),
+    consultationFee: t.integer().default(0).notNull(),
+    rating: t.integer().default(0).notNull(),
     licenseNumber: t.text().notNull(),
     ...timestamps
   },
@@ -359,15 +347,11 @@ export const appointment = t.snakeCase.table(
       .text()
       .notNull()
       .references(() => doctor.userId, { onDelete: 'cascade' }),
-    priority: t
-      .text()
-      .$type<Priority>()
-      .$default(() => Priority.normal)
-      .notNull(),
     patientId: t
       .text()
       .notNull()
       .references(() => user.id, { onDelete: 'cascade' }),
+    priority: t.text().$type<Priority>().default(Priority.normal).notNull(),
     status: t.text().$type<Status>().default(Status.pending).notNull(),
     queue: t.integer().notNull(),
     from: t.text().notNull(),

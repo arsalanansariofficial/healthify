@@ -36,6 +36,7 @@
     "@elysia/eden": "^1.4.10",
     "@elysia/static": "^1.4.11",
     "better-auth": "^1.7.5",
+    "date-fns": "^4.4.0",
     "drizzle-orm": "^1.0.0-rc.4",
     "drizzle-seed": "^1.0.0-rc.4",
     "elysia": "latest",

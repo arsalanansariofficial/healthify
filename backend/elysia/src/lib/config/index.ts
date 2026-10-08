@@ -10,6 +10,7 @@ declare module 'bun' {
     BETTER_AUTH_MIN_PASSWORD_LENGTH: number;
     BETTER_AUTH_SESSION_EXPIRES_IN: number;
     GITHUB_CLIENT_ID?: undefined | string;
+    CANCEL_CONFIRM_OFFSET: number;
     SESSION_COOKIE_NAME: string;
     DEFAULT_PAGE_NUMBER: number;
     BETTER_AUTH_SECRET: string;
@@ -19,6 +20,7 @@ declare module 'bun' {
     MAX_FILE_SIZE: number;
     MIN_FILE_SIZE: number;
     MAX_PAGE_SIZE: number;
+    UPDATE_OFFSET: number;
     DATABASE_URL: string;
     UPLOAD_DIR: string;
     SMTP_URL: string;
@@ -140,6 +142,13 @@ export const envSchema = z.object(
         description:
           'Password for SMTP server, ex: smtps://username@domain.com:password@smtp.example.com:465.'
       }),
+    CONFIRM_CANCEL_OFFSET: z.coerce
+      .number('CONFIRM_CANCEL_OFFSET should be a valid number in hours.')
+      .default(5)
+      .meta({
+        description:
+          'Time until the appointment can be canelled/confirmed (hours), defaults to 5 hours.'
+      }),
     BETTER_AUTH_MAX_PASSWORD_LENGTH: z.coerce
       .number('BETTER_AUTH_MAX_PASSWORD_LENGTH should be a valid number.')
       .default(256)
@@ -190,6 +199,13 @@ export const envSchema = z.object(
       .meta({
         description:
           'Minimum number of bytes for a valid file upload, defaults to 10 KB.'
+      }),
+    UPDATE_OFFSET: z.coerce
+      .number('UPDATE_OFFSET should be a valid number in days.')
+      .default(5)
+      .meta({
+        description:
+          'Days uptil the appointment can be updated, defaults to 5 days.'
       }),
     MAX_PAGE_SIZE: z.coerce
       .number('MAX_PAGE_SIZE should be a valid number.')

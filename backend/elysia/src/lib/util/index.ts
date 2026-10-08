@@ -2,8 +2,11 @@ import nodemailer from 'nodemailer';
 import os from 'node:os';
 
 import type { FactoryResults, WhereTuple, NonNullish } from '@/lib/util/types';
+import type { Permissions } from '@/lib/auth/permissions';
 
 import { type Env, env } from '@/lib/config';
+import { ApiError } from '@/lib/error';
+import { auth } from '@/lib/auth';
 
 export const mailer = nodemailer.createTransport(env.SMTP_URL);
 
@@ -28,6 +31,20 @@ export function clean<T>(input: T): NonNullish<T> | undefined {
 
   if (!entries.length) return undefined;
   return Object.fromEntries(entries) as NonNullish<T>;
+}
+
+export async function isAllowed(params: {
+  permissions: Permissions;
+  userId: string;
+}) {
+  const { success } = await auth.api.userHasPermission({
+    body: { permissions: params.permissions, userId: params.userId }
+  });
+
+  if (!success)
+    throw new ApiError({ message: 'Permission denied.', code: 'Forbidden' });
+
+  return true;
 }
 
 export function toQuery<T extends object>(v: T) {

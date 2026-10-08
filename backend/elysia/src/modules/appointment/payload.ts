@@ -4,61 +4,72 @@ import type { ModelType } from '@/lib/util/types';
 
 import { toFactoryResults, toQuery, clean } from '@/lib/util';
 import { model } from '@/modules/appointment/model';
-import { type SchemaInsert } from '@/lib/db/schema';
 import { schema } from '@/lib/util/schema';
 
-function create() {
-  return z.toZod<SchemaInsert['appointment']>()(
-    model
-      .appointment()
-      .partial()
-      .required({
-        patientId: true,
-        doctorId: true,
-        queue: true,
-        date: true,
-        from: true,
-        to: true
-      })
-  );
+export enum Actions {
+  confirm = 'confirm',
+  cancel = 'cancel'
+}
+
+function actions() {
+  return model.appointment
+    .pick({ id: true })
+    .extend({
+      action: z.enum(
+        ['confirm', 'cancel'],
+        `action can be of ${Object.values(Actions)}.`
+      )
+    });
 }
 
 function rate() {
-  return model
-    .appointment()
-    .extend({ rating: model.appointment().shape.rating.unwrap() })
+  return model.appointment
+    .extend({ rating: model.appointment.shape.rating.unwrap() })
     .pick({ rating: true });
 }
 
-function changeQueue() {
-  return model.appointment().pick({ queue: true, id: true });
+function prescribe() {
+  return model.appointment
+    .pick({ prescription: true, notes: true })
+    .partial()
+    .transform(clean);
+}
+
+function create() {
+  return model.appointment
+    .partial()
+    .required({ doctorId: true, date: true, from: true, to: true });
 }
 
 function where() {
-  return model.appointment().partial().transform(toQuery);
+  return model.appointment
+    .extend(schema.pageQuery().shape)
+    .partial()
+    .transform(toQuery);
 }
 
-function update() {
-  return model.appointment().partial().transform(clean);
+function changeQueue() {
+  return model.appointment.pick({ queue: true });
 }
 
 function paginated() {
-  return schema.pagination(model.appointment());
+  return schema.pagination(model.appointment);
 }
 
 function id() {
-  return model.appointment().pick({ id: true });
+  return model.appointment.pick({ id: true });
 }
 
 function read() {
-  return model.appointment();
+  return model.appointment;
 }
 
 export const payload = toFactoryResults({
   changeQueue,
   paginated,
+  prescribe,
+  actions,
   create,
-  update,
   where,
   rate,
   read,

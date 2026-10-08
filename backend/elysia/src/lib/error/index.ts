@@ -7,14 +7,23 @@ export const errorPlugin = new Elysia({ name: 'Error.Plugin' })
   .as('global');
 
 export class ApiError extends Error {
-  public status: number = StatusMap['Bad Request'];
+  public status: keyof InvertedStatusMap = StatusMap['Bad Request'];
+  public errors?: string[];
 
-  constructor(
-    public override message: string = 'An unknown error occurred.',
-    public code: HTTPVerb = InvertedStatusMap[400],
-    public override name: (string & {}) | HTTPVerb = 'ApiError'
-  ) {
+  constructor(config?: {
+    name?: (string & {}) | HTTPVerb;
+    errors?: string[];
+    message?: string;
+    code?: HTTPVerb;
+  }) {
     super();
-    this.status = StatusMap[code];
+    this.message = config?.message || 'An unknown error occurred.';
+    this.status = StatusMap[config?.code || 'Bad Request'];
+    this.name = config?.name || 'ApiError';
+    this.errors = config?.errors;
+  }
+
+  toResponse() {
+    return Response.json(this, { status: this.status });
   }
 }

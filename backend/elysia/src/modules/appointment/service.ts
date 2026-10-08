@@ -1,78 +1,76 @@
-import { count, and, avg, sql, gte, lte, eq, lt, gt } from 'drizzle-orm';
+import { and, avg, sql, gte, lte, eq, lt, gt } from 'drizzle-orm';
+import * as fns from 'date-fns';
 
 import type { Payload } from '@/modules/appointment/payload';
 import type { Model } from '@/modules/user/model';
-import type { Schema } from '@/lib/util/schema';
 
-import { Status, schema, Day } from '@/lib/db/schema';
+import { Status, schema } from '@/lib/db/schema';
 import { paginate } from '@/lib/pagination';
 import { ApiError } from '@/lib/error';
-import { auth } from '@/lib/auth';
+import { isAllowed } from '@/lib/util';
+import { env } from '@/lib/config';
 import { db } from '@/lib/db';
 
 async function changeQueue(params: {
   body: Payload['changeQueue'];
+  params: Payload['id'];
   user: Model['user'];
 }) {
-  const { user, body } = params;
-
-  const { success: canUpdate } = await auth.api.userHasPermission({
-    body: { permissions: { appointment: ['update'] }, userId: user.id }
+  await isAllowed({
+    permissions: { appointment: ['update'] },
+    userId: params.user.id
   });
 
-  if (!canUpdate) throw new ApiError('Pemission denied.', 'Forbidden');
-
-  db.run(sql`pragma foreign_keys = on`);
+  const { user, body } = params;
+  const { id } = params.params;
 
   return db.transaction(tx => {
-    const currentAppointment = tx.query.appointment
-      .findFirst({ where: { id: body.id } })
+    const appointment = tx.query.appointment
+      .findFirst({ where: { doctorId: user.id, id } })
       .sync();
 
-    if (!currentAppointment)
-      throw new ApiError('Appointment not found', 'Not Found');
+    if (!appointment)
+      throw new ApiError({
+        message: `Appointment with id ${id} does not exist`
+      });
 
-    const oldQueue = currentAppointment.queue;
+    if (appointment.queue === body.queue) return appointment;
+    const dateSql = sql`date(${schema.appointment.date}) = ${fns.format(appointment.date, 'yyyy-MM-dd')}`;
 
-    if (oldQueue === body.queue) return currentAppointment;
-
-    const { aptCount } = tx
-      .select({ aptCount: count() })
-      .from(schema.appointment)
-      .where(
-        and(
-          eq(schema.appointment.doctorId, currentAppointment.doctorId),
-          eq(schema.appointment.date, currentAppointment.date)
-        )
+    const appointments = tx
+      .$count(
+        schema.appointment,
+        and(eq(schema.appointment.doctorId, appointment.doctorId), dateSql)
       )
-      .orderBy(schema.appointment.queue)
-      .get() as { aptCount: number };
+      .sync();
 
-    if (body.queue > aptCount)
-      throw new ApiError(`Queue cannot be greater than ${aptCount}`);
+    if (body.queue > appointments)
+      throw new ApiError({
+        message: `Queue cannot be greater than ${appointments}`
+      });
 
-    if (body.queue < oldQueue)
+    if (body.queue < appointment.queue)
       tx.update(schema.appointment)
         .set({ queue: sql`${schema.appointment.queue} + 1` })
         .where(
           and(
-            eq(schema.appointment.doctorId, currentAppointment.doctorId),
-            eq(schema.appointment.date, currentAppointment.date),
+            eq(schema.appointment.doctorId, appointment.doctorId),
+            lt(schema.appointment.queue, appointment.queue),
             gte(schema.appointment.queue, body.queue),
-            lt(schema.appointment.queue, oldQueue)
+            dateSql
           )
         )
         .run();
 
-    if (body.queue > oldQueue)
+    if (body.queue > appointment.queue)
       tx.update(schema.appointment)
         .set({ queue: sql`${schema.appointment.queue} - 1` })
         .where(
           and(
-            eq(schema.appointment.doctorId, currentAppointment.doctorId),
-            eq(schema.appointment.date, currentAppointment.date),
-            gt(schema.appointment.queue, oldQueue),
-            lte(schema.appointment.queue, body.queue)
+            eq(schema.appointment.doctorId, appointment.doctorId),
+            gt(schema.appointment.queue, appointment.queue),
+            lte(schema.appointment.queue, body.queue),
+            dateSql
           )
         )
         .run();
@@ -80,15 +78,12 @@ async function changeQueue(params: {
     const updated = tx
       .update(schema.appointment)
       .set({ queue: body.queue })
-      .where(eq(schema.appointment.id, body.id))
+      .where(eq(schema.appointment.id, id))
       .returning()
       .get();
 
     if (!updated)
-      throw new ApiError(
-        'Failed to updated appointment.',
-        'Internal Server Error'
-      );
+      throw new ApiError({ message: 'Failed to updated appointment.' });
 
     return updated;
   });
@@ -99,165 +94,219 @@ async function rate(params: {
   params: Payload['id'];
   user: Model['user'];
 }) {
-  const { params: qp, user, body } = params;
-
-  const { success: canRate } = await auth.api.userHasPermission({
-    body: { permissions: { appointment: ['rate'] }, userId: user.id }
+  await isAllowed({
+    permissions: { appointment: ['rate'] },
+    userId: params.user.id
   });
 
-  if (!canRate) throw new ApiError('Permission denied.', 'Forbidden');
+  const daysAgo = env.UPDATE_OFFSET;
+  const { user, body } = params;
+  const { id } = params.params;
+  const now = new Date();
 
   const appointment = await db.query.appointment.findFirst({
-    where: { OR: [{ doctorId: user.id }, { patientId: user.id }], id: qp.id }
+    where: {
+      OR: [{ doctorId: user.id }, { patientId: user.id }],
+      date: { gte: fns.subDays(now, daysAgo), lte: now },
+      status: Status.confirmed,
+      id
+    }
   });
 
-  if (!appointment) throw new ApiError('Permission denied.', 'Forbidden');
+  if (!appointment)
+    throw new ApiError({
+      errors: [
+        'Appointment ID is invalid.',
+        'Doctor ID or Patiend ID is invalid.',
+        `Status is not ${Status.confirmed}.`,
+        'Appointment is not yet completed.'
+      ],
+      message:
+        'Failed to rate appointment due to either one of the following reasons.',
+      code: 'Bad Request',
+      name: 'Bad Request'
+    });
 
-  const [hours, minutes] = appointment.from.split(':').map(Number) as [
-    number,
-    number
-  ];
+  return db.transaction(tx => {
+    const updated = tx
+      .update(schema.appointment)
+      .set(body)
+      .where(eq(schema.appointment.id, id))
+      .returning()
+      .get();
 
-  const appointmentDate = new Date(
-    new Date(appointment.date).setHours(hours, minutes)
-  );
+    const rating = Number(
+      tx
+        .select({ rating: avg(schema.appointment.rating) })
+        .from(schema.appointment)
+        .where(eq(schema.appointment.doctorId, appointment.doctorId))
+        .get()?.rating || 0
+    );
 
-  if (new Date() < appointmentDate)
-    throw new ApiError('Permission denied.', 'Forbidden');
+    tx.update(schema.doctor)
+      .set({ rating })
+      .where(eq(schema.doctor.userId, appointment.doctorId))
+      .run();
 
-  const updated = db
+    return updated;
+  });
+}
+
+async function confirmOrCancel(params: {
+  params: Payload['actions'];
+  user: Model['user'];
+}) {
+  await isAllowed({
+    permissions: { appointment: [params.params.action] },
+    userId: params.user.id
+  });
+
+  const participle = { confirm: Status.confirmed, cancel: Status.cancelled };
+  const hoursAgo = env.CONFIRM_CANCEL_OFFSET;
+  const { action, id } = params.params;
+  const { user } = params;
+  const now = new Date();
+
+  const isValidAppointment = await db.query.appointment.findFirst({
+    where: {
+      OR: [{ doctorId: user.id }, { patientId: user.id }],
+      date: { gte: fns.addHours(now, hoursAgo) },
+      id
+    }
+  });
+
+  if (!isValidAppointment)
+    throw new ApiError({
+      errors: [
+        'Appointment ID is invalid.',
+        'Doctor ID or Patiend ID is invalid.',
+        `Appointment can only be ${participle[action]} before ${hoursAgo} hours from the appointment date.`
+      ],
+      message: `Failed to ${action} appointment due to either one of the following reasons.`,
+      code: 'Bad Request',
+      name: 'Bad Request'
+    });
+
+  return db
     .update(schema.appointment)
-    .set(body)
-    .where(eq(schema.appointment.id, qp.id))
+    .set({ status: participle[action] })
+    .where(eq(schema.appointment.id, id))
     .returning()
     .get();
+}
 
-  const average = db
-    .select({ rating: avg(schema.appointment.rating) })
-    .from(schema.appointment)
-    .where(eq(schema.appointment.doctorId, appointment.doctorId))
-    .get();
+async function prescribe(params: {
+  body: Payload['prescribe'];
+  params: Payload['id'];
+  user: Model['user'];
+}) {
+  await isAllowed({
+    permissions: { appointment: ['update'] },
+    userId: params.user.id
+  });
 
-  db.update(schema.doctor)
-    .set({ rating: Number(average?.rating || 0) })
-    .where(eq(schema.doctor.userId, appointment.doctorId))
-    .run();
+  const daysAgo = env.UPDATE_OFFSET;
+  const { user, body } = params;
+  const { id } = params.params;
+  const now = new Date();
 
-  return updated;
+  const appointment = await db.query.appointment.findFirst({
+    where: {
+      OR: [{ doctorId: user.id }, { patientId: user.id }],
+      date: { gte: fns.subDays(now, daysAgo), lte: now },
+      status: Status.confirmed,
+      id
+    }
+  });
+
+  if (!appointment)
+    throw new ApiError({
+      errors: [
+        'Appointment ID is invalid.',
+        'Doctor ID or Patiend ID is invalid.',
+        `Status is not ${Status.confirmed}.`,
+        'Appointment is not yet completed.'
+      ],
+      message:
+        'Failed to update appointment due to either one of the following reasons.',
+      code: 'Bad Request',
+      name: 'Bad Request'
+    });
+
+  if (body)
+    return db
+      .update(schema.appointment)
+      .set(body)
+      .where(eq(schema.appointment.id, params.params.id))
+      .returning()
+      .get();
+
+  return appointment;
 }
 
 async function create(params: {
   body: Payload['create'];
   user: Model['user'];
 }) {
-  const { user, body } = params;
-
-  const hasPermission = await auth.api.userHasPermission({
-    body: { permissions: { appointment: ['create'] }, userId: user.id }
+  await isAllowed({
+    permissions: { appointment: ['create'] },
+    userId: params.user.id
   });
 
-  if (!hasPermission.success)
-    throw new ApiError('Permission denied.', 'Forbidden');
+  const { user, body } = params;
+  body.date = fns.parse(body.from, 'HH:mm', body.date);
 
-  const scheduleExist = await db.query.schedule.findFirst({
+  const hoursAgo = env.CONFIRM_CANCEL_OFFSET;
+  const now = new Date();
+
+  const isValidSchedule = await db.query.schedule.findFirst({
     where: {
-      day: body.date
-        .toLocaleDateString('en', { weekday: 'long' })
-        .toLowerCase() as Day,
+      day: { like: fns.format(body.date, 'EEEE') },
       from: body.from,
       to: body.to
     }
   });
 
-  if (!scheduleExist)
-    throw new ApiError('Doctor is not available at this schedule.');
+  if (!isValidSchedule)
+    throw new ApiError({ message: 'Doctor is not available at this time.' });
 
-  const [hours, minutes] = body.from.split(':').map(Number) as [number, number];
+  if (fns.isAfter(now, fns.subHours(body.date, hoursAgo)))
+    throw new ApiError({
+      message: `Appointment can only be booked until ${hoursAgo} hours before the appointment date.`
+    });
 
-  const appointmentDate = new Date(
-    new Date(body.date).setHours(hours, minutes)
-  );
+  return db.transaction(tx => {
+    const queue = tx
+      .$count(
+        schema.appointment,
+        sql`date(${schema.appointment.date}) = ${fns.format(body.date, 'yyyy-MM-dd')}`
+      )
+      .sync();
 
-  if (new Date() > appointmentDate)
-    throw new ApiError('You can not book appointment in the past.');
-
-  const appointments = await db
-    .select()
-    .from(schema.appointment)
-    .where(eq(schema.appointment.date, body.date));
-
-  const [appointment] = await db
-    .insert(schema.appointment)
-    .values({ ...body, queue: ++appointments.length, patientId: user.id })
-    .returning();
-
-  if (!appointment) throw new Error('Failed to create appointment.');
-  return appointment;
-}
-
-async function update(params: {
-  body: Payload['update'];
-  params: Payload['id'];
-  user: Model['user'];
-}) {
-  const { success: canUpdate } = await auth.api.userHasPermission({
-    body: { permissions: { appointment: ['update'] }, userId: params.user.id }
+    return tx
+      .insert(schema.appointment)
+      .values({ ...body, patientId: user.id, queue: queue + 1 })
+      .returning()
+      .get();
   });
-
-  if (!canUpdate) throw new ApiError('Permission denied.', 'Forbidden');
-  if (!params.body) throw new ApiError('Invalid updates.');
-
-  const appointment = await db.query.appointment.findFirst({
-    where: { id: params.params.id }
-  });
-
-  if (!appointment)
-    throw new ApiError(
-      `Appointment with id ${params.params.id} does not exists.`
-    );
-
-  const [hours, minutes] = appointment.from.split(':').map(Number) as [
-    number,
-    number
-  ];
-
-  const appointmentDate = new Date(
-    new Date(appointment.date).setHours(hours, minutes)
-  );
-
-  if (new Date() < appointmentDate)
-    throw new ApiError('You can not update appointment until it is complete.');
-
-  return db
-    .update(schema.appointment)
-    .set(params.body)
-    .where(eq(schema.appointment.id, params.params.id))
-    .returning()
-    .get();
 }
 
 async function getAll(params: {
-  query: Schema['pageQuery'];
   where: Payload['where'];
   user: Model['user'];
 }) {
-  const { where, query, user } = params;
-
-  const hasPermission = await auth.api.userHasPermission({
-    body: { permissions: { appointment: ['read'] }, userId: user.id }
+  await isAllowed({
+    permissions: { appointment: ['read'] },
+    userId: params.user.id
   });
 
-  if (!hasPermission.success)
-    throw new ApiError(
-      'You do not have permission to view appointments.',
-      'Forbidden'
-    );
+  const { pageSize, page, ...where } = params.where;
 
   return await paginate({
     async getData({ offset, limit }) {
       return await db.query.appointment.findMany({
         where: {
-          OR: [{ patientId: user.id }, { doctorId: user.id }],
+          OR: [{ patientId: params.user.id }, { doctorId: params.user.id }],
           ...where
         },
         orderBy: { createdAt: 'desc', updatedAt: 'desc' },
@@ -268,135 +317,58 @@ async function getAll(params: {
     async getTotal() {
       return await db.$count(schema.appointment);
     },
-    ...query
+    pageSize,
+    page
   });
 }
 
-async function confirm({
-  user,
-  body
-}: {
+async function deleteAppointment(params: {
+  params: Payload['id'];
   user: Model['user'];
-  body: Payload['id'];
 }) {
-  const { id } = body;
-
-  const { success: canConfirm } = await auth.api.userHasPermission({
-    body: { permissions: { appointment: ['confirm'] }, userId: user.id }
+  await isAllowed({
+    permissions: { appointment: ['delete'] },
+    userId: params.user.id
   });
 
-  if (!canConfirm) throw new ApiError('Permission denied.', 'Forbidden');
+  return db.transaction(tx => {
+    const deleted = tx
+      .delete(schema.appointment)
+      .where(eq(schema.appointment.id, params.params.id))
+      .returning()
+      .get();
 
-  const appointment = await db.query.appointment.findFirst({
-    where: { OR: [{ doctorId: user.id }, { patientId: user.id }], id }
+    if (!deleted)
+      throw new ApiError({ message: 'Failed to delete appointment.' });
+
+    return deleted;
   });
-
-  if (!appointment)
-    throw new ApiError(`Appointment with id ${id} does not exists.`);
-
-  return db
-    .update(schema.appointment)
-    .set({ status: Status.confirmed })
-    .where(eq(schema.appointment.id, id))
-    .returning()
-    .get();
 }
 
-async function cancel({
-  user,
-  body
-}: {
-  user: Model['user'];
-  body: Payload['id'];
-}) {
-  const { id } = body;
-
-  const { success: canCancel } = await auth.api.userHasPermission({
-    body: { permissions: { appointment: ['cancel'] }, userId: user.id }
+async function get(params: { params: Payload['id']; user: Model['user'] }) {
+  await isAllowed({
+    permissions: { appointment: ['read'] },
+    userId: params.user.id
   });
 
-  if (!canCancel) throw new ApiError('Permission denied.', 'Forbidden');
-
-  const appointment = await db.query.appointment.findFirst({
-    where: { OR: [{ doctorId: user.id }, { patientId: user.id }], id }
-  });
-
-  if (!appointment)
-    throw new ApiError(`Appointment with id ${id} does not exists.`);
-
-  return db
-    .update(schema.appointment)
-    .set({ status: Status.cancelled })
-    .where(eq(schema.appointment.id, id))
-    .returning()
-    .get();
-}
-
-async function deleteAppointment({
-  body,
-  user
-}: {
-  user: Model['user'];
-  body: Payload['id'];
-}) {
-  const { id } = body;
-
-  const hasPermission = await auth.api.userHasPermission({
-    body: { permissions: { appointment: ['delete'] }, userId: user.id }
-  });
-
-  if (!hasPermission.success)
-    throw new ApiError('Permission denied.', 'Forbidden');
-
-  const [appointment] = await db
-    .delete(schema.appointment)
-    .where(eq(schema.appointment.id, id))
-    .returning();
-
-  if (!appointment)
-    throw new ApiError(
-      'Failed to delete appointment.',
-      'Internal Server Error'
-    );
-
-  return appointment;
-}
-
-async function get({
-  user,
-  body
-}: {
-  user: Model['user'];
-  body: Payload['id'];
-}) {
-  const { id } = body;
-
-  const hasPermission = await auth.api.userHasPermission({
-    body: { permissions: { appointment: ['read'] }, userId: user.id }
-  });
-
-  if (!hasPermission.success)
-    throw new ApiError('Permission denied.', 'Forbidden');
+  const { id } = params.params;
 
   const appointment = await db.query.appointment.findFirst({ where: { id } });
 
   if (!appointment)
-    throw new ApiError(
-      'Failed to fetch appointment details.',
-      'Internal Server Error'
-    );
+    throw new ApiError({ message: 'Failed to fetch appointment details.' });
 
   return appointment;
 }
 
 export const appointmentService = {
   deleteAppointment,
+  confirmOrCancel,
   changeQueue,
+  prescribe,
   confirm,
-  update,
   create,
-  cancel,
   getAll,
   rate,
   get
-} as const;
+};

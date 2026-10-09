@@ -21,6 +21,7 @@ export const specializationRoutes = new Elysia({
     async function (params) {
       return await specializationService.update({
         params: params.params,
+        user: params.user,
         body: params.body
       });
     },
@@ -28,9 +29,10 @@ export const specializationRoutes = new Elysia({
   )
   .delete(
     '/:name',
-    function (params) {
-      return specializationService.deleteSpecialization({
-        params: params.params
+    async function (params) {
+      return await specializationService.deleteSpecialization({
+        params: params.params,
+        user: params.user
       });
     },
     { response: payload.read, params: payload.name }
@@ -44,8 +46,11 @@ export const specializationRoutes = new Elysia({
   )
   .post(
     '/',
-    function (params) {
-      return specializationService.create({ body: params.body });
+    async function (params) {
+      return await specializationService.create({
+        user: params.user,
+        body: params.body
+      });
     },
     { response: payload.read, body: payload.create }
   );

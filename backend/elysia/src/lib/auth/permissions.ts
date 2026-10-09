@@ -23,14 +23,21 @@ const ac = createAccessControl({
     'read',
     'rate'
   ],
+  specialization: ['create', 'update', 'delete', 'read'],
   ...defaultOrganizationStatements,
   ...defaultAdminStatements
 });
 
-const user = ac.newRole({ appointment: ['create', 'read', 'cancel', 'rate'] });
-const doctor = ac.newRole({
-  appointment: ['read', 'confirm', 'cancel', 'update']
+const user = ac.newRole({
+  appointment: ['create', 'read', 'cancel', 'rate'],
+  specialization: ['read']
 });
+
+const doctor = ac.newRole({
+  appointment: ['read', 'confirm', 'cancel', 'update'],
+  specialization: ['read']
+});
+
 const admin = ac.newRole(ac.statements);
 
 export const permissions = {

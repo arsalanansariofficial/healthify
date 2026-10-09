@@ -62,7 +62,9 @@ describe('tests for user resource', () => {
   test('should upload profile picture for a user', async () => {
     const headers = await ctx.getAuthHeaders({ userId: gwen.id });
     const { status, data } = await api.users.me.patch(
-      { image: Bun.file('tests/fixtures/images/image.png') as unknown as File },
+      {
+        'user.image': Bun.file('tests/fixtures/images/image.png')
+      } as Payload['update'],
       getSessionCookie(headers)
     );
 

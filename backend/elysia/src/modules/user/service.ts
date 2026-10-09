@@ -1,7 +1,7 @@
 import type { WithHeaders } from '@/lib/util/types';
 import type { Model } from '@/modules/user/model';
 
-import { type Payload, payload } from '@/modules/user/payload';
+import { type Payload } from '@/modules/user/payload';
 import { schema } from '@/lib/db/schema';
 import { session } from '@/lib/session';
 import { ApiError } from '@/lib/error';
@@ -13,9 +13,7 @@ async function update(
   params: WithHeaders<{ body: Payload['update']; user: Model['user'] }>
 ) {
   if (!params.body) return params.user;
-
-  const { profile, ...$user } = params.body;
-  const user = payload.update.parse($user);
+  const { profile, user } = params.body;
 
   if (profile) {
     const cover = await replace({

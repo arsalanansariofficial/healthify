@@ -2,7 +2,7 @@ import z from 'zod';
 
 import type { ModelType } from '@/lib/util/types';
 
-import { toFactoryResults, clean, join } from '@/lib/util';
+import { toFactoryResults, join } from '@/lib/util';
 import { Roles } from '@/lib/auth/permissions';
 import { model } from '@/modules/user/model';
 import { schema } from '@/lib/util/schema';
@@ -41,6 +41,30 @@ function setPassword() {
   );
 }
 
+function update() {
+  return z
+    .object({
+      profile: model.userProfile
+        .extend({ cover: schema.fileOrUrl('cover').nullable() })
+        .partial()
+        .refine(
+          v => Object.values(v).some(v => v !== undefined),
+          'At least one profile property must be provided'
+        )
+        .nullish(),
+      user: model.$user
+        .extend({ image: schema.fileOrUrl('image').nullish() })
+        .partial()
+        .refine(
+          v => Object.values(v).some(v => v !== undefined),
+          'At least one user property must be provided'
+        )
+        .nullish()
+    })
+    .partial()
+    .nullish();
+}
+
 function userHasPermission() {
   return z.object(
     {
@@ -60,19 +84,6 @@ function userHasPermission() {
     },
     'userHasPermission should be a valid object.'
   );
-}
-
-function update() {
-  return z
-    .deepPartial(
-      model.user.extend({
-        profile: model.userProfile
-          .extend({ cover: schema.fileOrUrl('cover').nullable() })
-          .nullish(),
-        image: schema.fileOrUrl('image').nullish()
-      })
-    )
-    .transform(clean);
 }
 
 function verifyPassword() {

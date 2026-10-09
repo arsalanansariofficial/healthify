@@ -75,5 +75,5 @@ function user() {
   });
 }
 
-export const model = toFactoryResults({ userProfile, user });
+export const model = toFactoryResults({ userProfile, $user, user });
 export type Model = ModelType<typeof model>;

@@ -1,4 +1,5 @@
 import nodemailer from 'nodemailer';
+import * as fns from 'date-fns';
 
 import type { FactoryResults, WhereTuple, NonNullish } from '@/lib/util/types';
 import type { Permissions, Roles } from '@/lib/auth/permissions';
@@ -84,6 +85,11 @@ export function hasValidAuthMethod(method: string) {
   return env.BETTER_AUTH_ACCEPT_METHODS.includes(
     method.toLowerCase() as Env['BETTER_AUTH_ACCEPT_METHODS'][number]
   );
+}
+
+export function toMinutes(time: string) {
+  const parsed = fns.parse(time, 'HH:mm', new Date());
+  return fns.getHours(parsed) * 60 + fns.getMinutes(parsed);
 }
 
 export function isFile(payload?: string | File | null): payload is File {

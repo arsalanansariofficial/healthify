@@ -1,16 +1,18 @@
-/* eslint-disable */
 import { eq } from 'drizzle-orm';
 
+import type { Model as DoctorModel } from '@/modules/doctor/model';
 import type { Payload } from '@/modules/doctor/payload';
 import type { WithHeaders } from '@/lib/util/types';
 import type { Model } from '@/modules/user/model';
 
+import { checkUserRole, toMinutes } from '@/lib/util';
 import { schema, Role } from '@/lib/db/schema';
 import { paginate } from '@/lib/pagination';
 import { session } from '@/lib/session';
 import { ApiError } from '@/lib/error';
 import { db } from '@/lib/db';
-import { checkUserRole } from '@/lib/util';
+
+type Schedule = Pick<DoctorModel['schedule'], 'from' | 'day' | 'to'>;
 
 async function register(
   params: WithHeaders<{ body: Payload['create']; user: Model['user'] }>
@@ -21,11 +23,11 @@ async function register(
   const { headers, user, set } = params;
 
   db.transaction(tx => {
-    db.delete(schema.doctorToSpecialization)
+    tx.delete(schema.doctorToSpecialization)
       .where(eq(schema.doctorToSpecialization.doctorId, params.user.id))
       .run();
 
-    db.delete(schema.schedule)
+    tx.delete(schema.schedule)
       .where(eq(schema.schedule.doctorId, params.user.id))
       .run();
 
@@ -53,7 +55,7 @@ async function register(
         .run()
     );
 
-    schedule.forEach(schedule => {
+    withoutOverlaps(schedule).accepted.forEach(schedule => {
       tx.insert(schema.schedule)
         .values({ doctorId: params.user.id, ...schedule })
         .run();
@@ -73,6 +75,33 @@ async function register(
 
   await session.update({ headers, set });
   return updated;
+}
+
+function withoutOverlaps(slots: Schedule[]) {
+  return slots.reduce(
+    (result, slot) => {
+      const start = toMinutes(slot.from);
+      const end = toMinutes(slot.to);
+
+      if (start >= end)
+        throw new ApiError({
+          message: `Invalid schedule: ${slot.from} must be earlier than ${slot.to}.`
+        });
+
+      const overlaps = result.accepted.some(existing => {
+        if (existing.day !== slot.day) return false;
+
+        const existingStart = toMinutes(existing.from);
+        const existingEnd = toMinutes(existing.to);
+
+        return start < existingEnd && end > existingStart;
+      });
+
+      (overlaps ? result.skipped : result.accepted).push(slot);
+      return result;
+    },
+    { accepted: [] as Schedule[], skipped: [] as Schedule[] }
+  );
 }
 
 async function deRegister(params: WithHeaders<{ user: Model['user'] }>) {

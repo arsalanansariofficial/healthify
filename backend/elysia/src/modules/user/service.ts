@@ -47,9 +47,7 @@ async function update(
     with: { profile: true }
   });
 
-  if (!updated)
-    throw new ApiError('Failed to update user.', 'Internal Server Error');
-
+  if (!updated) throw new ApiError({ message: 'Failed to updated user.' });
   await session.update({ headers: params.headers, set: params.set });
   return updated;
 }

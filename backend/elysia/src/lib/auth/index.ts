@@ -174,8 +174,14 @@ export const auth = betterAuth({
 export const loadAuthContext = new Elysia({ name: 'AuthContext.Plugin' })
   .resolve(async ({ request }) => {
     const session = await auth.api.getSession({ headers: request.headers });
+
     if (!session)
-      throw new ApiError('Please login to continue.', 'Unauthorized');
+      throw new ApiError({
+        message: 'Please login to continue.',
+        code: 'Unauthorized',
+        name: 'Unauthorized'
+      });
+
     return {
       user: {
         ...session.user,
@@ -194,10 +200,10 @@ export const authRoutes = new Elysia({ name: 'BetterAuth.Routes' }).all(
     if (hasValidAuthMethod(params.request.method))
       return auth.handler(params.request);
 
-    throw new ApiError(
-      `Allowed methods includes 'POST' | 'GET'.`,
-      'Method Not Allowed'
-    );
+    throw new ApiError({
+      message: `Allowed methods includes 'POST' | 'GET'.`,
+      code: 'Method Not Allowed'
+    });
   }
 );
 

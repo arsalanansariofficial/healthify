@@ -1,4 +1,4 @@
-import { and, avg, sql, gte, lte, eq, lt, gt } from 'drizzle-orm';
+import { and, avg, sql, gte, lte, eq, lt, gt, ne } from 'drizzle-orm';
 import * as fns from 'date-fns';
 
 import type { Payload } from '@/modules/appointment/payload';
@@ -40,7 +40,11 @@ async function changeQueue(params: {
     const appointments = tx
       .$count(
         schema.appointment,
-        and(eq(schema.appointment.doctorId, appointment.doctorId), dateSql)
+        and(
+          eq(schema.appointment.doctorId, appointment.doctorId),
+          ne(schema.appointment.status, Status.cancelled),
+          dateSql
+        )
       )
       .sync();
 
@@ -55,6 +59,7 @@ async function changeQueue(params: {
         .where(
           and(
             eq(schema.appointment.doctorId, appointment.doctorId),
+            ne(schema.appointment.status, Status.cancelled),
             lt(schema.appointment.queue, appointment.queue),
             gte(schema.appointment.queue, body.queue),
             dateSql
@@ -68,6 +73,7 @@ async function changeQueue(params: {
         .where(
           and(
             eq(schema.appointment.doctorId, appointment.doctorId),
+            ne(schema.appointment.status, Status.cancelled),
             gt(schema.appointment.queue, appointment.queue),
             lte(schema.appointment.queue, body.queue),
             dateSql
@@ -366,7 +372,6 @@ export const appointmentService = {
   confirmOrCancel,
   changeQueue,
   prescribe,
-  confirm,
   create,
   getAll,
   rate,

@@ -22,7 +22,11 @@ function create() {
 
 function where() {
   return model.doctor
-    .extend(schema.pageQuery().shape)
+    .extend({
+      experienceYears: model.doctor.shape.experienceYears.unwrap(),
+      consultationFee: model.doctor.shape.consultationFee.unwrap(),
+      rating: model.doctor.shape.rating.unwrap()
+    })
     .partial()
     .transform(toQuery);
 }

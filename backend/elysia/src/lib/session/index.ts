@@ -15,4 +15,4 @@ async function update(params: {
   params.set.headers['set-cookie'] = cookie.getSetCookie();
 }
 
-export const session = { update } as const;
+export const session = { update };

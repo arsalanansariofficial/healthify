@@ -1,7 +1,5 @@
 import { InvertedStatusMap, StatusMap, Elysia } from 'elysia';
 
-export type HTTPVerb = keyof StatusMap;
-
 export const errorPlugin = new Elysia({ name: 'Error.Plugin' })
   .onError(({ error }) => error)
   .as('global');
@@ -11,10 +9,10 @@ export class ApiError extends Error {
   public errors?: string[];
 
   constructor(config?: {
-    name?: (string & {}) | HTTPVerb;
+    name?: keyof StatusMap | (string & {});
+    code?: keyof StatusMap;
     errors?: string[];
     message?: string;
-    code?: HTTPVerb;
   }) {
     super();
     this.message = config?.message || 'An unknown error occurred.';

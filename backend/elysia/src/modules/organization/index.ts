@@ -12,19 +12,16 @@ export const organizationRoutes = new Elysia({
   .use(loadAuthContext)
   .get(
     '/accept-invitation/:invitationId',
-    async function (params) {
-      return await service.acceptInvitation({
+    async params =>
+      await service.acceptInvitation({
         headers: params.request.headers,
         params: params.params,
         set: params.set
-      });
-    },
+      }),
     { response: payload.invitationAndMember, params: payload.invitationId }
   )
   .post(
     '/add-member',
-    async function (params) {
-      return await service.addMember({ body: params.body });
-    },
+    async params => await service.addMember({ body: params.body }),
     { body: payload.addMember, response: model.member }
   );

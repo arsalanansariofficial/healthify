@@ -1,4 +1,5 @@
-import { sql, eq } from 'drizzle-orm';
+/* eslint-disable */
+import { eq } from 'drizzle-orm';
 
 import type { Payload } from '@/modules/doctor/payload';
 import type { WithHeaders } from '@/lib/util/types';
@@ -9,10 +10,13 @@ import { paginate } from '@/lib/pagination';
 import { session } from '@/lib/session';
 import { ApiError } from '@/lib/error';
 import { db } from '@/lib/db';
+import { checkUserRole } from '@/lib/util';
 
 async function register(
   params: WithHeaders<{ body: Payload['create']; user: Model['user'] }>
 ) {
+  checkUserRole({ roles: params.user.role, role: 'user' });
+
   const { specializations, schedule, doctor } = params.body;
   const { headers, user, set } = params;
 
@@ -39,7 +43,8 @@ async function register(
       .findMany({ where: { name: { in: specializations } } })
       .sync();
 
-    if (!$specializations.length) throw new ApiError('Invalid specialization.');
+    if (!$specializations.length)
+      throw new ApiError({ message: 'Invalid specializations.' });
 
     $specializations.forEach(({ name }) =>
       tx
@@ -64,17 +69,14 @@ async function register(
   });
 
   if (!updated)
-    throw new ApiError(
-      'Failed to update appointment.',
-      'Internal Server Error'
-    );
+    throw new ApiError({ message: 'Failed to update appointment.' });
 
   await session.update({ headers, set });
   return updated;
 }
 
 async function deRegister(params: WithHeaders<{ user: Model['user'] }>) {
-  db.run(sql`pragma foreign_keys = on`);
+  checkUserRole({ roles: params.user.role, role: 'doctor' });
 
   db.transaction(tx => {
     tx.update(schema.user)
@@ -96,10 +98,7 @@ async function deRegister(params: WithHeaders<{ user: Model['user'] }>) {
   });
 
   if (!updated)
-    throw new ApiError(
-      'Failed to update appointment.',
-      'Internal Server Error'
-    );
+    throw new ApiError({ message: 'Failed to update appointment.' });
 
   await session.update({ headers: params.headers, set: params.set });
   return updated;
@@ -118,7 +117,7 @@ async function getAll(params: { where: Payload['where'] }) {
       });
     },
     async getTotal() {
-      return await db.$count(schema.schedule).execute();
+      return db.$count(schema.schedule).sync();
     },
     pageSize,
     page

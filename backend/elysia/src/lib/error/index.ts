@@ -1,8 +1,5 @@
 import { InvertedStatusMap, StatusMap, Elysia } from 'elysia';
-
-export const errorPlugin = new Elysia({ name: 'Error.Plugin' })
-  .onError(({ error }) => error)
-  .as('global');
+import { DrizzleQueryError } from 'drizzle-orm';
 
 export class ApiError extends Error {
   public status: keyof InvertedStatusMap = StatusMap['Bad Request'];
@@ -25,3 +22,15 @@ export class ApiError extends Error {
     return Response.json(this, { status: this.status });
   }
 }
+
+export const errorPlugin = new Elysia({ name: 'Error.Plugin' })
+  .error({ DrizzleQueryError, ApiError })
+  .onError(({ error, code }) => {
+    switch (code) {
+      case 'DrizzleQueryError':
+        return error.cause;
+      default:
+        return error;
+    }
+  })
+  .as('global');

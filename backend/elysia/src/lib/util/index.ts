@@ -1,7 +1,7 @@
 import nodemailer from 'nodemailer';
 import * as fns from 'date-fns';
 
-import type { FactoryResults, WhereTuple, NonNullish } from '@/lib/util/types';
+import type { FactoryResults, WhereTuple } from '@/lib/util/types';
 import type { Permissions, Roles } from '@/lib/auth/permissions';
 
 import { type Env, env } from '@/lib/config';
@@ -10,19 +10,19 @@ import { auth } from '@/lib/auth';
 
 export const mailer = nodemailer.createTransport(env.SMTP_URL);
 
-export function clean<T>(input: T): NonNullish<T> | undefined {
+export function clean<T>(input: T): NonNullable<T> | undefined {
   if (Array.isArray(input))
     return input
       .filter(v => v !== null && v !== undefined)
       .map(v => clean(v))
-      .filter(v => v !== undefined) as NonNullish<T>;
+      .filter(v => v !== undefined) as NonNullable<T>;
 
   if (typeof input !== 'object' || input === null)
-    return input as NonNullish<T>;
+    return input as NonNullable<T>;
 
   const prototype = Object.getPrototypeOf(input);
   if (prototype !== Object.prototype && prototype !== null)
-    return input as NonNullish<T>;
+    return input as NonNullable<T>;
 
   const entries = Object.entries(input)
     .filter(([, child]) => child !== null && child !== undefined)
@@ -30,7 +30,7 @@ export function clean<T>(input: T): NonNullish<T> | undefined {
     .filter(([, child]) => child !== undefined);
 
   if (!entries.length) return undefined;
-  return Object.fromEntries(entries) as NonNullish<T>;
+  return Object.fromEntries(entries) as NonNullable<T>;
 }
 
 export async function checkUserPermission(params: {

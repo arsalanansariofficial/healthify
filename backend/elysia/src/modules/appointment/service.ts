@@ -5,9 +5,9 @@ import type { Payload } from '@/modules/appointment/payload';
 import type { Model } from '@/modules/user/model';
 
 import { Status, schema } from '@/lib/db/schema';
+import { checkUserPermission } from '@/lib/util';
 import { paginate } from '@/lib/pagination';
 import { ApiError } from '@/lib/error';
-import { isAllowed } from '@/lib/util';
 import { env } from '@/lib/config';
 import { db } from '@/lib/db';
 
@@ -16,7 +16,7 @@ async function changeQueue(params: {
   params: Payload['id'];
   user: Model['user'];
 }) {
-  await isAllowed({
+  await checkUserPermission({
     permissions: { appointment: ['update'] },
     userId: params.user.id
   });
@@ -100,7 +100,7 @@ async function rate(params: {
   params: Payload['id'];
   user: Model['user'];
 }) {
-  await isAllowed({
+  await checkUserPermission({
     permissions: { appointment: ['rate'] },
     userId: params.user.id
   });
@@ -161,7 +161,7 @@ async function confirmOrCancel(params: {
   params: Payload['actions'];
   user: Model['user'];
 }) {
-  await isAllowed({
+  await checkUserPermission({
     permissions: { appointment: [params.params.action] },
     userId: params.user.id
   });
@@ -203,7 +203,7 @@ async function create(params: {
   body: Payload['create'];
   user: Model['user'];
 }) {
-  await isAllowed({
+  await checkUserPermission({
     permissions: { appointment: ['create'] },
     userId: params.user.id
   });
@@ -251,7 +251,7 @@ async function prescribe(params: {
   params: Payload['id'];
   user: Model['user'];
 }) {
-  await isAllowed({
+  await checkUserPermission({
     permissions: { appointment: ['update'] },
     userId: params.user.id
   });
@@ -298,7 +298,7 @@ async function getAll(params: {
   where: Payload['where'];
   user: Model['user'];
 }) {
-  await isAllowed({
+  await checkUserPermission({
     permissions: { appointment: ['read'] },
     userId: params.user.id
   });
@@ -329,7 +329,7 @@ async function deleteAppointment(params: {
   params: Payload['id'];
   user: Model['user'];
 }) {
-  await isAllowed({
+  await checkUserPermission({
     permissions: { appointment: ['delete'] },
     userId: params.user.id
   });
@@ -349,7 +349,7 @@ async function deleteAppointment(params: {
 }
 
 async function get(params: { params: Payload['id']; user: Model['user'] }) {
-  await isAllowed({
+  await checkUserPermission({
     permissions: { appointment: ['read'] },
     userId: params.user.id
   });

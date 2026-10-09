@@ -33,7 +33,7 @@ export function clean<T>(input: T): NonNullish<T> | undefined {
   return Object.fromEntries(entries) as NonNullish<T>;
 }
 
-export async function isAllowed(params: {
+export async function checkUserPermission(params: {
   permissions: Permissions;
   userId: string;
 }) {

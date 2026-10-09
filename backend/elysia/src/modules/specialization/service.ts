@@ -107,10 +107,4 @@ async function create(params: {
   return db.insert(schema.specialization).values(params.body).returning().get();
 }
 
-export const specializationService = {
-  deleteSpecialization,
-  update,
-  create,
-  getAll,
-  get
-};
+export const service = { deleteSpecialization, update, create, getAll, get };

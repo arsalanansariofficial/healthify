@@ -364,7 +364,7 @@ async function get(params: { params: Payload['id']; user: Model['user'] }) {
   return appointment;
 }
 
-export const appointmentService = {
+export const service = {
   deleteAppointment,
   confirmOrCancel,
   changeQueue,

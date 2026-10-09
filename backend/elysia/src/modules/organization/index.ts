@@ -1,6 +1,6 @@
 import { Elysia } from 'elysia';
 
-import { organizationService } from '@/modules/organization/service';
+import { service } from '@/modules/organization/service';
 import { payload } from '@/modules/organization/payload';
 import { model } from '@/modules/organization/model';
 import { loadAuthContext } from '@/lib/auth';
@@ -13,7 +13,7 @@ export const organizationRoutes = new Elysia({
   .get(
     '/accept-invitation/:invitationId',
     async function (params) {
-      return await organizationService.acceptInvitation({
+      return await service.acceptInvitation({
         headers: params.request.headers,
         params: params.params,
         set: params.set
@@ -24,7 +24,7 @@ export const organizationRoutes = new Elysia({
   .post(
     '/add-member',
     async function (params) {
-      return await organizationService.addMember({ body: params.body });
+      return await service.addMember({ body: params.body });
     },
     { body: payload.addMember, response: model.member }
   );

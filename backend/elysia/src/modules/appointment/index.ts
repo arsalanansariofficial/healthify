@@ -1,6 +1,6 @@
 import { Elysia } from 'elysia';
 
-import { appointmentService } from '@/modules/appointment/service';
+import { service } from '@/modules/appointment/service';
 import { payload } from '@/modules/appointment/payload';
 import { loadAuthContext } from '@/lib/auth';
 
@@ -12,17 +12,14 @@ export const appointmentRoutes = new Elysia({
   .get(
     '/',
     async function (params) {
-      return await appointmentService.getAll({
-        where: params.query,
-        user: params.user
-      });
+      return await service.getAll({ where: params.query, user: params.user });
     },
     { response: payload.paginated, query: payload.where }
   )
   .patch(
     '/:id/rate',
     async function (params) {
-      return await appointmentService.rate({
+      return await service.rate({
         params: params.params,
         body: params.body,
         user: params.user
@@ -33,7 +30,7 @@ export const appointmentRoutes = new Elysia({
   .patch(
     '/:id/change-queue',
     async function (params) {
-      return await appointmentService.changeQueue({
+      return await service.changeQueue({
         params: params.params,
         user: params.user,
         body: params.body
@@ -44,7 +41,7 @@ export const appointmentRoutes = new Elysia({
   .patch(
     '/:id/prescribe',
     async function (params) {
-      return await appointmentService.prescribe({
+      return await service.prescribe({
         params: params.params,
         body: params.body,
         user: params.user
@@ -55,7 +52,7 @@ export const appointmentRoutes = new Elysia({
   .delete(
     '/:id',
     async function (params) {
-      return await appointmentService.deleteAppointment({
+      return await service.deleteAppointment({
         params: params.params,
         user: params.user
       });
@@ -65,17 +62,14 @@ export const appointmentRoutes = new Elysia({
   .post(
     '/',
     async function (params) {
-      return await appointmentService.create({
-        body: params.body,
-        user: params.user
-      });
+      return await service.create({ body: params.body, user: params.user });
     },
     { response: payload.read, body: payload.create }
   )
   .patch(
     '/:id/:action',
     async function (params) {
-      return await appointmentService.confirmOrCancel({
+      return await service.confirmOrCancel({
         params: params.params,
         user: params.user
       });
@@ -85,10 +79,7 @@ export const appointmentRoutes = new Elysia({
   .get(
     '/:id',
     async function (params) {
-      return await appointmentService.get({
-        params: params.params,
-        user: params.user
-      });
+      return await service.get({ params: params.params, user: params.user });
     },
     { response: payload.read, params: payload.id }
   );

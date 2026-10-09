@@ -153,4 +153,4 @@ async function getAll(params: { where: Payload['where'] }) {
   });
 }
 
-export const doctorService = { deRegister, register, getAll };
+export const service = { deRegister, register, getAll };

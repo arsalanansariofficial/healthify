@@ -1,6 +1,6 @@
 import { Elysia } from 'elysia';
 
-import { specializationService } from '@/modules/specialization/service';
+import { service } from '@/modules/specialization/service';
 import { payload } from '@/modules/specialization/payload';
 import { loadAuthContext } from '@/lib/auth';
 
@@ -11,7 +11,7 @@ export const specializationRoutes = new Elysia({
   .get(
     '/',
     async function (params) {
-      return await specializationService.getAll({ where: params.query });
+      return await service.getAll({ where: params.query });
     },
     { response: payload.paginate, query: payload.where }
   )
@@ -19,7 +19,7 @@ export const specializationRoutes = new Elysia({
   .patch(
     '/:name',
     async function (params) {
-      return await specializationService.update({
+      return await service.update({
         params: params.params,
         user: params.user,
         body: params.body
@@ -30,7 +30,7 @@ export const specializationRoutes = new Elysia({
   .delete(
     '/:name',
     async function (params) {
-      return await specializationService.deleteSpecialization({
+      return await service.deleteSpecialization({
         params: params.params,
         user: params.user
       });
@@ -40,17 +40,14 @@ export const specializationRoutes = new Elysia({
   .get(
     '/:name',
     async function (params) {
-      return await specializationService.get({ params: params.params });
+      return await service.get({ params: params.params });
     },
     { response: payload.read, params: payload.name }
   )
   .post(
     '/',
     async function (params) {
-      return await specializationService.create({
-        user: params.user,
-        body: params.body
-      });
+      return await service.create({ user: params.user, body: params.body });
     },
     { response: payload.read, body: payload.create }
   );

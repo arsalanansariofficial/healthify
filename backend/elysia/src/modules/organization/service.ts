@@ -36,4 +36,4 @@ async function addMember(params: { body: Payload['addMember'] }) {
   return member as Model['member'];
 }
 
-export const organizationService = { acceptInvitation, addMember };
+export const service = { acceptInvitation, addMember };

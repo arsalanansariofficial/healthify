@@ -359,6 +359,7 @@ export const appointment = t.snakeCase.table(
     to: t.text().notNull(),
     prescription: t.text(),
     rating: t.integer(),
+    feedback: t.text(),
     notes: t.text(),
     ...timestamps,
     id

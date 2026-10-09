@@ -18,6 +18,7 @@ function appointment() {
         status: z.enum(Status, `Status should be ${Object.values(Status)}.`),
         queue: z.coerce.number('queue should be valid number.'),
         prescription: schema.string('prescription').nullable(),
+        feedback: schema.string('feedback').nullable(),
         notes: schema.string('notes').nullable(),
         patientId: schema.uuid('patientId'),
         doctorId: schema.uuid('doctorId'),

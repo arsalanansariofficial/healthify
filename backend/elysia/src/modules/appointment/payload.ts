@@ -23,9 +23,13 @@ function actions() {
 }
 
 function rate() {
-  return model.appointment
-    .extend({ rating: model.appointment.shape.rating.unwrap() })
-    .pick({ rating: true });
+  return z.object(
+    {
+      feedback: model.appointment.shape.feedback.optional(),
+      rating: model.appointment.shape.rating.unwrap()
+    },
+    'rate should be a valid object.'
+  );
 }
 
 function prescribe() {

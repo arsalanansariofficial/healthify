@@ -1,4 +1,4 @@
-import { and, avg, sql, gte, lte, eq, lt, gt, ne } from 'drizzle-orm';
+import * as drizzle from 'drizzle-orm';
 import * as fns from 'date-fns';
 
 import type { Payload } from '@/modules/appointment/payload';
@@ -35,14 +35,14 @@ async function changeQueue(params: {
       });
 
     if (appointment.queue === body.queue) return appointment;
-    const dateSql = sql`date(${schema.appointment.date}) = ${fns.format(appointment.date, 'yyyy-MM-dd')}`;
+    const dateSql = drizzle.sql`date(${schema.appointment.date}) = ${fns.format(appointment.date, 'yyyy-MM-dd')}`;
 
     const appointments = tx
       .$count(
         schema.appointment,
-        and(
-          eq(schema.appointment.doctorId, appointment.doctorId),
-          ne(schema.appointment.status, Status.cancelled),
+        drizzle.and(
+          drizzle.eq(schema.appointment.doctorId, appointment.doctorId),
+          drizzle.ne(schema.appointment.status, Status.cancelled),
           dateSql
         )
       )
@@ -55,13 +55,13 @@ async function changeQueue(params: {
 
     if (body.queue < appointment.queue)
       tx.update(schema.appointment)
-        .set({ queue: sql`${schema.appointment.queue} + 1` })
+        .set({ queue: drizzle.sql`${schema.appointment.queue} + 1` })
         .where(
-          and(
-            eq(schema.appointment.doctorId, appointment.doctorId),
-            ne(schema.appointment.status, Status.cancelled),
-            lt(schema.appointment.queue, appointment.queue),
-            gte(schema.appointment.queue, body.queue),
+          drizzle.and(
+            drizzle.eq(schema.appointment.doctorId, appointment.doctorId),
+            drizzle.ne(schema.appointment.status, Status.cancelled),
+            drizzle.lt(schema.appointment.queue, appointment.queue),
+            drizzle.gte(schema.appointment.queue, body.queue),
             dateSql
           )
         )
@@ -69,13 +69,13 @@ async function changeQueue(params: {
 
     if (body.queue > appointment.queue)
       tx.update(schema.appointment)
-        .set({ queue: sql`${schema.appointment.queue} - 1` })
+        .set({ queue: drizzle.sql`${schema.appointment.queue} - 1` })
         .where(
-          and(
-            eq(schema.appointment.doctorId, appointment.doctorId),
-            ne(schema.appointment.status, Status.cancelled),
-            gt(schema.appointment.queue, appointment.queue),
-            lte(schema.appointment.queue, body.queue),
+          drizzle.and(
+            drizzle.eq(schema.appointment.doctorId, appointment.doctorId),
+            drizzle.ne(schema.appointment.status, Status.cancelled),
+            drizzle.gt(schema.appointment.queue, appointment.queue),
+            drizzle.lte(schema.appointment.queue, body.queue),
             dateSql
           )
         )
@@ -84,7 +84,7 @@ async function changeQueue(params: {
     const updated = tx
       .update(schema.appointment)
       .set({ queue: body.queue })
-      .where(eq(schema.appointment.id, id))
+      .where(drizzle.eq(schema.appointment.id, id))
       .returning()
       .get();
 
@@ -136,24 +136,79 @@ async function rate(params: {
     const updated = tx
       .update(schema.appointment)
       .set(body)
-      .where(eq(schema.appointment.id, id))
+      .where(drizzle.eq(schema.appointment.id, id))
       .returning()
       .get();
 
     const rating = Number(
       tx
-        .select({ rating: avg(schema.appointment.rating) })
+        .select({ rating: drizzle.avg(schema.appointment.rating) })
         .from(schema.appointment)
-        .where(eq(schema.appointment.doctorId, appointment.doctorId))
+        .where(drizzle.eq(schema.appointment.doctorId, appointment.doctorId))
         .get()?.rating || 0
     );
 
     tx.update(schema.doctor)
       .set({ rating })
-      .where(eq(schema.doctor.userId, appointment.doctorId))
+      .where(drizzle.eq(schema.doctor.userId, appointment.doctorId))
       .run();
 
     return updated;
+  });
+}
+
+async function create(params: {
+  body: Payload['create'];
+  user: Model['user'];
+}) {
+  await checkUserPermission({
+    permissions: { appointment: ['create'] },
+    userId: params.user.id
+  });
+
+  const { user, body } = params;
+  body.date = fns.parse(body.from, 'HH:mm', body.date);
+
+  const hoursAgo = env.CONFIRM_CANCEL_OFFSET;
+  const now = new Date();
+
+  const isValidSchedule = await db.query.schedule.findFirst({
+    where: {
+      day: { like: fns.format(body.date, 'EEEE') },
+      from: body.from,
+      to: body.to
+    }
+  });
+
+  if (!isValidSchedule)
+    throw new ApiError({ message: 'Doctor is not available at this time.' });
+
+  if (fns.isAfter(now, fns.subHours(body.date, hoursAgo)))
+    throw new ApiError({
+      message: `Appointment can only be booked until ${hoursAgo} hours before the appointment date.`
+    });
+
+  return db.transaction(tx => {
+    const queue = tx
+      .$count(
+        schema.appointment,
+        drizzle.sql`date(${schema.appointment.date}) = ${fns.format(body.date, 'yyyy-MM-dd')}`
+      )
+      .sync();
+
+    try {
+      return tx
+        .insert(schema.appointment)
+        .values({ ...body, patientId: user.id, queue: queue + 1 })
+        .returning()
+        .get();
+    } catch (e) {
+      const error = e as drizzle.DrizzleQueryError;
+      throw new ApiError({
+        message: 'You already have an appointment.',
+        name: error.cause?.name
+      });
+    }
   });
 }
 
@@ -194,56 +249,9 @@ async function confirmOrCancel(params: {
   return db
     .update(schema.appointment)
     .set({ status: participle[action] })
-    .where(eq(schema.appointment.id, id))
+    .where(drizzle.eq(schema.appointment.id, id))
     .returning()
     .get();
-}
-
-async function create(params: {
-  body: Payload['create'];
-  user: Model['user'];
-}) {
-  await checkUserPermission({
-    permissions: { appointment: ['create'] },
-    userId: params.user.id
-  });
-
-  const { user, body } = params;
-  body.date = fns.parse(body.from, 'HH:mm', body.date);
-
-  const hoursAgo = env.CONFIRM_CANCEL_OFFSET;
-  const now = new Date();
-
-  const isValidSchedule = await db.query.schedule.findFirst({
-    where: {
-      day: { like: fns.format(body.date, 'EEEE') },
-      from: body.from,
-      to: body.to
-    }
-  });
-
-  if (!isValidSchedule)
-    throw new ApiError({ message: 'Doctor is not available at this time.' });
-
-  if (fns.isAfter(now, fns.subHours(body.date, hoursAgo)))
-    throw new ApiError({
-      message: `Appointment can only be booked until ${hoursAgo} hours before the appointment date.`
-    });
-
-  return db.transaction(tx => {
-    const queue = tx
-      .$count(
-        schema.appointment,
-        sql`date(${schema.appointment.date}) = ${fns.format(body.date, 'yyyy-MM-dd')}`
-      )
-      .sync();
-
-    return tx
-      .insert(schema.appointment)
-      .values({ ...body, patientId: user.id, queue: queue + 1 })
-      .returning()
-      .get();
-  });
 }
 
 async function prescribe(params: {
@@ -287,7 +295,7 @@ async function prescribe(params: {
     return db
       .update(schema.appointment)
       .set(body)
-      .where(eq(schema.appointment.id, params.params.id))
+      .where(drizzle.eq(schema.appointment.id, params.params.id))
       .returning()
       .get();
 
@@ -337,7 +345,7 @@ async function deleteAppointment(params: {
   return db.transaction(tx => {
     const deleted = tx
       .delete(schema.appointment)
-      .where(eq(schema.appointment.id, params.params.id))
+      .where(drizzle.eq(schema.appointment.id, params.params.id))
       .returning()
       .get();
 

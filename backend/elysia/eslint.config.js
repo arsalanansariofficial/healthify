@@ -54,6 +54,7 @@ export default defineConfig([
       'class-methods-use-this': 'error',
       'grouped-accessor-pairs': 'error',
       'no-useless-constructor': 'error',
+      'prefer-arrow-callback': 'error',
       'array-callback-return': 'error',
       'no-constant-condition': 'error',
       'no-constructor-return': 'error',

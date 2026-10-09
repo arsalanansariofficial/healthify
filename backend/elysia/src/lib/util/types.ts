@@ -30,5 +30,3 @@ export type WithHeaders<T> = {
   headers: Headers;
 } & T;
 export type ModelType<T> = { [k in keyof T]: z.infer<T[k]> };
-export type Err = { message: string; path: string[] };
-export type Errors = [Err, ...Err[]];

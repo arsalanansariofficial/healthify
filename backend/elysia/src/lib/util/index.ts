@@ -1,5 +1,4 @@
 import nodemailer from 'nodemailer';
-import os from 'node:os';
 
 import type { FactoryResults, WhereTuple, NonNullish } from '@/lib/util/types';
 import type { Permissions, Roles } from '@/lib/auth/permissions';
@@ -67,16 +66,6 @@ export function checkUserRole(params: { roles?: string | null; role: Roles }) {
   return true;
 }
 
-export function isFileError(
-  e: Error
-): e is { code: keyof typeof os.constants.errno } & NodeJS.ErrnoException {
-  return (
-    'code' in e &&
-    typeof e.code === 'string' &&
-    Object.keys(os.constants.errno).includes(e.code)
-  );
-}
-
 export function toFactoryResults<T extends Record<string, () => unknown>>(
   params: T
 ) {
@@ -103,7 +92,4 @@ export function isFile(payload?: string | File | null): payload is File {
 
 export function join(payload: unknown[], separator = ' | ') {
   return `(${payload.join(separator)})`;
-}
-export function isUnknownError(e: Error): e is Record<string, unknown> & Error {
-  return Boolean(e);
 }

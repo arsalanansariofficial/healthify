@@ -129,7 +129,6 @@ async function rate(params: {
       ],
       message:
         'Failed to rate appointment due to either one of the following reasons.',
-      code: 'Bad Request',
       name: 'Bad Request'
     });
 
@@ -189,7 +188,6 @@ async function confirmOrCancel(params: {
         `Appointment can only be ${participle[action]} before ${hoursAgo} hours from the appointment date.`
       ],
       message: `Failed to ${action} appointment due to either one of the following reasons.`,
-      code: 'Bad Request',
       name: 'Bad Request'
     });
 
@@ -199,55 +197,6 @@ async function confirmOrCancel(params: {
     .where(eq(schema.appointment.id, id))
     .returning()
     .get();
-}
-
-async function prescribe(params: {
-  body: Payload['prescribe'];
-  params: Payload['id'];
-  user: Model['user'];
-}) {
-  await isAllowed({
-    permissions: { appointment: ['update'] },
-    userId: params.user.id
-  });
-
-  const daysAgo = env.UPDATE_OFFSET;
-  const { user, body } = params;
-  const { id } = params.params;
-  const now = new Date();
-
-  const appointment = await db.query.appointment.findFirst({
-    where: {
-      OR: [{ doctorId: user.id }, { patientId: user.id }],
-      date: { gte: fns.subDays(now, daysAgo), lte: now },
-      status: Status.confirmed,
-      id
-    }
-  });
-
-  if (!appointment)
-    throw new ApiError({
-      errors: [
-        'Appointment ID is invalid.',
-        'Doctor ID or Patiend ID is invalid.',
-        `Status is not ${Status.confirmed}.`,
-        'Appointment is not yet completed.'
-      ],
-      message:
-        'Failed to update appointment due to either one of the following reasons.',
-      code: 'Bad Request',
-      name: 'Bad Request'
-    });
-
-  if (body)
-    return db
-      .update(schema.appointment)
-      .set(body)
-      .where(eq(schema.appointment.id, params.params.id))
-      .returning()
-      .get();
-
-  return appointment;
 }
 
 async function create(params: {
@@ -295,6 +244,54 @@ async function create(params: {
       .returning()
       .get();
   });
+}
+
+async function prescribe(params: {
+  body: Payload['prescribe'];
+  params: Payload['id'];
+  user: Model['user'];
+}) {
+  await isAllowed({
+    permissions: { appointment: ['update'] },
+    userId: params.user.id
+  });
+
+  const daysAgo = env.UPDATE_OFFSET;
+  const { user, body } = params;
+  const { id } = params.params;
+  const now = new Date();
+
+  const appointment = await db.query.appointment.findFirst({
+    where: {
+      OR: [{ doctorId: user.id }, { patientId: user.id }],
+      date: { gte: fns.subDays(now, daysAgo), lte: now },
+      status: Status.confirmed,
+      id
+    }
+  });
+
+  if (!appointment)
+    throw new ApiError({
+      errors: [
+        'Appointment ID is invalid.',
+        'Doctor ID or Patiend ID is invalid.',
+        `Status is not ${Status.confirmed}.`,
+        'Appointment is not yet completed.'
+      ],
+      message:
+        'Failed to update appointment due to either one of the following reasons.',
+      name: 'Bad Request'
+    });
+
+  if (body)
+    return db
+      .update(schema.appointment)
+      .set(body)
+      .where(eq(schema.appointment.id, params.params.id))
+      .returning()
+      .get();
+
+  return appointment;
 }
 
 async function getAll(params: {

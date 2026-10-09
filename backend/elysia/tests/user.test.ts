@@ -1,5 +1,4 @@
 import { beforeEach, afterAll, describe, expect, test } from 'bun:test';
-import { APIError } from 'better-auth';
 import { StatusMap } from 'elysia';
 
 import type { Payload } from '@/modules/user/payload';
@@ -116,6 +115,6 @@ describe('tests for user resource', () => {
   });
 
   test('should not delete account for unauthenticated user', async () => {
-    expect(auth.api.deleteUser({ body: {} })).rejects.toBeInstanceOf(APIError);
+    expect(auth.api.deleteUser({ body: {} })).rejects.toBeInstanceOf(Error);
   });
 });

@@ -1,7 +1,8 @@
+/* eslint-disable perfectionist/sort-modules */
 import nodemailer from 'nodemailer';
 import * as fns from 'date-fns';
 
-import type { FactoryResults, WhereTuple } from '@/lib/util/types';
+import type { FactoryResults, QueryFilter } from '@/lib/util/types';
 import type { Permissions, Roles } from '@/lib/auth/permissions';
 
 import { type Env, env } from '@/lib/config';
@@ -47,14 +48,14 @@ export async function checkUserPermission(params: {
   return true;
 }
 
+export function toFilter([k, v]: [string, QueryFilter]) {
+  if (v === 'null' || v === 'undefined') return [k, { isNull: true }];
+  if (v && typeof v === 'object') return [k, { eq: v }];
+  return [k, v];
+}
+
 export function toQuery<T extends object>(v: T) {
-  return Object.fromEntries(
-    Object.entries(v).map(([k, v]): WhereTuple => {
-      if (v && typeof v === 'object') return [k, { eq: v }];
-      if (!v) return [k, { isNull: true }];
-      return [k, v];
-    })
-  );
+  return Object.fromEntries(Object.entries(v).map(toFilter));
 }
 
 export function checkUserRole(params: { roles?: string | null; role: Roles }) {

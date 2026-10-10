@@ -15,8 +15,10 @@ function appointment() {
           .min(1, 'rating should be minimum of 1.')
           .max(5, 'rating should be maximum of 5.')
           .nullable(),
+        queue: z.coerce
+          .number('queue should be valid number.')
+          .positive('queue should be positive.'),
         status: z.enum(Status, `Status should be ${Object.values(Status)}.`),
-        queue: z.coerce.number('queue should be valid number.'),
         prescription: schema.string('prescription').nullable(),
         feedback: schema.string('feedback').nullable(),
         notes: schema.string('notes').nullable(),

@@ -41,6 +41,29 @@ async function update(params: {
     .get();
 }
 
+async function getAll(params: { where: Payload['where'] }) {
+  const { pageSize, page, ...where } = params.where;
+
+  return await paginate({
+    async getData({ offset, limit }) {
+      return await db.query.specialization.findMany({
+        with: {
+          doctors: { with: { schedule: true, profile: true, user: true } }
+        },
+        orderBy: { createdAt: 'desc', name: 'desc' },
+        offset,
+        where,
+        limit
+      });
+    },
+    async getTotal() {
+      return await db.$count(schema.specialization).execute();
+    },
+    pageSize,
+    page
+  });
+}
+
 async function deleteSpecialization(params: {
   params: Payload['name'];
   user: Model['user'];
@@ -60,26 +83,6 @@ async function deleteSpecialization(params: {
     throw new ApiError({ message: 'Failed to delte specialization.' });
 
   return specialization;
-}
-
-async function getAll(params: { where: Payload['where'] }) {
-  const { pageSize, page, ...where } = params.where;
-
-  return await paginate({
-    async getData({ offset, limit }) {
-      return await db.query.specialization.findMany({
-        orderBy: { createdAt: 'desc', name: 'desc' },
-        offset,
-        where,
-        limit
-      });
-    },
-    async getTotal() {
-      return await db.$count(schema.specialization).execute();
-    },
-    pageSize,
-    page
-  });
 }
 
 async function get(params: { params: Payload['name'] }) {

@@ -1,5 +1,14 @@
+import {
+  customType,
+  primaryKey,
+  snakeCase,
+  integer,
+  unique,
+  check,
+  index,
+  text
+} from 'drizzle-orm/sqlite-core';
 import { defineRelations, sql } from 'drizzle-orm';
-import * as t from 'drizzle-orm/sqlite-core';
 
 export enum Day {
   wednesday = 'wednesday',
@@ -46,7 +55,7 @@ export type SchemaUpdate = {
   [K in keyof SchemaSelect]: Partial<SchemaSelect[K]>;
 };
 
-export const date = t.customType<{ driverData: string; data: Date }>({
+export const date = customType<{ driverData: string; data: Date }>({
   fromDriver: (value: string) => new Date(value),
   toDriver: (value: Date) => value.toISOString(),
   dataType: () => 'text'
@@ -62,319 +71,301 @@ export const timestamps = {
     .notNull()
 };
 
-export const id = t
-  .text()
+export const id = text()
   .primaryKey()
   .$default(() => Bun.randomUUIDv7());
 
-export const user = t.snakeCase.table('user', {
-  emailVerified: t.integer({ mode: 'boolean' }).default(false).notNull(),
-  phoneNumber: t.text().unique('ux_user_phone_number'),
-  phoneNumberVerified: t.integer({ mode: 'boolean' }),
-  email: t.text().unique('ux_user_email').notNull(),
-  twoFactorEnabled: t.integer({ mode: 'boolean' }),
-  username: t.text().unique('ux_user_username'),
-  isAnonymous: t.integer({ mode: 'boolean' }),
-  banned: t.integer({ mode: 'boolean' }),
-  displayUsername: t.text(),
-  name: t.text().notNull(),
-  banReason: t.text(),
+export const user = snakeCase.table('user', {
+  emailVerified: integer({ mode: 'boolean' }).default(false).notNull(),
+  phoneNumber: text().unique('ux_user_phone_number'),
+  phoneNumberVerified: integer({ mode: 'boolean' }),
+  email: text().unique('ux_user_email').notNull(),
+  twoFactorEnabled: integer({ mode: 'boolean' }),
+  username: text().unique('ux_user_username'),
+  isAnonymous: integer({ mode: 'boolean' }),
+  banned: integer({ mode: 'boolean' }),
+  displayUsername: text(),
+  name: text().notNull(),
   banExpires: date(),
-  image: t.text(),
-  role: t.text(),
+  banReason: text(),
+  image: text(),
+  role: text(),
   ...timestamps,
   id
 });
 
-export const userProfile = t.snakeCase.table(
+export const userProfile = snakeCase.table(
   'user_profile',
   {
-    userId: t
-      .text()
+    userId: text()
       .primaryKey()
       .references(() => user.id, { onDelete: 'cascade' }),
-    phoneNumber: t.text().unique('ux_user_profile_phone_number'),
-    gender: t.text().$type<Gender>(),
-    address: t.text(),
-    cover: t.text(),
-    bio: t.text(),
+    phoneNumber: text().unique('ux_user_profile_phone_number'),
+    gender: text().$type<Gender>(),
+    address: text(),
+    cover: text(),
+    bio: text(),
     ...timestamps
   },
-  table => [t.index('fk_user_profile_user_id').on(table.userId)]
+  table => [index('fk_user_profile_user_id').on(table.userId)]
 );
 
-export const account = t.snakeCase.table(
+export const account = snakeCase.table(
   'account',
   {
-    userId: t
-      .text()
+    userId: text()
       .notNull()
       .references(() => user.id, { onDelete: 'cascade' }),
-    gender: t.text().$type<Gender>(),
-    refreshTokenExpiresAt: t.text(),
-    providerId: t.text().notNull(),
-    accessTokenExpiresAt: t.text(),
-    accountId: t.text().notNull(),
-    refreshToken: t.text(),
-    accessToken: t.text(),
-    password: t.text(),
-    address: t.text(),
-    idToken: t.text(),
-    cover: t.text(),
-    scope: t.text(),
-    bio: t.text(),
+    gender: text().$type<Gender>(),
+    refreshTokenExpiresAt: text(),
+    providerId: text().notNull(),
+    accessTokenExpiresAt: text(),
+    accountId: text().notNull(),
+    refreshToken: text(),
+    accessToken: text(),
+    password: text(),
+    address: text(),
+    idToken: text(),
+    cover: text(),
+    scope: text(),
+    bio: text(),
     ...timestamps,
     id
   },
-  table => [t.index('fk_account_user_id').on(table.userId)]
+  table => [index('fk_account_user_id').on(table.userId)]
 );
 
-export const session = t.snakeCase.table(
+export const session = snakeCase.table(
   'session',
   {
-    userId: t
-      .text()
+    userId: text()
       .notNull()
       .references(() => user.id, { onDelete: 'cascade' }),
-    token: t.text().notNull().unique('ux_session_token'),
-    activeOrganizationId: t.text(),
+    token: text().notNull().unique('ux_session_token'),
+    activeOrganizationId: text(),
     expiresAt: date().notNull(),
-    impersonatedBy: t.text(),
-    activeTeamId: t.text(),
-    ipAddress: t.text(),
-    userAgent: t.text(),
+    impersonatedBy: text(),
+    activeTeamId: text(),
+    ipAddress: text(),
+    userAgent: text(),
     ...timestamps,
     id
   },
-  table => [t.index('fk_session_user_id').on(table.userId)]
+  table => [index('fk_session_user_id').on(table.userId)]
 );
 
-export const organization = t.snakeCase.table('organization', {
-  slug: t.text().unique('ux_organization_slug').notNull(),
-  name: t.text().notNull(),
-  metadata: t.text(),
-  logo: t.text(),
+export const organization = snakeCase.table('organization', {
+  slug: text().unique('ux_organization_slug').notNull(),
+  name: text().notNull(),
+  metadata: text(),
+  logo: text(),
   ...timestamps,
   id
 });
 
-export const twoFactor = t.snakeCase.table(
+export const twoFactor = snakeCase.table(
   'two_factor',
   {
-    userId: t
-      .text()
+    userId: text()
       .notNull()
       .references(() => user.id, { onDelete: 'cascade' }),
-    verified: t.integer({ mode: 'boolean' }).default(true),
-    failedVerificationCount: t.integer().default(0),
-    backupCodes: t.text().notNull(),
-    secret: t.text().notNull(),
-    lockedUntil: t.text(),
+    verified: integer({ mode: 'boolean' }).default(true),
+    failedVerificationCount: integer().default(0),
+    backupCodes: text().notNull(),
+    secret: text().notNull(),
+    lockedUntil: text(),
     ...timestamps,
     id
   },
-  table => [t.index('fk_two_factor_user_id').on(table.userId)]
+  table => [index('fk_two_factor_user_id').on(table.userId)]
 );
 
-export const teamMember = t.snakeCase.table(
+export const teamMember = snakeCase.table(
   'team_member',
   {
-    userId: t
-      .text()
+    userId: text()
       .notNull()
       .references(() => user.id, { onDelete: 'cascade' }),
-    teamId: t
-      .text()
+    teamId: text()
       .notNull()
       .references(() => team.id, { onDelete: 'cascade' }),
-    membershipKey: t.text(),
+    membershipKey: text(),
     ...timestamps,
     id
   },
   table => [
-    t.index('fk_team_member_user_id').on(table.userId),
-    t.index('fk_team_member_team_id').on(table.teamId)
+    index('fk_team_member_user_id').on(table.userId),
+    index('fk_team_member_team_id').on(table.teamId)
   ]
 );
 
-export const member = t.snakeCase.table(
+export const member = snakeCase.table(
   'member',
   {
-    organizationId: t
-      .text()
+    organizationId: text()
       .notNull()
       .references(() => organization.id, { onDelete: 'cascade' }),
-    userId: t
-      .text()
+    userId: text()
       .notNull()
       .references(() => user.id, { onDelete: 'cascade' }),
-    role: t.text().notNull(),
+    role: text().notNull(),
     ...timestamps,
     id
   },
   table => [
-    t.index('fk_member_user_id').on(table.userId),
-    t.index('fk_member_organization_id').on(table.organizationId)
+    index('fk_member_user_id').on(table.userId),
+    index('fk_member_organization_id').on(table.organizationId)
   ]
 );
 
-export const team = t.snakeCase.table(
+export const team = snakeCase.table(
   'team',
   {
-    organizationId: t
-      .text()
+    organizationId: text()
       .notNull()
       .references(() => organization.id, { onDelete: 'cascade' }),
-    memberCount: t.integer().notNull(),
-    name: t.text().notNull(),
+    memberCount: integer().notNull(),
+    name: text().notNull(),
     ...timestamps,
     id
   },
-  table => [t.index('fk_team_organization_id').on(table.organizationId)]
+  table => [index('fk_team_organization_id').on(table.organizationId)]
 );
 
-export const organizationRole = t.snakeCase.table(
+export const organizationRole = snakeCase.table(
   'organization_role',
   {
-    organizationId: t
-      .text()
+    organizationId: text()
       .notNull()
       .references(() => organization.id, { onDelete: 'cascade' }),
-    permission: t.text().notNull(),
-    role: t.text().notNull(),
+    permission: text().notNull(),
+    role: text().notNull(),
     ...timestamps,
     id
   },
   table => [
-    t.index('fk_organization_role_organization_id').on(table.organizationId)
+    index('fk_organization_role_organization_id').on(table.organizationId)
   ]
 );
 
-export const verification = t.snakeCase.table(
+export const verification = snakeCase.table(
   'verification',
   {
-    identifier: t.text().notNull(),
+    identifier: text().notNull(),
     expiresAt: date().notNull(),
-    value: t.text().notNull(),
+    value: text().notNull(),
     ...timestamps,
     id
   },
-  table => [t.index('idx_verification_identifier').on(table.identifier)]
+  table => [index('idx_verification_identifier').on(table.identifier)]
 );
 
-export const invitation = t.snakeCase.table(
+export const invitation = snakeCase.table(
   'invitation',
   {
-    organizationId: t
-      .text()
+    organizationId: text()
       .notNull()
       .references(() => organization.id, { onDelete: 'cascade' }),
-    inviterId: t
-      .text()
+    inviterId: text()
       .notNull()
       .references(() => user.id, { onDelete: 'cascade' }),
     expiresAt: date().notNull(),
-    status: t.text().notNull(),
-    email: t.text().notNull(),
-    teamId: t.text(),
-    role: t.text(),
+    status: text().notNull(),
+    email: text().notNull(),
+    teamId: text(),
+    role: text(),
     ...timestamps,
     id
   },
   table => [
-    t.index('fk_invitation_organization_id').on(table.organizationId),
-    t.index('fk_invitation_inviter_id').on(table.inviterId)
+    index('fk_invitation_organization_id').on(table.organizationId),
+    index('fk_invitation_inviter_id').on(table.inviterId)
   ]
 );
 
-export const schedule = t.snakeCase.table(
+export const schedule = snakeCase.table(
   'schedule',
   {
-    doctorId: t
-      .text()
+    doctorId: text()
       .notNull()
       .references(() => doctor.userId, { onDelete: 'cascade' }),
-    day: t.text().$type<Day>().notNull(),
-    from: t.text().notNull(),
-    to: t.text().notNull(),
+    day: text().$type<Day>().notNull(),
+    from: text().notNull(),
+    to: text().notNull(),
     ...timestamps
   },
-  table => [t.index('idx_schedule_doctor_id').on(table.doctorId)]
+  table => [index('idx_schedule_doctor_id').on(table.doctorId)]
 );
 
-export const doctor = t.snakeCase.table(
+export const doctor = snakeCase.table(
   'doctor',
   {
-    userId: t
-      .text()
+    userId: text()
       .primaryKey()
       .notNull()
       .references(() => user.id, { onDelete: 'cascade' }),
-    experienceYears: t.integer().default(0).notNull(),
-    consultationFee: t.integer().default(0).notNull(),
-    rating: t.integer().default(0).notNull(),
-    licenseNumber: t.text().notNull(),
+    experienceYears: integer().default(0).notNull(),
+    consultationFee: integer().default(0).notNull(),
+    rating: integer().default(0).notNull(),
+    licenseNumber: text().notNull(),
     ...timestamps
   },
-  table => [t.index('fk_doctor_user_id').on(table.userId)]
+  table => [index('fk_doctor_user_id').on(table.userId)]
 );
 
-export const doctorToSpecialization = t.snakeCase.table(
+export const doctorToSpecialization = snakeCase.table(
   'doctor_to_specialization',
   {
-    specialization: t
-      .text()
+    specialization: text()
       .notNull()
       .references(() => specialization.name, { onDelete: 'cascade' }),
-    doctorId: t
-      .text()
+    doctorId: text()
       .notNull()
       .references(() => doctor.userId, { onDelete: 'cascade' }),
     ...timestamps
   },
-  table => [t.primaryKey({ columns: [table.doctorId, table.specialization] })]
+  table => [primaryKey({ columns: [table.doctorId, table.specialization] })]
 );
 
-export const specialization = t.snakeCase.table('specialization', {
-  name: t.text().primaryKey(),
+export const specialization = snakeCase.table('specialization', {
+  name: text().primaryKey(),
   ...timestamps
 });
 
-export const appointment = t.snakeCase.table(
+export const appointment = snakeCase.table(
   'appointment',
   {
-    doctorId: t
-      .text()
+    doctorId: text()
       .notNull()
       .references(() => doctor.userId, { onDelete: 'cascade' }),
-    patientId: t
-      .text()
+    patientId: text()
       .notNull()
       .references(() => user.id, { onDelete: 'cascade' }),
-    priority: t.text().$type<Priority>().default(Priority.normal).notNull(),
-    status: t.text().$type<Status>().default(Status.pending).notNull(),
-    queue: t.integer().notNull(),
-    from: t.text().notNull(),
+    priority: text().$type<Priority>().default(Priority.normal).notNull(),
+    status: text().$type<Status>().default(Status.pending).notNull(),
+    queue: integer().notNull(),
+    from: text().notNull(),
     date: date().notNull(),
-    to: t.text().notNull(),
-    prescription: t.text(),
-    rating: t.integer(),
-    feedback: t.text(),
-    notes: t.text(),
+    to: text().notNull(),
+    prescription: text(),
+    rating: integer(),
+    feedback: text(),
+    notes: text(),
     ...timestamps,
     id
   },
   table => [
-    t.check(
-      'chk_appointment_valid_rating',
-      sql`${table.rating} between 1 and 5`
+    check('chk_appointment_valid_rating', sql`${table.rating} between 1 and 5`),
+    unique('ux_appointment_doctor_id_patient_id_date_from_to').on(
+      table.doctorId,
+      table.patientId,
+      table.date,
+      table.from,
+      table.to
     ),
-    t
-      .unique('ux_appointment_doctor_id_patient_id_date_from_to')
-      .on(table.doctorId, table.patientId, table.date, table.from, table.to),
-    t.check('chk_appointment_valid_time', sql`${table.from} < ${table.to}`),
-    t.index('fk_appointment_patient_id').on(table.patientId),
-    t.index('fk_appointment_doctor_id').on(table.doctorId)
+    check('chk_appointment_valid_time', sql`${table.from} < ${table.to}`),
+    index('fk_appointment_patient_id').on(table.patientId),
+    index('fk_appointment_doctor_id').on(table.doctorId)
   ]
 );
 

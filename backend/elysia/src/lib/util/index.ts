@@ -1,6 +1,5 @@
-/* eslint-disable perfectionist/sort-modules */
+import { getMinutes, getHours, parse } from 'date-fns';
 import nodemailer from 'nodemailer';
-import * as fns from 'date-fns';
 
 import type { FactoryResults, QueryFilter } from '@/lib/util/types';
 import type { Permissions, Roles } from '@/lib/auth/permissions';
@@ -48,16 +47,6 @@ export async function checkUserPermission(params: {
   return true;
 }
 
-export function toFilter([k, v]: [string, QueryFilter]) {
-  if (v === 'null' || v === 'undefined') return [k, { isNull: true }];
-  if (v && typeof v === 'object') return [k, { eq: v }];
-  return [k, v];
-}
-
-export function toQuery<T extends object>(v: T) {
-  return Object.fromEntries(Object.entries(v).map(toFilter));
-}
-
 export function checkUserRole(params: { roles?: string | null; role: Roles }) {
   if (!params.roles?.includes(params.role))
     throw new ApiError({
@@ -76,6 +65,12 @@ export function toFactoryResults<T extends Record<string, () => unknown>>(
   ) as FactoryResults<typeof params>;
 }
 
+export function toFilter([k, v]: [string, QueryFilter]) {
+  if (v === 'null' || v === 'undefined') return [k, { isNull: true }];
+  if (v && typeof v === 'object') return [k, { eq: v }];
+  return [k, v];
+}
+
 export function toPositiveInteger(value: unknown, fallback: number) {
   const parsed = Number(value);
   const isInteger = Number.isInteger(parsed);
@@ -89,12 +84,16 @@ export function hasValidAuthMethod(method: string) {
 }
 
 export function toMinutes(time: string) {
-  const parsed = fns.parse(time, 'HH:mm', new Date());
-  return fns.getHours(parsed) * 60 + fns.getMinutes(parsed);
+  const parsed = parse(time, 'HH:mm', new Date());
+  return getHours(parsed) * 60 + getMinutes(parsed);
 }
 
 export function isFile(payload?: string | File | null): payload is File {
   return Boolean(payload && payload instanceof File);
+}
+
+export function toQuery<T extends object>(v: T) {
+  return Object.fromEntries(Object.entries(v).map(toFilter));
 }
 
 export function join(payload: unknown[], separator = ' | ') {

@@ -139,6 +139,12 @@ async function getAll(params: { where: Payload['where'] }) {
   return await paginate({
     async getData({ offset, limit }) {
       return await db.query.doctor.findMany({
+        with: {
+          specializations: true,
+          schedule: true,
+          profile: true,
+          user: true
+        },
         orderBy: { createdAt: 'desc', updatedAt: 'desc' },
         offset,
         where,

@@ -2,8 +2,10 @@ import z from 'zod';
 
 import type { ModelType } from '@/lib/util/types';
 
-import { doctor, model } from '@/modules/doctor/model';
+import { model as specializationModel } from '@/modules/specialization/model';
+import { model as userModel } from '@/modules/user/model';
 import { toFactoryResults, toQuery } from '@/lib/util';
+import { model } from '@/modules/doctor/model';
 import { schema } from '@/lib/util/schema';
 
 function create() {
@@ -20,6 +22,17 @@ function create() {
   });
 }
 
+function paginate() {
+  return schema.pagination(
+    model.doctor.extend({
+      specializations: specializationModel.specialization.array().nullish(),
+      schedule: model.schedule.array().nullish(),
+      profile: userModel.userProfile.nullish(),
+      user: userModel.user.nullish()
+    })
+  );
+}
+
 function where() {
   return model.doctor
     .extend({
@@ -29,10 +42,6 @@ function where() {
     })
     .partial()
     .transform(toQuery);
-}
-
-function paginate() {
-  return schema.pagination(doctor());
 }
 
 function read() {

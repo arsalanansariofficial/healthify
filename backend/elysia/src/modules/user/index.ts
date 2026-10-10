@@ -5,7 +5,7 @@ import { payload } from '@/modules/user/payload';
 import { loadAuthContext } from '@/lib/auth';
 import { schema } from '@/lib/util/schema';
 
-export const userRoutes = new Elysia({ name: 'User.Routes', prefix: '/users' })
+export const routes = new Elysia({ name: 'User.Routes', prefix: '/users' })
   .post(
     '/user-has-permission',
     async params => await userService.userHasPermission({ body: params.body }),

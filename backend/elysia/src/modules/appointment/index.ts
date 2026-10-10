@@ -4,7 +4,7 @@ import { service } from '@/modules/appointment/service';
 import { payload } from '@/modules/appointment/payload';
 import { loadAuthContext } from '@/lib/auth';
 
-export const appointmentRoutes = new Elysia({
+export const routes = new Elysia({
   name: 'Appointment.Routes',
   prefix: '/appointments'
 })

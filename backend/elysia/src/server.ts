@@ -2,11 +2,11 @@ import { staticPlugin } from '@elysia/static';
 import { cors } from '@elysia/cors';
 import { Elysia } from 'elysia';
 
-import { specializationRoutes } from '@/modules/specialization';
-import { organizationRoutes } from '@/modules/organization';
-import { appointmentRoutes } from '@/modules/appointment';
-import { doctorRoutes } from '@/modules/doctor';
-import { userRoutes } from '@/modules/user';
+import { routes as specializationRoutes } from '@/modules/specialization';
+import { routes as organizationRoutes } from '@/modules/organization';
+import { routes as appointmentRoutes } from '@/modules/appointment';
+import { routes as doctorRoutes } from '@/modules/doctor';
+import { routes as userRoutes } from '@/modules/user';
 import { errorPlugin } from '@/lib/error';
 import { authRoutes } from '@/lib/auth';
 import { env } from '@/lib/config';

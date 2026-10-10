@@ -5,10 +5,7 @@ import { payload } from '@/modules/doctor/payload';
 import { loadAuthContext } from '@/lib/auth';
 import { model } from '@/modules/user/model';
 
-export const doctorRoutes = new Elysia({
-  name: 'Doctor.Routes',
-  prefix: '/doctors'
-})
+export const routes = new Elysia({ name: 'Doctor.Routes', prefix: '/doctors' })
   .get('/', async params => await service.getAll({ where: params.query }), {
     response: payload.paginate,
     query: payload.where

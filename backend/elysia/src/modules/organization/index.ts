@@ -5,7 +5,7 @@ import { payload } from '@/modules/organization/payload';
 import { model } from '@/modules/organization/model';
 import { loadAuthContext } from '@/lib/auth';
 
-export const organizationRoutes = new Elysia({
+export const routes = new Elysia({
   name: 'Organization.Routes',
   prefix: '/organizations'
 })

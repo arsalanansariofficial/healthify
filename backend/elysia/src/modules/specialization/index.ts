@@ -4,7 +4,7 @@ import { service } from '@/modules/specialization/service';
 import { payload } from '@/modules/specialization/payload';
 import { loadAuthContext } from '@/lib/auth';
 
-export const specializationRoutes = new Elysia({
+export const routes = new Elysia({
   name: 'Specialization.Routes',
   prefix: '/specializations'
 })

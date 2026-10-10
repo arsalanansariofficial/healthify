@@ -1,14 +1,37 @@
+import { type SQL, sql } from 'drizzle-orm';
+import { isValid, format } from 'date-fns';
 import z from 'zod';
 
-import type { ModelType } from '@/lib/util/types';
+import type { QueryFilter, ModelType } from '@/lib/util/types';
 
-import { toFactoryResults, toQuery, clean } from '@/lib/util';
+import { toFactoryResults, toFilter, clean } from '@/lib/util';
 import { model } from '@/modules/appointment/model';
+import { appointment } from '@/lib/db/schema';
 import { schema } from '@/lib/util/schema';
 
 export enum Actions {
   confirm = 'confirm',
   cancel = 'cancel'
+}
+
+type Filter = [string, ((t: typeof appointment) => SQL) | QueryFilter];
+
+function where() {
+  return model.appointment
+    .extend(schema.pageQuery().shape)
+    .partial()
+    .transform(v =>
+      Object.fromEntries(
+        Object.entries(v).map(([k, v]): Filter => {
+          if (v && isValid(v))
+            return [
+              'RAW',
+              t => sql`date(${t.date}) = ${format(v.toString(), 'yyyy-MM-dd')}`
+            ];
+          return toFilter([k, String(v)]) as Filter;
+        })
+      )
+    );
 }
 
 function actions() {
@@ -43,13 +66,6 @@ function create() {
   return model.appointment
     .partial()
     .required({ doctorId: true, date: true, from: true, to: true });
-}
-
-function where() {
-  return model.appointment
-    .extend(schema.pageQuery().shape)
-    .partial()
-    .transform(toQuery);
 }
 
 function changeQueue() {

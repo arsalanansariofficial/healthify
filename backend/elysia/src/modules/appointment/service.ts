@@ -1,9 +1,9 @@
 import * as drizzle from 'drizzle-orm';
 import * as fns from 'date-fns';
 
-import type { Payload } from '@/modules/appointment/payload';
 import type { Model } from '@/modules/user/model';
 
+import { type Payload } from '@/modules/appointment/payload';
 import { Status, schema } from '@/lib/db/schema';
 import { checkUserPermission } from '@/lib/util';
 import { paginate } from '@/lib/pagination';

@@ -17,7 +17,7 @@ import { Elysia } from 'elysia';
 
 import type { Model } from '@/modules/user/model';
 
-import { hasValidAuthMethod, mailer } from '@/lib/util';
+import { hasValidAuthMethod, isFile, mailer } from '@/lib/util';
 import { permissions } from '@/lib/auth/permissions';
 import { schema } from '@/lib/db/schema';
 import { ApiError } from '@/lib/error';
@@ -95,8 +95,8 @@ export const auth = betterAuth({
           where: { userId: user.id }
         });
 
-        if (profile?.cover) await remove(profile.cover);
-        if (user.image) await remove(user.image);
+        if (isFile(profile?.cover)) await remove(profile.cover);
+        if (isFile(user.image)) await remove(user.image);
       },
       enabled: true,
       ...(env.NODE_ENV !== 'test' && {

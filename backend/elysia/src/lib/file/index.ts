@@ -9,9 +9,13 @@ export async function replace(params: {
   replaceWith?: Schema['fileOrUrl'] | null;
   url?: string | null;
 }) {
-  if (params.replaceWith !== undefined && params.url) await remove(params.url);
-  if (isFile(params.replaceWith)) return await upload(params.replaceWith);
-  return params.replaceWith;
+  const isFileURL = params.url?.startsWith(env.BASE_URL);
+  const { replaceWith, url } = params;
+
+  if (replaceWith !== undefined && isFileURL) await remove(url);
+  if (isFile(replaceWith)) return await upload(replaceWith);
+
+  return replaceWith;
 }
 
 export async function upload(file: File) {

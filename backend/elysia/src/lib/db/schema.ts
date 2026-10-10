@@ -408,6 +408,7 @@ export const relations = defineRelations(schema, r => ({
     }),
     user: r.one.user({ from: r.doctor.userId, to: r.user.id }),
     appointments: r.many.appointment(),
+    profile: r.one.userProfile(),
     schedule: r.many.schedule()
   },
   user: {
@@ -439,6 +440,10 @@ export const relations = defineRelations(schema, r => ({
     doctor: r.one.doctor({ from: r.appointment.doctorId, to: r.doctor.userId }),
     patient: r.one.user({ from: r.appointment.patientId, to: r.user.id })
   },
+  userProfile: {
+    doctor: r.one.doctor({ from: r.userProfile.userId, to: r.doctor.userId }),
+    user: r.one.user({ from: r.userProfile.userId, to: r.user.id })
+  },
   organization: {
     organizationRoles: r.many.organizationRole(),
     invitations: r.many.invitation(),
@@ -464,9 +469,6 @@ export const relations = defineRelations(schema, r => ({
   },
   schedule: {
     doctor: r.one.doctor({ from: r.schedule.doctorId, to: r.doctor.userId })
-  },
-  userProfile: {
-    User: r.one.user({ from: r.userProfile.userId, to: r.user.id })
   },
   twoFactor: { user: r.one.user({ from: r.twoFactor.userId, to: r.user.id }) },
   session: { user: r.one.user({ from: r.session.userId, to: r.user.id }) },

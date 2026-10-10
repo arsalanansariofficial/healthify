@@ -327,6 +327,10 @@ async function getAll(params: {
   return await paginate({
     async getData({ offset, limit }) {
       return await db.query.appointment.findMany({
+        with: {
+          doctor: { with: { profile: true, user: true } },
+          patient: { with: { profile: true } }
+        },
         where: {
           OR: [{ patientId: params.user.id }, { doctorId: params.user.id }],
           ...where

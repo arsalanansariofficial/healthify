@@ -6,7 +6,7 @@ import { type SchemaSelect, Day } from '@/lib/db/schema';
 import { toFactoryResults } from '@/lib/util';
 import { schema } from '@/lib/util/schema';
 
-export function doctor() {
+export function $doctor() {
   return z.toZod<SchemaSelect['doctor']>()(
     z.object(
       {
@@ -26,7 +26,7 @@ export function doctor() {
   );
 }
 
-function schedule() {
+function $schedule() {
   return z.toZod<SchemaSelect['schedule']>()(
     z.object(
       {
@@ -39,6 +39,20 @@ function schedule() {
       'schedule should be valid object.'
     )
   );
+}
+
+function doctor() {
+  return $doctor().extend({
+    specializations: z.any().nullish(),
+    appointments: z.any().nullish(),
+    schedule: z.any().nullish(),
+    profile: z.any().nullish(),
+    user: z.any().nullish()
+  });
+}
+
+function schedule() {
+  return $schedule().extend({ doctor: z.any().nullish() });
 }
 
 export const model = toFactoryResults({ schedule, doctor });

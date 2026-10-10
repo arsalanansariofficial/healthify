@@ -2,9 +2,7 @@ import z from 'zod';
 
 import type { ModelType } from '@/lib/util/types';
 
-import { model as sm } from '@/modules/specialization/model';
 import { type SchemaSelect, Gender } from '@/lib/db/schema';
-import { model as dm } from '@/modules/doctor/model';
 import { toFactoryResults } from '@/lib/util';
 import { schema } from '@/lib/util/schema';
 
@@ -40,7 +38,7 @@ function $user() {
   );
 }
 
-function userProfile() {
+function $userProfile() {
   return z.toZod<SchemaSelect['userProfile']>()(
     z.object(
       {
@@ -61,17 +59,22 @@ function userProfile() {
 
 function user() {
   return $user().extend({
-    doctor: dm.doctor
-      .extend({
-        specializations: z
-          .array(sm.specialization, 'specializations should be a valid array.')
-          .nullish(),
-        schedule: z
-          .array(dm.schedule, 'schedule should be a valid array.')
-          .nullish()
-      })
-      .nullish(),
-    profile: userProfile().nullish()
+    profile: userProfile().nullish(),
+    appointments: z.any().nullish(),
+    invitations: z.any().nullish(),
+    teamMembers: z.any().nullish(),
+    TwoFactor: z.any().nullish(),
+    sessions: z.any().nullish(),
+    accounts: z.any().nullish(),
+    members: z.any().nullish(),
+    doctor: z.any().nullish()
+  });
+}
+
+function userProfile() {
+  return $userProfile().extend({
+    doctor: z.any().nullish(),
+    user: z.any().nullish()
   });
 }
 

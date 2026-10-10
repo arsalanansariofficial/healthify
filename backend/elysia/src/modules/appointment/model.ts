@@ -6,7 +6,7 @@ import { type SchemaSelect, Priority, Status } from '@/lib/db/schema';
 import { toFactoryResults } from '@/lib/util';
 import { schema } from '@/lib/util/schema';
 
-function appointment() {
+function $appointment() {
   return z.toZod<SchemaSelect['appointment']>()(
     z.object(
       {
@@ -34,6 +34,13 @@ function appointment() {
       'appointment should be valid object.'
     )
   );
+}
+
+function appointment() {
+  return $appointment().extend({
+    patient: z.any().nullish(),
+    doctor: z.any().nullish()
+  });
 }
 
 export const model = toFactoryResults({ appointment });

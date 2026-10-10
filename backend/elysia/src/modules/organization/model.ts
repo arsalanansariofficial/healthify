@@ -6,7 +6,7 @@ import type { ModelType } from '@/lib/util/types';
 import { toFactoryResults } from '@/lib/util';
 import { schema } from '@/lib/util/schema';
 
-function invitation() {
+function $invitation() {
   return z.toZod<SchemaSelect['invitation']>()(
     z.object(
       {
@@ -26,7 +26,7 @@ function invitation() {
   );
 }
 
-function organization() {
+function $organization() {
   return z.toZod<SchemaSelect['organization']>()(
     z.object(
       {
@@ -43,7 +43,7 @@ function organization() {
   );
 }
 
-function member() {
+function $member() {
   return z.toZod<SchemaSelect['member']>()(
     z.object(
       {
@@ -57,6 +57,29 @@ function member() {
       'member should be a valid object'
     )
   );
+}
+
+function organization() {
+  return $organization().extend({
+    organizationRoles: z.any().nullish(),
+    invitations: z.any().nullish(),
+    members: z.any().nullish(),
+    teams: z.any().nullish()
+  });
+}
+
+function invitation() {
+  return $invitation().extend({
+    organization: z.any().nullish(),
+    inviter: z.any().nullish()
+  });
+}
+
+function member() {
+  return $member().extend({
+    organization: z.any().nullish(),
+    user: z.any().nullish()
+  });
 }
 
 export const model = toFactoryResults({ organization, invitation, member });

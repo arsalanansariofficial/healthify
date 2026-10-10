@@ -6,13 +6,17 @@ import { type SchemaSelect } from '@/lib/db/schema';
 import { toFactoryResults } from '@/lib/util';
 import { schema } from '@/lib/util/schema';
 
-function specialization() {
+function $specialization() {
   return z.toZod<SchemaSelect['specialization']>()(
     z.object(
       { ...schema.timestamps().shape, name: schema.string('name') },
       'specialization should be valid object.'
     )
   );
+}
+
+function specialization() {
+  return $specialization().extend({ doctors: z.any().nullish() });
 }
 
 export const model = toFactoryResults({ specialization });

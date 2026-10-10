@@ -23,6 +23,8 @@ declare module 'bun' {
     UPDATE_OFFSET: number;
     DATABASE_URL: string;
     UPLOAD_DIR: string;
+    IMAGE_API: string;
+    COVER_API: string;
     SMTP_URL: string;
     BASE_URL: string;
     PORT: number;
@@ -60,6 +62,24 @@ export const envSchema = z.object(
       .meta({
         description:
           'Random hash value for better-auth to hash passwords, defaults to aJEj11jdjesEdzi8AuGGA2G4FzZ9YbWA.'
+      }),
+    IMAGE_API: z
+      .url('IMAGE_API should be valid url.')
+      .nonempty('IMAGE_API should not be empty.')
+      .trim()
+      .default('https://api.dicebear.com/10.x/squircles/svg')
+      .meta({
+        description:
+          'An API to assign default images when a new user is created, defaults to https://api.dicebear.com/10.x/squircles/svg'
+      }),
+    COVER_API: z
+      .url('COVER_API should be valid url.')
+      .nonempty('COVER_API should not be empty.')
+      .trim()
+      .default('https://api.dicebear.com/10.x/waves/svg')
+      .meta({
+        description:
+          'An API to assign default cover images when a new user is created, defaults to https://api.dicebear.com/10.x/waves/svg'
       }),
     GITHUB_CLIENT_SECRET: z
       .string('GITHUB_CLIENT_SECRET should be valid string.')

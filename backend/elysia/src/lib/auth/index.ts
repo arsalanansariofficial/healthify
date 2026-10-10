@@ -12,6 +12,7 @@ import {
 } from 'better-auth/plugins';
 import { drizzleAdapter } from '@better-auth/drizzle-adapter/relations-v2';
 import { betterAuth } from 'better-auth';
+import { eq } from 'drizzle-orm';
 import { Elysia } from 'elysia';
 
 import type { Model } from '@/modules/user/model';
@@ -109,6 +110,26 @@ export const auth = betterAuth({
       })
     },
     changeEmail: { updateEmailWithoutVerification: true, enabled: true }
+  },
+  databaseHooks: {
+    user: {
+      create: {
+        async after(user) {
+          db.transaction(tx => {
+            tx.update(schema.user)
+              .set({ image: `${env.IMAGE_API}?seed=${user.id}` })
+              .where(eq(schema.user.id, user.id))
+              .run();
+            tx.insert(schema.userProfile)
+              .values({
+                cover: `${env.COVER_API}?seed=${user.id}`,
+                userId: user.id
+              })
+              .run();
+          });
+        }
+      }
+    }
   },
   emailAndPassword: {
     async sendResetPassword({ user, url }) {

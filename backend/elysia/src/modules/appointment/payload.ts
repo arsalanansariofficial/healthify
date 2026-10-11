@@ -23,7 +23,7 @@ function where() {
     .transform(v =>
       Object.fromEntries(
         Object.entries(v).map(([k, v]): Filter => {
-          if (v && isValid(v))
+          if (v && v instanceof Date && isValid(v))
             return [
               'RAW',
               t => sql`date(${t.date}) = ${format(v.toString(), 'yyyy-MM-dd')}`

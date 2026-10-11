@@ -328,7 +328,14 @@ async function getAll(params: {
     async getData({ offset, limit }) {
       return await db.query.appointment.findMany({
         with: {
-          doctor: { with: { profile: true, user: true } },
+          doctor: {
+            with: {
+              specializations: true,
+              schedule: true,
+              profile: true,
+              user: true
+            }
+          },
           patient: { with: { profile: true } }
         },
         where: {

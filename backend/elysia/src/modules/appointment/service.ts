@@ -106,6 +106,77 @@ async function changeQueue(params: {
   });
 }
 
+async function confirmOrCancel(params: {
+  params: Payload['actions'];
+  user: Model['user'];
+}) {
+  await checkUserPermission({
+    permissions: { appointment: [params.params.action] },
+    userId: params.user.id
+  });
+
+  const participle = { confirm: Status.confirmed, cancel: Status.cancelled };
+  const hoursAgo = env.CONFIRM_CANCEL_OFFSET;
+  const { action, id } = params.params;
+  const { user } = params;
+  const now = new Date();
+
+  const appointment = await db.query.appointment.findFirst({
+    where: {
+      OR: [{ doctorId: user.id }, { patientId: user.id }],
+      date: { gte: addHours(now, hoursAgo) },
+      id
+    }
+  });
+
+  if (!appointment)
+    throw new ApiError({
+      errors: [
+        'Appointment ID is invalid.',
+        'Doctor ID or Patiend ID is invalid.',
+        `Appointment can only be ${participle[action]} before ${hoursAgo} hours from the appointment date.`
+      ],
+      message: `Failed to ${action} appointment due to either one of the following reasons.`,
+      name: 'Bad Request'
+    });
+
+  if (action === 'cancel')
+    return db.transaction(tx => {
+      const appointments = tx.query.appointment
+        .findMany({
+          where: {
+            RAW(table) {
+              return sql`date(${table.date}) = ${format(appointment.date, 'yyy-MM-dd')}`;
+            },
+            id: { ne: appointment.id }
+          },
+          orderBy: { queue: 'asc' }
+        })
+        .sync();
+
+      appointments.forEach((appointment, index) =>
+        tx
+          .update(schema.appointment)
+          .set({ queue: index + 1 })
+          .where(eq(schema.appointment.id, appointment.id))
+          .run()
+      );
+
+      return tx
+        .delete(schema.appointment)
+        .where(eq(schema.appointment.id, id))
+        .returning()
+        .get();
+    });
+
+  return db
+    .update(schema.appointment)
+    .set({ status: participle[action] })
+    .where(eq(schema.appointment.id, id))
+    .returning()
+    .get();
+}
+
 async function rate(params: {
   body: Payload['rate'];
   params: Payload['id'];
@@ -223,48 +294,6 @@ async function create(params: {
   });
 }
 
-async function confirmOrCancel(params: {
-  params: Payload['actions'];
-  user: Model['user'];
-}) {
-  await checkUserPermission({
-    permissions: { appointment: [params.params.action] },
-    userId: params.user.id
-  });
-
-  const participle = { confirm: Status.confirmed, cancel: Status.cancelled };
-  const hoursAgo = env.CONFIRM_CANCEL_OFFSET;
-  const { action, id } = params.params;
-  const { user } = params;
-  const now = new Date();
-
-  const isValidAppointment = await db.query.appointment.findFirst({
-    where: {
-      OR: [{ doctorId: user.id }, { patientId: user.id }],
-      date: { gte: addHours(now, hoursAgo) },
-      id
-    }
-  });
-
-  if (!isValidAppointment)
-    throw new ApiError({
-      errors: [
-        'Appointment ID is invalid.',
-        'Doctor ID or Patiend ID is invalid.',
-        `Appointment can only be ${participle[action]} before ${hoursAgo} hours from the appointment date.`
-      ],
-      message: `Failed to ${action} appointment due to either one of the following reasons.`,
-      name: 'Bad Request'
-    });
-
-  return db
-    .update(schema.appointment)
-    .set({ status: participle[action] })
-    .where(eq(schema.appointment.id, id))
-    .returning()
-    .get();
-}
-
 async function prescribe(params: {
   body: Payload['prescribe'];
   params: Payload['id'];
@@ -276,7 +305,7 @@ async function prescribe(params: {
   });
 
   const daysAgo = env.UPDATE_OFFSET;
-  const { user, body } = params;
+  const { body = {}, user } = params;
   const { id } = params.params;
   const now = new Date();
 
@@ -302,15 +331,12 @@ async function prescribe(params: {
       name: 'Bad Request'
     });
 
-  if (body)
-    return db
-      .update(schema.appointment)
-      .set(body)
-      .where(eq(schema.appointment.id, params.params.id))
-      .returning()
-      .get();
-
-  return appointment;
+  return db
+    .update(schema.appointment)
+    .set(body)
+    .where(eq(schema.appointment.id, params.params.id))
+    .returning()
+    .get();
 }
 
 async function getAll(params: {
@@ -342,7 +368,7 @@ async function getAll(params: {
           OR: [{ patientId: params.user.id }, { doctorId: params.user.id }],
           ...where
         },
-        orderBy: { createdAt: 'desc', updatedAt: 'desc' },
+        orderBy: { queue: 'asc' },
         offset,
         limit
       });

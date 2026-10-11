@@ -169,6 +169,12 @@ export const envSchema = z.object(
         description:
           'Time until the appointment can be canelled/confirmed (hours), defaults to 5 hours.'
       }),
+    APPLICATION_NAME: z
+      .string('APPLICATION_NAME should be a valid string.')
+      .nonempty('APPLICATION_NAME should not be empty.')
+      .trim()
+      .default('healthify')
+      .meta({ description: 'Name of the application, defaults to healthify.' }),
     BETTER_AUTH_MAX_PASSWORD_LENGTH: z.coerce
       .number('BETTER_AUTH_MAX_PASSWORD_LENGTH should be a valid number.')
       .default(256)
@@ -200,12 +206,6 @@ export const envSchema = z.object(
       .meta({
         description: 'Server running environment, defaults to development.'
       }),
-    APPLICATION_NAME: z
-      .string('APPLICATION_NAME should be a valid string.')
-      .nonempty('APPLICATION_NAME should not be empty.')
-      .trim()
-      .default('server')
-      .meta({ description: 'Name of the application, defaults to server.' }),
     MAX_FILE_SIZE: z.coerce
       .number('MAX_FILE_SIZE should be a valid number in bytes.')
       .default(1 * 1_000 * 1_000)

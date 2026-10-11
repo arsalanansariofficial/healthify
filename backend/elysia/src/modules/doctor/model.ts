@@ -55,5 +55,5 @@ function schedule() {
   return $schedule().extend({ doctor: z.any().nullish() });
 }
 
-export const model = toFactoryResults({ schedule, doctor });
+export const model = toFactoryResults({ schedule, $doctor, doctor });
 export type Model = ModelType<typeof model>;

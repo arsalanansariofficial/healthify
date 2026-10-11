@@ -2,8 +2,8 @@ import { Elysia } from 'elysia';
 
 import { service } from '@/modules/doctor/service';
 import { payload } from '@/modules/doctor/payload';
-import { loadAuthContext } from '@/lib/auth';
 import { model } from '@/modules/user/model';
+import { loadAuthContext } from '@/lib/auth';
 
 export const routes = new Elysia({ name: 'Doctor.Routes', prefix: '/doctors' })
   .get('/', async params => await service.getAll({ where: params.query }), {
@@ -11,7 +11,7 @@ export const routes = new Elysia({ name: 'Doctor.Routes', prefix: '/doctors' })
     query: payload.where
   })
   .use(loadAuthContext)
-  .patch(
+  .post(
     '/register',
     async params =>
       await service.register({
@@ -21,6 +21,17 @@ export const routes = new Elysia({ name: 'Doctor.Routes', prefix: '/doctors' })
         set: params.set
       }),
     { response: model.user, body: payload.create }
+  )
+  .patch(
+    '/update',
+    async params =>
+      await service.update({
+        headers: params.request.headers,
+        body: params.body,
+        user: params.user,
+        set: params.set
+      }),
+    { response: model.user, body: payload.update }
   )
   .delete(
     '/de-register',

@@ -13,6 +13,7 @@ import { ApiError } from '@/lib/error';
 import { db } from '@/lib/db';
 
 type Schedule = Pick<DoctorModel['schedule'], 'from' | 'day' | 'to'>;
+type Tx = Parameters<Parameters<typeof db.transaction>[0]>[0];
 
 async function register(
   params: WithHeaders<{ body: Payload['create']; user: Model['user'] }>
@@ -23,14 +24,6 @@ async function register(
   const { headers, user, set } = params;
 
   db.transaction(tx => {
-    tx.delete(schema.doctorToSpecialization)
-      .where(eq(schema.doctorToSpecialization.doctorId, params.user.id))
-      .run();
-
-    tx.delete(schema.schedule)
-      .where(eq(schema.schedule.doctorId, params.user.id))
-      .run();
-
     tx.update(schema.user)
       .set({ role: Role.doctor })
       .where(eq(schema.user.id, user.id))
@@ -41,40 +34,54 @@ async function register(
       .onConflictDoUpdate({ target: schema.doctor.userId, set: doctor })
       .run();
 
-    const $specializations = tx.query.specialization
-      .findMany({ where: { name: { in: specializations } } })
-      .sync();
+    if (specializations)
+      updateSpecializations({
+        doctorId: doctor.userId || user.id,
+        specializations,
+        tx
+      });
 
-    if (!$specializations.length)
-      throw new ApiError({ message: 'Invalid specializations.' });
-
-    $specializations.forEach(({ name }) =>
-      tx
-        .insert(schema.doctorToSpecialization)
-        .values({ doctorId: params.user.id, specialization: name })
-        .run()
-    );
-
-    withoutOverlaps(schedule).accepted.forEach(schedule => {
-      tx.insert(schema.schedule)
-        .values({ doctorId: params.user.id, ...schedule })
-        .run();
-    });
+    if (schedule)
+      updateSchedule({ doctorId: doctor.userId || user.id, schedule, tx });
   });
 
-  const updated = await db.query.user.findFirst({
-    with: {
-      doctor: { with: { specializations: true, schedule: true } },
-      profile: true
-    },
-    where: { id: params.user.id }
+  return await get({
+    params: { userId: doctor?.userId || user.id },
+    headers,
+    set
+  });
+}
+
+async function update(
+  params: WithHeaders<{ body: Payload['update']; user: Model['user'] }>
+) {
+  checkUserRole({ roles: params.user.role, role: 'doctor' });
+
+  const { specializations, schedule, doctor } = params.body || {};
+  const { headers, user, set } = params;
+
+  db.transaction(tx => {
+    tx.update(schema.doctor)
+      .set({ ...doctor })
+      .where(eq(schema.doctor.userId, doctor?.userId || user.id))
+      .run();
+
+    if (specializations)
+      updateSpecializations({
+        doctorId: doctor?.userId || user.id,
+        specializations,
+        tx
+      });
+
+    if (schedule)
+      updateSchedule({ doctorId: doctor?.userId || user.id, schedule, tx });
   });
 
-  if (!updated)
-    throw new ApiError({ message: 'Failed to update appointment.' });
-
-  await session.update({ headers, set });
-  return updated;
+  return await get({
+    params: { userId: doctor?.userId || user.id },
+    headers,
+    set
+  });
 }
 
 function withoutOverlaps(slots: Schedule[]) {
@@ -104,33 +111,30 @@ function withoutOverlaps(slots: Schedule[]) {
   );
 }
 
-async function deRegister(params: WithHeaders<{ user: Model['user'] }>) {
-  checkUserRole({ roles: params.user.role, role: 'doctor' });
+function updateSpecializations(params: {
+  specializations: string[];
+  doctorId: string;
+  tx: Tx;
+}) {
+  const { specializations, doctorId, tx } = params;
 
-  db.transaction(tx => {
-    tx.update(schema.user)
-      .set({ role: Role.user })
-      .where(eq(schema.user.id, params.user.id))
-      .run();
+  tx.delete(schema.doctorToSpecialization)
+    .where(eq(schema.doctorToSpecialization.doctorId, doctorId))
+    .run();
 
-    tx.delete(schema.doctor)
-      .where(eq(schema.doctor.userId, params.user.id))
-      .run();
-  });
+  const $specializations = tx.query.specialization
+    .findMany({ where: { name: { in: specializations } } })
+    .sync();
 
-  const updated = await db.query.user.findFirst({
-    with: {
-      doctor: { with: { specializations: true, schedule: true } },
-      profile: true
-    },
-    where: { id: params.user.id }
-  });
+  if (!$specializations.length)
+    throw new ApiError({ message: 'Invalid specializations.' });
 
-  if (!updated)
-    throw new ApiError({ message: 'Failed to update appointment.' });
-
-  await session.update({ headers: params.headers, set: params.set });
-  return updated;
+  $specializations.forEach(({ name: specialization }) =>
+    tx
+      .insert(schema.doctorToSpecialization)
+      .values({ specialization, doctorId })
+      .run()
+  );
 }
 
 async function getAll(params: { where: Payload['where'] }) {
@@ -159,4 +163,52 @@ async function getAll(params: { where: Payload['where'] }) {
   });
 }
 
-export const service = { deRegister, register, getAll };
+async function deRegister(params: WithHeaders<{ user: Model['user'] }>) {
+  checkUserRole({ roles: params.user.role, role: 'doctor' });
+  const { headers, user, set } = params;
+
+  db.transaction(tx => {
+    tx.update(schema.user)
+      .set({ role: Role.user })
+      .where(eq(schema.user.id, user.id))
+      .run();
+
+    tx.delete(schema.doctor).where(eq(schema.doctor.userId, user.id)).run();
+  });
+
+  return await get({ params: { userId: user.id }, headers, set });
+}
+
+async function get(params: WithHeaders<{ params: Payload['userId'] }>) {
+  const user = await db.query.user.findFirst({
+    with: {
+      doctor: { with: { specializations: true, schedule: true } },
+      profile: true
+    },
+    where: { id: params.params.userId }
+  });
+
+  if (!user) throw new ApiError({ message: 'Failed to get user.' });
+  await session.update({ headers: params.headers, set: params.set });
+  return user;
+}
+
+function updateSchedule(params: {
+  schedule: Schedule[];
+  doctorId: string;
+  tx: Tx;
+}) {
+  const { doctorId, schedule, tx } = params;
+
+  tx.delete(schema.schedule)
+    .where(eq(schema.schedule.doctorId, doctorId))
+    .run();
+
+  withoutOverlaps(schedule).accepted.forEach(schedule => {
+    tx.insert(schema.schedule)
+      .values({ doctorId, ...schedule })
+      .run();
+  });
+}
+
+export const service = { deRegister, register, update, getAll };

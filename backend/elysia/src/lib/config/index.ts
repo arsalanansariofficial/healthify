@@ -8,14 +8,14 @@ declare module 'bun' {
     BETTER_AUTH_COOKIE_CACHE_TIMEOUT: number;
     BETTER_AUTH_MAX_PASSWORD_LENGTH: number;
     BETTER_AUTH_MIN_PASSWORD_LENGTH: number;
+    BETTER_AUTH_SESSION_COOKIE_NAME: string;
     BETTER_AUTH_SESSION_EXPIRES_IN: number;
     GITHUB_CLIENT_ID?: undefined | string;
+    BETTER_AUTH_APPLICATION_NAME: string;
     CANCEL_CONFIRM_OFFSET: number;
-    SESSION_COOKIE_NAME: string;
     DEFAULT_PAGE_NUMBER: number;
     BETTER_AUTH_SECRET: string;
     DEFAULT_PAGE_SIZE: number;
-    APPLICATION_NAME: string;
     BETTER_AUTH_URL: string;
     MAX_FILE_SIZE: number;
     MIN_FILE_SIZE: number;
@@ -81,6 +81,15 @@ export const envSchema = z.object(
         description:
           'An API to assign default cover images when a new user is created, defaults to https://api.dicebear.com/10.x/waves/svg'
       }),
+    BETTER_AUTH_SESSION_COOKIE_NAME: z
+      .string('BETTER_AUTH_SESSION_COOKIE_NAME should be a valid string.')
+      .nonempty('BETTER_AUTH_SESSION_COOKIE_NAME should not be empty.')
+      .trim()
+      .default('session_token')
+      .meta({
+        description:
+          'Name of better-auth session cookie, defaults to session_token.'
+      }),
     GITHUB_CLIENT_SECRET: z
       .string('GITHUB_CLIENT_SECRET should be valid string.')
       .nonempty('GITHUB_CLIENT_SECRET should not be empty.')
@@ -99,15 +108,6 @@ export const envSchema = z.object(
       .meta({
         description:
           'HTTP authentication methods for better-auth, defaults to POST and GET methods.'
-      }),
-    SESSION_COOKIE_NAME: z
-      .string('SESSION_COOKIE_NAME should be a valid string.')
-      .nonempty('SESSION_COOKIE_NAME should not be empty.')
-      .trim()
-      .default('session_token')
-      .meta({
-        description:
-          'Name of better-auth session cookie, defaults to session_token.'
       }),
     GITHUB_CLIENT_ID: z
       .string('GITHUB_CLIENT_ID should be a valid string.')
@@ -145,6 +145,12 @@ export const envSchema = z.object(
         description:
           'Server url of better-auth, defaults to http://localhost:3000.'
       }),
+    BETTER_AUTH_APPLICATION_NAME: z
+      .string('BETTER_AUTH_APPLICATION_NAME should be a valid string.')
+      .nonempty('BETTER_AUTH_APPLICATION_NAME should not be empty.')
+      .trim()
+      .default('healthify')
+      .meta({ description: 'Name of the application, defaults to healthify.' }),
     BETTER_AUTH_SESSION_EXPIRES_IN: z.coerce
       .number(
         'BETTER_AUTH_SESSION_EXPIRES_IN should be a valid number in seconds.'
@@ -169,12 +175,6 @@ export const envSchema = z.object(
         description:
           'Time until the appointment can be canelled/confirmed (hours), defaults to 5 hours.'
       }),
-    APPLICATION_NAME: z
-      .string('APPLICATION_NAME should be a valid string.')
-      .nonempty('APPLICATION_NAME should not be empty.')
-      .trim()
-      .default('healthify')
-      .meta({ description: 'Name of the application, defaults to healthify.' }),
     BETTER_AUTH_MAX_PASSWORD_LENGTH: z.coerce
       .number('BETTER_AUTH_MAX_PASSWORD_LENGTH should be a valid number.')
       .default(256)

@@ -52,7 +52,7 @@ export const auth = betterAuth({
       },
       signUpOnVerification: {
         getTempEmail(phoneNumber) {
-          return `${phoneNumber}@${env.APPLICATION_NAME}`;
+          return `${phoneNumber}@${env.BETTER_AUTH_APPLICATION_NAME}`;
         }
       },
       requireVerification: true
@@ -82,7 +82,9 @@ export const auth = betterAuth({
       impersonationSessionDuration: env.BETTER_AUTH_SESSION_EXPIRES_IN,
       ...permissions
     }),
-    anonymous({ emailDomainName: `guest.${env.APPLICATION_NAME}.com` }),
+    anonymous({
+      emailDomainName: `guest.${env.BETTER_AUTH_APPLICATION_NAME}.com`
+    }),
     multiSession(),
     testUtils(),
     username(),
@@ -158,9 +160,9 @@ export const auth = betterAuth({
     autoSignInAfterVerification: true
   },
   advanced: {
-    cookies: { session: { name: env.SESSION_COOKIE_NAME } },
+    cookies: { session: { name: env.BETTER_AUTH_SESSION_COOKIE_NAME } },
+    cookiePrefix: env.BETTER_AUTH_APPLICATION_NAME,
     database: { generateId: 'uuid', joins: true },
-    cookiePrefix: env.APPLICATION_NAME,
     disableOriginCheck: true,
     disableCSRFCheck: false
   },
@@ -189,7 +191,7 @@ export const auth = betterAuth({
     }
   },
   database: drizzleAdapter(db, { provider: 'sqlite', schema }),
-  appName: env.APPLICATION_NAME
+  appName: env.BETTER_AUTH_APPLICATION_NAME
 });
 
 export const loadAuthContext = new Elysia({ name: 'AuthContext.Plugin' })

@@ -4,8 +4,8 @@ import nodemailer from 'nodemailer';
 import type { FactoryResults, QueryFilter } from '@/lib/util/types';
 import type { Permissions, Roles } from '@/lib/auth/permissions';
 
-import { type Env, env } from '@/lib/config';
 import { ApiError } from '@/lib/error';
+import { env } from '@/lib/config';
 import { auth } from '@/lib/auth';
 
 export const mailer = nodemailer.createTransport(env.SMTP_URL);
@@ -77,12 +77,6 @@ export function toPositiveInteger(value: unknown, fallback: number) {
   return isInteger && parsed > 0 ? parsed : fallback;
 }
 
-export function hasValidAuthMethod(method: string) {
-  return env.BETTER_AUTH_ACCEPT_METHODS.includes(
-    method.toLowerCase() as Env['BETTER_AUTH_ACCEPT_METHODS'][number]
-  );
-}
-
 export function toMinutes(time: string) {
   const parsed = parse(time, 'HH:mm', new Date());
   return getHours(parsed) * 60 + getMinutes(parsed);
@@ -94,6 +88,10 @@ export function isFile(payload?: string | File | null): payload is File {
 
 export function toQuery<T extends object>(v: T) {
   return Object.fromEntries(Object.entries(v).map(toFilter));
+}
+
+export function hasValidAuthMethod(method: string) {
+  return ['post', 'get'].includes(method.toLowerCase());
 }
 
 export function join(payload: unknown[], separator = ' | ') {

@@ -3,7 +3,6 @@ import z from 'zod';
 declare module 'bun' {
   interface Env {
     NODE_ENV?: 'development' | 'production' | undefined | string | 'test';
-    BETTER_AUTH_ACCEPT_METHODS: ('post' | 'get')[];
     GITHUB_CLIENT_SECRET?: undefined | string;
     BETTER_AUTH_COOKIE_CACHE_TIMEOUT: number;
     BETTER_AUTH_MAX_PASSWORD_LENGTH: number;
@@ -98,16 +97,6 @@ export const envSchema = z.object(
       .meta({
         description:
           'OAuth application password to verify with the GitHub provider, ex: example_secret_1234567890abcdef.'
-      }),
-    BETTER_AUTH_ACCEPT_METHODS: z
-      .array(
-        z.enum(['post', 'get']),
-        'BETTER_AUTH_ACCEPT_METHODS should be valid http verb.'
-      )
-      .default(['post', 'get'])
-      .meta({
-        description:
-          'HTTP authentication methods for better-auth, defaults to POST and GET methods.'
       }),
     GITHUB_CLIENT_ID: z
       .string('GITHUB_CLIENT_ID should be a valid string.')

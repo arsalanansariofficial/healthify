@@ -38,6 +38,15 @@ export const envSchema = z.object(
         description:
           'Random hash value for better-auth to hash passwords, defaults to aJEj11jdjesEdzi8AuGGA2G4FzZ9YbWA.'
       }),
+    GITHUB_CLIENT_SECRET: z
+      .string('GITHUB_CLIENT_SECRET should be valid string.')
+      .nonempty('GITHUB_CLIENT_SECRET should not be empty.')
+      .trim()
+      .default('example_secret_1234567890abcdef')
+      .meta({
+        description:
+          'OAuth application password to verify with the GitHub provider, defaults to example_secret_1234567890abcdef.'
+      }),
     IMAGE_API: z
       .url('IMAGE_API should be valid url.')
       .nonempty('IMAGE_API should not be empty.')
@@ -74,13 +83,14 @@ export const envSchema = z.object(
         description:
           'Password for SMTP server, ex: smtps://username@domain.com:password@smtp.example.com:465.'
       }),
-    GITHUB_CLIENT_SECRET: z
-      .string('GITHUB_CLIENT_SECRET should be valid string.')
-      .nonempty('GITHUB_CLIENT_SECRET should not be empty.')
+    GITHUB_CLIENT_ID: z
+      .string('GITHUB_CLIENT_ID should be a valid string.')
+      .nonempty('GITHUB_CLIENT_ID should not be empty.')
       .trim()
+      .default('example123456789')
       .meta({
         description:
-          'OAuth application password to verify with the GitHub provider, ex: example_secret_1234567890abcdef.'
+          'OAuth application name to verify with the GitHub provider, defaults to example123456789.'
       }),
     UPLOAD_DIR: z
       .string('UPLOAD_DIR should be a valid string.')
@@ -115,14 +125,6 @@ export const envSchema = z.object(
       .trim()
       .default('healthify')
       .meta({ description: 'Name of the application, defaults to healthify.' }),
-    GITHUB_CLIENT_ID: z
-      .string('GITHUB_CLIENT_ID should be a valid string.')
-      .nonempty('GITHUB_CLIENT_ID should not be empty.')
-      .trim()
-      .meta({
-        description:
-          'OAuth application name to verify with the GitHub provider, ex: Iv1.example123456789.'
-      }),
     BETTER_AUTH_SESSION_EXPIRES_IN: z.coerce
       .number(
         'BETTER_AUTH_SESSION_EXPIRES_IN should be a valid number in seconds.'

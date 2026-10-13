@@ -191,7 +191,8 @@ export const auth = betterAuth({
     }
   },
   database: drizzleAdapter(db, { provider: 'sqlite', schema }),
-  appName: env.BETTER_AUTH_APPLICATION_NAME
+  appName: env.BETTER_AUTH_APPLICATION_NAME,
+  baseURL: env.BETTER_AUTH_URL
 });
 
 export const loadAuthContext = new Elysia({ name: 'AuthContext.Plugin' })

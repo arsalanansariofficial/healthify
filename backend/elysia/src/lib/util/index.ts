@@ -94,6 +94,6 @@ export function hasValidAuthMethod(method: string) {
   return ['post', 'get'].includes(method.toLowerCase());
 }
 
-export function join(payload: unknown[], separator = ' | ') {
+export function format(payload: unknown[], separator = ' | ') {
   return `(${payload.join(separator)})`;
 }

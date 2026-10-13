@@ -4,7 +4,12 @@ import z from 'zod';
 
 import type { QueryFilter, ModelType } from '@/lib/util/types';
 
-import { toFactoryResults, toFilter, clean, join } from '@/lib/util';
+import {
+  format as formatMessage,
+  toFactoryResults,
+  toFilter,
+  clean
+} from '@/lib/util';
 import { model } from '@/modules/appointment/model';
 import { appointment } from '@/lib/db/schema';
 import { schema } from '@/lib/util/schema';
@@ -40,7 +45,7 @@ function actions() {
     .extend({
       action: z.enum(
         ['confirm', 'cancel'],
-        `action can be of ${join(Object.values(Actions))}.`
+        `action can be of ${formatMessage(Object.values(Actions))}.`
       )
     });
 }

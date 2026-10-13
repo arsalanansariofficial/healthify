@@ -2,7 +2,7 @@ import z from 'zod';
 
 import type { ModelType } from '@/lib/util/types';
 
-import { toFactoryResults, join } from '@/lib/util';
+import { toFactoryResults, format } from '@/lib/util';
 import { Roles } from '@/lib/auth/permissions';
 import { model } from '@/modules/user/model';
 import { schema } from '@/lib/util/schema';
@@ -77,8 +77,8 @@ function userHasPermission() {
         'permissions should be a valid object.'
       ),
       role: z
-        .enum(Roles, `role should be valid, ex: ${join(Roles)}.`)
-        .meta({ type: join(Roles), title: 'role' })
+        .enum(Roles, `role should be valid, ex: ${format(Roles)}.`)
+        .meta({ type: format(Roles), title: 'role' })
         .optional(),
       userId: model.user.shape.id.optional()
     },

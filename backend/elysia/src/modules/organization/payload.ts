@@ -2,8 +2,8 @@ import z from 'zod';
 
 import type { ModelType } from '@/lib/util/types';
 
+import { toFactoryResults, format } from '@/lib/util';
 import { model } from '@/modules/organization/model';
-import { toFactoryResults, join } from '@/lib/util';
 import { Roles } from '@/lib/auth/permissions';
 import { schema } from '@/lib/util/schema';
 
@@ -12,8 +12,8 @@ function addMember() {
     {
       role: schema.typeOrArray(
         z
-          .enum(Roles, `role should be valid, ex: ${join(Roles)}.`)
-          .meta({ type: join(Roles), title: 'role' })
+          .enum(Roles, `role should be valid, ex: ${format(Roles)}.`)
+          .meta({ type: format(Roles), title: 'role' })
       ),
       organizationId: schema.uuid('organizationId'),
       userId: schema.uuid('userId')

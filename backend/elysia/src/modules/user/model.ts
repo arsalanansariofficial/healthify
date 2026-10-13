@@ -3,7 +3,7 @@ import z from 'zod';
 import type { ModelType } from '@/lib/util/types';
 
 import { type SchemaSelect, Gender } from '@/lib/db/schema';
-import { toFactoryResults } from '@/lib/util';
+import { toFactoryResults, join } from '@/lib/util';
 import { schema } from '@/lib/util/schema';
 
 function $user() {
@@ -43,7 +43,7 @@ function $userProfile() {
     z.object(
       {
         gender: z
-          .enum(Gender, `gender should be ${Object.values(Gender)}.`)
+          .enum(Gender, `gender should be ${join(Object.values(Gender))}.`)
           .nullable(),
         phoneNumber: schema.string('phoneNumber').nullable(),
         address: schema.string('address').nullable(),

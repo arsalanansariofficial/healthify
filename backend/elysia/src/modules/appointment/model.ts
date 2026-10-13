@@ -3,7 +3,7 @@ import z from 'zod';
 import type { ModelType } from '@/lib/util/types';
 
 import { type SchemaSelect, Priority, Status } from '@/lib/db/schema';
-import { toFactoryResults } from '@/lib/util';
+import { toFactoryResults, join } from '@/lib/util';
 import { schema } from '@/lib/util/schema';
 
 function $appointment() {
@@ -18,7 +18,10 @@ function $appointment() {
         queue: z.coerce
           .number('queue should be valid number.')
           .positive('queue should be positive.'),
-        status: z.enum(Status, `Status should be ${Object.values(Status)}.`),
+        status: z.enum(
+          Status,
+          `Status should be ${join(Object.values(Status))}.`
+        ),
         prescription: schema.string('prescription').nullable(),
         feedback: schema.string('feedback').nullable(),
         notes: schema.string('notes').nullable(),

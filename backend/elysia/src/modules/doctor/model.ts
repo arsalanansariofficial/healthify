@@ -3,7 +3,7 @@ import z from 'zod';
 import type { ModelType } from '@/lib/util/types';
 
 import { type SchemaSelect, Day } from '@/lib/db/schema';
-import { toFactoryResults } from '@/lib/util';
+import { toFactoryResults, join } from '@/lib/util';
 import { schema } from '@/lib/util/schema';
 
 export function $doctor() {
@@ -30,7 +30,7 @@ function $schedule() {
   return z.toZod<SchemaSelect['schedule']>()(
     z.object(
       {
-        day: z.enum(Day, `day should be ${Object.values(Day)}.`),
+        day: z.enum(Day, `day should be ${join(Object.values(Day))}.`),
         doctorId: schema.uuid('doctorId'),
         from: schema.time('from'),
         to: schema.time('to'),

@@ -82,10 +82,6 @@ export function toMinutes(time: string) {
   return getHours(parsed) * 60 + getMinutes(parsed);
 }
 
-export function isFile(payload?: string | File | null): payload is File {
-  return Boolean(payload && payload instanceof File);
-}
-
 export function toQuery<T extends object>(v: T) {
   return Object.fromEntries(Object.entries(v).map(toFilter));
 }

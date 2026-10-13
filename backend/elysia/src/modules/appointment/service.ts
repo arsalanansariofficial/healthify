@@ -100,7 +100,7 @@ async function changeQueue(params: {
       .get();
 
     if (!updated)
-      throw new ApiError({ message: 'Failed to updated appointment.' });
+      throw new ApiError({ message: 'Failed to update appointment.' });
 
     return updated;
   });
@@ -162,11 +162,16 @@ async function confirmOrCancel(params: {
           .run()
       );
 
-      return tx
+      const deleted = tx
         .delete(schema.appointment)
         .where(eq(schema.appointment.id, id))
         .returning()
         .get();
+
+      if (!deleted)
+        throw new ApiError({ message: 'Failed to delete appointment.' });
+
+      return deleted;
     });
 
   return db

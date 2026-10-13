@@ -13,7 +13,7 @@ import { env } from '@/lib/config';
 
 export type App = typeof app;
 
-export const app = new Elysia({ name: 'App.Routes' })
+export const app = new Elysia({ name: 'App.Routes', prefix: '/api' })
   .use(staticPlugin())
   .use(errorPlugin)
   .use(cors())

@@ -219,7 +219,7 @@ export const loadAuthContext = new Elysia({ name: 'AuthContext.Plugin' })
   .as('scoped');
 
 export const authRoutes = new Elysia({ name: 'BetterAuth.Routes' }).all(
-  '/api/auth/*',
+  '/auth/*',
   params => {
     if (hasValidAuthMethod(params.request.method))
       return auth.handler(params.request);

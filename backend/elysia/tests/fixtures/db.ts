@@ -35,7 +35,7 @@ export const kevin = {
   email: 'kevin@cn.com'
 };
 
-export const api = treaty(app);
+export const { api } = treaty(app);
 
 export async function setupDb() {
   await Promise.all([resetDb(), resetDisk()]);

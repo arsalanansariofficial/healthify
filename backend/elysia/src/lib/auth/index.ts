@@ -17,11 +17,11 @@ import { Elysia } from 'elysia';
 
 import type { Model } from '@/modules/user/model';
 
-import { hasValidAuthMethod, isFile, mailer } from '@/lib/util';
+import { hasValidAuthMethod, mailer } from '@/lib/util';
 import { permissions } from '@/lib/auth/permissions';
+import { isFileURL, remove } from '@/lib/file';
 import { schema } from '@/lib/db/schema';
 import { ApiError } from '@/lib/error';
-import { remove } from '@/lib/file';
 import { env } from '@/lib/config';
 import { db } from '@/lib/db';
 
@@ -97,8 +97,8 @@ export const auth = betterAuth({
           where: { userId: user.id }
         });
 
-        if (isFile(profile?.cover)) await remove(profile.cover);
-        if (isFile(user.image)) await remove(user.image);
+        if (isFileURL(profile?.cover)) await remove(profile?.cover);
+        if (isFileURL(user.image)) await remove(user.image);
       },
       enabled: true,
       ...(env.NODE_ENV !== 'test' && {
@@ -192,7 +192,7 @@ export const auth = betterAuth({
   },
   database: drizzleAdapter(db, { provider: 'sqlite', schema }),
   appName: env.BETTER_AUTH_APPLICATION_NAME,
-  baseURL: env.BETTER_AUTH_URL
+  baseURL: `${env.BETTER_AUTH_URL}/auth`
 });
 
 export const loadAuthContext = new Elysia({ name: 'AuthContext.Plugin' })

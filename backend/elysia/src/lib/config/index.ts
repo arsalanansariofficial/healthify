@@ -104,10 +104,10 @@ export const envSchema = z.object(
       .url('BETTER_AUTH_URL should be valid url.')
       .nonempty('BETTER_AUTH_URL should not be empty.')
       .trim()
-      .default('http://localhost:3000')
+      .default('http://localhost:3000/api')
       .meta({
         description:
-          'Server url of better-auth, defaults to http://localhost:3000.'
+          'Server url of better-auth, defaults to http://localhost:3000/api.'
       }),
     BETTER_AUTH_APPLICATION_NAME: z
       .string('BETTER_AUTH_APPLICATION_NAME should be a valid string.')
@@ -132,6 +132,14 @@ export const envSchema = z.object(
         description:
           'Time remaining until automatic logout (seconds), defaults to 1 hour.'
       }),
+    BASE_URL: z
+      .url('BASE_URL should be valid url.')
+      .nonempty('BASE_URL should not be empty.')
+      .trim()
+      .default('http://localhost:3000/api')
+      .meta({
+        description: 'Base server url, defaults to http://localhost:3000/api.'
+      }),
     CONFIRM_CANCEL_OFFSET: z.coerce
       .number('CONFIRM_CANCEL_OFFSET should be a valid number in hours.')
       .default(5)
@@ -145,14 +153,6 @@ export const envSchema = z.object(
       .meta({
         description:
           'Maximum number of characters a password can be, defaults to 256.'
-      }),
-    BASE_URL: z
-      .url('BASE_URL should be valid url.')
-      .nonempty('BASE_URL should not be empty.')
-      .trim()
-      .default('http://localhost:3000')
-      .meta({
-        description: 'Base server url, defaults to http://localhost:3000.'
       }),
     BETTER_AUTH_MIN_PASSWORD_LENGTH: z.coerce
       .number('BETTER_AUTH_MIN_PASSWORD_LENGTH should be a valid number.')

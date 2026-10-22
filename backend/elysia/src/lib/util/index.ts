@@ -33,27 +33,22 @@ export function clean<T>(input: T): NonNullable<T> | undefined {
   return Object.fromEntries(entries) as NonNullable<T>;
 }
 
-export async function checkUserPermission(params: {
-  permissions: Permissions;
+export async function can(params: {
+  permissions?: Permissions;
   userId: string;
+  role?: Roles;
 }) {
   const { success } = await auth.api.userHasPermission({
-    body: { permissions: params.permissions, userId: params.userId }
+    body: {
+      permissions: params.permissions || ([] as Permissions),
+      userId: params.userId,
+      role: params.role
+    }
   });
 
   if (!success)
     throw new ApiError({ message: 'Permission denied.', code: 'Forbidden' });
 
-  return true;
-}
-
-export function checkUserRole(params: { roles?: string | null; role: Roles }) {
-  if (!params.roles?.includes(params.role))
-    throw new ApiError({
-      message: 'Permission denied.',
-      code: 'Forbidden',
-      name: 'Forbidden'
-    });
   return true;
 }
 

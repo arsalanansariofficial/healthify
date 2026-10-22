@@ -3,10 +3,10 @@ import { eq } from 'drizzle-orm';
 import type { Payload } from '@/modules/specialization/payload';
 import type { Model } from '@/modules/user/model';
 
-import { checkUserPermission } from '@/lib/util';
 import { paginate } from '@/lib/pagination';
 import { schema } from '@/lib/db/schema';
 import { ApiError } from '@/lib/error';
+import { can } from '@/lib/util';
 import { db } from '@/lib/db';
 
 async function update(params: {
@@ -14,7 +14,7 @@ async function update(params: {
   params: Payload['name'];
   user: Model['user'];
 }) {
-  await checkUserPermission({
+  await can({
     permissions: { specialization: ['update'] },
     userId: params.user.id
   });
@@ -68,7 +68,7 @@ async function deleteSpecialization(params: {
   params: Payload['name'];
   user: Model['user'];
 }) {
-  await checkUserPermission({
+  await can({
     permissions: { specialization: ['delete'] },
     userId: params.user.id
   });
@@ -102,7 +102,7 @@ async function create(params: {
   body: Payload['create'];
   user: Model['user'];
 }) {
-  await checkUserPermission({
+  await can({
     permissions: { specialization: ['create'] },
     userId: params.user.id
   });

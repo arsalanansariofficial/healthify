@@ -5,8 +5,8 @@ import type { Payload } from '@/modules/doctor/payload';
 import type { WithHeaders } from '@/lib/util/types';
 import type { Model } from '@/modules/user/model';
 
-import { checkUserRole, toMinutes } from '@/lib/util';
 import { schema, Role } from '@/lib/db/schema';
+import { toMinutes, can } from '@/lib/util';
 import { paginate } from '@/lib/pagination';
 import { session } from '@/lib/session';
 import { ApiError } from '@/lib/error';
@@ -18,7 +18,7 @@ type Tx = Parameters<Parameters<typeof db.transaction>[0]>[0];
 async function register(
   params: WithHeaders<{ body: Payload['create']; user: Model['user'] }>
 ) {
-  checkUserRole({ roles: params.user.role, role: 'user' });
+  await can({ permissions: { doctor: ['register'] }, userId: params.user.id });
 
   const { specializations, schedule, doctor } = params.body;
   const { headers, user, set } = params;
@@ -55,7 +55,7 @@ async function register(
 async function update(
   params: WithHeaders<{ body: Payload['update']; user: Model['user'] }>
 ) {
-  checkUserRole({ roles: params.user.role, role: 'doctor' });
+  await can({ permissions: { doctor: ['update'] }, userId: params.user.id });
 
   const { specializations, schedule, doctor } = params.body || {};
   const { headers, user, set } = params;
@@ -164,7 +164,10 @@ async function getAll(params: { where: Payload['where'] }) {
 }
 
 async function deRegister(params: WithHeaders<{ user: Model['user'] }>) {
-  checkUserRole({ roles: params.user.role, role: 'doctor' });
+  await can({
+    permissions: { doctor: ['de-register'] },
+    userId: params.user.id
+  });
   const { headers, user, set } = params;
 
   db.transaction(tx => {
